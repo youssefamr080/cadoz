@@ -167,8 +167,7 @@ const ProductPage = () => {
         id: product.id, 
         name: product.name, 
         image: product.image, 
-        price: product.price,
-        stock: product.stock
+        price: product.price 
       });
       toast.success("تمت الإضافة إلى المفضلة!", { position: "bottom-right" });
     }

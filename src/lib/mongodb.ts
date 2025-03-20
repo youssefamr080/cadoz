@@ -26,3 +26,5 @@ export async function connectToDatabase() {
 
   return { client, db };
 }
+
+export default connectToDatabase;

@@ -21,8 +21,6 @@ export type GiftState = {
   selectedWrap: GiftOption | null;
   currentStep: GiftStep;
   lastUpdated: number; // For tracking state changes
-  recipient: string | null; // إضافة حقل المستلم
-  message: string | null; // إضافة حقل الرسالة
 };
 
 type GiftAction =
@@ -31,8 +29,6 @@ type GiftAction =
   | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
   | { type: 'SELECT_BOX'; payload: GiftOption | null }
   | { type: 'SELECT_WRAP'; payload: GiftOption | null }
-  | { type: 'SET_RECIPIENT'; payload: string | null } // إضافة action للمستلم
-  | { type: 'SET_MESSAGE'; payload: string | null } // إضافة action للرسالة
   | { type: 'CHANGE_STEP'; payload: GiftStep }
   | { type: 'CLEAR_CART' }
   | { type: 'RESET_GIFT' };
@@ -48,8 +44,6 @@ const createInitialState = (): GiftState => ({
   selectedWrap: null,
   currentStep: 'chocolates',
   lastUpdated: Date.now(),
-  recipient: null, // تهيئة حقل المستلم
-  message: null, // تهيئة حقل الرسالة
 });
 
 // Get initial state with error handling and data validation
@@ -84,8 +78,6 @@ const getInitialState = (): GiftState => {
         ? parsedState.currentStep 
         : 'chocolates',
       lastUpdated: parsedState.lastUpdated || Date.now(),
-      recipient: parsedState.recipient || null, // استعادة قيمة المستلم
-      message: parsedState.message || null, // استعادة قيمة الرسالة
     };
   } catch (error) {
     console.error("Failed to parse gift state from localStorage:", error);
@@ -174,20 +166,6 @@ function giftReducer(state: GiftState, action: GiftAction): GiftState {
           lastUpdated: Date.now(),
         };
 
-      case 'SET_RECIPIENT': // إضافة معالج جديد للمستلم
-        return {
-          ...state,
-          recipient: action.payload,
-          lastUpdated: Date.now(),
-        };
-
-      case 'SET_MESSAGE': // إضافة معالج جديد للرسالة
-        return {
-          ...state,
-          message: action.payload,
-          lastUpdated: Date.now(),
-        };
-
       case 'CHANGE_STEP':
         return { 
           ...state, 
@@ -225,12 +203,8 @@ interface GiftContextType {
   totalPrice: number;
   isBoxSelected: boolean;
   isWrapSelected: boolean;
-  hasRecipient: boolean; // إضافة مؤشر وجود مستلم
-  hasMessage: boolean; // إضافة مؤشر وجود رسالة
   clearCart: () => void;
   resetGift: () => void;
-  setRecipient: (name: string | null) => void; // إضافة دالة تعيين المستلم
-  setMessage: (message: string | null) => void; // إضافة دالة تعيين الرسالة
 }
 
 // Create context with default values
@@ -241,12 +215,8 @@ const GiftContext = createContext<GiftContextType>({
   totalPrice: 0,
   isBoxSelected: false,
   isWrapSelected: false,
-  hasRecipient: false, // قيمة افتراضية
-  hasMessage: false, // قيمة افتراضية
   clearCart: () => null,
   resetGift: () => null,
-  setRecipient: () => null, // قيمة افتراضية
-  setMessage: () => null, // قيمة افتراضية
 });
 
 // Enhanced Provider with performance optimizations
@@ -299,10 +269,6 @@ export const GiftProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isBoxSelected = Boolean(state.selectedBox);
   const isWrapSelected = Boolean(state.selectedWrap);
 
-  // التحقق من وجود مستلم ورسالة
-  const hasRecipient = Boolean(state.recipient);
-  const hasMessage = Boolean(state.message);
-
   // Memoized utility functions
   const clearCart = useCallback(() => {
     dispatch({ type: 'CLEAR_CART' });
@@ -310,15 +276,6 @@ export const GiftProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resetGift = useCallback(() => {
     dispatch({ type: 'RESET_GIFT' });
-  }, []);
-
-  // دوال مساعدة لتعيين المستلم والرسالة
-  const setRecipient = useCallback((name: string | null) => {
-    dispatch({ type: 'SET_RECIPIENT', payload: name });
-  }, []);
-
-  const setMessage = useCallback((message: string | null) => {
-    dispatch({ type: 'SET_MESSAGE', payload: message });
   }, []);
 
   // Memoize dispatch to prevent unnecessary re-renders
@@ -332,26 +289,9 @@ export const GiftProvider: React.FC<{ children: React.ReactNode }> = ({ children
     totalPrice,
     isBoxSelected,
     isWrapSelected,
-    hasRecipient,
-    hasMessage,
     clearCart,
     resetGift,
-    setRecipient,
-    setMessage,
-  }), [
-    state, 
-    memoizedDispatch, 
-    totalItems, 
-    totalPrice, 
-    isBoxSelected, 
-    isWrapSelected, 
-    hasRecipient, 
-    hasMessage, 
-    clearCart, 
-    resetGift, 
-    setRecipient, 
-    setMessage,
-  ]);
+  }), [state, memoizedDispatch, totalItems, totalPrice, isBoxSelected, isWrapSelected, clearCart, resetGift]);
 
   return (
     <GiftContext.Provider value={contextValue}>

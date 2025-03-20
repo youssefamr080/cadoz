@@ -37,7 +37,7 @@ export const products: Product[] = [
   {
     id: 1,
     name: "روليكس شامواه",
-    brand: "Rolex",
+    brand: "Casio",
     category: "men",
     subCategory: "ساعات",
     price: 250,
