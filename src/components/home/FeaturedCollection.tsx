@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import ProductCollection from "./ProductCollection";
+import { ShoppingBag } from 'lucide-react';
 
 // Import the Product type
 interface Product {
@@ -39,35 +40,42 @@ interface FeaturedCollectionProps {
 
 const FeaturedCollection = ({
   title,
-  description,
   products,
-  backgroundImage = "/images/featured-bg.jpg",
+  backgroundImage,
   theme = "dark",
   buttonLink,
-  buttonText}: FeaturedCollectionProps) => {
+  buttonText
+}: FeaturedCollectionProps) => {
   // Animation variants
   const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } }
   };
 
-  const textColor = theme === "dark" ? "text-white" : "text-gray-800";
-  const descriptionColor = theme === "dark" ? "text-gray-200" : "text-gray-600";
+  const buttonVariants = {
+    initial: { scale: 1 },
+    hover: { 
+      scale: 1.05, 
+      boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+      transition: { duration: 0.3 }
+    },
+    tap: { scale: 0.95 }
+  };
+
   const buttonStyle = theme === "dark"
     ? "bg-white text-gray-800 hover:bg-gray-100"
-    : "bg-primary text-white hover:bg-primary-dark";
+    : "bg-red-500 text-white hover:bg-red-600";
 
   return (
-    <section className="relative py-16">
+    <section className="relative py-8">
       {/* Background */}
       {backgroundImage && (
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src={backgroundImage}
+            src={backgroundImage || "/placeholder.svg"}
             alt={title}
-            layout="fill"
-            objectFit="cover"
-            className="opacity-25"
+            fill
+            className="object-cover opacity-25"
           />
           <div className={`absolute inset-0 ${
             theme === "dark" 
@@ -78,31 +86,32 @@ const FeaturedCollection = ({
       )}
       
       {/* Content */}
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="relative z-10">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="text-center mb-12"
         >
-          <h2 className={`text-4xl font-bold mb-4 ${textColor}`}>{title}</h2>
-          {description && (
-            <p className={`max-w-2xl mx-auto ${descriptionColor}`}>{description}</p>
-          )}
+          {/* Products */}
+          <ProductCollection products={products} />
+          
+          {/* Action button */}
+          <div className="text-center mt-10">
+            <Link href={buttonLink}>
+              <motion.button 
+                variants={buttonVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                className={`inline-flex items-center gap-2 px-8 py-3 rounded-full font-medium transition-all ${buttonStyle}`}
+              >
+                <ShoppingBag className="w-5 h-5" />
+                {buttonText}
+              </motion.button>
+            </Link>
+          </div>
         </motion.div>
-        
-        {/* Products */}
-        <ProductCollection products={products} />
-        
-        {/* Action button */}
-        <div className="text-center mt-12">
-          <Link href={buttonLink}>
-            <button className={`px-8 py-3 rounded-full font-medium transition-colors ${buttonStyle}`}>
-              {buttonText}
-            </button>
-          </Link>
-        </div>
       </div>
     </section>
   );

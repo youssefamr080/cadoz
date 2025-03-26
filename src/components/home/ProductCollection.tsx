@@ -1,112 +1,198 @@
-"use client";
+"use client"
 
-import React from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { Star, ShoppingCart } from "lucide-react";
-import { Product } from "../../data/products";
+import type React from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { motion } from "framer-motion"
+import { ShoppingCart, Heart, Star, Check } from "lucide-react"
+import type { Product } from "../../types/product"
 
-// تعريف props للمكون
 interface ProductCollectionProps {
-  products: Product[];
+  products: Product[]
+  accentColor?: string
+  compact?: boolean
 }
 
-const ProductCollection: React.FC<ProductCollectionProps> = ({ products }) => {
-  // تأثيرات الحركة للبطاقات
-  const cardVariants = {
+const ProductCollection: React.FC<ProductCollectionProps> = ({ products, accentColor = "blue", compact = false }) => {
+  // تحديد الألوان بناءً على اللون الرئيسي
+  const getColorClasses = () => {
+    const colorMap: Record<string, { bg: string; text: string; hover: string; shadow: string }> = {
+      blue: {
+        bg: "from-blue-500 to-indigo-600",
+        text: "text-blue-600",
+        hover: "group-hover:text-blue-600",
+        shadow: "shadow-blue-200",
+      },
+      amber: {
+        bg: "from-amber-500 to-orange-600",
+        text: "text-amber-600",
+        hover: "group-hover:text-amber-600",
+        shadow: "shadow-amber-200",
+      },
+      emerald: {
+        bg: "from-emerald-500 to-teal-600",
+        text: "text-emerald-600",
+        hover: "group-hover:text-emerald-600",
+        shadow: "shadow-emerald-200",
+      },
+      rose: {
+        bg: "from-rose-500 to-pink-600",
+        text: "text-rose-600",
+        hover: "group-hover:text-rose-600",
+        shadow: "shadow-rose-200",
+      },
+      violet: {
+        bg: "from-violet-500 to-purple-600",
+        text: "text-violet-600",
+        hover: "group-hover:text-violet-600",
+        shadow: "shadow-violet-200",
+      },
+      cyan: {
+        bg: "from-cyan-500 to-blue-600",
+        text: "text-cyan-600",
+        hover: "group-hover:text-cyan-600",
+        shadow: "shadow-cyan-200",
+      },
+    }
+
+    return colorMap[accentColor] || colorMap.blue
+  }
+
+  const colors = getColorClasses()
+
+  // تأثيرات الحركة
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  }
+
+  const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({
+    visible: {
       opacity: 1,
       y: 0,
-      transition: { delay: i * 0.1, duration: 0.5, ease: "easeOut" },
-    }),
-    hover: {
-      scale: 1.03,
-      boxShadow: "0 12px 24px rgba(0, 0, 0, 0.15)",
-      transition: { duration: 0.3 },
+      transition: { duration: 0.5 },
     },
-  };
+  }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-      {products.map((product, index) => (
-        <Link href={`/product/${product.id}`} key={product.id}>
-          <motion.div
-            custom={index}
-            variants={cardVariants}
-            initial="hidden"
-            animate="visible"
-            whileHover="hover"
-            className="relative bg-white rounded-xl shadow-md overflow-hidden group"
-          >
-            {/* الصورة */}
-            <div className="relative w-full h-56">
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className={`grid ${
+        compact
+          ? "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4"
+          : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6"
+      }`}
+    >
+      {products.map((product) => (
+        <motion.div
+          key={product.id}
+          variants={itemVariants}
+          className="group bg-white rounded-xl shadow-md hover:shadow-lg transition-all overflow-hidden flex flex-col h-full border border-slate-200"
+        >
+          <Link href={`/product/${product.id}`} className="block relative">
+            <div className="relative pt-[100%] overflow-hidden bg-slate-100">
               <Image
-                src={product.image}
+                src={product.image || "/placeholder.svg"}
                 alt={product.name}
                 fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                quality={80}
+                className="object-cover transition-transform group-hover:scale-110 duration-700"
+                sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 16vw"
               />
-              {/* علامة الخصم إذا كان هناك تخفيض */}
-              {product.sale && product.old_price && (
-                <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {Math.round(((product.old_price - product.price) / product.old_price) * 100)}% خصم
-                </span>
+
+              {/* شارة الخصم */}
+              {product.old_price && (
+                <div
+                  className={`absolute top-2 left-2 bg-gradient-to-r ${colors.bg} text-white py-0.5 px-1.5 text-[10px] font-bold rounded-full shadow-sm`}
+                >
+                  {Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
+                </div>
               )}
-              {/* زر الإضافة إلى السلة عند التحويم */}
-              <motion.button
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                className="absolute top-2 right-2 bg-primary text-white p-2 rounded-full shadow-md hover:bg-primary-dark transition-colors"
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log(`Added ${product.name} to cart`);
-                }}
-              >
-                <ShoppingCart className="w-5 h-5" />
-              </motion.button>
+
+              {/* شارة المنتج الجديد */}
+              {product.new_arrival && !product.old_price && (
+                <div className="absolute top-2 left-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-0.5 px-1.5 text-[10px] font-bold rounded-full shadow-sm">
+                  جديد
+                </div>
+              )}
+
+              {/* حالة المخزون */}
+              {product.stock === 0 && (
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                  <span className="bg-red-600 text-white py-1 px-2 text-xs font-bold rounded-full shadow-md">نفذ</span>
+                </div>
+              )}
+
+              {/* طبقة التأثير عند التحويم */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2">
+                <span className="text-white text-xs font-medium">عرض التفاصيل</span>
+              </div>
+
+              {/* أزرار التفاعل - تظهر فقط على الشاشات الكبيرة */}
+              <div className="absolute top-2 right-2 flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-5 group-hover:translate-x-0 hidden md:flex">
+                <button className="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 transition-colors">
+                  <Heart className="w-3.5 h-3.5 text-slate-600" />
+                </button>
+                <button className="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 transition-colors">
+                  <ShoppingCart className="w-3.5 h-3.5 text-slate-600" />
+                </button>
+              </div>
             </div>
+          </Link>
 
-            {/* تفاصيل المنتج */}
-            <div className="p-4">
-              <h3 className="text-lg font-semibold text-gray-800 truncate">{product.name}</h3>
-              <p className="text-sm text-gray-500">{product.brand}</p>
+          <div className="p-2 flex-1 flex flex-col">
+            <Link href={`/product/${product.id}`} className="block flex-1">
+              <h3 className={`font-medium text-xs line-clamp-2 mb-1 text-slate-800 ${colors.hover} transition-colors`}>
+                {product.name}
+              </h3>
+            </Link>
 
-              {/* السعر */}
-              <div className="mt-2 flex items-center gap-2">
-                {product.sale && product.old_price ? (
-                  <>
-                    <span className="text-red-600 font-bold">{product.price} جنيه</span>
-                    <span className="text-gray-400 line-through text-sm">{product.old_price} جنيه</span>
-                  </>
-                ) : (
-                  <span className="text-primary font-bold">{product.price} جنيه</span>
+            {/* التقييم - يظهر فقط في الوضع غير المضغوط */}
+            {product.rating && !compact && (
+              <div className="flex items-center mb-1.5">
+                <div className="flex">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-3 h-3 ${i < Math.floor(product.rating || 0) ? "text-amber-400 fill-amber-400" : "text-slate-300"}`}
+                    />
+                  ))}
+                </div>
+                <span className="text-[10px] text-slate-500 mr-1">({product.rating})</span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between mt-auto">
+              <div>
+                <p className={`text-sm font-bold ${colors.text}`}>
+                  {product.price} <span className="text-[10px]">ج.م</span>
+                </p>
+                {product.old_price && (
+                  <p className="text-slate-500 line-through text-[10px]">{product.old_price} ج.م</p>
                 )}
               </div>
 
-              {/* التقييم */}
-              {product.rating && (
-                <div className="mt-2 flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                  <span className="text-sm text-gray-600">{product.rating.toFixed(1)}</span>
-                </div>
+              {/* حالة المخزون - تظهر فقط في الوضع غير المضغوط */}
+              {!compact && product.stock > 0 && (
+                <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                  <Check className="w-2.5 h-2.5" />
+                  متوفر
+                </span>
               )}
             </div>
-
-            {/* مؤشر التوفر */}
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200">
-              <div
-                className={`h-full ${product.stock > 0 ? "bg-green-500" : "bg-red-500"}`}
-                style={{ width: `${Math.min((product.stock / 10) * 100, 100)}%` }}
-              />
-            </div>
-          </motion.div>
-        </Link>
+          </div>
+        </motion.div>
       ))}
-    </div>
-  );
-};
+    </motion.div>
+  )
+}
 
-export default ProductCollection;
+export default ProductCollection
+

@@ -1,69 +1,166 @@
-"use client";
+"use client"
 
-import React, { useEffect, useCallback } from "react";
-import Image from "next/image";
-import { FiTrash, FiX, FiShoppingCart, FiHeart } from "react-icons/fi";
-import { useWishlist } from "../../context/WishlistContext";
-import { useCart } from "../../context/CartContext";
-import { motion, AnimatePresence, usePresence } from "framer-motion";
-import { toast } from "react-hot-toast";
-import { useOnClickOutside } from "usehooks-ts";
+import { useState, useEffect, useCallback, useRef } from "react"
+import Image from "next/image"
+import { FiTrash, FiX, FiShoppingCart, FiHeart } from "react-icons/fi"
+import { useWishlist } from "../../context/WishlistContext"
+import { useCart } from "../../context/CartContext"
+import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "react-hot-toast"
 
 const WishlistDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const { wishlist, removeFromWishlist } = useWishlist();
-  const { addToCart } = useCart();
-  const drawerRef = React.useRef<HTMLDivElement>(null);
-  
-  // Custom hook for click outside handling
-  useOnClickOutside(drawerRef, onClose);
-  
-  // Lock body scroll when drawer is open
+  const { wishlist, removeFromWishlist } = useWishlist()
+  const { addToCart } = useCart()
+  const drawerRef = useRef<HTMLDivElement>(null)
+  const [mountedState, setMountedState] = useState(isOpen)
+
+  // Sync mounted state with isOpen prop
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+      setMountedState(true)
     }
-  }, [isOpen]);
-  
+  }, [isOpen])
 
-  const handleAddToCart = useCallback((item: { id: number; name: string; price: number; image: string }) => {
-      addToCart({ ...item, quantity: 1 });
+  // Safely manage body overflow and touch events
+  useEffect(() => {
+    if (!isOpen) return
+
+    // Store original body styles
+    const originalOverflow = window.getComputedStyle(document.body).overflow
+    const originalPosition = window.getComputedStyle(document.body).position
+    const originalWidth = window.getComputedStyle(document.body).width
+    const originalTop = window.getComputedStyle(document.body).top
+    const originalTouchAction = window.getComputedStyle(document.body).touchAction
+
+    const scrollY = window.scrollY
+
+    // Prevent body scroll while maintaining touch functionality
+    document.body.style.overflow = "hidden"
+    document.body.style.position = "fixed"
+    document.body.style.width = "100%"
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.touchAction = "pan-y"
+    document.body.setAttribute("data-scroll-position", scrollY.toString())
+
+    return () => {
+      // Restore all original styles
+      document.body.style.overflow = originalOverflow
+      document.body.style.position = originalPosition
+      document.body.style.width = originalWidth
+      document.body.style.top = originalTop
+      document.body.style.touchAction = originalTouchAction
+
+      // Restore scroll position
+      const savedScrollY = Number.parseInt(document.body.getAttribute("data-scroll-position") || "0")
+      window.scrollTo(0, savedScrollY)
+      document.body.removeAttribute("data-scroll-position")
+
+      // Force a small delay to ensure all touch events are properly reset
+      setTimeout(() => {
+        document.body.style.touchAction = originalTouchAction
+      }, 100)
+    }
+  }, [isOpen])
+
+  // Safe close method
+  const handleClose = useCallback(() => {
+    setMountedState(false)
+
+    // Delay actual close to match animation
+    setTimeout(() => {
+      onClose()
+    }, 300)
+  }, [onClose])
+
+  // Improved click/touch outside handling
+  useEffect(() => {
+    if (!isOpen || !drawerRef.current) return
+
+    const drawer = drawerRef.current
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (drawer && !drawer.contains(e.target as Node)) {
+        handleClose()
+      }
+    }
+
+    // Only use mousedown for outside clicks
+    document.addEventListener("mousedown", handleOutsideClick)
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick)
+    }
+  }, [isOpen, handleClose])
+
+  // Escape key handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        handleClose()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [isOpen, handleClose])
+
+  // Simplified handlers without event parameters
+  const handleAddToCart = useCallback(
+    (item: { id: number; name: string; price: number; image: string }) => {
+      addToCart({ ...item, quantity: 1 })
       toast.success("تمت الإضافة إلى السلة بنجاح!", {
         position: "bottom-right",
         icon: "🛒",
         style: {
           direction: "rtl",
         },
-      });
-    }, [addToCart]);
-  
-    const handleRemoveFromWishlist = useCallback((id: number) => {
-      removeFromWishlist(id);
-      toast(() => (
-        <div className="flex items-center gap-2">
-          <FiTrash className="text-red-500" />
-          <span>تم الحذف من القائمة</span>
-        </div>
-      ), {
-        position: "bottom-right",
-        style: {
-          direction: "rtl",
+      })
+    },
+    [addToCart],
+  )
+
+  const handleRemoveFromWishlist = useCallback(
+    (id: number) => {
+      removeFromWishlist(id)
+      toast(
+        () => (
+          <div className="flex items-center gap-2">
+            <FiTrash className="text-red-500" />
+            <span>تم الحذف من القائمة</span>
+          </div>
+        ),
+        {
+          position: "bottom-right",
+          style: {
+            direction: "rtl",
+          },
         },
-      });
-    }, [removeFromWishlist]);
+      )
+    },
+    [removeFromWishlist],
+  )
 
   return (
-    <AnimatePresence mode="wait">
-      {isOpen && (
+    <AnimatePresence
+      mode="wait"
+      onExitComplete={() => {
+        if (!isOpen) {
+          setMountedState(false)
+        }
+      }}
+    >
+      {mountedState && (
         <>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black/30 backdrop-blur-md z-40"
             role="dialog"
             aria-modal="true"
+            onClick={handleClose}
+            key="wishlist-overlay"
           />
 
           <motion.div
@@ -71,21 +168,23 @@ const WishlistDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 30,
+              duration: 0.3,
+            }}
             className="fixed top-0 right-0 w-full max-w-md h-screen bg-white shadow-2xl z-50 flex flex-col"
             role="dialog"
             aria-labelledby="wishlist-heading"
+            onClick={(e) => e.stopPropagation()}
+            key="wishlist-drawer"
           >
-            <Header onClose={onClose} />
-            
-            <main className="flex-1 overflow-y-auto px-4 sm:px-6">
+            <Header onClose={handleClose} />
+
+            <main className="flex-1 overflow-y-auto px-4 sm:px-6 overscroll-contain">
               {wishlist.length > 0 ? (
-                <motion.ul
-                  initial="hidden"
-                  animate="visible"
-                  variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-                  className="divide-y divide-gray-100"
-                >
+                <ul className="divide-y divide-gray-100">
                   {wishlist.map((item) => (
                     <WishlistItem
                       key={item.id}
@@ -94,22 +193,21 @@ const WishlistDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                       onRemove={handleRemoveFromWishlist}
                     />
                   ))}
-                </motion.ul>
+                </ul>
               ) : (
                 <EmptyState />
               )}
             </main>
 
-            <Footer onClose={onClose} itemCount={wishlist.length} />
+            <Footer onClose={handleClose} itemCount={wishlist.length} />
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  );
-};
+  )
+}
 
-// Sub-components for better readability
-
+// Sub-components with simplified event handling
 const Header = ({ onClose }: { onClose: () => void }) => (
   <div className="sticky top-0 bg-white z-10 border-b border-gray-100 shadow-sm">
     <div className="flex items-center justify-between p-6">
@@ -125,36 +223,24 @@ const Header = ({ onClose }: { onClose: () => void }) => (
       </button>
     </div>
   </div>
-);
+)
 
+// Simplified WishlistItem without usePresence and with simpler animation
 const WishlistItem = ({
   item,
   onAddToCart,
   onRemove,
 }: {
-  item: { id: number; name: string; price: number; image: string };
-  onAddToCart: (item: { id: number; name: string; price: number; image: string }) => void;
-  onRemove: (id: number) => void;
+  item: { id: number; name: string; price: number; image: string }
+  onAddToCart: (item: { id: number; name: string; price: number; image: string }) => void
+  onRemove: (id: number) => void
 }) => {
-  const [isPresent, safeToRemove] = usePresence();
-
   return (
-    <motion.li
-      layout
-      initial={{ opacity: 0, x: 50 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{
-        opacity: 0,
-        x: 50,
-        transition: { duration: 0.2 },
-      }}
-      onAnimationComplete={() => !isPresent && safeToRemove?.()}
-      className="py-4 group relative"
-    >
+    <motion.li initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-4 group relative">
       <div className="flex gap-4 items-center">
         <div className="relative flex-shrink-0">
           <Image
-            src={item.image}
+            src={item.image || "/placeholder.svg"}
             alt={item.name}
             width={96}
             height={96}
@@ -191,24 +277,18 @@ const WishlistItem = ({
         </div>
       </div>
     </motion.li>
-  );
-};
+  )
+}
 
 const EmptyState = () => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.95 }}
-    animate={{ opacity: 1, scale: 1 }}
-    className="h-full flex flex-col items-center justify-center text-center py-16"
-  >
+  <div className="h-full flex flex-col items-center justify-center text-center py-16">
     <div className="mb-4 text-gray-200">
       <FiHeart className="w-24 h-24" />
     </div>
     <h3 className="text-xl font-semibold text-gray-900 mb-2">القائمة فارغة</h3>
-    <p className="text-gray-500 max-w-xs">
-      ابدأ بإضافة منتجاتك المفضلة لتظهر هنا
-    </p>
-  </motion.div>
-);
+    <p className="text-gray-500 max-w-xs">ابدأ بإضافة منتجاتك المفضلة لتظهر هنا</p>
+  </div>
+)
 
 const Footer = ({ onClose, itemCount }: { onClose: () => void; itemCount: number }) => (
   <div className="sticky bottom-0 bg-white border-t border-gray-100 p-6">
@@ -223,6 +303,7 @@ const Footer = ({ onClose, itemCount }: { onClose: () => void; itemCount: number
       متابعة التسوق →
     </button>
   </div>
-);
+)
 
-export default WishlistDrawer;
+export default WishlistDrawer
+

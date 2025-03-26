@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ReduxProvider } from "../providers/ReduxProvider";
 import { CartProvider } from "../context/CartContext";
 import { WishlistProvider } from "../context/WishlistContext";
 import { GiftProvider } from "../context/GiftContext";
@@ -14,6 +15,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ar" dir="rtl">
       <body className="bg-gray-50 text-gray-900">
+        
+      <ReduxProvider>
         <CartProvider>
           <WishlistProvider>
             <GiftProvider>
@@ -23,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </GiftProvider>
           </WishlistProvider>
         </CartProvider>
-        
+      </ReduxProvider> 
       </body>
     </html>
   );

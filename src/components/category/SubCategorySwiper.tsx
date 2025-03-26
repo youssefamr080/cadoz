@@ -1,48 +1,48 @@
-"use client";
+"use client"
 
-import React, { useMemo, useEffect, useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
-import Image from "next/image";
-import type { SwiperOptions } from "swiper/types";
+import { useMemo, useEffect, useState } from "react"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Autoplay } from "swiper/modules"
+import Image from "next/image"
+import type { SwiperOptions } from "swiper/types"
 
-type CategoryType = "men" | "women" | "kids";
+type CategoryType = "men" | "women" | "kids"
 
 interface SubCategory {
-  name: string;
-  image: string;
+  name: string
+  englishName: string
+  image: string
 }
 
 interface SubCategorySwiperProps {
-  category: CategoryType;
-  initialSubCategory: string;
-  onSelectSubCategory: (subCategory: string) => void;
+  category: CategoryType
+  initialSubCategory: string // This will now be the English name
+  onSelectSubCategory: (subCategory: string) => void // This will now pass the English name
 }
 
 const SUB_CATEGORIES: Record<CategoryType, SubCategory[]> = {
   men: [
-    { name: "ساعات", image: "/images/watch section.png" },
-    { name: "محافظ", image: "/images/men wallet.png" },
-    { name: "عطور", image: "/images/men perfum section.png" },
-    { name: "شنط يد", image: "/images/hand bag.png" },
-    { name: "نظارات شمسية", image: "/images/men sunglasses.png" },
-    { name: "spray", image: "/images/image_fx_ (41).webp" },
+    { name: "ساعات", englishName: "watches", image: "/images/watch section.png" },
+    { name: "محافظ", englishName: "wallets", image: "/images/men wallet.png" },
+    { name: "عطور", englishName: "perfumes", image: "/images/men perfum section.png" },
+    { name: "شنط يد", englishName: "handbags", image: "/images/hand bag.png" },
+    { name: "نظارات شمسية", englishName: "sunglasses", image: "/images/men sunglasses.png" },
+    { name: "سبراي", englishName: "spray", image: "/images/image_fx_ (41).webp" },
   ],
   women: [
-    { name: "ساعات", image: "/images/women watch.png" },
-    { name: "محافظ", image: "/images/walet-women.webp" },
-    { name: "عطور", image: "/images/women perfume.png" },
-    { name: "إكسسوارات", image: "/images/women Accessories.png" },
-    { name: "نظارات شمسية", image: "/images/women sunglasses.png" },
-    { name: "spray", image: "/images/image_fx_ (42).webp" },
-
+    { name: "ساعات", englishName: "watches", image: "/images/women watch.png" },
+    { name: "محافظ", englishName: "wallets", image: "/images/walet-women.webp" },
+    { name: "عطور", englishName: "perfumes", image: "/images/women perfume.png" },
+    { name: "إكسسوارات", englishName: "accessories", image: "/images/women Accessories.png" },
+    { name: "نظارات شمسية", englishName: "sunglasses", image: "/images/women sunglasses.png" },
+    { name: "سبراي", englishName: "spray", image: "/images/image_fx_ (42).webp" },
   ],
   kids: [
-    { name: "العاب اطفال", image: "/images/kids toys.png" },
-    { name: "دباديب", image: "/images/kids fur.png" },
-    { name: "ساعات اطفال", image: "/images/kids watch.png" },
+    { name: "العاب اطفال", englishName: "toys", image: "/images/kids toys.png" },
+    { name: "دباديب", englishName: "teddy-bears", image: "/images/kids fur.png" },
+    { name: "ساعات اطفال", englishName: "watches", image: "/images/kids watch.png" },
   ],
-};
+}
 
 const swiperConfig: SwiperOptions = {
   spaceBetween: 16,
@@ -60,16 +60,16 @@ const swiperConfig: SwiperOptions = {
   },
   loop: true,
   modules: [Autoplay],
-};
+}
 
 const SubCategoryItem = ({
   sub,
   isActive,
   onClick,
 }: {
-  sub: SubCategory;
-  isActive: boolean;
-  onClick: () => void;
+  sub: SubCategory
+  isActive: boolean
+  onClick: () => void
 }) => (
   <div
     role="button"
@@ -89,7 +89,7 @@ const SubCategoryItem = ({
       }`}
     >
       <Image
-        src={sub.image}
+        src={sub.image || "/placeholder.svg"}
         alt={sub.name}
         width={96}
         height={96}
@@ -107,50 +107,48 @@ const SubCategoryItem = ({
       {sub.name}
     </p>
   </div>
-);
+)
 
-const SubCategorySwiper = ({
-  category,
-  initialSubCategory,
-  onSelectSubCategory,
-}: SubCategorySwiperProps) => {
-  const [selectedSubCategory, setSelectedSubCategory] = useState(initialSubCategory);
+const SubCategorySwiper = ({ category, initialSubCategory, onSelectSubCategory }: SubCategorySwiperProps) => {
+  const [selectedSubCategory, setSelectedSubCategory] = useState("")
 
-  const categories = useMemo(
-    () => SUB_CATEGORIES[category] || [],
-    [category]
-  );
+  const categories = useMemo(() => SUB_CATEGORIES[category] || [], [category])
 
-  // تحديد القسم الفرعي الافتراضي
+  // Find subcategory by English name or use first one
   useEffect(() => {
-    if (categories.some((sub) => sub.name === initialSubCategory)) {
-      setSelectedSubCategory(initialSubCategory);
-      onSelectSubCategory(initialSubCategory);
+    const foundSubCategory = categories.find((sub) => sub.englishName === initialSubCategory)
+    if (foundSubCategory) {
+      setSelectedSubCategory(foundSubCategory.englishName)
+      onSelectSubCategory(foundSubCategory.englishName)
+    } else if (categories.length > 0) {
+      setSelectedSubCategory(categories[0].englishName)
+      onSelectSubCategory(categories[0].englishName)
     }
-  }, [category, initialSubCategory, categories, onSelectSubCategory]);
+  }, [category, initialSubCategory, categories, onSelectSubCategory])
 
-  const handleSubCategoryClick = (subCategory: string) => {
-    setSelectedSubCategory(subCategory);
-    onSelectSubCategory(subCategory);
-  };
+  const handleSubCategoryClick = (subCategory: SubCategory) => {
+    setSelectedSubCategory(subCategory.englishName)
+    onSelectSubCategory(subCategory.englishName)
+  }
 
-  if (!categories.length) return null;
+  if (!categories.length) return null
 
   return (
     <section className="container mx-auto px-4 py-8">
       <Swiper {...swiperConfig} className="!pb-2">
         {categories.map((sub) => (
-          <SwiperSlide key={`${category}-${sub.name}`}>
+          <SwiperSlide key={`${category}-${sub.englishName}`}>
             <SubCategoryItem
               sub={sub}
-              isActive={sub.name === selectedSubCategory}
-              onClick={() => handleSubCategoryClick(sub.name)}
+              isActive={sub.englishName === selectedSubCategory}
+              onClick={() => handleSubCategoryClick(sub)}
             />
           </SwiperSlide>
         ))}
       </Swiper>
     </section>
-  );
-};
+  )
+}
 
-export default SubCategorySwiper;
+export default SubCategorySwiper
+

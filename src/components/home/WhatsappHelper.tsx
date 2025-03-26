@@ -1,635 +1,600 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Gift, Send, Heart, Star, ShoppingBag } from "lucide-react";
+import type React from "react"
+import { useState, useEffect, useRef } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { PhoneIcon as WhatsApp, X, Phone, Volume2, VolumeX, Settings, Sun, Moon, Languages } from 'lucide-react'
+import Image from "next/image"
 
 interface WhatsappHelperProps {
-  phoneNumber: string;
-  storeName?: string;
+  phoneNumber: string
+  storeName?: string
+  welcomeMessage?: string
+  agentName?: string
+  agentAvatar?: string
+  primaryColor?: string
+  secondaryColor?: string
+  darkMode?: boolean
+  position?: "bottom-right" | "bottom-left" | "top-right" | "top-left"
+  collectUserInfo?: boolean
+  enableAnalytics?: boolean
 }
 
-type Step = 'start' | 'purpose' | 'recipient' | 'relationship' | 'occasion' | 'budget' | 'age' | 'summary';
-
-interface MessageType {
-  id: string;
-  content: string | React.ReactNode;
-  sender: 'bot' | 'user';
-  options?: Option[];
+interface UserInfo {
+  name?: string
+  email?: string
+  location?: string
 }
 
-interface Option {
-  id: string;
-  text: string;
-  value: string;
-  icon?: React.ReactNode;
+interface AnalyticsData {
+  interactions: number
+  whatsappClicks: number
+  openTime: number
 }
 
-interface GiftPurpose { id: string; text: string; icon: React.ReactNode; }
-interface Recipient { id: string; text: string; icon: React.ReactNode; }
-interface Relationship { id: string; text: string; }
-interface Occasion { id: string; text: string; }
-interface Budget { id: string; range: string; text: string; }
-interface AgeGroup { id: string; text: string; }
+// تحويل لون hex إلى rgb
+const hexToRgb = (hex: string): string => {
+  hex = hex.replace("#", "")
+  const r = Number.parseInt(hex.substring(0, 2), 16)
+  const g = Number.parseInt(hex.substring(2, 4), 16)
+  const b = Number.parseInt(hex.substring(4, 6), 16)
+  return `${r}, ${g}, ${b}`
+}
 
-const WhatsappHelper: React.FC<WhatsappHelperProps> = ({ phoneNumber, storeName = "cadoz" }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentStep, setCurrentStep] = useState<Step>('start');
-  const [messages, setMessages] = useState<MessageType[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [preferences, setPreferences] = useState({
-    purpose: '',
-    recipient: '',
-    relationship: '',
-    occasion: '',
-    budget: '',
-    age: '',
-  });
-  const [isNewSession, setIsNewSession] = useState(true);
-  const [showPopupNotification, setShowPopupNotification] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const messageCounter = useRef(0); // عداد لضمان الـ id الفريد
+const WhatsappHelper: React.FC<WhatsappHelperProps> = ({
+  phoneNumber,
+  storeName = "متجرنا",
+  welcomeMessage = "مرحباً! كيف يمكنني مساعدتك اليوم؟",
+  agentName = "فريق خدمة العملاء",
+  agentAvatar = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png",
+  primaryColor = "#10b981",
+  secondaryColor = "#059669",
+  darkMode = false,
+  position = "bottom-right",
+  collectUserInfo = false,
+  enableAnalytics = false,
+}) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [userInfo, setUserInfo] = useState<UserInfo>({})
+  const [showUserInfoForm, setShowUserInfoForm] = useState(false)
+  const [formStep, setFormStep] = useState<"name" | "email" | "location">("name")
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
+    interactions: 0,
+    whatsappClicks: 0,
+    openTime: 0,
+  })
+  const [currentTime, setCurrentTime] = useState<string>("")
+  const [greetingMessage, setGreetingMessage] = useState<string>("")
+  const [, setIsFirstVisit] = useState(true)
+  const [currentLanguage, setCurrentLanguage] = useState<"ar" | "en">("ar")
+  const [isDarkMode, setIsDarkMode] = useState(darkMode)
 
-  // بيانات الاختيارات (نفس القوائم اللي كانت موجودة)
-  const giftPurposes: GiftPurpose[] = [
-    { id: 'gift', text: 'هدية', icon: <Gift className="w-4 h-4" /> },
-    { id: 'personal', text: 'لنفسي', icon: <Heart className="w-4 h-4" /> },
-    { id: 'special_occasion', text: 'مناسبة خاصة', icon: <Star className="w-4 h-4" /> },
-    { id: 'corporate', text: 'هدية شركات', icon: <ShoppingBag className="w-4 h-4" /> },
-  ];
+  const openTimeRef = useRef<number | null>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  const recipients: Recipient[] = [
-    { id: 'male', text: 'رجل', icon: <span className="text-lg">👨</span> },
-    { id: 'female', text: 'امرأة', icon: <span className="text-lg">👩</span> },
-    { id: 'boy', text: 'صبي', icon: <span className="text-lg">👦</span> },
-    { id: 'girl', text: 'فتاة', icon: <span className="text-lg">👧</span> },
-  ];
+  // تحديث الوقت والتحية
+  useEffect(() => {
+    const updateTimeAndGreeting = () => {
+      const now = new Date()
+      const hours = now.getHours()
+      const minutes = now.getMinutes()
+      const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
+      setCurrentTime(formattedTime)
 
-  const relationships: Relationship[] = [
-    { id: 'partner', text: 'شريك/ة حياة' },
-    { id: 'friend', text: 'صديق/ة' },
-    { id: 'parent', text: 'والد/ة' },
-    { id: 'sibling', text: 'أخ/أخت' },
-    { id: 'relative', text: 'قريب/ة' },
-    { id: 'colleague', text: 'زميل/ة عمل' },
-    { id: 'boss', text: 'مدير/ة' },
-    { id: 'neighbor', text: 'جار/جارة' },
-    { id: 'teacher', text: 'معلم/معلمة' },
-    { id: 'doctor', text: 'دكتور/دكتورة' },
-    { id: 'other', text: 'آخر' },
-  ];
+      let greeting = ""
+      if (hours >= 5 && hours < 12) {
+        greeting = currentLanguage === "ar" ? "صباح الخير" : "Good morning"
+      } else if (hours >= 12 && hours < 17) {
+        greeting = currentLanguage === "ar" ? "مساء الخير" : "Good afternoon"
+      } else {
+        greeting = currentLanguage === "ar" ? "مساء الخير" : "Good evening"
+      }
+      setGreetingMessage(greeting)
+    }
 
-  const occasions: Occasion[] = [
-    { id: 'birthday', text: 'عيد ميلاد' },
-    { id: 'wedding', text: 'زفاف' },
-    { id: 'anniversary', text: 'ذكرى سنوية' },
-    { id: 'graduation', text: 'تخرج' },
-    { id: 'eid', text: 'عيد' },
-    { id: 'promotion', text: 'ترقية' },
-    { id: 'housewarming', text: 'منزل جديد' },
-    { id: 'mothers_day', text: 'عيد الأم' },
-    { id: 'fathers_day', text: 'عيد الأب' },
-    { id: 'ramadan', text: 'رمضان' },
-    { id: 'eid_al_fitr', text: 'عيد الفطر' },
-    { id: 'eid_al_adha', text: 'عيد الأضحى' },
-    { id: 'other', text: 'مناسبة أخرى' },
-  ];
+    updateTimeAndGreeting()
+    const interval = setInterval(updateTimeAndGreeting, 60000)
+    return () => clearInterval(interval)
+  }, [currentLanguage])
 
-  const budgets: Budget[] = [
-    { id: 'budget_1', range: '50-200', text: '50 - 200 جنية' },
-    { id: 'budget_2', range: '200-500', text: '200 - 500 جنية' },
-    { id: 'budget_3', range: '500-1000', text: '500 - 1000 جنية' },
-    { id: 'budget_4', range: '1000+', text: 'أكثر من 1000 جنية' },
-  ];
+  // تحقق من الزيارة الأولى
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hasVisitedBefore = localStorage.getItem("hasVisitedBefore")
+      if (hasVisitedBefore) {
+        setIsFirstVisit(false)
+      } else {
+        localStorage.setItem("hasVisitedBefore", "true")
+      }
+    }
+  }, [])
 
-  const ageGroups: AgeGroup[] = [
-    { id: 'age_0_12', text: '0 - 12 سنة' },
-    { id: 'age_13_18', text: '13 - 18 سنة' },
-    { id: 'age_19_30', text: '19 - 30 سنة' },
-    { id: 'age_31_50', text: '31 - 50 سنة' },
-    { id: 'age_50_plus', text: '50+ سنة' },
-  ];
+  // تطبيق الوضع المظلم
+  useEffect(() => {
+    if (containerRef.current) {
+      if (isDarkMode) {
+        containerRef.current.classList.add('dark')
+      } else {
+        containerRef.current.classList.remove('dark')
+      }
+    }
+  }, [isDarkMode])
 
-  // تأثيرات الحركة (نفس اللي كان موجود)
-  const buttonVariants = {
-    initial: { scale: 0, opacity: 0 },
-    animate: { scale: 1, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } },
-    hover: { scale: 1.05, boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)" },
-    tap: { scale: 0.95 },
-  };
+  // تحميل الصوت
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      audioRef.current = new Audio()
 
+      const testAudio = (url: string) => {
+        return new Promise<boolean>((resolve) => {
+          const audio = new Audio()
+          audio.oncanplaythrough = () => resolve(true)
+          audio.onerror = () => resolve(false)
+          audio.src = url
+        })
+      }
+
+      const testAudioFiles = async () => {
+        const soundFiles = ["/sounds/open.mp3", "/sounds/message.mp3", "/sounds/click.mp3"]
+        for (const file of soundFiles) {
+          const exists = await testAudio(file)
+          if (!exists) {
+            console.log(`Audio file ${file} not found. Sound effects may not work.`)
+          }
+        }
+      }
+
+      testAudioFiles()
+    }
+  }, [])
+
+  // تتبع وقت فتح المساعد
+  useEffect(() => {
+    if (isOpen && enableAnalytics) {
+      openTimeRef.current = Date.now()
+      setAnalyticsData((prev) => ({
+        ...prev,
+        interactions: prev.interactions + 1,
+      }))
+    } else if (!isOpen && openTimeRef.current && enableAnalytics) {
+      const timeSpent = Date.now() - openTimeRef.current
+      setAnalyticsData((prev) => ({
+        ...prev,
+        openTime: prev.openTime + timeSpent,
+      }))
+      openTimeRef.current = null
+    }
+  }, [isOpen, enableAnalytics])
+
+  // تأثيرات الحركة
   const popupVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.9 },
     visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.3, ease: "easeOut" } },
     exit: { opacity: 0, y: 20, scale: 0.9, transition: { duration: 0.2 } },
-    minimized: { opacity: 1, y: 0, scale: 0.9, height: "60px", overflow: "hidden" }
-  };
-
-  const messageVariants = {
-    hidden: { opacity: 0, x: -10 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
-  };
+  }
 
   const optionVariants = {
     hidden: { opacity: 0, y: 10 },
-    visible: (i: number) => ({ 
-      opacity: 1, 
-      y: 0, 
-      transition: { delay: i * 0.1, duration: 0.3 } 
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.1, duration: 0.3 },
     }),
-    hover: { 
-      scale: 1.03, 
+    hover: {
+      scale: 1.03,
       boxShadow: "0 3px 8px rgba(0, 0, 0, 0.1)",
-      backgroundColor: "rgba(25, 180, 25, 0.1)",
+      backgroundColor: `rgba(${hexToRgb(primaryColor)}, 0.1)`,
+    },
+  }
+
+  const settingsVariants = {
+    hidden: { opacity: 0, height: 0 },
+    visible: { opacity: 1, height: "auto", transition: { duration: 0.3 } },
+    exit: { opacity: 0, height: 0, transition: { duration: 0.2 } },
+  }
+
+  // تشغيل الصوت
+  const playSound = (type: "open" | "message" | "click") => {
+    if (isMuted || !audioRef.current) return
+
+    if (typeof window === "undefined") return
+
+    const soundMap = {
+      open: "/sounds/open.mp3",
+      message: "/sounds/message.mp3",
+      click: "/sounds/click.mp3",
     }
-  };
 
-  const popupNotificationVariants = {
-    hidden: { opacity: 0, scale: 0.8, y: 10 },
-    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.3 } },
-    exit: { opacity: 0, scale: 0.8, y: 10, transition: { duration: 0.2 } }
-  };
-
-  // إعادة تعيين المحادثة
-  const resetChat = () => {
-    setMessages([]);
-    setCurrentStep('start');
-    setPreferences({
-      purpose: '',
-      recipient: '',
-      relationship: '',
-      occasion: '',
-      budget: '',
-      age: '',
-    });
-    setIsNewSession(true);
-    messageCounter.current = 0; // إعادة تعيين العداد
-  };
-
-  // إضافة رسالة جديدة مع id فريد
-  const addMessage = (content: string | React.ReactNode, sender: 'bot' | 'user', options?: Option[]) => {
-    messageCounter.current += 1; // زيادة العداد
-    const uniqueId = `${Date.now()}-${messageCounter.current}`; // id فريد باستخدام الوقت والعداد
-    
-    const newMessage: MessageType = {
-      id: uniqueId,
-      content,
-      sender,
-      options,
-    };
-    
-    setMessages(prev => [...prev, newMessage]);
-    
-    if (sender === 'bot' && !isOpen) {
-      setUnreadCount(prev => prev + 1);
-      setShowPopupNotification(true);
-      setTimeout(() => setShowPopupNotification(false), 5000);
-    }
-  };
-
-  // تحديث تفضيلات المستخدم
-  const updatePreference = (key: keyof typeof preferences, value: string) => {
-    setPreferences(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
-
-  // بقية الكود (handleOptionSelect, handleNextStep, handleSendToWhatsapp, etc.) 
-  // يمكنك نسخه من الكود السابق لأنه لم يتغير، فقط التغيير في addMessage وإضافة messageCounter
-  const handleOptionSelect = (step: Step, optionValue: string, optionText: string) => {
-    addMessage(optionText, 'user');
-    setIsTyping(true);
-
-    setTimeout(() => {
-      setIsTyping(false);
-      
-      switch (step) {
-        case 'start':
-          updatePreference('purpose', optionValue);
-          setCurrentStep('recipient');
-          if (optionValue === 'personal') {
-            addMessage('أحسنت! تستاهل تدلع نفسك شوية. 😉', 'bot');
+    try {
+      audioRef.current.src = soundMap[type]
+      const playPromise = audioRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise.catch((error: Error) => {
+          console.log("Audio not available:", error.message)
+          if (audioRef.current) {
+            audioRef.current.src = ""
           }
-          handleNextStep('recipient');
-          break;
-        
-        case 'recipient':
-          updatePreference('recipient', optionValue);
-          setCurrentStep('relationship');
-          handleNextStep('relationship');
-          break;
-        
-        case 'relationship':
-          updatePreference('relationship', optionValue);
-          setCurrentStep('occasion');
-          handleNextStep('occasion');
-          break;
-        
-        case 'occasion':
-          updatePreference('occasion', optionValue);
-          setCurrentStep('budget');
-          handleNextStep('budget');
-          break;
-        
-        case 'budget':
-          updatePreference('budget', optionValue);
-          setCurrentStep('age');
-          if (optionValue === '1000+') {
-            addMessage('واو، ميزانية حلوة! هنقدر نجيب حاجة فخمة. 😎', 'bot');
-          }
-          handleNextStep('age');
-          break;
-        
-        case 'age':
-          updatePreference('age', optionValue);
-          setCurrentStep('summary');
-          handleNextStep('summary');
-          break;
-        
-        case 'summary':
-          if (optionValue === 'send') {
-            handleSendToWhatsapp();
-          } else if (optionValue === 'restart') {
-            resetChat();
-            startNewChat();
-          }
-          break;
+        })
       }
-    }, 800);
-  };
-
-  const handleNextStep = (step: Step) => {
-    switch (step) {
-      case 'start':
-        addMessage(
-          <div>
-            <p>أهلاً وسهلاً! 👋</p>
-            <p>أنا هنا عشان أساعدك تختار أحلى هدية. عايز إيه النهاردة؟</p>
-          </div>,
-          'bot',
-          giftPurposes.map(purpose => ({
-            id: purpose.id,
-            text: purpose.text,
-            value: purpose.id,
-            icon: purpose.icon
-          }))
-        );
-        break;
-      
-      case 'recipient':
-        addMessage(
-          'تمام! الهدية دي لمين؟',
-          'bot',
-          recipients.map(recipient => ({
-            id: recipient.id,
-            text: recipient.text,
-            value: recipient.id,
-            icon: recipient.icon
-          }))
-        );
-        break;
-      
-      case 'relationship':
-        addMessage(
-          'إيه علاقتك بالشخص اللي هتديله الهدية؟',
-          'bot',
-          relationships.map(relation => ({
-            id: relation.id,
-            text: relation.text,
-            value: relation.id
-          }))
-        );
-        break;
-      
-      case 'occasion':
-        addMessage(
-          'الهدية دي بمناسبة إيه؟',
-          'bot',
-          occasions.map(occasion => ({
-            id: occasion.id,
-            text: occasion.text,
-            value: occasion.id
-          }))
-        );
-        break;
-      
-      case 'budget':
-        addMessage(
-          'ميزانيتك كام تقريبًا للهدية؟',
-          'bot',
-          budgets.map(budget => ({
-            id: budget.id,
-            text: budget.text,
-            value: budget.range
-          }))
-        );
-        break;
-      
-      case 'age':
-        addMessage(
-          'الشخص ده في أنهي فئة عمرية؟',
-          'bot',
-          ageGroups.map(age => ({
-            id: age.id,
-            text: age.text,
-            value: age.id
-          }))
-        );
-        break;
-      
-      case 'summary':
-        const getTextById = (id: string, array: Array<{ id: string; text: string }>) => {
-          const item = array.find(item => item.id === id);
-          return item ? item.text : id;
-        };
-
-        const purposeText = getTextById(preferences.purpose, giftPurposes);
-        const recipientText = getTextById(preferences.recipient, recipients);
-        const relationshipText = getTextById(preferences.relationship, relationships);
-        const occasionText = getTextById(preferences.occasion, occasions);
-        const ageText = getTextById(preferences.age, ageGroups);
-
-        const summaryMessage = (
-          <div className="space-y-2">
-            <p className="font-medium text-green-600">✓ خلاصة طلبك:</p>
-            <ul className="text-sm space-y-1.5">
-              <li><span className="font-semibold">الغرض:</span> {purposeText}</li>
-              <li><span className="font-semibold">لـ:</span> {recipientText}</li>
-              <li><span className="font-semibold">العلاقة:</span> {relationshipText}</li>
-              <li><span className="font-semibold">المناسبة:</span> {occasionText}</li>
-              <li><span className="font-semibold">الميزانية:</span> {preferences.budget} جنية</li>
-              <li><span className="font-semibold">العمر:</span> {ageText}</li>
-            </ul>
-            <p className="text-sm mt-2">عايز ترسل التفاصيل دي لفريق خدمة العملاء عشان يساعدوك تختار هدية زي الفل؟</p>
-          </div>
-        );
-
-        addMessage(
-          summaryMessage,
-          'bot',
-          [
-            {
-              id: 'send',
-              text: 'تأكيد وإرسال',
-              value: 'send',
-              icon: <Send className="w-4 h-4" />
-            },
-            {
-              id: 'restart',
-              text: 'إعادة المحادثة',
-              value: 'restart',
-              icon: <MessageCircle className="w-4 h-4" />
-            }
-          ]
-        );
-        break;
+    } catch (error) {
+      console.log("Error playing sound:", error)
     }
-  };
+  }
 
-  const handleSendToWhatsapp = () => {
-    const getTextById = (id: string, array: Array<{ id: string; text: string }>) => {
-      const item = array.find(item => item.id === id);
-      return item ? item.text : id;
-    };
+  // فتح الواتساب مباشرة
+  const openWhatsapp = () => {
+    playSound("click")
 
-    const purposeText = getTextById(preferences.purpose, giftPurposes);
-    const recipientText = getTextById(preferences.recipient, recipients);
-    const relationshipText = getTextById(preferences.relationship, relationships);
-    const occasionText = getTextById(preferences.occasion, occasions);
-    const ageText = getTextById(preferences.age, ageGroups);
+    let messageText =
+      currentLanguage === "ar" ? `السلام عليكم، أحتاج إلى مساعدة من فضلك.` : `Hello, I need some assistance please.`
 
-    const messageText = `السلام عليكم،
-محتاج مساعدة في اختيار هدية:
-
-🎁 الغرض: ${purposeText}
-👤 لـ: ${recipientText}
-👥 العلاقة: ${relationshipText}
-🎉 المناسبة: ${occasionText}
-💰 الميزانية: ${preferences.budget} جنية
-⏳ العمر: ${ageText}
-
-ممكن تساعدوني أختار هدية مناسبة؟ شكرًا!`;
-
-    const encodedMessage = encodeURIComponent(messageText);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-
-    addMessage(
-      <div>
-        <p className="text-green-600 font-medium">تم إعداد رسالتك بنجاح! ✅</p>
-        <p className="text-sm mt-1">هنوجهك دلوقتي للواتساب عشان تكلم فريق خدمة العملاء.</p>
-      </div>,
-      'bot'
-    );
-
-    setTimeout(() => {
-      window.open(whatsappUrl, '_blank');
-      
-      setTimeout(() => {
-        addMessage(
-          <div>
-            <p>عايز تبدأ من الأول عشان تختار هدية تانية؟</p>
-          </div>,
-          'bot',
-          [
-            {
-              id: 'restart',
-              text: 'أيوة، ابدأ من جديد',
-              value: 'restart',
-              icon: <MessageCircle className="w-4 h-4" />
-            }
-          ]
-        );
-      }, 1500);
-    }, 1000);
-  };
-
-  const startNewChat = () => {
-    handleNextStep('start');
-    setIsNewSession(false);
-  };
-
-  useEffect(() => {
-    if (isOpen && isNewSession) {
-      startNewChat();
+    if (userInfo.name) {
+      messageText += currentLanguage === "ar" ? `\nالاسم: ${userInfo.name}` : `\nName: ${userInfo.name}`
     }
-    if (isOpen) {
-      setUnreadCount(0);
-      setShowPopupNotification(false);
+    if (userInfo.email) {
+      messageText += currentLanguage === "ar" ? `\nالبريد الإلكتروني: ${userInfo.email}` : `\nEmail: ${userInfo.email}`
     }
-  }, [isOpen, isNewSession]);
 
-  const messagesEndRef = React.useRef<HTMLDivElement>(null);
+    const encodedMessage = encodeURIComponent(messageText)
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (enableAnalytics) {
+      setAnalyticsData((prev) => ({
+        ...prev,
+        whatsappClicks: prev.whatsappClicks + 1,
+      }))
     }
-  }, [messages]);
+
+    if (typeof window !== "undefined") {
+      window.open(whatsappUrl, "_blank")
+    }
+    setIsOpen(false)
+  }
+
+  // تبديل اللغة
+  const toggleLanguage = () => {
+    playSound("click")
+    setCurrentLanguage((prev) => (prev === "ar" ? "en" : "ar"))
+  }
+
+  // تبديل الوضع المظلم
+  const toggleDarkMode = () => {
+    playSound("click")
+    setIsDarkMode((prev) => !prev)
+  }
+
+  // تبديل الصوت
+  const toggleMute = () => {
+    setIsMuted((prev) => !prev)
+  }
+
+  // تقديم معلومات المستخدم
+  const handleUserInfoSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    playSound("click")
+
+    if (formStep === "name") {
+      setFormStep("email")
+    } else if (formStep === "email") {
+      setFormStep("location")
+    } else {
+      setShowUserInfoForm(false)
+    }
+  }
+
+  // تحديث معلومات المستخدم
+  const updateUserInfo = (field: keyof UserInfo, value: string) => {
+    setUserInfo((prev) => ({
+      ...prev,
+      [field]: value,
+    }))
+  }
+
+  // تحديد موضع المساعد
+  const getPositionClasses = () => {
+    switch (position) {
+      case "bottom-left":
+        return "bottom-6 left-6"
+      case "top-right":
+        return "top-6 right-6"
+      case "top-left":
+        return "top-6 left-6"
+      default:
+        return "bottom-6 right-6"
+    }
+  }
+
+  // تحديد اتجاه النافذة المنبثقة
+  const getPopupPositionClasses = () => {
+    switch (position) {
+      case "bottom-left":
+        return "bottom-20 left-0"
+      case "top-right":
+        return "top-20 right-0"
+      case "top-left":
+        return "top-20 left-0"
+      default:
+        return "bottom-20 right-0"
+    }
+  }
+
+  // تحديد اتجاه النص
+  const getTextDirection = () => {
+    return currentLanguage === "ar" ? "rtl" : "ltr"
+  }
+
+  // ترجمة النصوص
+  const t = (ar: string, en: string) => {
+    return currentLanguage === "ar" ? ar : en
+  }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans" dir="rtl">
+    <div 
+      ref={containerRef}
+      className={`fixed ${getPositionClasses()} z-50 font-sans`} 
+      dir={getTextDirection()}
+    >
       <motion.button
-        variants={buttonVariants}
         initial="initial"
         animate="animate"
         whileHover="hover"
         whileTap="tap"
         onClick={() => {
-          setIsOpen(!isOpen);
-          setIsMinimized(false);
+          setIsOpen(true)
+          playSound("open")
         }}
-        className="relative bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-colors"
-        aria-label="فتح محادثة المساعدة"
+        className="relative rounded-full shadow-lg hover:shadow-xl transition-all"
+        style={{ backgroundColor: primaryColor }}
+        aria-label={t("فتح محادثة المساعدة", "Open help chat")}
       >
-        <MessageCircle className="w-6 h-6" />
-        <AnimatePresence>
-          {unreadCount > 0 && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-              className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full"
-            >
-              {unreadCount}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div className="text-white p-4">
+          <WhatsApp className="w-6 h-6" />
+        </div>
       </motion.button>
-
-      <AnimatePresence>
-        {showPopupNotification && !isOpen && (
-          <motion.div
-            variants={popupNotificationVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="absolute bottom-20 right-0 bg-white rounded-lg shadow-lg p-3 w-64"
-          >
-            <div className="flex items-start">
-              <div className="bg-green-100 p-2 rounded-full mr-3">
-                <MessageCircle className="w-5 h-5 text-green-600" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-sm text-gray-800">رسالة جديدة من {storeName}</h4>
-                <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                  جاهزين نساعدك تختار أحلى هدية!
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {isOpen && (
           <motion.div
             variants={popupVariants}
             initial="hidden"
-            animate={isMinimized ? "minimized" : "visible"}
+            animate="visible"
             exit="exit"
-            className="absolute bottom-20 right-0 bg-white rounded-xl shadow-xl w-80 md:w-96 overflow-hidden"
-            style={{ maxHeight: "80vh" }}
+            className={`absolute ${getPopupPositionClasses()} bg-white dark:bg-gray-800 rounded-xl shadow-xl w-80 md:w-96 overflow-hidden`}
+            style={{ maxWidth: "90vw" }}
           >
-            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 flex items-center justify-between">
+            <div
+              className="text-white p-4 flex items-center justify-between"
+              style={{
+                background: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})`,
+              }}
+            >
               <div className="flex items-center">
-                <div className="bg-white/20 rounded-full p-2 mr-3">
-                  <Gift className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-full overflow-hidden mr-3 ml-3 relative">
+                  <Image 
+                    src={agentAvatar || "/placeholder.svg"} 
+                    alt={agentName} 
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                  />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm">مساعد اختيار الهدايا</h3>
-                  <p className="text-xs text-green-100">هنساعدك تجيب أجمد هدية!</p>
+                  <h3 className="font-bold text-sm">{agentName}</h3>
+                  <div className="flex items-center text-xs text-white/80">
+                    <span>{currentTime}</span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center space-x-1 space-x-reverse">
                 <button
-                  onClick={() => setIsMinimized(!isMinimized)}
+                  onClick={() => {
+                    playSound("click")
+                    setShowSettings(!showSettings)
+                  }}
                   className="text-white/80 hover:text-white focus:outline-none transition-colors p-1"
-                  aria-label={isMinimized ? "توسيع" : "تصغير"}
+                  aria-label={t("الإعدادات", "Settings")}
                 >
-                  <span className="block w-4 h-0.5 bg-white"></span>
+                  <Settings className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    playSound("click")
+                    setIsOpen(false)
+                  }}
                   className="text-white/80 hover:text-white focus:outline-none transition-colors p-1"
-                  aria-label="إغلاق"
+                  aria-label={t("إغلاق", "Close")}
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            {!isMinimized && (
-              <div className="max-h-96 overflow-y-auto p-4 bg-gray-50" style={{ scrollBehavior: 'smooth' }}>
-                <AnimatePresence>
-                  {messages.map((message) => (
-                    <motion.div
-                      key={message.id}
-                      variants={messageVariants}
+            <AnimatePresence>
+              {showSettings && (
+                <motion.div
+                  variants={settingsVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600"
+                >
+                  <div className="p-3 grid grid-cols-3 gap-2">
+                    <button
+                      onClick={toggleLanguage}
+                      className="flex flex-col items-center justify-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      <Languages className="w-5 h-5 text-gray-600 dark:text-gray-300 mb-1" />
+                      <span className="text-xs text-gray-600 dark:text-gray-300">{t("اللغة", "Language")}</span>
+                    </button>
+
+                    <button
+                      onClick={toggleDarkMode}
+                      className="flex flex-col items-center justify-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      {isDarkMode ? (
+                        <Sun className="w-5 h-5 text-gray-600 dark:text-gray-300 mb-1" />
+                      ) : (
+                        <Moon className="w-5 h-5 text-gray-600 dark:text-gray-300 mb-1" />
+                      )}
+                      <span className="text-xs text-gray-600 dark:text-gray-300">{t("المظهر", "Theme")}</span>
+                    </button>
+
+                    <button
+                      onClick={toggleMute}
+                      className="flex flex-col items-center justify-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      {isMuted ? (
+                        <VolumeX className="w-5 h-5 text-gray-600 dark:text-gray-300 mb-1" />
+                      ) : (
+                        <Volume2 className="w-5 h-5 text-gray-600 dark:text-gray-300 mb-1" />
+                      )}
+                      <span className="text-xs text-gray-600 dark:text-gray-300">{t("الصوت", "Sound")}</span>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="p-4 bg-gray-50 dark:bg-gray-800">
+              {showUserInfoForm ? (
+                <form onSubmit={handleUserInfoSubmit} className="space-y-4">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t("الرجاء تقديم بعض المعلومات", "Please provide some information")}
+                  </h3>
+
+                  {formStep === "name" && (
+                    <div>
+                      <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        {t("الاسم", "Name")}
+                      </label>
+                      <input
+                        type="text"
+                        value={userInfo.name || ""}
+                        onChange={(e) => updateUserInfo("name", e.target.value)}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-700 dark:text-white"
+                        placeholder={t("أدخل اسمك", "Enter your name")}
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {formStep === "email" && (
+                    <div>
+                      <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        {t("البريد الإلكتروني", "Email")}
+                      </label>
+                      <input
+                        type="email"
+                        value={userInfo.email || ""}
+                        onChange={(e) => updateUserInfo("email", e.target.value)}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-700 dark:text-white"
+                        placeholder={t("أدخل بريدك الإلكتروني", "Enter your email")}
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {formStep === "location" && (
+                    <div>
+                      <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        {t("الموقع", "Location")}
+                      </label>
+                      <input
+                        type="text"
+                        value={userInfo.location || ""}
+                        onChange={(e) => updateUserInfo("location", e.target.value)}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-700 dark:text-white"
+                        placeholder={t("أدخل موقعك", "Enter your location")}
+                      />
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full py-2 px-4 text-white rounded-md text-sm font-medium transition-colors"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    {formStep === "location" ? t("إنهاء", "Finish") : t("التالي", "Next")}
+                  </button>
+                </form>
+              ) : (
+                <>
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                      <span className="font-medium">{greetingMessage}!</span> {welcomeMessage}
+                    </p>
+                  </div>
+
+                  {collectUserInfo && !userInfo.name && (
+                    <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-md">
+                      <p className="text-xs text-blue-700 dark:text-blue-300">
+                        {t(
+                          "تقديم معلوماتك سيساعدنا على خدمتك بشكل أفضل",
+                          "Providing your information will help us serve you better",
+                        )}
+                      </p>
+                      <button
+                        onClick={() => {
+                          playSound("click")
+                          setShowUserInfoForm(true)
+                        }}
+                        className="mt-2 text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                      >
+                        {t("إضافة معلوماتي", "Add my information")}
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <motion.button
+                      variants={optionVariants}
                       initial="hidden"
                       animate="visible"
-                      className={`mb-4 ${message.sender === 'bot' ? '' : 'flex justify-end'}`}
+                      custom={0}
+                      whileHover="hover"
+                      onClick={openWhatsapp}
+                      className="flex items-center justify-between w-full bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm py-3 px-4 rounded-md shadow-sm transition-colors duration-200 border border-gray-100 dark:border-gray-600"
                     >
-                      {message.sender === 'bot' ? (
-                        <div className="flex items-start max-w-[85%]">
-                          <div className="bg-green-100 p-1.5 rounded-full mr-2 mt-1">
-                            <MessageCircle className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div className="bg-white p-3 rounded-lg shadow-sm">
-                            <div className="text-sm text-gray-800">{message.content}</div>
-                            {message.options && (
-                              <div className="mt-3 space-y-2">
-                                {message.options.map((option, i) => (
-                                  <motion.button
-                                    key={option.id}
-                                    id={`option-${option.id}`}
-                                    variants={optionVariants}
-                                    initial="hidden"
-                                    animate="visible"
-                                    custom={i}
-                                    whileHover="hover"
-                                    onClick={() => handleOptionSelect(currentStep, option.value, option.text)}
-                                    className="flex items-center justify-between w-full bg-gray-50 hover:bg-green-50 text-gray-700 text-sm py-2 px-3 rounded-md shadow-sm transition-colors duration-200"
-                                  >
-                                    <span className="flex items-center">
-                                      {option.icon && <span className="ml-2">{option.icon}</span>}
-                                      {option.text}
-                                    </span>
-                                  </motion.button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="bg-green-500 text-white p-3 rounded-lg shadow-sm max-w-[85%]">
-                          <div className="text-sm">{message.content}</div>
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-                {isTyping && (
-                  <div className="mb-4">
-                    <div className="flex items-start">
-                      <div className="bg-green-100 p-1.5 rounded-full mr-2 mt-1">
-                        <MessageCircle className="w-4 h-4 text-green-600" />
-                      </div>
-                      <div className="bg-white p-3 rounded-lg shadow-sm">
-                        <div className="text-sm text-gray-800">بكتبلك حالا...</div>
+                      <span className="flex items-center">
+                        <Phone
+                          className={`w-5 h-5 ${currentLanguage === "ar" ? "ml-3" : "mr-3"}`}
+                          style={{ color: primaryColor }}
+                        />
+                        <span>{t("التحدث عبر الواتساب", "Chat via WhatsApp")}</span>
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+                        {t("مباشر", "Live")}
+                      </span>
+                    </motion.button>
+                  </div>
+
+                  {enableAnalytics && (
+                    <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>
+                          {t("التفاعلات", "Interactions")}: {analyticsData.interactions}
+                        </span>
+                        <span>
+                          {t("واتساب", "WhatsApp")}: {analyticsData.whatsappClicks}
+                        </span>
                       </div>
                     </div>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            )}
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="p-2 bg-gray-100 dark:bg-gray-700 text-center text-xs text-gray-500 dark:text-gray-400">
+              {t("بواسطة", "Powered by")} {storeName} © {new Date().getFullYear()}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  );
-};
+  )
+}
 
-export default WhatsappHelper;
+export default WhatsappHelper
