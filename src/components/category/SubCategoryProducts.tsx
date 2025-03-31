@@ -64,4 +64,3 @@ const SubCategoryProducts = ({
 }
 
 export default SubCategoryProducts
-

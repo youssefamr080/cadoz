@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface WishlistItemProps {
     id: number;
@@ -18,11 +19,15 @@ const WishlistItem: React.FC<WishlistItemProps> = ({ id, title, description, ima
     return (
         <div style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem', borderRadius: '4px' }}>
             {imageUrl && (
-                <img
-                    src={imageUrl}
-                    alt={title}
-                    style={{ width: '100%', height: 'auto', borderRadius: '4px', marginBottom: '0.5rem' }}
-                />
+                <div style={{ position: 'relative', width: '100%', height: '200px' }}>
+                    <Image
+                        src={imageUrl}
+                        alt={title}
+                        fill
+                        style={{ objectFit: 'cover', borderRadius: '4px' }}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                </div>
             )}
             <h3>{title}</h3>
             {description && <p>{description}</p>}

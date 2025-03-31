@@ -21,6 +21,7 @@ export interface Product {
     occasion?: string[]
     season?: string[]
     discount_percentage?: number
-  }
+    video?: string
+}
   
   

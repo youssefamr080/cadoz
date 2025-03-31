@@ -1,22 +1,17 @@
 "use client"
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
-import Image from "next/image"
 import Link from "next/link"
 import {
-  FiHeart,
   FiShoppingCart,
-  FiShare2,
   FiArrowLeft,
   FiCheck,
   FiPackage,
   FiTruck,
-  FiCopy,
   FiAlertCircle,
+  FiHeart,
+  FiShare2,
 } from "react-icons/fi"
-import { Swiper, SwiperSlide } from "swiper/react"
-import { FreeMode, Navigation, Pagination, Thumbs } from "swiper/modules"
-import type { Swiper as SwiperType } from "swiper"
 import "swiper/css"
 import "swiper/css/free-mode"
 import "swiper/css/navigation"
@@ -28,66 +23,17 @@ import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { useCart } from "../../../context/CartContext"
 import { useWishlist } from "../../../context/WishlistContext"
-import { useGetProductByIdQuery,  } from "../../../lib/redux/api/apiSlice"
+import { useGetProductByIdQuery } from "../../../lib/redux/api/apiSlice"
 import LoadingSpinner from "../../../components/ui/LoadingSpinner"
-
-// Define Product interface
-interface Product {
-  id: number
-  name: string
-  image: string
-  price: number
-  old_price?: number
-  stock: number
-  discount_percentage?: number
-  description?: string
-  category?: string
-  tags?: string[]
-  images?: string[]
-}
-
-// إضافة hook للتوصيات
-// Add recommendations hook
-const useRecommendations = (productId: number, category?: string, tags?: string[]) => {
-  const [recommendations, setRecommendations] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        // Get viewed products from localStorage
-        const viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]") as Product[]
-        const excludeIds = [...viewedProducts.map((p: Product) => p.id), productId].join(",")
-        
-        // Build query params
-        const params = new URLSearchParams({
-          excludeIds,
-          limit: "12",
-        })
-        
-        if (category) params.append("category", category)
-        if (tags?.length) params.append("tags", tags.join(","))
-
-        const response = await fetch(`/api/recommendations?${params.toString()}`)
-        const data = await response.json()
-        
-        if (data.success) {
-          setRecommendations(data.data)
-        }
-      } catch (error) {
-        console.error("Error fetching recommendations:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    if (productId) {
-      fetchRecommendations()
-    }
-  }, [productId, category, tags])
-
-  return { recommendations, loading }
-}
+import ProductRating from "../../../components/product/product-rating"
+import ProductReviews from "../../../components/product/product-reviews"
+import ProductRecommendations from "../../../components/product/product-recommendations"
+import ProductSocialShare from "../../../components/product/product-social-share"
+import ProductImageGallery from "../../../components/product/product-image-gallery"
+import ProductInfoTabs from "../../../components/product/product-info-tabs"
+import ProductColorSelector from "../../../components/product/product-color-selector"
+import ProductNotification from "../../../components/product/product-notification"
+import RecentlyViewedProducts from "../../../components/product/recently-viewed-products"
 
 const ProductPage = () => {
   const { productId } = useParams()
@@ -97,17 +43,16 @@ const ProductPage = () => {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist()
   const [isFavorite, setIsFavorite] = useState(false)
   const [quantity, setQuantity] = useState(1)
-  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null)
+  const [selectedColor, setSelectedColor] = useState<string>("")
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
+  const [showAddedAnimation, setShowAddedAnimation] = useState(false)
+
+  // User info for reviews (normally would come from auth context)
+  const userId = "guest-user" // Replace with actual user ID when authentication is implemented
+  const userName = "زائر" // Replace with actual user name when authentication is implemented
 
   // Fetch product data using RTK Query
   const { data: product, isLoading, error } = useGetProductByIdQuery(Number(productId))
-
-  // Add recommendations hook
-  const { recommendations, loading: loadingRecommendations } = useRecommendations(
-    Number(productId),
-    product?.category,
-    product?.tags
-  )
 
   // تعيين الصورة الرئيسية عند تحميل المنتج
   useEffect(() => {
@@ -128,8 +73,29 @@ const ProductPage = () => {
       const updatedViewed = [product, ...viewedProducts.filter((p: { id: number }) => p.id !== product.id)].slice(0, 10) // حفظ آخر 10 منتجات فقط
 
       localStorage.setItem("viewedProducts", JSON.stringify(updatedViewed))
+
+      // تسجيل مشاهدة المنتج في قاعدة البيانات
+      const recordProductView = async () => {
+        try {
+          await fetch("/api/recommendations", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: userId || "anonymous", // استخدم معرف المستخدم إذا كان متاحًا
+              productId: product.id,
+              action: "view",
+            }),
+          })
+        } catch (error) {
+          console.error("Error recording product view:", error)
+        }
+      }
+
+      recordProductView()
     }
-  }, [product, wishlist])
+  }, [product, wishlist, userId])
 
   // معالجة تغيير كمية المنتج
   const changeQuantity = useCallback(
@@ -161,24 +127,45 @@ const ProductPage = () => {
       return
     }
 
-    addToCart({
-      id: product.id,
-      name: product.name,
-      image: product.image,
-      price: product.price,
-      quantity,
-    })
+    // التحقق من اختيار اللون إذا كان المنتج يحتوي على ألوان متعددة
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+      toast.warning("الرجاء اختيار اللون", {
+        position: "bottom-right",
+      })
+      return
+    }
 
-    toast.success(
-      <div className="flex items-center rtl:flex-row-reverse">
-        <span>✅ تمت الإضافة!</span>
-        <Link href="/cart" className="text-blue-600 underline mr-2 rtl:mr-0 rtl:ml-2">
-          عرض السلة 🛒
-        </Link>
-      </div>,
-      { position: "bottom-right", autoClose: 3000 },
-    )
-  }, [product, addToCart, quantity, isProductOutOfStock])
+    setIsAddingToCart(true)
+
+    // محاكاة تأخير الإضافة للسلة
+    setTimeout(() => {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        quantity,
+        variant: selectedColor ? `اللون: ${selectedColor}` : undefined,
+      })
+
+      setIsAddingToCart(false)
+      setShowAddedAnimation(true)
+
+      setTimeout(() => {
+        setShowAddedAnimation(false)
+      }, 1500)
+
+      toast.success(
+        <div className="flex items-center rtl:flex-row-reverse">
+          <span>✅ تمت الإضافة!</span>
+          <Link href="/cart" className="text-blue-600 underline mr-2 rtl:mr-0 rtl:ml-2">
+            عرض السلة 🛒
+          </Link>
+        </div>,
+        { position: "bottom-right", autoClose: 3000 },
+      )
+    }, 600)
+  }, [product, addToCart, quantity, isProductOutOfStock, selectedColor])
 
   // معالجة إضافة/إزالة المنتج من المفضلة
   const handleToggleWishlist = useCallback(() => {
@@ -194,37 +181,28 @@ const ProductPage = () => {
         image: product.image,
         price: product.price,
       })
+
+      // تسجيل إضافة المنتج للمفضلة
+      if (userId) {
+        fetch("/api/recommendations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId,
+            productId: product.id,
+            action: "favorite",
+          }),
+        }).catch((error) => {
+          console.error("Error recording favorite:", error)
+        })
+      }
+
       toast.success("تمت الإضافة إلى المفضلة!", { position: "bottom-right" })
     }
     setIsFavorite(!isFavorite)
-  }, [product, isFavorite, addToWishlist, removeFromWishlist])
-
-  // معالجة مشاركة المنتج عبر وسائل التواصل المختلفة
-  const handleShare = useCallback(
-    (platform: string) => {
-      if (!product) return
-
-      const url = window.location.href
-      const message = `✨ تحقق من هذا المنتج: *${product.name}* 📌 السعر: ${product.price} ج.م`
-
-      let shareUrl = ""
-
-      switch (platform) {
-        case "whatsapp":
-          shareUrl = `https://wa.me/?text=${encodeURIComponent(message + " 🔗 " + url)}`
-          break
-
-        default:
-          // نسخ الرابط للمشاركة
-          navigator.clipboard.writeText(url)
-          toast.info("تم نسخ رابط المنتج!", { position: "bottom-right" })
-          return
-      }
-
-      window.open(shareUrl, "_blank")
-    },
-    [product],
-  )
+  }, [product, isFavorite, addToWishlist, removeFromWishlist, userId])
 
   // عرض شاشة التحميل
   if (isLoading) {
@@ -289,6 +267,9 @@ const ProductPage = () => {
   const discountPercentage =
     product.old_price && Math.round(((product.old_price - product.price) / product.old_price) * 100)
 
+  // تحويل اللون الواحد إلى مصفوفة ألوان إذا لم تكن موجودة
+  const productColors = product.colors || []
+
   return (
     <div className="bg-gray-50 min-h-screen font-sans flex flex-col">
       <Header />
@@ -310,7 +291,7 @@ const ProductPage = () => {
               <div className="relative p-4 md:p-6">
                 {/* شارة الخصم */}
                 {discountPercentage > 0 && (
-                  <div className="absolute top-6 left-6 bg-red-500 text-white py-1 px-3 text-sm font-bold z-10 shadow-md rounded-full">
+                  <div className="absolute top-6 left-6 bg-gradient-to-r from-red-500 to-pink-500 text-white py-1.5 px-4 text-sm font-bold z-10 shadow-md rounded-full animate-pulse">
                     خصم {discountPercentage}%
                   </div>
                 )}
@@ -328,76 +309,47 @@ const ProductPage = () => {
                   )
                 )}
 
-                {/* عارض الصور الرئيسي */}
-                <div className="mb-3">
-                  <Swiper
-                    slidesPerView={1}
-                    pagination={{
-                      clickable: true,
-                      dynamicBullets: true,
-                    }}
-                    navigation={true}
-                    modules={[Navigation, Pagination, Thumbs]}
-                    thumbs={{ swiper: thumbsSwiper }}
-                    className="rounded-xl overflow-hidden product-main-swiper h-80 md:h-96"
-                  >
-                    {product.images?.map((img, index) => (
-                      <SwiperSlide key={index}>
-                        <div className="relative w-full h-80 md:h-96 bg-gray-100 rounded-xl overflow-hidden">
-                          <Image
-                            src={img || "/placeholder.svg"}
-                            alt={`${product.name} - صورة ${index + 1}`}
-                            fill
-                            priority={index === 0}
-                            className="object-contain"
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                          />
-                        </div>
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-                </div>
-
-                {/* المصغرات */}
-                {product.images && product.images.length > 1 && (
-                  <Swiper
-                    onSwiper={setThumbsSwiper}
-                    spaceBetween={8}
-                    slidesPerView={4.5}
-                    freeMode={true}
-                    watchSlidesProgress={true}
-                    modules={[FreeMode, Navigation, Thumbs]}
-                    className="thumbs-swiper"
-                    breakpoints={{
-                      320: { slidesPerView: 3.5 },
-                      480: { slidesPerView: 4.5 },
-                      640: { slidesPerView: 5.5 },
-                    }}
-                  >
-                    {product.images.map((img, index) => (
-                      <SwiperSlide key={index}>
-                        <div
-                          className="relative w-16 h-16 md:w-20 md:h-20 rounded-md overflow-hidden cursor-pointer border-2 hover:border-blue-500 transition-all"
-                          onClick={() => setMainImage(img)}
-                        >
-                          <Image
-                            src={img || "/placeholder.svg"}
-                            alt={`صورة مصغرة ${index + 1}`}
-                            fill
-                            className="object-cover"
-                            sizes="80px"
-                          />
-                        </div>
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-                )}
+                {/* استخدام مكون معرض الصور المحسن */}
+                <ProductImageGallery images={product.images || [product.image]} alt={product.name} />
               </div>
 
               {/* تفاصيل المنتج */}
               <div className="p-4 md:p-6 space-y-5">
+                {/* معلومات المنتج الأساسية */}
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+                  <div className="flex justify-between items-start">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleToggleWishlist}
+                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
+                          isFavorite
+                            ? "bg-red-50 text-red-500 hover:bg-red-100"
+                            : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                        }`}
+                        aria-label={isFavorite ? "إزالة من المفضلة" : "إضافة إلى المفضلة"}
+                      >
+                        <FiHeart className={`w-5 h-5 ${isFavorite ? "fill-red-500" : ""}`} />
+                      </button>
+                      <div className="relative group">
+                        <button
+                          className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100 transition-colors"
+                          aria-label="مشاركة"
+                        >
+                          <FiShare2 className="w-5 h-5" />
+                        </button>
+                        <div className="absolute top-full right-0 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-10">
+                          <ProductSocialShare
+                            url={typeof window !== "undefined" ? window.location.href : ""}
+                            title={product.name}
+                            image={product.image}
+                            price={product.price}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <ProductRating productId={product.id} className="mb-3" />
                   <div className="flex flex-wrap items-center gap-3 mb-4">
                     {isProductOutOfStock ? (
                       <div className="bg-red-100 text-red-700 text-sm py-1 px-3 rounded-full flex items-center">
@@ -411,194 +363,266 @@ const ProductPage = () => {
                     {!isProductOutOfStock && product.stock > 10 && (
                       <div className="bg-blue-100 text-blue-700 text-sm py-1 px-3 rounded-full">يشحن سريعاً</div>
                     )}
+
+                    {/* إضافة مكون الإشعار عند توفر المنتج */}
+                    <div className="ml-auto">
+                      <ProductNotification
+                        productId={product.id}
+                        productName={product.name}
+                        isOutOfStock={isProductOutOfStock}
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* السعر */}
-                <div className="flex items-center flex-wrap gap-3">
-                  <p className="text-3xl font-bold text-gray-900">
-                    {product.price} <span className="text-lg">ج.م</span>
-                  </p>
-                  {product.old_price && <p className="text-gray-500 line-through text-lg">{product.old_price} ج.م</p>}
+                <div className="flex items-center flex-wrap gap-3 bg-gradient-to-r from-amber-50 to-yellow-50 p-4 rounded-xl border border-amber-100">
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 mb-1">السعر:</span>
+                    <div className="flex items-end gap-2">
+                      <p className="text-3xl font-bold text-amber-600">
+                        {product.price} <span className="text-lg">ج.م</span>
+                      </p>
+                      {product.old_price && (
+                        <div className="flex flex-col">
+                          <p className="text-gray-500 line-through text-lg">{product.old_price} ج.م</p>
+                          <p className="text-red-500 text-sm font-medium">
+                            وفر {(product.old_price - product.price).toFixed(2)} ج.م
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {discountPercentage > 0 && (
+                    <div className="ml-auto bg-red-500 text-white py-2 px-4 rounded-lg font-bold text-xl shadow-md">
+                      {discountPercentage}% خصم
+                    </div>
+                  )}
                 </div>
 
-                {/* الوصف */}
-                <div className="py-3 border-t border-b border-gray-100">
-                  <p className="text-gray-700 leading-relaxed">{product.description}</p>
-                </div>
+                {/* اختيار اللون - إذا كان المنتج يحتوي على ألوان متعددة */}
+                {productColors.length > 0 && (
+                  <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <ProductColorSelector
+                      colors={productColors}
+                      selectedColor={selectedColor}
+                      onChange={setSelectedColor}
+                    />
+                  </div>
+                )}
 
-                {/* كمية المنتج */}
-                <div className="flex items-center space-x-4 rtl:space-x-reverse pt-2">
-                  <span className="text-gray-700">الكمية:</span>
-                  <div className="flex items-center border border-gray-300 rounded-lg">
+                {/* قسم الشراء */}
+                <div className="sticky bottom-0 md:relative bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4">
+                  {/* كمية المنتج */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 font-medium">الكمية:</span>
+                    <div className="flex items-center border border-gray-300 rounded-lg bg-white">
+                      <button
+                        onClick={() => changeQuantity(-1)}
+                        className={`px-3 py-2 text-lg border-r rtl:border-r-0 rtl:border-l border-gray-300 hover:bg-gray-100 transition ${
+                          isProductOutOfStock ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                        disabled={isProductOutOfStock}
+                      >
+                        -
+                      </button>
+                      <span className="px-4 py-2 font-medium min-w-[40px] text-center">{quantity}</span>
+                      <button
+                        onClick={() => changeQuantity(1)}
+                        className={`px-3 py-2 text-lg border-l rtl:border-l-0 rtl:border-r border-gray-300 hover:bg-gray-100 transition ${
+                          isProductOutOfStock ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
+                        disabled={isProductOutOfStock}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* عرض حالة المخزون بشكل مرئي */}
+                  {!isProductOutOfStock && (
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm text-gray-600">المتوفر في المخزون</span>
+                        <span className="text-sm font-medium">{product.stock} قطعة</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div
+                          className={`h-2.5 rounded-full ${
+                            product.stock < 5 ? "bg-red-500" : product.stock < 20 ? "bg-amber-500" : "bg-green-500"
+                          }`}
+                          style={{ width: `${Math.min(100, (product.stock / 50) * 100)}%` }}
+                        ></div>
+                      </div>
+                      {product.stock < 5 && <p className="text-xs text-red-600 mt-1">كمية محدودة متبقية!</p>}
+                    </div>
+                  )}
+
+                  {/* زر إضافة إلى السلة */}
+                  <div className="relative">
                     <button
-                      onClick={() => changeQuantity(-1)}
-                      className={`px-3 py-1 text-lg border-r rtl:border-r-0 rtl:border-l border-gray-300 hover:bg-gray-100 transition ${
-                        isProductOutOfStock ? "opacity-50 cursor-not-allowed" : ""
+                      onClick={handleAddToCart}
+                      disabled={isProductOutOfStock || isAddingToCart}
+                      className={`w-full py-4 rounded-xl flex items-center justify-center gap-3 font-bold text-lg transition-all duration-300 shadow-md ${
+                        isProductOutOfStock
+                          ? "bg-gray-400 cursor-not-allowed text-white"
+                          : isAddingToCart
+                            ? "bg-amber-400 text-white"
+                            : "bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white hover:shadow-lg transform hover:-translate-y-1"
                       }`}
-                      disabled={isProductOutOfStock}
                     >
-                      -
+                      {isProductOutOfStock ? (
+                        <>
+                          <FiAlertCircle className="w-6 h-6" /> غير متوفر حالياً
+                        </>
+                      ) : isAddingToCart ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          جاري الإضافة...
+                        </>
+                      ) : (
+                        <>
+                          <FiShoppingCart className="w-6 h-6" /> أضف إلى السلة
+                        </>
+                      )}
                     </button>
-                    <span className="px-4 py-1 font-medium">{quantity}</span>
-                    <button
-                      onClick={() => changeQuantity(1)}
-                      className={`px-3 py-1 text-lg border-l rtl:border-l-0 rtl:border-r border-gray-300 hover:bg-gray-100 transition ${
-                        isProductOutOfStock ? "opacity-50 cursor-not-allowed" : ""
-                      }`}
-                      disabled={isProductOutOfStock}
-                    >
-                      +
-                    </button>
+
+                    {/* تأثير الإضافة للسلة */}
+                    {showAddedAnimation && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-green-500 text-white rounded-xl animate-fade-out">
+                        <div className="flex items-center gap-2">
+                          <FiCheck className="w-6 h-6" />
+                          <span className="font-bold">تمت الإضافة!</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* أزرار العمليات */}
-                <div className="flex flex-col sm:flex-row gap-3 mt-6">
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isProductOutOfStock}
-                    className={`flex-1 px-6 py-3 rounded-lg flex items-center justify-center gap-2 font-medium transition duration-300 shadow-sm ${
-                      isProductOutOfStock
-                        ? "bg-gray-400 cursor-not-allowed text-white"
-                        : "bg-amber-500 hover:bg-amber-600 text-white"
-                    }`}
-                  >
-                    {isProductOutOfStock ? (
-                      <>
-                        <FiAlertCircle className="w-5 h-5" /> غير متوفر حالياً
-                      </>
-                    ) : (
-                      <>
-                        <FiShoppingCart className="w-5 h-5" /> أضف إلى السلة
-                      </>
-                    )}
-                  </button>
-                  <button
-                    onClick={handleToggleWishlist}
-                    className={`flex-1 sm:flex-none px-6 py-3 rounded-lg flex items-center justify-center gap-2 font-medium transition duration-300 shadow-sm ${
-                      isFavorite
-                        ? "bg-red-600 hover:bg-red-700 text-white"
-                        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                    }`}
-                  >
-                    <FiHeart className="w-5 h-5" /> {isFavorite ? "في المفضلة" : "أضف للمفضلة"}
-                  </button>
-                </div>
+                {/* الوصف المختصر */}
+                {product.description && (
+                  <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 className="font-medium text-gray-800 mb-2">وصف المنتج:</h3>
+                    <p className="text-gray-700 leading-relaxed line-clamp-3">{product.description}</p>
+                    <button
+                      onClick={() => document.getElementById("product-tabs")?.scrollIntoView({ behavior: "smooth" })}
+                      className="text-blue-600 text-sm mt-2 hover:underline"
+                    >
+                      عرض المزيد من التفاصيل
+                    </button>
+                  </div>
+                )}
 
                 {/* مميزات المتجر */}
-                <div className="grid grid-cols-2 gap-3 pt-4 mt-6 border-t border-gray-100">
-                  <div className="flex items-center gap-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 bg-blue-50 p-3 rounded-lg border border-blue-100">
                     <FiTruck className="text-blue-600 w-5 h-5" />
                     <span className="text-sm text-gray-700">توصيل سريع</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <FiPackage className="text-blue-600 w-5 h-5" />
+                  <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg border border-green-100">
+                    <FiPackage className="text-green-600 w-5 h-5" />
                     <span className="text-sm text-gray-700">ضمان جودة المنتج</span>
                   </div>
-                </div>
-
-                {/* المشاركة */}
-                <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gray-100">
-                  <span className="text-gray-700">مشاركة:</span>
-                  <button
-                    onClick={() => handleShare("whatsapp")}
-                    className="bg-green-500 hover:bg-green-600 text-white p-2 rounded-full transition"
-                    aria-label="مشاركة عبر واتساب"
-                  >
-                    <FiShare2 className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleShare("copy")}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 p-2 rounded-full transition"
-                    aria-label="نسخ الرابط"
-                  >
-                    <FiCopy className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* تفاصيل المنتج والمواصفات */}
+          <div className="mt-8" id="product-tabs">
+            <ProductInfoTabs
+              description={product.description || "لا يوجد وصف متاح لهذا المنتج."}
+              brand={product.brand}
+              colors={productColors}
+            />
+          </div>
+
+          {/* تقييمات المنتج */}
+          <div className="mt-10 md:mt-16">
+            <ProductReviews productId={product.id} userId={userId} userName={userName} />
+          </div>
+
+          {/* المنتجات المشاهدة مؤخرًا */}
+          <div className="mt-10 md:mt-16">
+            <RecentlyViewedProducts excludeProductId={product.id} />
+          </div>
+
           {/* منتجات موصى بها */}
-          {(recommendations.length > 0 || loadingRecommendations) && (
-            <div className="mt-10 md:mt-16">
-              <h2 className="text-xl md:text-2xl font-bold mb-6 text-gray-800 relative pr-3 rtl:pl-3 rtl:pr-0 before:absolute before:right-0 rtl:before:left-0 rtl:before:right-auto before:top-0 before:h-full before:w-1 before:bg-amber-500 before:rounded-full">
-                منتجات موصى بها لك
-              </h2>
-              <div className="space-y-6">
-                {loadingRecommendations ? (
-                  <div className="flex justify-center py-8">
-                    <LoadingSpinner message="جاري تحميل التوصيات..." />
-                  </div>
-                ) : (
-                  <Swiper
-                    modules={[FreeMode, Navigation]}
-                    spaceBetween={16}
-                    slidesPerView={6}
-                    freeMode={true}
-                    navigation={{
-                      nextEl: ".swiper-button-next",
-                      prevEl: ".swiper-button-prev",
-                    }}
-                    breakpoints={{
-                      320: { slidesPerView: 2.2, spaceBetween: 12 },
-                      480: { slidesPerView: 2.5, spaceBetween: 12 },
-                      640: { slidesPerView: 3.5, spaceBetween: 16 },
-                      768: { slidesPerView: 4, spaceBetween: 16 },
-                      1024: { slidesPerView: 5, spaceBetween: 16 },
-                      1280: { slidesPerView: 6, spaceBetween: 16 },
-                    }}
-                    className="py-4 px-2"
-                  >
-                    {recommendations.map((p) => (
-                      <SwiperSlide key={p.id} className="h-auto">
-                        <Link
-                          href={`/product/${p.id}`}
-                          className="block bg-white rounded-xl shadow-sm hover:shadow-md transition-all h-full border border-gray-100 overflow-hidden"
-                        >
-                          <div className="relative pt-[100%]">
-                            <Image
-                              src={p.image || "/placeholder.svg"}
-                              alt={p.name}
-                              fill
-                              className="rounded-t-xl object-cover transition-transform hover:scale-105 duration-300"
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
-                            />
-                            {p.discount_percentage > 0 && (
-                              <div className="absolute top-2 left-2 bg-red-500 text-white py-1 px-2 text-xs font-semibold rounded-full">
-                                خصم {p.discount_percentage}%
-                              </div>
-                            )}
-                            {p.stock === 0 && (
-                              <div className="absolute bottom-2 right-2 bg-red-500 text-white py-1 px-2 text-xs font-semibold rounded-full">
-                                غير متوفر
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-3">
-                            <h3 className="font-medium text-sm line-clamp-2 h-10 mb-1">{p.name}</h3>
-                            <div className="flex items-center justify-between">
-                              <p className="text-gray-900 font-bold text-sm">
-                                {p.price} <span className="text-xs">ج.م</span>
-                              </p>
-                              {p.old_price && <p className="text-gray-500 line-through text-xs">{p.old_price}</p>}
-                            </div>
-                          </div>
-                        </Link>
-                      </SwiperSlide>
-                    ))}
-                    <div className="swiper-button-next !w-10 !h-10 !rounded-full bg-white shadow-md after:!text-lg"></div>
-                    <div className="swiper-button-prev !w-10 !h-10 !rounded-full bg-white shadow-md after:!text-lg"></div>
-                  </Swiper>
-                )}
-              </div>
-            </div>
-          )}
+          <div className="mt-10 md:mt-16">
+            <ProductRecommendations productId={product.id} category={product.category} tags={product.tags} />
+          </div>
         </main>
       </div>
       <ToastContainer rtl={true} />
       <Footer />
+
+      {/* زر ثابت للإضافة إلى السلة في الهواتف المحمولة */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-lg z-50">
+        <div className="flex items-center gap-3">
+          <div className="flex-1">
+            <p className="font-bold text-lg text-amber-600">{product.price} ج.م</p>
+            {product.old_price && <p className="text-gray-500 line-through text-sm">{product.old_price} ج.م</p>}
+          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={isProductOutOfStock || isAddingToCart}
+            className={`flex-1 py-3 rounded-xl flex items-center justify-center gap-2 font-bold transition-all duration-300 shadow-md ${
+              isProductOutOfStock
+                ? "bg-gray-400 cursor-not-allowed text-white"
+                : isAddingToCart
+                  ? "bg-amber-400 text-white"
+                  : "bg-gradient-to-r from-amber-500 to-yellow-500 text-white"
+            }`}
+          >
+            {isProductOutOfStock ? (
+              <>
+                <FiAlertCircle className="w-5 h-5" /> غير متوفر
+              </>
+            ) : isAddingToCart ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                جاري...
+              </>
+            ) : (
+              <>
+                <FiShoppingCart className="w-5 h-5" /> أضف إلى السلة
+              </>
+            )}
+          </button>
+        </div>
+      </div>
 
       {/* CSS إضافي - يمكن نقله لملف منفصل */}
       <style jsx global>{`
@@ -611,6 +635,29 @@ const ProductPage = () => {
         }
         .thumbs-swiper .swiper-slide-thumb-active div {
           border-color: #f59e0b;
+        }
+        
+        /* تحسينات للتجاوب مع الهواتف المحمولة */
+        @media (max-width: 640px) {
+          .product-main-swiper .swiper-button-next,
+          .product-main-swiper .swiper-button-prev {
+            display: none;
+          }
+          
+          .product-main-swiper .swiper-pagination {
+            bottom: 0;
+          }
+        }
+
+        /* تأثير الإضافة للسلة */
+        @keyframes fadeOut {
+          0% { opacity: 1; }
+          70% { opacity: 1; }
+          100% { opacity: 0; }
+        }
+        
+        .animate-fade-out {
+          animation: fadeOut 1.5s forwards;
         }
       `}</style>
     </div>

@@ -1,9 +1,8 @@
 "use client"
 
 import type React from "react"
-
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { useGift } from "../../context/GiftContext"
 import {
   ChevronLeft,
@@ -15,35 +14,44 @@ import {
   CheckSquare,
   ShoppingBag,
   Loader2,
+  HelpCircle,
 } from "lucide-react"
-import { giftTheme } from "../gift/lib/gift-theme"
+import { giftTheme } from "../../components/gift/lib/gift-theme"
+import { useMediaQuery } from "../../components/gift/hooks/use-media-query"
+import { useLocalStorage } from "../../components/gift/hooks/use-local-storage"
 
 // Lazy load step components for better performance
 import dynamic from "next/dynamic"
 
-const GiftStepChocolates = dynamic(() => import("./gift-step-chocolates"), {
+const GiftStepChocolates = dynamic(() => import("../../components/gift/gift-step-chocolates"), {
   loading: () => <StepLoader title="جاري تحميل الشوكولاتة" />,
+  ssr: false,
 })
-const GiftStepCandies = dynamic(() => import("./gift-step-candies"), {
+const GiftStepCandies = dynamic(() => import("../../components/gift/gift-step-candies"), {
   loading: () => <StepLoader title="جاري تحميل الحلويات" />,
+  ssr: false,
 })
-const GiftStepBox = dynamic(() => import("./gift-step-box"), {
+const GiftStepBox = dynamic(() => import("../../components/gift/gift-step-box"), {
   loading: () => <StepLoader title="جاري تحميل الصندوق" />,
+  ssr: false,
 })
-const GiftStepDecorations = dynamic(() => import("./gift-step-decorations"), {
+const GiftStepDecorations = dynamic(() => import("../../components/gift/gift-step-decorations"), {
   loading: () => <StepLoader title="جاري تحميل الزينة" />,
+  ssr: false,
 })
-const GiftStepWrap = dynamic(() => import("./gift-step-wrap"), {
+const GiftStepWrap = dynamic(() => import("../../components/gift/gift-step-wrap"), {
   loading: () => <StepLoader title="جاري تحميل التغليف" />,
+  ssr: false,
 })
-const GiftSummary = dynamic(() => import("./GiftSummary"), {
+const GiftSummary = dynamic(() => import("../../components/gift/GiftSummary"), {
   loading: () => <StepLoader title="جاري تحميل الملخص" />,
+  ssr: false,
 })
 
 // Simple loader component for step transitions
 const StepLoader = ({ title }: { title: string }) => (
-  <div className="flex flex-col items-center justify-center h-64">
-    <Loader2 className={`w-10 h-10 ${giftTheme.colors.primary.text} animate-spin mb-4`} />
+  <div className="flex flex-col items-center justify-center h-64" role="status" aria-live="polite">
+    <Loader2 className={`w-10 h-10 ${giftTheme.colors.primary.text} animate-spin mb-4`} aria-hidden="true" />
     <p className="text-gray-600 text-sm">{title}</p>
   </div>
 )
@@ -70,6 +78,7 @@ const stepsConfig = [
     icon: <Candy className="w-5 h-5" />,
     emoji: "🍫",
     color: "accent",
+    description: "اختر الشوكولاتة المفضلة لديك لإضافتها إلى الهدية",
   },
   {
     id: "candies",
@@ -78,6 +87,7 @@ const stepsConfig = [
     icon: <Candy className="w-5 h-5" />,
     emoji: "🍬",
     color: "secondary",
+    description: "أضف الحلويات اللذيذة لتكمل هديتك",
   },
   {
     id: "box",
@@ -86,6 +96,7 @@ const stepsConfig = [
     icon: <Package className="w-5 h-5" />,
     emoji: "🎁",
     color: "primary",
+    description: "اختر صندوقًا مناسبًا لهديتك",
   },
   {
     id: "decorations",
@@ -94,6 +105,7 @@ const stepsConfig = [
     icon: <Sparkles className="w-5 h-5" />,
     emoji: "✨",
     color: "secondary",
+    description: "أضف لمسات جمالية مع إكسسوارات الزينة",
   },
   {
     id: "wrap",
@@ -102,6 +114,7 @@ const stepsConfig = [
     icon: <Bookmark className="w-5 h-5" />,
     emoji: "🎀",
     color: "accent",
+    description: "اختر تغليفًا مميزًا لهديتك",
   },
   {
     id: "summary",
@@ -110,6 +123,7 @@ const stepsConfig = [
     icon: <CheckSquare className="w-5 h-5" />,
     emoji: "✅",
     color: "primary",
+    description: "راجع هديتك قبل إضافتها إلى السلة",
   },
 ] as const
 
@@ -144,6 +158,7 @@ type State = {
   activeTabIndex: number
   isLoading: boolean
   touchState: TouchState
+  helpVisible: boolean
 }
 
 type Action =
@@ -153,6 +168,7 @@ type Action =
   | { type: "TOUCH_END"; payload: { x: number; y: number } }
   | { type: "TOUCH_CANCEL" }
   | { type: "KEYBOARD_NAVIGATE"; payload: "next" | "prev" }
+  | { type: "TOGGLE_HELP" }
 
 const initialState: State = {
   currentStep: "chocolates",
@@ -168,6 +184,7 @@ const initialState: State = {
     maxSwipeTime: 300, // Maximum time for a swipe to register (ms)
     verticalThreshold: 30, // Maximum vertical movement to still consider a horizontal swipe
   },
+  helpVisible: false,
 }
 
 function reducer(state: State, action: Action): State {
@@ -259,6 +276,11 @@ function reducer(state: State, action: Action): State {
         activeTabIndex: newIndex,
       }
     }
+    case "TOGGLE_HELP":
+      return {
+        ...state,
+        helpVisible: !state.helpVisible,
+      }
     default:
       return state
   }
@@ -268,12 +290,15 @@ const GiftStepSwitcher = () => {
   // Use reducer for complex state management
   const [state, dispatch] = useReducer(reducer, initialState)
   const { state: giftState, totalItems, isBoxSelected, isWrapSelected, dispatch: giftDispatch } = useGift()
+  const shouldReduceMotion = useReducedMotion()
+  const isMobile = useMediaQuery("(max-width: 768px)")
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Client-side only state
   const [selectedItemsCount, setSelectedItemsCount] = useState(0)
+  const [savedStep, setSavedStep] = useLocalStorage<GiftStep>("currentGiftStep", "chocolates")
   const [isMounted, setIsMounted] = useState(false)
 
   // Initialize from localStorage and set up event listeners
@@ -281,31 +306,37 @@ const GiftStepSwitcher = () => {
     setIsMounted(true)
 
     // Load saved step from localStorage
-    const savedStep = localStorage.getItem("currentGiftStep")
     if (savedStep) {
       const stepIndex = stepsConfig.findIndex((s) => s.id === savedStep)
       if (stepIndex !== -1) {
         dispatch({
           type: "SET_STEP",
           payload: {
-            step: savedStep as GiftStep,
+            step: savedStep,
             direction: "right",
           },
         })
 
         // Also update the gift context
-        giftDispatch({ type: "CHANGE_STEP", payload: savedStep as GiftStep })
+        giftDispatch({ type: "CHANGE_STEP", payload: savedStep })
       }
     }
 
     // Set up keyboard navigation
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (document.activeElement?.tagName === "INPUT") return
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.tagName === "SELECT"
+      )
+        return
 
       if (e.key === "ArrowRight") {
         dispatch({ type: "KEYBOARD_NAVIGATE", payload: "prev" })
       } else if (e.key === "ArrowLeft") {
         dispatch({ type: "KEYBOARD_NAVIGATE", payload: "next" })
+      } else if (e.key === "?") {
+        dispatch({ type: "TOGGLE_HELP" })
       }
     }
 
@@ -314,14 +345,14 @@ const GiftStepSwitcher = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown)
     }
-  }, [giftDispatch])
+  }, [giftDispatch, savedStep])
 
   // Save current step to localStorage whenever it changes
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem("currentGiftStep", state.currentStep)
+      setSavedStep(state.currentStep)
     }
-  }, [state.currentStep, isMounted])
+  }, [state.currentStep, isMounted, setSavedStep])
 
   // Update selected items count
   useEffect(() => {
@@ -365,6 +396,16 @@ const GiftStepSwitcher = () => {
 
       // Update gift context
       giftDispatch({ type: "CHANGE_STEP", payload: newStep })
+
+      // تتبع تغيير الخطوة (يمكن استخدامه مع أدوات التحليلات)
+      if (typeof window !== "undefined" && "gtag" in window) {
+        const gtag = (window as any).gtag
+        gtag("event", "change_step", {
+          from_step: state.currentStep,
+          to_step: newStep,
+          direction: dir,
+        })
+      }
     },
     [state.currentStep, giftDispatch],
   )
@@ -441,6 +482,65 @@ const GiftStepSwitcher = () => {
   // Get current step info
   const currentStepInfo = useMemo(() => stepsConfig.find((s) => s.id === state.currentStep), [state.currentStep])
 
+  // Help dialog content
+  const HelpDialog = () => (
+    <motion.div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={() => dispatch({ type: "TOGGLE_HELP" })}
+    >
+      <motion.div
+        className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-xl font-bold text-indigo-800 mb-4">مساعدة سريعة</h3>
+        <div className="space-y-4">
+          <div>
+            <h4 className="font-bold text-indigo-700 mb-1">التنقل بين الخطوات</h4>
+            <ul className="text-sm space-y-2">
+              <li className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">←</kbd>
+                <span>الانتقال إلى الخطوة التالية</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">→</kbd>
+                <span>الانتقال إلى الخطوة السابقة</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">?</kbd>
+                <span>إظهار/إخفاء المساعدة</span>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-indigo-700 mb-1">اختصارات إضافية</h4>
+            <ul className="text-sm space-y-2">
+              <li className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">Enter</kbd>
+                <span>اختيار العنصر المحدد</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <kbd className="px-2 py-1 bg-gray-100 rounded text-xs">Tab</kbd>
+                <span>التنقل بين العناصر</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <button
+          className="mt-6 w-full py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
+          onClick={() => dispatch({ type: "TOGGLE_HELP" })}
+        >
+          إغلاق
+        </button>
+      </motion.div>
+    </motion.div>
+  )
+
   return (
     <motion.div
       ref={containerRef}
@@ -463,6 +563,7 @@ const GiftStepSwitcher = () => {
               }`}
               aria-label={step.fullTitle}
               aria-current={state.currentStep === step.id ? "step" : undefined}
+              aria-describedby={`step-desc-mobile-${step.id}`}
             >
               <div
                 className={`p-1.5 rounded-full mb-1 ${state.currentStep === step.id ? giftTheme.colors.primary.medium : "bg-gray-100"}`}
@@ -470,6 +571,9 @@ const GiftStepSwitcher = () => {
                 {step.icon}
               </div>
               <span className="text-xs truncate w-full text-center">{step.title}</span>
+              <span id={`step-desc-mobile-${step.id}`} className="sr-only">
+                {step.description}
+              </span>
               {state.currentStep === step.id && (
                 <motion.div
                   className={`absolute bottom-0 left-0 h-1 w-full rounded-lg ${giftTheme.colors.primary.default}`}
@@ -495,6 +599,7 @@ const GiftStepSwitcher = () => {
               }`}
               aria-label={step.fullTitle}
               aria-current={state.currentStep === step.id ? "step" : undefined}
+              aria-describedby={`step-desc-desktop-${step.id}`}
             >
               <div
                 className={`p-1.5 rounded-full mr-2 ${state.currentStep === step.id ? giftTheme.colors.primary.medium : "bg-gray-100"}`}
@@ -502,7 +607,12 @@ const GiftStepSwitcher = () => {
                 {step.icon}
               </div>
               {step.fullTitle}
-              {index < stepsConfig.length - 1 && <ChevronLeft className="w-4 h-4 ml-2 text-gray-400" />}
+              <span id={`step-desc-desktop-${step.id}`} className="sr-only">
+                {step.description}
+              </span>
+              {index < stepsConfig.length - 1 && (
+                <ChevronLeft className="w-4 h-4 mr-2 text-gray-400" aria-hidden="true" />
+              )}
             </button>
           ))}
 
@@ -527,7 +637,9 @@ const GiftStepSwitcher = () => {
       {/* Current step info header */}
       <div className={`px-4 py-3 flex justify-between items-center border-b ${giftTheme.colors.primary.light}`}>
         <div className="flex items-center">
-          <div className={`p-2 rounded-full mr-3 bg-white shadow-sm`}>{currentStepInfo?.icon}</div>
+          <div className={`p-2 rounded-full mr-3 bg-white shadow-sm`} aria-hidden="true">
+            {currentStepInfo?.icon}
+          </div>
           <div>
             <h3 className={`flex items-center text-base md:text-lg font-bold ${giftTheme.colors.primary.text}`}>
               {currentStepInfo?.fullTitle}
@@ -538,14 +650,22 @@ const GiftStepSwitcher = () => {
           </div>
         </div>
 
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <div
             className={`bg-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm flex items-center border ${giftTheme.colors.primary.border}`}
+            aria-label={`عدد العناصر المختارة: ${isMounted ? selectedItemsCount : 0}`}
           >
-            <ShoppingBag className={`w-3.5 h-3.5 mr-1.5 ${giftTheme.colors.primary.text}`} />
+            <ShoppingBag className={`w-3.5 h-3.5 mr-1.5 ${giftTheme.colors.primary.text}`} aria-hidden="true" />
             <span className={`font-bold ${giftTheme.colors.primary.text}`}>{isMounted ? selectedItemsCount : 0}</span>
             <span className="text-gray-500 mr-1 whitespace-nowrap">عناصر</span>
           </div>
+          <button
+            onClick={() => dispatch({ type: "TOGGLE_HELP" })}
+            className="p-2 rounded-full bg-white shadow-sm text-gray-500 hover:text-indigo-500 transition-colors"
+            aria-label="مساعدة"
+          >
+            <HelpCircle className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
@@ -562,9 +682,9 @@ const GiftStepSwitcher = () => {
             key={state.currentStep}
             custom={state.direction}
             variants={stepVariants}
-            initial="hidden"
+            initial={shouldReduceMotion ? "visible" : "hidden"}
             animate="visible"
-            exit="exit"
+            exit={shouldReduceMotion ? { opacity: 0 } : "exit"}
             className="p-3 md:p-5"
           >
             {renderStep}
@@ -582,7 +702,7 @@ const GiftStepSwitcher = () => {
               width: `${((state.activeTabIndex + 1) / stepsConfig.length) * 100}%`,
             }}
             transition={{
-              type: "spring",
+              type: shouldReduceMotion ? "tween" : "spring",
               stiffness: 300,
               damping: 30,
             }}
@@ -602,7 +722,7 @@ const GiftStepSwitcher = () => {
           className={`flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 mr-2 w-1/3 ${state.activeTabIndex === 0 ? "invisible" : "visible"}`}
           aria-label="الخطوة السابقة"
         >
-          <ChevronLeft className="w-5 h-5 ml-1.5" />
+          <ChevronLeft className="w-5 h-5 ml-1.5" aria-hidden="true" />
           <span>السابق</span>
         </button>
 
@@ -613,9 +733,12 @@ const GiftStepSwitcher = () => {
           aria-label="الخطوة التالية"
         >
           <span>{state.activeTabIndex === stepsConfig.length - 1 ? "إنهاء" : "التالي"}</span>
-          <ChevronRight className="w-5 h-5 mr-1.5" />
+          <ChevronRight className="w-5 h-5 mr-1.5" aria-hidden="true" />
         </button>
       </div>
+
+      {/* Help dialog */}
+      <AnimatePresence>{state.helpVisible && <HelpDialog />}</AnimatePresence>
 
       <style jsx global>{`
         .scrollbar-hide::-webkit-scrollbar {
@@ -629,6 +752,22 @@ const GiftStepSwitcher = () => {
           body {
             overscroll-behavior-y: contain;
             touch-action: pan-y;
+          }
+        }
+        
+        /* تحسين الوصولية للتركيز */
+        button:focus-visible {
+          outline: 2px solid #6366f1;
+          outline-offset: 2px;
+        }
+        
+        /* تحسين أداء الرسوم المتحركة */
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
           }
         }
       `}</style>

@@ -20,7 +20,7 @@ export type Product = {
   isGift?: boolean;
   occasion?: string[];  // Change to string array
   season?: string[];    // Change to string array
-  
+  video?: string;
 };
 
 export type GiftOption = {

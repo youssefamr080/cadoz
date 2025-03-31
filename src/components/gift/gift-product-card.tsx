@@ -1,143 +1,176 @@
 "use client"
 
-import React from "react"
-import Image from "next/image"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { ShoppingBag, Star } from "lucide-react"
-import { giftTheme } from "../gift/lib/gift-theme"
+import { Plus, Minus, ShoppingBag } from "lucide-react"
+import { giftTheme } from "../../components/gift/lib/gift-theme"
+import Image from "next/image"
+import { useInView } from "react-intersection-observer"
 
-interface GiftProductCardProps {
-  product: {
-    id: string
-    name: string
-    price: number
-    originalPrice?: number
-    image: string
-    isNew?: boolean
-  }
-  isInCart?: boolean
-  quantity?: number
-  onClick: () => void
-  variant?: "primary" | "secondary" | "accent"
+// تعريف أنواع البيانات
+interface Product {
+  id: string
+  name: string
+  price: number
+  image: string
+  description?: string
+  category: string
+  tags?: string[]
 }
 
-const GiftProductCard: React.FC<GiftProductCardProps> = ({
+interface GiftProductCardProps {
+  product: Product
+  isInCart: boolean
+  quantity: number
+  onClick: () => void
+  variant?: "primary" | "secondary" | "accent"
+  "aria-label"?: string
+}
+
+const GiftProductCard = ({
   product,
-  isInCart = false,
-  quantity = 0,
+  isInCart,
+  quantity,
   onClick,
   variant = "primary",
-}) => {
-  // تحديد الألوان بناءً على التنويع
+  "aria-label": ariaLabel,
+}: GiftProductCardProps) => {
+  const [isHovered, setIsHovered] = useState(false)
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  })
+  const [imageLoaded, setImageLoaded] = useState(false)
+
+  // تحديد الألوان بناءً على النوع
   const getColors = () => {
     switch (variant) {
       case "primary":
         return {
           bg: giftTheme.colors.primary.light,
+          border: giftTheme.colors.primary.border,
           text: giftTheme.colors.primary.text,
-          button: isInCart ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200" : giftTheme.buttons.primary,
-          badge: "from-indigo-500 to-purple-500",
-          counter: "bg-indigo-500",
+          button: giftTheme.colors.primary.default,
+          buttonHover: giftTheme.colors.primary.hover,
+          selectedBg: giftTheme.colors.primary.medium,
         }
       case "secondary":
         return {
           bg: giftTheme.colors.secondary.light,
+          border: giftTheme.colors.secondary.border,
           text: giftTheme.colors.secondary.text,
-          button: isInCart ? "bg-purple-100 text-purple-700 hover:bg-purple-200" : giftTheme.buttons.primary,
-          badge: "from-purple-500 to-violet-500",
-          counter: "bg-purple-500",
+          button: giftTheme.colors.secondary.default,
+          buttonHover: giftTheme.colors.secondary.hover,
+          selectedBg: giftTheme.colors.secondary.medium,
         }
       case "accent":
         return {
           bg: giftTheme.colors.accent.light,
+          border: giftTheme.colors.accent.border,
           text: giftTheme.colors.accent.text,
-          button: isInCart ? "bg-pink-100 text-pink-700 hover:bg-pink-200" : giftTheme.buttons.accent,
-          badge: "from-pink-500 to-rose-500",
-          counter: "bg-pink-500",
+          button: giftTheme.colors.accent.default,
+          buttonHover: giftTheme.colors.accent.hover,
+          selectedBg: giftTheme.colors.accent.medium,
         }
       default:
         return {
           bg: giftTheme.colors.primary.light,
+          border: giftTheme.colors.primary.border,
           text: giftTheme.colors.primary.text,
-          button: isInCart ? "bg-indigo-100 text-indigo-700 hover:bg-indigo-200" : giftTheme.buttons.primary,
-          badge: "from-indigo-500 to-purple-500",
-          counter: "bg-indigo-500",
+          button: giftTheme.colors.primary.default,
+          buttonHover: giftTheme.colors.primary.hover,
+          selectedBg: giftTheme.colors.primary.medium,
         }
     }
   }
 
   const colors = getColors()
 
+  // تحميل الصورة مسبقًا عند ظهور البطاقة في العرض
+  useEffect(() => {
+    if (inView && product.image) {
+      const img = new window.Image()
+      img.src = product.image
+      img.onload = () => setImageLoaded(true)
+    }
+  }, [inView, product.image])
+
   return (
     <motion.div
-      className={`bg-white p-3 rounded-xl hover:shadow-lg ${giftTheme.transitions.default} ${
-        isInCart ? giftTheme.cards.selected : "border border-gray-100"
+      ref={ref}
+      className={`max-w-[200px] bg-white rounded-xl overflow-hidden shadow-sm border transition-all duration-200 ${
+        isInCart ? `border-2 ${colors.border}` : "border-gray-100 hover:border-gray-200"
       }`}
-      whileHover={{ scale: 1.02, y: -3 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ y: -4, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="relative mb-2">
-        <div className={`relative h-28 w-full ${colors.bg} rounded-lg overflow-hidden`}>
-          <Image
-            src={product.image || "/placeholder.svg?height=200&width=200"}
-            alt={product.name}
-            width={200}
-            height={200}
-            className="w-full h-full object-contain p-2"
-            loading="lazy"
-          />
+      <div className="relative">
+        <div className="w-full h-[140px] relative overflow-hidden bg-gray-50">
+          {product.image ? (
+            <Image
+              src={product.image || "/placeholder.svg"}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className={`object-cover transition-transform duration-300 hover:scale-110 ${
+                imageLoaded ? "opacity-100" : "opacity-0"
+              }`}
+              loading="lazy"
+              onLoad={() => setImageLoaded(true)}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <ShoppingBag className="w-8 h-8 text-gray-400" aria-hidden="true" />
+            </div>
+          )}
+          {isInCart && (
+            <div className="absolute top-2 left-2 bg-white rounded-full p-1.5 shadow-md">
+              <span className={`text-xs font-bold ${colors.text}`}>{quantity}</span>
+            </div>
+          )}
+          {product.tags && product.tags.length > 0 && (
+            <div className="absolute bottom-2 right-2">
+              <div className="bg-white/80 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium">
+                {product.tags[0]}
+              </div>
+            </div>
+          )}
         </div>
 
-        {product.isNew && (
-          <div className="absolute -top-2 -right-2">
-            <div className="relative">
-              <div className="absolute inset-0 bg-indigo-500 rounded-full blur-sm opacity-30 scale-110"></div>
-              <span
-                className={`relative bg-gradient-to-r ${colors.badge} text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-md flex items-center`}
-              >
-                <Star className="w-3 h-3 mr-0.5 fill-white" />
-                جديد
-              </span>
-            </div>
-          </div>
-        )}
+        <div className="p-3">
+          <h3 className={`font-bold ${colors.text} mb-1 text-sm line-clamp-1`}>{product.name}</h3>
+          <p className="text-gray-600 text-sm mb-3">
+            {product.price.toLocaleString()} <span className="text-xs">ج.م</span>
+          </p>
 
-        {isInCart && (
-          <motion.div
-            className="absolute top-1 left-1 bg-white/80 backdrop-blur-sm rounded-full p-0.5 shadow-sm"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 15 }}
+          <button
+            onClick={onClick}
+            className={`w-full h-9 rounded-lg font-medium transition-colors flex items-center justify-center ${
+              isInCart
+                ? "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                : `${colors.button} text-white hover:${colors.buttonHover}`
+            }`}
+            aria-label={ariaLabel || `إضافة ${product.name} إلى الهدية - ${product.price} جنيه`}
           >
-            <div
-              className={`${colors.counter} text-white rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold`}
-            >
-              {quantity}
-            </div>
-          </motion.div>
-        )}
+            {isInCart ? (
+              <div className="flex items-center">
+                <Minus className="w-4 h-4 mr-1" aria-hidden="true" />
+                <span>{quantity}</span>
+                <Plus className="w-4 h-4 ml-1" aria-hidden="true" />
+              </div>
+            ) : (
+              <span>إضافة</span>
+            )}
+          </button>
+        </div>
       </div>
-
-      <h4 className="font-bold text-gray-800 text-sm mb-0.5 truncate">{product.name}</h4>
-
-      <div className="flex justify-between items-center mt-1 mb-2">
-        <p className={`${colors.text} font-bold text-sm`}>{product.price.toLocaleString()} ج.م</p>
-        {product.originalPrice && (
-          <p className="text-gray-400 text-xs line-through">{product.originalPrice.toLocaleString()} ج.م</p>
-        )}
-      </div>
-
-      <button
-        onClick={onClick}
-        className={`w-full py-1.5 rounded-lg font-medium text-xs flex items-center justify-center ${giftTheme.transitions.default} ${colors.button}`}
-        aria-label={`إضافة ${product.name} إلى الهدية`}
-      >
-        <ShoppingBag className="w-3 h-3 ml-1" />
-        {isInCart ? "إضافة المزيد" : "إضافة إلى الهدية"}
-      </button>
     </motion.div>
   )
 }
 
-export default React.memo(GiftProductCard)
+export default GiftProductCard
 

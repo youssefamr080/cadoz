@@ -1,5 +1,13 @@
 import { MongoClient, type Db } from "mongodb"
 
+// تعريف نوع البيانات للمتغير العام
+declare global {
+  // نستخدم var هنا لأننا نتعامل مع متغير عام في TypeScript
+  // We use var here because we're dealing with a global variable in TypeScript
+  // eslint-disable-next-line no-var
+  var mongoConnection: MongoConnection | undefined
+}
+
 /**
  * متغيرات البيئة للاتصال بقاعدة البيانات
  * يجب تعيين MONGODB_URI في ملف .env.local أو في إعدادات Vercel
@@ -134,4 +142,3 @@ export function getConnectionStatus() {
 
 // تصدير الدالة الرئيسية كافتراضية
 export default connectToDatabase
-

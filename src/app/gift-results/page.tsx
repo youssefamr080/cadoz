@@ -1260,4 +1260,3 @@ const GiftResultsPage: React.FC = () => {
 }
 
 export default GiftResultsPage
-

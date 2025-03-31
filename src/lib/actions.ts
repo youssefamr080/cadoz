@@ -99,4 +99,3 @@ export async function saveWhatsAppContact(whatsappNumber: string, name?: string)
     await client.close()
   }
 }
-

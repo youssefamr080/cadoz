@@ -1,0 +1,369 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "../../../../context/AuthContext"
+import Header from "../../../../components/layout/Header"
+import Footer from "../../../../components/layout/Footer"
+import { ArrowLeft, Package, Truck, CheckCircle, Clock, XCircle, MapPin, Phone, FileText } from "lucide-react"
+import { Button } from "../../../../components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
+import { format } from "date-fns"
+import { ar } from "date-fns/locale"
+import { toast, ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import Image from "next/image"
+import { FaWhatsapp } from "react-icons/fa"
+
+interface OrderDetailsProps {
+  params: {
+    orderId: string
+  }
+}
+
+const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
+  const { orderId } = params
+  const { user, isLoading } = useAuth()
+  const router = useRouter()
+  const [order, setOrder] = useState<any>(null)
+  const [isLoadingOrder, setIsLoadingOrder] = useState(false)
+
+  // التحقق من تسجيل الدخول
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push("/")
+      toast.error("يرجى تسجيل الدخول للوصول إلى صفحة تفاصيل الطلب")
+    }
+  }, [user, isLoading, router])
+
+  // جلب تفاصيل الطلب
+  useEffect(() => {
+    const fetchOrderDetails = async () => {
+      if (user && orderId) {
+        setIsLoadingOrder(true)
+        try {
+          const response = await fetch(`/api/orders/${orderId}`)
+          const data = await response.json()
+
+          if (data.success) {
+            setOrder(data.order)
+          } else {
+            toast.error(data.message || "حدث خطأ أثناء جلب تفاصيل الطلب")
+            router.push("/profile/orders")
+          }
+        } catch (error) {
+          console.error("Error fetching order details:", error)
+          toast.error("حدث خطأ أثناء جلب تفاصيل الطلب")
+          router.push("/profile/orders")
+        } finally {
+          setIsLoadingOrder(false)
+        }
+      }
+    }
+
+    fetchOrderDetails()
+  }, [user, orderId, router])
+
+  // إنشاء رسالة واتساب للاستفسار عن الطلب
+  const sendWhatsAppInquiry = () => {
+    if (!order) return
+
+    const message = `استفسار عن الطلب رقم: ${order.id.substring(0, 8)}
+تاريخ الطلب: ${format(new Date(order.createdAt), "PPP", { locale: ar })}
+حالة الطلب: ${getStatusText(order.status)}
+
+أرغب في الاستفسار عن حالة الطلب.`
+
+    const whatsappUrl = `https://wa.me/201026972523?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, "_blank")
+  }
+
+  // الحصول على نص حالة الطلب
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "delivered":
+        return "تم التوصيل"
+      case "shipped":
+        return "تم الشحن"
+      case "processing":
+        return "قيد المعالجة"
+      case "cancelled":
+        return "ملغي"
+      default:
+        return "قيد الانتظار"
+    }
+  }
+
+  // الحصول على لون حالة الطلب
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "delivered":
+        return "text-green-600"
+      case "shipped":
+        return "text-blue-600"
+      case "processing":
+        return "text-amber-600"
+      case "cancelled":
+        return "text-red-600"
+      default:
+        return "text-purple-600"
+    }
+  }
+
+  // الحصول على أيقونة حالة الطلب
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "delivered":
+        return <CheckCircle className="h-6 w-6 text-green-600" />
+      case "shipped":
+        return <Truck className="h-6 w-6 text-blue-600" />
+      case "processing":
+        return <Package className="h-6 w-6 text-amber-600" />
+      case "cancelled":
+        return <XCircle className="h-6 w-6 text-red-600" />
+      default:
+        return <Clock className="h-6 w-6 text-purple-600" />
+    }
+  }
+
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-pulse text-purple-600 text-xl">جاري التحميل...</div>
+      </div>
+    )
+  }
+
+  if (isLoadingOrder) {
+    return (
+      <div className="min-h-screen bg-gray-50 rtl">
+        <Header />
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <div className="flex items-center mb-6">
+            <Button variant="ghost" size="sm" className="mr-2" onClick={() => router.push("/profile/orders")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold">تفاصيل الطلب</h1>
+          </div>
+
+          <div className="text-center py-12">
+            <div className="animate-pulse text-purple-600">جاري تحميل تفاصيل الطلب...</div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (!order) {
+    return (
+      <div className="min-h-screen bg-gray-50 rtl">
+        <Header />
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <div className="flex items-center mb-6">
+            <Button variant="ghost" size="sm" className="mr-2" onClick={() => router.push("/profile/orders")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <h1 className="text-2xl font-bold">تفاصيل الطلب</h1>
+          </div>
+
+          <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+            <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-gray-700 mb-2">الطلب غير موجود</h3>
+            <p className="text-gray-500 mb-6">لم يتم العثور على تفاصيل هذا الطلب</p>
+            <Button onClick={() => router.push("/profile/orders")}>العودة إلى الطلبات</Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 rtl">
+      <Header />
+
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="flex items-center mb-6">
+          <Button variant="ghost" size="sm" className="mr-2" onClick={() => router.push("/profile/orders")}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold">تفاصيل الطلب #{order.id.substring(0, 8)}</h1>
+        </div>
+
+        {/* حالة الطلب */}
+        <Card className="mb-6">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+              <div className="flex items-center gap-3">
+                {getStatusIcon(order.status)}
+                <div>
+                  <h3 className="font-bold text-lg">
+                    حالة الطلب: <span className={getStatusColor(order.status)}>{getStatusText(order.status)}</span>
+                  </h3>
+                  <p className="text-gray-500">
+                    تاريخ الطلب: {format(new Date(order.createdAt), "PPP", { locale: ar })}
+                  </p>
+                </div>
+              </div>
+
+              <Button variant="outline" className="mt-4 md:mt-0 flex items-center gap-2" onClick={sendWhatsAppInquiry}>
+                <FaWhatsapp className="text-green-500 text-lg" />
+                <span>استفسار عن الطلب</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* تفاصيل الشحن */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <Card className="md:col-span-2">
+            <CardHeader>
+              <CardTitle>تفاصيل المنتجات</CardTitle>
+              <CardDescription>المنتجات المطلوبة في هذا الطلب</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {order.items.map((item: any, index: number) => (
+                  <div key={index} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-gray-50">
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden border">
+                      <Image
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.name}
+                        layout="fill"
+                        objectFit="cover"
+                        quality={85}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium">{item.name}</h4>
+                      {item.variant && <p className="text-sm text-gray-500">{item.variant}</p>}
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-sm">الكمية: {item.quantity}</span>
+                        <span className="font-bold text-purple-600">{item.price.toFixed(2)} ج.م</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>معلومات الشحن</CardTitle>
+              <CardDescription>تفاصيل الشحن والتوصيل</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-gray-500" />
+                  <div>
+                    <p className="text-sm text-gray-500">المحافظة</p>
+                    <p className="font-medium">{order.shipping.governorate}</p>
+                  </div>
+                </div>
+
+                {order.shipping.address && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-gray-500" />
+                    <div>
+                      <p className="text-sm text-gray-500">العنوان</p>
+                      <p className="font-medium">{order.shipping.address}</p>
+                    </div>
+                  </div>
+                )}
+
+                {order.shipping.phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-5 w-5 text-gray-500" />
+                    <div>
+                      <p className="text-sm text-gray-500">رقم الهاتف</p>
+                      <p className="font-medium">{order.shipping.phone}</p>
+                    </div>
+                  </div>
+                )}
+
+                {order.shipping.notes && (
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-gray-500" />
+                    <div>
+                      <p className="text-sm text-gray-500">ملاحظات</p>
+                      <p className="font-medium">{order.shipping.notes}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ملخص الدفع */}
+        <Card>
+          <CardHeader>
+            <CardTitle>ملخص الدفع</CardTitle>
+            <CardDescription>تفاصيل المبالغ والدفع</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">المجموع الفرعي</span>
+                <span>{order.totals.subtotal.toFixed(2)} ج.م</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">رسوم التوصيل</span>
+                <span>{order.totals.shippingFees.toFixed(2)} ج.م</span>
+              </div>
+              {order.totals.discount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>الخصم</span>
+                  <span>-{order.totals.discount.toFixed(2)} ج.م</span>
+                </div>
+              )}
+              {order.totals.tax > 0 && (
+                <div className="flex justify-between">
+                  <span>الضريبة</span>
+                  <span>{order.totals.tax.toFixed(2)} ج.م</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold border-t pt-2 text-lg">
+                <span>الإجمالي</span>
+                <span className="text-purple-600">{order.totals.total.toFixed(2)} ج.م</span>
+              </div>
+            </div>
+
+            {order.promoCode && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  تم استخدام كوبون خصم: <span className="font-medium">{order.promoCode.code}</span>
+                </p>
+                <p className="text-sm text-gray-600">
+                  نسبة الخصم: <span className="font-medium">{order.promoCode.discountPercentage}%</span>
+                </p>
+              </div>
+            )}
+
+            <div className="mt-6">
+              <p className="text-sm text-gray-600 mb-2">طريقة الدفع:</p>
+              <div className="p-3 bg-gray-50 rounded-lg flex items-center gap-3">
+                <div className="bg-purple-100 p-2 rounded-full">
+                  <Package className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="font-medium">الدفع عند الاستلام</p>
+                  <p className="text-xs text-gray-500">سيتم الدفع نقدًا عند استلام الطلب</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <ToastContainer rtl={true} />
+      <Footer />
+    </div>
+  )
+}
+
+export default OrderDetailsPage
+

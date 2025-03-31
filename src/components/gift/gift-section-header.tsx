@@ -1,46 +1,66 @@
-import type React from "react"
+"use client"
+
+import { motion } from "framer-motion"
+import { giftTheme } from "../../components/gift/lib/gift-theme"
+import type { ReactNode } from "react"
 
 interface GiftSectionHeaderProps {
   title: string
-  icon: React.ReactNode
+  icon: ReactNode
   variant?: "primary" | "secondary" | "accent"
+  description?: string
 }
 
-const GiftSectionHeader: React.FC<GiftSectionHeaderProps> = ({ title, icon, variant = "primary" }) => {
-  // تحديد الألوان بناءً على التنويع
-  const getGradient = () => {
+const GiftSectionHeader = ({ title, icon, variant = "primary", description }: GiftSectionHeaderProps) => {
+  // تحديد الألوان بناءً على النوع
+  const getColors = () => {
     switch (variant) {
       case "primary":
-        return "from-indigo-600 to-purple-600"
+        return {
+          bg: giftTheme.colors.primary.light,
+          text: giftTheme.colors.primary.text,
+          border: giftTheme.colors.primary.border,
+          iconBg: giftTheme.colors.primary.medium,
+        }
       case "secondary":
-        return "from-purple-600 to-violet-600"
+        return {
+          bg: giftTheme.colors.secondary.light,
+          text: giftTheme.colors.secondary.text,
+          border: giftTheme.colors.secondary.border,
+          iconBg: giftTheme.colors.secondary.medium,
+        }
       case "accent":
-        return "from-pink-600 to-rose-600"
+        return {
+          bg: giftTheme.colors.accent.light,
+          text: giftTheme.colors.accent.text,
+          border: giftTheme.colors.accent.border,
+          iconBg: giftTheme.colors.accent.medium,
+        }
       default:
-        return "from-indigo-600 to-purple-600"
+        return {
+          bg: giftTheme.colors.primary.light,
+          text: giftTheme.colors.primary.text,
+          border: giftTheme.colors.primary.border,
+          iconBg: giftTheme.colors.primary.medium,
+        }
     }
   }
 
-  const getIconBg = () => {
-    switch (variant) {
-      case "primary":
-        return "text-indigo-500"
-      case "secondary":
-        return "text-purple-500"
-      case "accent":
-        return "text-pink-500"
-      default:
-        return "text-indigo-500"
-    }
-  }
+  const colors = getColors()
 
   return (
-    <div className="flex items-center justify-center mb-6">
-      <div className="bg-white p-2 rounded-full shadow-md mr-3">
-        <div className={getIconBg()}>{icon}</div>
+    <motion.div
+      className={`mb-5 flex items-center ${colors.bg} p-3 rounded-xl border ${colors.border}`}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className={`p-2 rounded-lg ${colors.iconBg} mr-3`}>{icon}</div>
+      <div>
+        <h2 className={`text-lg font-bold ${colors.text}`}>{title}</h2>
+        {description && <p className="text-sm text-gray-600">{description}</p>}
       </div>
-      <h3 className={`text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${getGradient()}`}>{title}</h3>
-    </div>
+    </motion.div>
   )
 }
 

@@ -368,4 +368,3 @@ const SearchBar: React.FC<SearchBarProps> = ({ onProductSelect, className = "" }
 }
 
 export default SearchBar
-

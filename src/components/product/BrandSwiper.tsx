@@ -80,4 +80,3 @@ const BrandSwiper = ({ brand, products }: { brand: string; products: Product[] }
 }
 
 export default BrandSwiper
-

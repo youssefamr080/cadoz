@@ -447,4 +447,3 @@ const SeasonalPage = () => {
 }
 
 export default SeasonalPage
-

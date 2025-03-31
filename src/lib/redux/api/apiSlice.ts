@@ -123,4 +123,3 @@ export const apiSlice = createApi({
 
 export const { useGetProductsQuery, useGetProductByIdQuery, useGetProductsByIdsQuery, useGetRecommendedProductsQuery } =
   apiSlice
-

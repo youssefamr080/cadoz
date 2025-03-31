@@ -272,4 +272,3 @@ const BestSellersPage = () => {
 }
 
 export default BestSellersPage
-

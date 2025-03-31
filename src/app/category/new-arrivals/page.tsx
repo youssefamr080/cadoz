@@ -276,4 +276,3 @@ const NewArrivalsPage = () => {
 }
 
 export default NewArrivalsPage
-

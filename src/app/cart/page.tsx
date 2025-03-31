@@ -1,18 +1,59 @@
-"use client";
-import React from "react";
-import { useCart } from "../../context/CartContext";
-import Header from "../../components/layout/Header";
-import Footer from "../../components/layout/Footer";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { FiShoppingBag, FiGift, FiArrowLeft, FiTrash2, FiPlus, FiMinus, FiTag } from "react-icons/fi";
-import { FaWhatsapp } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
+"use client"
+import React, { useState } from "react"
+import { useCart } from "../../context/CartContext"
+import { useAuth } from "../../context/AuthContext"
+import Header from "../../components/layout/Header"
+import Footer from "../../components/layout/Footer"
+import { useRouter } from "next/navigation"
+import { toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import { FiShoppingBag, FiGift, FiArrowLeft, FiTrash2, FiPlus, FiMinus, FiTag, FiUser } from "react-icons/fi"
+import { FaWhatsapp } from "react-icons/fa"
+import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
+import ShippingProgress from "../../components/cart/shipping-progress"
+import CouponInput from "../../components/cart/coupon-input"
+import { ToastContainer } from "react-toastify"
+import LoginModal from "../../components/auth/login-modal"
+
+// تعريف واجهات البيانات
+interface CartItemType {
+  id: number
+  name: string
+  image: string
+  price: number
+  quantity: number
+  stock?: number
+  category?: string
+  variant?: string
+  discount?: number
+  originalPrice?: number
+  giftDetails?: string
+  giftData?: {
+    items: Array<{
+      name: string
+      quantity: number
+      image: string
+      price: number
+    }>
+    box: {
+      name: string
+      image: string
+      price: number
+    } | null
+    wrap: {
+      name: string
+      image: string
+      price: number
+    } | null
+    message?: string
+    recipient?: string
+  }
+}
 
 const CartPage = () => {
-  const router = useRouter();
+  const router = useRouter()
+  const { user } = useAuth()
   const {
     cart,
     removeFromCart,
@@ -25,128 +66,235 @@ const CartPage = () => {
     promoCode,
     setPromoCode,
     applyPromoCode,
+    clearPromoCode,
     getCartTotals,
     isCartEmpty,
     itemCount,
-  } = useCart();
+  } = useCart()
 
-  const [isSending, setIsSending] = React.useState(false);
-  const [isApplyingPromo, setIsApplyingPromo] = React.useState(false);
-  const { subtotal, shippingFees, discount, tax, total } = getCartTotals();
+  const [isSending, setIsSending] = useState(false)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false)
+  const { subtotal, shippingFees, discount, tax, total } = getCartTotals()
 
-  const sendInvoiceWhatsApp = () => {
+  // الحد الأدنى للشحن المجاني
+  const FREE_SHIPPING_THRESHOLD = 500
+
+  // إنشاء طلب جديد في قاعدة البيانات
+  const createOrder = async () => {
     if (isCartEmpty) {
-      toast.error("السلة فارغة!");
-      return;
+      toast.error("السلة فارغة!")
+      return null
     }
 
     if (!shipping.governorate) {
-      toast.error("الرجاء اختيار المحافظة أولاً");
-      return;
+      toast.error("الرجاء اختيار المحافظة أولاً")
+      return null
     }
 
-    setIsSending(true);
+    setIsCreatingOrder(true)
     try {
-      const message = generateWhatsAppMessage();
-      const whatsappUrl = `https://wa.me/201026972523?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, "_blank");
+      const orderData = {
+        items: cart,
+        shipping,
+        totals: {
+          subtotal,
+          shippingFees,
+          discount,
+          tax,
+          total,
+        },
+        promoCode: promoCode.isValid
+          ? {
+              code: promoCode.code,
+              discountPercentage: promoCode.discountPercentage,
+            }
+          : undefined,
+        customerId: user?.id,
+        customerName: user?.name,
+        customerPhone: user?.phone,
+      }
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        return data.orderId
+      } else {
+        toast.error(data.message || "حدث خطأ أثناء إنشاء الطلب")
+        return null
+      }
+    } catch (error) {
+      console.error("Error creating order:", error)
+      toast.error("حدث خطأ أثناء إنشاء الطلب")
+      return null
+    } finally {
+      setIsCreatingOrder(false)
+    }
+  }
+
+  const sendInvoiceWhatsApp = async () => {
+    if (isCartEmpty) {
+      toast.error("السلة فارغة!")
+      return
+    }
+
+    if (!shipping.governorate) {
+      toast.error("الرجاء اختيار المحافظة أولاً")
+      return
+    }
+
+    setIsSending(true)
+    try {
+      // إنشاء الطلب في قاعدة البيانات
+      const orderId = await createOrder()
+
+      if (!orderId) {
+        return
+      }
+
+      // إنشاء رسالة واتساب
+      const message = generateWhatsAppMessage(orderId)
+      const whatsappUrl = `https://wa.me/201026972523?text=${encodeURIComponent(message)}`
+      window.open(whatsappUrl, "_blank")
 
       setTimeout(() => {
-        clearCart();
-        toast.success("تم إرسال الطلب بنجاح!");
-      }, 2000);
-    } finally {
-      setIsSending(false);
-    }
-  };
+        clearCart()
+        toast.success("تم إرسال الطلب بنجاح!")
 
-  const generateWhatsAppMessage = () => {
-    let message = `🛒 *فاتورة طلب من CADOZ* 🛍️\n\n`;
-    message += `📍 المحافظة: ${shipping.governorate}\n`;
-    if (shipping.address) message += `📍 العنوان: ${shipping.address}\n`;
-    if (shipping.phone) message += `📞 رقم الهاتف: ${shipping.phone}\n`;
-    message += `----------------------------------------\n`;
-    message += `📋 *تفاصيل الطلب:*\n\n`;
-  
+        // إذا كان المستخدم مسجل دخوله، انتقل إلى صفحة تفاصيل الطلب
+        if (user) {
+          router.push(`/profile/orders/${orderId}`)
+        }
+      }, 2000)
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  const generateWhatsAppMessage = (orderId?: string) => {
+    let message = `🛒 *فاتورة طلب من CADOZ* 🛍️\n\n`
+
+    if (orderId) {
+      message += `🔢 *رقم الطلب:* ${orderId}\n`
+    }
+
+    message += `📍 *المحافظة:* ${shipping.governorate}\n`
+
+    if (shipping.address) message += `📍 *العنوان:* ${shipping.address}\n`
+
+    if (shipping.phone) message += `📞 *رقم الهاتف:* ${shipping.phone}\n`
+
+    message += `----------------------------------------\n`
+    message += `📋 *تفاصيل الطلب:*\n\n`
+
     cart.forEach((item, index) => {
-      message += `📌 *${index + 1}.* ${item.name} (ID: ${item.id})\n`;
-      message += `   ✨ السعر: ${item.price.toFixed(2)} ج.م × ${item.quantity} = ${(
-        item.price * item.quantity
-      ).toFixed(2)} ج.م\n`;
-      
-      // Handle gift items with detailed breakdown
+      message += `📌 *${index + 1}.* ${item.name} (ID: ${item.id})\n`
+      message += `   ✨ السعر: ${item.price.toFixed(2)} ج.م × ${item.quantity} = ${(item.price * item.quantity).toFixed(
+        2,
+      )} ج.م\n`
+
+      // إضافة معلومات اللون إذا كانت متوفرة
+      if (item.variant) {
+        message += `   🎨 ${item.variant}\n`
+      }
+
+      // تفاصيل الهدية
       if (item.giftData) {
-        message += `   🎁 *تفاصيل الهدية:*\n`;
-        
-        // Add gift items
+        message += `   🎁 *تفاصيل الهدية:*\n`
+
+        // منتجات الهدية
         if (item.giftData.items && item.giftData.items.length > 0) {
-          message += `      📦 *المنتجات:*\n`;
+          message += `      📦 *المنتجات:*\n`
           item.giftData.items.forEach((giftItem) => {
-            message += `         - ${giftItem.name} × ${giftItem.quantity} (${giftItem.price.toFixed(2)} ج.م للقطعة)\n`;
-          });
+            message += `         - ${giftItem.name} × ${giftItem.quantity} (${giftItem.price.toFixed(2)} ج.م للقطعة)\n`
+          })
         }
-        
-        // Add gift box if selected
+
+        // صندوق الهدية
         if (item.giftData.box) {
-          message += `      📦 *صندوق:* ${item.giftData.box.name} (${item.giftData.box.price.toFixed(2)} ج.م)\n`;
+          message += `      📦 *صندوق:* ${item.giftData.box.name} (${item.giftData.box.price.toFixed(2)} ج.م)\n`
         }
-        
-        // Add gift wrap if selected
+
+        // تغليف الهدية
         if (item.giftData.wrap) {
-          message += `      🎀 *تغليف:* ${item.giftData.wrap.name} (${item.giftData.wrap.price.toFixed(2)} ج.م)\n`;
+          message += `      🎀 *تغليف:* ${item.giftData.wrap.name} (${item.giftData.wrap.price.toFixed(2)} ج.م)\n`
         }
-        
-        // Add recipient and message if provided
+
+        // المستلم والرسالة
         if (item.giftData.recipient) {
-          message += `      👤 *المستلم:* ${item.giftData.recipient}\n`;
+          message += `      👤 *المستلم:* ${item.giftData.recipient}\n`
         }
-        
+
         if (item.giftData.message) {
-          message += `      💌 *رسالة:* "${item.giftData.message}"\n`;
+          message += `      💌 *رسالة:* "${item.giftData.message}"\n`
         }
       } else if (item.giftDetails) {
-        message += `   🎁 *محتويات الهدية:* ${item.giftDetails}\n`;
+        message += `   🎁 *محتويات الهدية:* ${item.giftDetails}\n`
       }
-      
-      message += `\n`;
-    });
-  
-    message += `----------------------------------------\n`;
-    message += `💵 المجموع الفرعي: ${subtotal.toFixed(2)} ج.م\n`;
-    message += `🚚 رسوم التوصيل: ${shippingFees.toFixed(2)} ج.م\n`;
-    if (discount > 0) message += `🎟️ الخصم: ${discount.toFixed(2)} ج.م\n`;
-    if (tax > 0) message += `💰 الضريبة: ${tax.toFixed(2)} ج.م\n`;
-    message += `💰 الإجمالي: ${total.toFixed(2)} ج.م\n\n`;
-    if (promoCode.isValid) message += `🏷️ كود الخصم المستخدم: ${promoCode.code}\n\n`;
-    message += `🔗 شكراً لتسوقك معنا! ❤️`;
-  
-    return message;
-  };
 
-  const handleApplyPromoCode = async () => {
-    if (!promoCode.code) {
-      toast.error("الرجاء إدخال كود الخصم");
-      return;
+      message += `\n`
+    })
+
+    message += `----------------------------------------\n`
+    message += `💵 المجموع الفرعي: ${subtotal.toFixed(2)} ج.م\n`
+    message += `🚚 رسوم التوصيل: ${shippingFees.toFixed(2)} ج.م\n`
+
+    if (discount > 0) message += `🎟️ الخصم: ${discount.toFixed(2)} ج.م\n`
+
+    if (tax > 0) message += `💰 الضريبة: ${tax.toFixed(2)} ج.م\n`
+
+    message += `💰 الإجمالي: ${total.toFixed(2)} ج.م\n\n`
+
+    if (promoCode.isValid) message += `🏷️ كود الخصم المستخدم: ${promoCode.code}\n\n`
+
+    message += `🔗 شكراً لتسوقك معنا! ❤️`
+
+    return message
+  }
+
+  const handleApplyPromoCode = async (code: string) => {
+    if (!code) {
+      toast.error("الرجاء إدخال كود الخصم")
+      return false
     }
-    
-    setIsApplyingPromo(true);
+
+    setPromoCode(code)
     try {
-      const success = await applyPromoCode();
-      if (!success) {
-        // Toast already shown inside applyPromoCode
-      }
-    } finally {
-      setIsApplyingPromo(false);
+      const success = await applyPromoCode()
+      return success
+    } catch (error) {
+      console.error("Error applying promo code:", error)
+      return false
     }
-  };
+  }
 
   const handleQuantityChange = (id: number, change: number) => {
     if (change > 0) {
-      incrementQuantity(id);
+      incrementQuantity(id)
     } else {
-      decrementQuantity(id);
+      decrementQuantity(id)
     }
-  };
+  }
+
+  const handleCheckout = () => {
+    if (!user) {
+      // إذا لم يكن المستخدم مسجل دخوله، اعرض نافذة تسجيل الدخول
+      setIsLoginModalOpen(true)
+      toast.info("يرجى تسجيل الدخول لإكمال عملية الشراء")
+      return
+    }
+
+    // إذا كان المستخدم مسجل دخوله، أكمل عملية الشراء
+    sendInvoiceWhatsApp()
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 rtl">
@@ -170,207 +318,283 @@ const CartPage = () => {
           {isCartEmpty ? (
             <EmptyCart />
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl shadow-sm"
-            >
-              <div className="divide-y divide-gray-100">
-                <AnimatePresence>
-                  {cart.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* عناصر السلة */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="md:col-span-2">
+                {/* قسم ترويجي للهدايا */}
+                <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl p-4 mb-4 border border-amber-100 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-amber-100 p-2 rounded-full">
+                      <FiGift className="w-6 h-6 text-amber-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-amber-800">حول مشترياتك إلى هدايا مميزة!</h3>
+                      <p className="text-sm text-amber-700">أضف تغليف هدايا فاخر وبطاقة إهداء شخصية</p>
+                    </div>
+                    <button
+                      onClick={() => router.push("/gift")}
+                      className="mr-auto bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-md transition-shadow"
                     >
-                      {item.giftData ? (
-                        <GiftCartItem
-                          item={item}
-                          onQuantityChange={handleQuantityChange}
-                          onRemove={removeFromCart}
-                        />
-                      ) : (
-                        <CartItem
-                          item={item}
-                          onQuantityChange={handleQuantityChange}
-                          onRemove={removeFromCart}
-                        />
-                      )}
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
+                      تجهيز كهدية
+                    </button>
+                  </div>
+                </div>
 
-              <div className="p-4 bg-gray-50">
-                <div className="space-y-3 mb-4">
-                  <div className="flex flex-col gap-2">
-                    <select
-                      value={shipping.governorate}
-                      onChange={(e) => updateShipping({ governorate: e.target.value })}
-                      className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-                      required
-                    >
-                      <option value="">اختر المحافظة</option>
-                      {availableGovernorates.map((governorate) => (
-                        <option key={governorate} value={governorate}>
-                          {governorate}
-                        </option>
+                {/* شريط تقدم الشحن المجاني */}
+                <ShippingProgress subtotal={subtotal} freeShippingThreshold={FREE_SHIPPING_THRESHOLD} />
+
+                <div className="bg-white rounded-xl shadow-sm">
+                  <div className="divide-y divide-gray-100">
+                    <AnimatePresence>
+                      {cart.map((item) => (
+                        <motion.div
+                          key={item.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        >
+                          {item.giftData ? (
+                            <GiftCartItem
+                              item={item}
+                              onQuantityChange={handleQuantityChange}
+                              onRemove={removeFromCart}
+                            />
+                          ) : (
+                            <CartItem item={item} onQuantityChange={handleQuantityChange} onRemove={removeFromCart} />
+                          )}
+                        </motion.div>
                       ))}
-                    </select>
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </motion.div>
 
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="كود الخصم"
-                        className="flex-1 p-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
-                        value={promoCode.code}
-                        onChange={(e) => setPromoCode(e.target.value)}
+              {/* ملخص الطلب */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="md:col-span-1">
+                <div className="bg-white rounded-xl shadow-sm sticky top-4">
+                  <div className="p-4 border-b border-gray-100">
+                    <h2 className="text-lg font-bold">ملخص الطلب</h2>
+                  </div>
+
+                  <div className="p-4 space-y-4">
+                    {/* معلومات المستخدم */}
+                    <div className="mb-4">
+                      {user ? (
+                        <div className="flex items-center gap-2 bg-purple-50 p-3 rounded-lg">
+                          <div className="bg-purple-100 p-2 rounded-full">
+                            <FiUser className="w-5 h-5 text-purple-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-purple-800">{user.name}</p>
+                            <p className="text-xs text-purple-600">{user.phone}</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setIsLoginModalOpen(true)}
+                          className="w-full flex items-center justify-center gap-2 bg-purple-50 p-3 rounded-lg hover:bg-purple-100 transition-colors"
+                        >
+                          <FiUser className="w-5 h-5 text-purple-600" />
+                          <span className="text-purple-700 font-medium">تسجيل الدخول</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* كوبون الخصم */}
+                    <div className="mb-4">
+                      <h3 className="text-sm font-medium mb-2 flex items-center gap-1">
+                        <FiTag className="text-blue-600" />
+                        كوبون الخصم
+                      </h3>
+                      <CouponInput
+                        onApply={handleApplyPromoCode}
+                        onClear={clearPromoCode}
+                        currentCode={promoCode.code}
+                        isValid={promoCode.isValid}
+                        discountPercentage={promoCode.discountPercentage}
                       />
-                      <button
-                        onClick={handleApplyPromoCode}
-                        disabled={isApplyingPromo}
-                        className={`px-4 py-2 flex items-center gap-1 rounded-lg transition-colors ${
-                          isApplyingPromo
-                            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                            : "bg-purple-100 text-purple-600 hover:bg-purple-200"
-                        }`}
+                    </div>
+
+                    {/* اختيار المحافظة */}
+                    <div>
+                      <h3 className="text-sm font-medium mb-2">المحافظة</h3>
+                      <select
+                        value={shipping.governorate}
+                        onChange={(e) => updateShipping({ governorate: e.target.value })}
+                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                        required
                       >
-                        <FiTag className="w-4 h-4" />
-                        <span>{isApplyingPromo ? "جاري..." : "تطبيق"}</span>
+                        <option value="">اختر المحافظة</option>
+                        {availableGovernorates.map((governorate) => (
+                          <option key={governorate} value={governorate}>
+                            {governorate}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* ملخص الأسعار */}
+                    <div className="space-y-2 pt-4 border-t border-gray-100">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">المجموع الفرعي</span>
+                        <span>{subtotal.toFixed(2)} ج.م</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">رسوم التوصيل</span>
+                        <span>{shippingFees.toFixed(2)} ج.م</span>
+                      </div>
+                      {promoCode.isValid && (
+                        <div className="flex justify-between text-green-600">
+                          <span>الخصم</span>
+                          <span>-{discount.toFixed(2)} ج.م</span>
+                        </div>
+                      )}
+                      {tax > 0 && (
+                        <div className="flex justify-between">
+                          <span>الضريبة (14%)</span>
+                          <span>{tax.toFixed(2)} ج.م</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between font-bold border-t pt-2 text-lg">
+                        <span>الإجمالي</span>
+                        <span className="text-purple-600">{total.toFixed(2)} ج.م</span>
+                      </div>
+                    </div>
+
+                    {/* أزرار العمليات */}
+                    <div className="flex flex-col gap-3 pt-4">
+                      <button
+                        onClick={() => router.push("/gift")}
+                        className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-3 rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                      >
+                        <FiGift className="text-xl" />
+                        <span>تجهيز كهدية</span>
+                      </button>
+
+                      <button
+                        onClick={handleCheckout}
+                        disabled={isSending || isCreatingOrder || !shipping.governorate}
+                        className={`bg-green-500 text-white p-3 rounded-lg flex items-center justify-center gap-2 transition-all
+                          ${isSending || isCreatingOrder || !shipping.governorate ? "opacity-75 cursor-not-allowed" : "hover:bg-green-600 hover:shadow-md"}`}
+                      >
+                        <FaWhatsapp className="text-xl" />
+                        <span>{isSending || isCreatingOrder ? "جاري المعالجة..." : "إرسال الطلب عبر واتساب"}</span>
+                      </button>
+
+                      <button
+                        onClick={clearCart}
+                        className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2"
+                      >
+                        <FiTrash2 className="w-4 h-4" />
+                        <span>مسح السلة</span>
                       </button>
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>المجموع الفرعي</span>
-                      <span>{subtotal.toFixed(2)} ج.م</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>رسوم التوصيل</span>
-                      <span>{shippingFees.toFixed(2)} ج.م</span>
-                    </div>
-                    {promoCode.isValid && (
-                      <div className="flex justify-between text-green-600">
-                        <span>الخصم</span>
-                        <span>-{discount.toFixed(2)} ج.م</span>
-                      </div>
-                    )}
-                    {tax > 0 && (
-                      <div className="flex justify-between">
-                        <span>الضريبة (14%)</span>
-                        <span>{tax.toFixed(2)} ج.م</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between font-bold border-t pt-2">
-                      <span>الإجمالي</span>
-                      <span className="text-purple-600">{total.toFixed(2)} ج.م</span>
-                    </div>
-                  </div>
                 </div>
-
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => router.push('/gift')}
-                    className="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <FiGift className="text-xl" />
-                    <span>تجهيز كهدية</span>
-                  </button>
-
-                  <button
-                    onClick={sendInvoiceWhatsApp}
-                    disabled={isSending || !shipping.governorate}
-                    className={`bg-green-500 text-white p-3 rounded-lg flex items-center justify-center gap-2 transition-all
-                      ${(isSending || !shipping.governorate) ? 'opacity-75 cursor-not-allowed' : 'hover:bg-green-600 hover:shadow-md'}`}
-                  >
-                    <FaWhatsapp className="text-xl" />
-                    <span>إرسال الطلب عبر واتساب</span>
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </div>
 
+      <ToastContainer rtl={true} />
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onSuccess={(userData) => {
+          setIsLoginModalOpen(false)
+          // Después de iniciar sesión, continuar con el proceso de compra
+          sendInvoiceWhatsApp()
+        }}
+      />
       <Footer />
     </div>
-  );
-};
+  )
+}
 
+// مكون السلة الفارغة
 const EmptyCart = () => (
-  <div className="bg-white rounded-2xl p-8 text-center shadow-xl hover:shadow-2xl transition-shadow duration-300">
-    <div className="max-w-md mx-auto">
-      <div className="mb-6 flex justify-center">
-        <div className="text-6xl text-purple-500"></div>
+  <div className="space-y-6">
+    <div className="bg-white rounded-2xl p-8 text-center shadow-xl hover:shadow-2xl transition-shadow duration-300">
+      <div className="max-w-md mx-auto">
+        <div className="mb-6 flex justify-center">
+          <div className="w-24 h-24 bg-purple-50 rounded-full flex items-center justify-center">
+            <FiShoppingBag className="w-12 h-12 text-purple-500" />
+          </div>
+        </div>
+
+        <h3 className="text-2xl font-bold text-gray-800 mb-3 font-[Tajawal]">سلتك فارغة!</h3>
+        <p className="text-gray-600 mb-8 text-lg">ابدأ رحلة التسوق لاكتشاف عالم الهدايا الساحر</p>
+
+        <div className="grid gap-4">
+          <button
+            onClick={() => (window.location.href = "/gift")}
+            className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-4 rounded-xl 
+            flex items-center justify-center gap-2 text-lg font-semibold shadow-lg hover:shadow-purple-200"
+          >
+            <FiGift className="w-6 h-6" />
+            <span> شراء ملحقات الهدية</span>
+          </button>
+
+          <button
+            onClick={() => (window.location.href = "/")}
+            className="border-2 border-purple-500 text-purple-600 px-8 py-4 rounded-xl 
+            flex items-center justify-center gap-2 text-lg font-medium hover:bg-purple-50"
+          >
+            <FiShoppingBag className="w-6 h-6" />
+            <span>تصفح المتجر</span>
+          </button>
+        </div>
       </div>
-      
-      <h3 className="text-2xl font-bold text-gray-800 mb-3 font-[Tajawal]">
-        سلتك فارغة!
-      </h3>
-      <p className="text-gray-600 mb-8 text-lg">
-        ابدأ رحلة التسوق لاكتشاف عالم الهدايا الساحر
-      </p>
+    </div>
 
-      <div className="grid gap-4">
-        <button
-          onClick={() => window.location.href = '/gift'}
-          className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-8 py-4 rounded-xl 
-          flex items-center justify-center gap-2 text-lg font-semibold shadow-lg hover:shadow-purple-200"
-        >
-          <FiGift className="w-6 h-6" />
-          <span> شراء ملحقات الهدية</span>
-        </button>
-
-        <button
-          onClick={() => window.location.href = '/'}
-          className="border-2 border-purple-500 text-purple-600 px-8 py-4 rounded-xl 
-          flex items-center justify-center gap-2 text-lg font-medium hover:bg-purple-50"
-        >
-          <FiShoppingBag className="w-6 h-6" />
-          <span>تصفح المتجر</span>
-        </button>
+    {/* قسم ترويجي للهدايا */}
+    <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 shadow-sm">
+      <div className="flex flex-col md:flex-row items-center gap-6">
+        <div className="w-full md:w-1/3 flex justify-center">
+          <div className="relative w-48 h-48">
+            <div className="absolute inset-0 bg-pink-200 rounded-full opacity-20 animate-pulse"></div>
+            <div className="absolute inset-4 bg-purple-200 rounded-full opacity-30 animate-pulse delay-300"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <FiGift className="w-24 h-24 text-purple-500" />
+            </div>
+          </div>
+        </div>
+        <div className="w-full md:w-2/3 text-center md:text-right">
+          <h2 className="text-2xl md:text-3xl font-bold text-purple-800 mb-3">أرسل هدية مميزة لمن تحب</h2>
+          <p className="text-purple-700 mb-6 text-lg">
+            يمكنك الآن تحويل أي منتج إلى هدية مميزة مع إضافة تغليف فاخر وبطاقة إهداء شخصية
+          </p>
+          <button
+            onClick={() => (window.location.href = "/gift")}
+            className="bg-white text-purple-600 border-2 border-purple-200 px-6 py-3 rounded-lg 
+            flex items-center justify-center gap-2 text-lg font-medium hover:bg-purple-50 mx-auto md:mr-0"
+          >
+            <FiGift className="w-5 h-5" />
+            <span>استكشف خيارات الهدايا</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
-);
+)
 
 interface CartItemProps {
-  item: {
-    id: number;
-    name: string;
-    image: string;
-    price: number;
-    quantity: number;
-    stock?: number;
-    category?: string;
-    variant?: string;
-    discount?: number;
-    originalPrice?: number;
-  };
-  onQuantityChange: (id: number, change: number) => void;
-  onRemove: (id: number) => void;
+  item: CartItemType
+  onQuantityChange: (id: number, change: number) => void
+  onRemove: (id: number) => void
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove }) => {
-  // Calculate the actual price considering discounts
-  const displayPrice = item.discount && item.originalPrice 
-    ? item.originalPrice - (item.originalPrice * item.discount)
-    : item.price;
-  
+  // حساب السعر مع الخصم إن وجد
+  const displayPrice =
+    item.discount && item.originalPrice ? item.originalPrice - item.originalPrice * item.discount : item.price
+
   return (
     <div className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors">
       <div className="flex items-center gap-3 flex-1">
         <div className="relative w-16 h-16 rounded-lg overflow-hidden border">
-          <Image
-            src={item.image}
-            alt={item.name}
-            layout="fill"
-            objectFit="cover"
-            quality={85}
-          />
+          <Image src={item.image || "/placeholder.svg"} alt={item.name} layout="fill" objectFit="cover" quality={85} />
         </div>
         <div className="flex-1">
           <h3 className="font-medium line-clamp-1">{item.name}</h3>
@@ -380,9 +604,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
               <p className="text-gray-500 text-sm line-through">{item.originalPrice.toFixed(2)} ج.م</p>
             )}
           </div>
-          {item.variant && (
-            <p className="text-gray-500 text-sm">{item.variant}</p>
-          )}
+          {item.variant && <p className="text-gray-500 text-sm">{item.variant}</p>}
         </div>
       </div>
 
@@ -418,60 +640,30 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-// New component specifically for gift items
+// مكون عناصر الهدايا
 interface GiftCartItemProps {
-  item: {
-    id: number;
-    name: string;
-    image: string;
-    price: number;
-    quantity: number;
-    stock?: number;
-    category?: string;
-    variant?: string;
-    giftDetails?: string;
-    giftData?: {
-      items: Array<{
-        name: string;
-        quantity: number;
-        image: string;
-        price: number;
-      }>;
-      box: {
-        name: string;
-        image: string;
-        price: number;
-      } | null;
-      wrap: {
-        name: string;
-        image: string;
-        price: number;
-      } | null;
-      message?: string;
-      recipient?: string;
-    };
-  };
-  onQuantityChange: (id: number, change: number) => void;
-  onRemove: (id: number) => void;
+  item: CartItemType
+  onQuantityChange: (id: number, change: number) => void
+  onRemove: (id: number) => void
 }
 
 const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onRemove }) => {
-  const [expanded, setExpanded] = React.useState(false);
-  
+  const [expanded, setExpanded] = React.useState(false)
+
   const toggleExpand = () => {
-    setExpanded(!expanded);
-  };
-  
+    setExpanded(!expanded)
+  }
+
   return (
     <div className="hover:bg-gray-50 transition-colors divide-y divide-gray-100">
       <div className="flex items-center justify-between p-3">
         <div className="flex items-center gap-3 flex-1">
           <div className="relative w-16 h-16 rounded-lg overflow-hidden border bg-gradient-to-br from-purple-50 to-pink-50">
             <Image
-              src={item.image}
+              src={item.image || "/placeholder.svg"}
               alt={item.name}
               layout="fill"
               objectFit="cover"
@@ -489,12 +681,13 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
             <div className="flex items-center gap-2">
               <p className="text-purple-600 font-bold">{item.price.toFixed(2)} ج.م</p>
             </div>
-            <button 
+            {item.variant && <p className="text-gray-500 text-sm">{item.variant}</p>}
+            <button
               onClick={toggleExpand}
               className="text-xs text-purple-600 mt-1 flex items-center gap-1 hover:underline"
             >
               {expanded ? "إخفاء التفاصيل" : "عرض تفاصيل الهدية"}
-              <span className={`transform transition-transform ${expanded ? 'rotate-180' : ''}`}>▼</span>
+              <span className={`transform transition-transform ${expanded ? "rotate-180" : ""}`}>▼</span>
             </button>
           </div>
         </div>
@@ -531,10 +724,10 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
           </button>
         </div>
       </div>
-      
+
       {expanded && item.giftData && (
         <div className="bg-gray-50 p-3 space-y-3 text-sm">
-          {/* Gift recipient and message */}
+          {/* المستلم والرسالة */}
           {(item.giftData.recipient || item.giftData.message) && (
             <div className="bg-white p-2 rounded-lg border border-purple-100">
               {item.giftData.recipient && (
@@ -544,14 +737,16 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
               )}
               {item.giftData.message && (
                 <div>
-                  <span className="font-medium">الرسالة:</span> 
-                  <p className="italic mt-1 text-gray-600 border-r-2 border-purple-300 pr-2">&quot;{item.giftData.message}&quot;</p>
+                  <span className="font-medium">الرسالة:</span>
+                  <p className="italic mt-1 text-gray-600 border-r-2 border-purple-300 pr-2">
+                    &ldquo;{item.giftData.message}&rdquo;
+                  </p>
                 </div>
               )}
             </div>
           )}
-          
-          {/* Gift items */}
+
+          {/* منتجات الهدية */}
           {item.giftData.items && item.giftData.items.length > 0 && (
             <div>
               <div className="font-medium mb-2 text-purple-700">منتجات الهدية:</div>
@@ -560,7 +755,7 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                   <div key={idx} className="flex items-center gap-2 bg-white p-2 rounded-lg border">
                     <div className="relative w-8 h-8 rounded overflow-hidden border">
                       <Image
-                        src={giftItem.image}
+                        src={giftItem.image || "/placeholder.svg"}
                         alt={giftItem.name}
                         layout="fill"
                         objectFit="cover"
@@ -568,15 +763,17 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                     </div>
                     <div className="flex-1">
                       <div className="font-medium text-xs">{giftItem.name}</div>
-                      <div className="text-xs text-gray-500">{giftItem.price.toFixed(2)} ج.م × {giftItem.quantity}</div>
+                      <div className="text-xs text-gray-500">
+                        {giftItem.price.toFixed(2)} ج.م × {giftItem.quantity}
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
-          
-          {/* Gift box and wrap */}
+
+          {/* صندوق الهدية والتغليف */}
           <div className="flex gap-2 flex-wrap">
             {item.giftData.box && (
               <div className="bg-white p-2 rounded-lg border flex-1 min-w-[45%]">
@@ -584,7 +781,7 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                 <div className="flex items-center gap-2">
                   <div className="relative w-8 h-8 rounded overflow-hidden border">
                     <Image
-                      src={item.giftData.box.image}
+                      src={item.giftData.box.image || "/placeholder.svg"}
                       alt={item.giftData.box.name}
                       layout="fill"
                       objectFit="cover"
@@ -597,14 +794,14 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                 </div>
               </div>
             )}
-            
+
             {item.giftData.wrap && (
               <div className="bg-white p-2 rounded-lg border flex-1 min-w-[45%]">
                 <div className="font-medium text-pink-700 mb-1">تغليف الهدية:</div>
                 <div className="flex items-center gap-2">
                   <div className="relative w-8 h-8 rounded overflow-hidden border">
                     <Image
-                      src={item.giftData.wrap.image}
+                      src={item.giftData.wrap.image || "/placeholder.svg"}
                       alt={item.giftData.wrap.name}
                       layout="fill"
                       objectFit="cover"
@@ -621,7 +818,8 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default CartPage;
+export default CartPage
+

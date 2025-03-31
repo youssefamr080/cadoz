@@ -1,73 +1,84 @@
-"use client";
+"use client"
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
-// ✅ تعريف نوع بيانات المنتج داخل المفضلة
-interface WishlistItem {
-  id: number;
-  name: string;
-  image: string;
-  price: number;
+export interface WishlistItem {
+  id: number
+  name: string
+  price: number
+  image: string
+  productId: number
+  type?: string
 }
 
-// ✅ تعريف نوع `WishlistContext`
 interface WishlistContextType {
-  wishlist: WishlistItem[];
-  addToWishlist: (item: WishlistItem) => void;
-  removeFromWishlist: (id: number) => void;
-  toggleWishlist: (item: WishlistItem) => void;
+  wishlist: WishlistItem[]
+  addToWishlist: (item: WishlistItem) => void
+  removeFromWishlist: (id: number) => void
+  isInWishlist: (id: number) => boolean
+  clearWishlist: () => void
 }
 
-// ✅ إنشاء السياق
-const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
+const WishlistContext = createContext<WishlistContextType | undefined>(undefined)
 
-// ✅ مزود `WishlistProvider`
-export const WishlistProvider = ({ children }: { children: ReactNode }) => {
-  const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
+export function WishlistProvider({ children }: { children: ReactNode }) {
+  const [wishlist, setWishlist] = useState<WishlistItem[]>([])
 
-  // ✅ تحميل المفضلة من LocalStorage عند تحميل الصفحة
+  // تحميل المفضلة من التخزين المحلي عند بدء التشغيل
   useEffect(() => {
-    const storedWishlist = localStorage.getItem("wishlist");
-    if (storedWishlist) {
-      setWishlist(JSON.parse(storedWishlist));
+    const savedWishlist = localStorage.getItem("wishlist")
+    if (savedWishlist) {
+      try {
+        setWishlist(JSON.parse(savedWishlist))
+      } catch (error) {
+        console.error("Error loading wishlist from localStorage:", error)
+      }
     }
-  }, []);
+  }, [])
 
-  // ✅ تحديث LocalStorage عند تغيير المفضلة
+  // حفظ المفضلة في التخزين المحلي عند التغيير
   useEffect(() => {
-    localStorage.setItem("wishlist", JSON.stringify(wishlist));
-  }, [wishlist]);
+    localStorage.setItem("wishlist", JSON.stringify(wishlist))
+  }, [wishlist])
 
-  // ✅ إضافة منتج إلى المفضلة
+  // إضافة منتج إلى المفضلة
   const addToWishlist = (item: WishlistItem) => {
-    setWishlist((prevWishlist) => [...prevWishlist, item]);
-  };
+    setWishlist((prev) => {
+      // التحقق مما إذا كان المنتج موجودًا بالفعل
+      if (prev.some((i) => i.id === item.id)) {
+        return prev
+      }
+      return [...prev, item]
+    })
+  }
 
-  // ✅ إزالة منتج من المفضلة
+  // إزالة منتج من المفضلة
   const removeFromWishlist = (id: number) => {
-    setWishlist((prevWishlist) => prevWishlist.filter((item) => item.id !== id));
-  };
+    setWishlist((prev) => prev.filter((item) => item.id !== id))
+  }
 
-  // ✅ وظيفة التبديل بين الإضافة والإزالة (تعمل مع الوظائف القديمة)
-  const toggleWishlist = (item: WishlistItem) => {
-    setWishlist((prevWishlist) => {
-      const isExisting = prevWishlist.some((w) => w.id === item.id);
-      return isExisting ? prevWishlist.filter((w) => w.id !== item.id) : [...prevWishlist, item];
-    });
-  };
+  // التحقق مما إذا كان المنتج في المفضلة
+  const isInWishlist = (id: number) => {
+    return wishlist.some((item) => item.id === id)
+  }
+
+  // مسح المفضلة بالكامل
+  const clearWishlist = () => {
+    setWishlist([])
+  }
 
   return (
-    <WishlistContext.Provider value={{ wishlist, addToWishlist, removeFromWishlist, toggleWishlist }}>
+    <WishlistContext.Provider value={{ wishlist, addToWishlist, removeFromWishlist, isInWishlist, clearWishlist }}>
       {children}
     </WishlistContext.Provider>
-  );
-};
+  )
+}
 
-// ✅ هوك `useWishlist`
-export const useWishlist = (): WishlistContextType => {
-  const context = useContext(WishlistContext);
-  if (!context) {
-    throw new Error("useWishlist must be used within a WishlistProvider");
+export function useWishlist() {
+  const context = useContext(WishlistContext)
+  if (context === undefined) {
+    throw new Error("useWishlist must be used within a WishlistProvider")
   }
-  return context;
-};
+  return context
+}
+

@@ -26,6 +26,7 @@ export interface IProduct extends Document {
   createdAt: Date;
   views?: number;
   discount_percentage?: number;
+  video?: string;
 }
 
 // التحقق من وجود النموذج مسبقاً لتجنب إعادة التعريف
@@ -53,6 +54,7 @@ const ProductSchema = new Schema<IProduct>(
     occasion: { type: [String] },
     season: { type: [String], default: ['الكل'] },
     views: { type: Number, default: 0 },
+    video: { type: String },
   },
   { timestamps: true }
 );

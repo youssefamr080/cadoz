@@ -151,4 +151,3 @@ const SubCategorySwiper = ({ category, initialSubCategory, onSelectSubCategory }
 }
 
 export default SubCategorySwiper
-

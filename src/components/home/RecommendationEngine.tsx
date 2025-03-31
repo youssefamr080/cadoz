@@ -108,21 +108,26 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
   }
 
   return (
-    <motion.div
+    <motion.section
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
       variants={fadeInUp}
-      className="bg-gray-50 py-12"
+      className="py-16 bg-gradient-to-b from-white to-gray-50"
     >
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-2 text-gray-800">
-          <span className="text-purple-500">✨</span> {title}
-        </h2>
-        <p className="text-center text-gray-600 mb-8">{subtitle}</p>
-        <ProductCollection products={recommendations} />
+        <div className="flex flex-col items-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white mb-4 shadow-lg shadow-purple-200/50">
+            <span className="text-2xl">✨</span>
+          </div>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">{title}</h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full mb-3"></div>
+          <p className="text-center text-gray-600 max-w-2xl">{subtitle}</p>
+        </div>
+
+        <ProductCollection products={recommendations} accentColor="violet" />
       </div>
-    </motion.div>
+    </motion.section>
   )
 }
 

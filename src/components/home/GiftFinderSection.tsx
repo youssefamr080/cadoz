@@ -67,7 +67,7 @@ const GiftFinderSection = () => {
 
   // تتبع حركة الماوس للتأثيرات التفاعلية
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e
       const { innerWidth, innerHeight } = window
 
@@ -109,7 +109,7 @@ const GiftFinderSection = () => {
   }
 
   // تحديد فئة معينة عند النقر عليها
-  const handleCategoryClick = (index) => {
+  const handleCategoryClick = (index: number) => {
     setActiveCategory(index)
   }
 
@@ -120,11 +120,10 @@ const GiftFinderSection = () => {
     <section className="w-full relative overflow-hidden">
       {/* خلفية متدرجة متحركة - ألوان مبهجة */}
       <motion.div
-  animate={controls}
-  className="absolute inset-0 bg-gradient-to-br from-[#2C0735] via-[#4B155F] to-[#FFC857]"
-  style={{ backgroundSize: "200% 200%" }}
-/>
-
+        animate={controls}
+        className="absolute inset-0 bg-gradient-to-br from-[#2C0735] via-[#4B155F] to-[#FFC857]"
+        style={{ backgroundSize: "200% 200%" }}
+      />
 
       {/* طبقة التأثيرات - ألوان مبهجة */}
       <div className="absolute inset-0">

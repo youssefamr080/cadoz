@@ -1,30 +1,29 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { FreeMode, Autoplay, EffectCards } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/free-mode";
-import "swiper/css/effect-cards";
-import { Gift, ArrowRight, Sparkles, PiggyBank, Diamond, Crown, Tag } from 'lucide-react';
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { FreeMode, Autoplay } from "swiper/modules"
+import "swiper/css"
+import "swiper/css/free-mode"
+import { Gift, ArrowRight, Sparkles, PiggyBank, Diamond, Crown, Tag } from 'lucide-react'
 
 interface PriceCategory {
-  maxPrice: number;
-  minPrice: number;
-  title: string;
-  icon: React.ReactNode;
-  color: string;
-  gradient: string;
-  description: string;
-  image?: string;
+  maxPrice: number
+  minPrice: number
+  title: string
+  icon: React.ReactNode
+  color: string
+  gradient: string
+  description: string
+  image?: string
 }
 
 const PriceRangeSwiper: React.FC = () => {
-  const router = useRouter();
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const router = useRouter()
+  const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   const priceCategories: PriceCategory[] = [
     {
@@ -77,7 +76,7 @@ const PriceRangeSwiper: React.FC = () => {
       description: "هدايا استثنائية للأشخاص المميزين",
       image: "/placeholder.svg?height=80&width=80"
     }
-  ];
+  ]
 
   const handlePriceRangeClick = (minPrice: number, maxPrice: number) => {
     // حفظ خيارات الفلتر في localStorage
@@ -85,13 +84,13 @@ const PriceRangeSwiper: React.FC = () => {
       gender: "all",
       occasion: "all",
       priceRange: [minPrice, maxPrice]
-    };
+    }
     
-    localStorage.setItem("giftFilterOptions", JSON.stringify(filterOptions));
+    localStorage.setItem("giftFilterOptions", JSON.stringify(filterOptions))
     
     // الانتقال إلى صفحة النتائج
-    router.push("/gift-results");
-  };
+    router.push("/gift-results")
+  }
 
   // تأثيرات الحركة
   const containerVariants = {
@@ -101,13 +100,13 @@ const PriceRangeSwiper: React.FC = () => {
       y: 0, 
       transition: { duration: 0.6, ease: "easeOut" } 
     }
-  };
+  }
 
   const cardVariants = {
     inactive: { scale: 1, y: 0 },
     active: { scale: 1.05, y: -5 },
     tap: { scale: 0.98 }
-  };
+  }
 
   return (
     <motion.div
@@ -138,7 +137,7 @@ const PriceRangeSwiper: React.FC = () => {
           slidesPerView="auto"
           spaceBetween={16}
           freeMode={true}
-          modules={[FreeMode, Autoplay, EffectCards]}
+          modules={[FreeMode, Autoplay]}
           autoplay={{
             delay: 5000,
             disableOnInteraction: false,
@@ -246,7 +245,7 @@ const PriceRangeSwiper: React.FC = () => {
         </div>
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default PriceRangeSwiper;
+export default PriceRangeSwiper
