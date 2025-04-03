@@ -206,4 +206,3 @@ const GiftSelectionCard = ({
 }
 
 export default GiftSelectionCard
-

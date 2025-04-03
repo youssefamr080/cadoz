@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
-import { ChevronDown, X, ShoppingBag, Gift } from 'lucide-react'
+import { ChevronDown, X, ShoppingBag, Gift } from "lucide-react"
 import Link from "next/link"
 
 // تعريف نوع البيانات للموسم
@@ -27,24 +27,13 @@ const SeasonalBanner: React.FC<SeasonalBannerProps> = ({ season }) => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
 
-  // تحديد الوقت المتبقي لنهاية الموسم
-  const calculateTimeLeft = () => {
-    const now = new Date()
-    const difference = season.endDate.getTime() - now.getTime()
-    if (difference <= 0) return "انتهى الموسم!"
+  // Eliminar la función calculateTimeLeft y el estado timeLeft
 
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24))
-    const hours = Math.floor((difference / (1000 * 60 * 60)) % 24)
-    return `${days} أيام و ${hours} ساعات`
-  }
-
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft())
-
-  // نصوص متغيرة للعرض
+  // Modificar los textos alternantes para eliminar la referencia al tiempo restante
   const alternatingTexts = [
     `استمتع بتجربة تسوق فريدة مع عروض ${season.arabicName} المميزة!`,
-    `باقي ${timeLeft} على انتهاء العروض`,
     "اطلب الآن للحصول على توصيل سريع",
+    "تسوق واستمتع بأفضل العروض الحصرية",
   ]
 
   useEffect(() => {
@@ -56,23 +45,7 @@ const SeasonalBanner: React.FC<SeasonalBannerProps> = ({ season }) => {
     checkMobile()
     window.addEventListener("resize", checkMobile)
 
-    const calculateTimeLeft = () => {
-      const now = new Date()
-      const difference = season.endDate.getTime() - now.getTime()
-      if (difference <= 0) return "انتهى الموسم!"
-
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24)
-      return `${days} أيام و ${hours} ساعات`
-    }
-
-    // تحديث الوقت المتبقي كل ساعة
-    const timer = setInterval(
-      () => {
-        setTimeLeft(calculateTimeLeft())
-      },
-      1000 * 60 * 60,
-    )
+    // Eliminar la actualización del tiempo restante
 
     // تغيير النص كل 4 ثواني
     const textTimer = setInterval(() => {
@@ -80,11 +53,10 @@ const SeasonalBanner: React.FC<SeasonalBannerProps> = ({ season }) => {
     }, 4000)
 
     return () => {
-      clearInterval(timer)
       clearInterval(textTimer)
       window.removeEventListener("resize", checkMobile)
     }
-  }, [season.endDate, alternatingTexts.length])
+  }, [alternatingTexts.length])
 
   // تأثيرات الحركة
   const bannerVariants = {
@@ -116,7 +88,7 @@ const SeasonalBanner: React.FC<SeasonalBannerProps> = ({ season }) => {
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="relative w-full h-[50vh] min-h-[300px] max-h-[400px] overflow-hidden"
+          className="relative w-full h-[40vh] xs:h-[45vh] sm:h-[50vh] min-h-[250px] max-h-[400px] overflow-hidden"
         >
           {/* خلفية متحركة */}
           <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-black/60 z-10" />
@@ -151,7 +123,7 @@ const SeasonalBanner: React.FC<SeasonalBannerProps> = ({ season }) => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
-                className="text-2xl md:text-4xl font-bold mb-3 drop-shadow-lg"
+                className="text-xl xs:text-2xl md:text-4xl font-bold mb-2 xs:mb-3 drop-shadow-lg"
               >
                 {season.arabicName}
               </motion.h1>
@@ -235,3 +207,4 @@ const SeasonalBanner: React.FC<SeasonalBannerProps> = ({ season }) => {
 }
 
 export default SeasonalBanner
+

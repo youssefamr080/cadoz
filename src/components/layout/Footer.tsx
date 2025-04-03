@@ -103,7 +103,6 @@ export default function CompactFooter() {
     { name: "الرئيسية", url: "/" },
     { name: "من نحن", url: "/about" },
     { name: "خدماتنا", url: "/services" },
-    { name: "المدونة", url: "/blog" },
     { name: "اتصل بنا", url: "/contact" },
   ]
 
@@ -132,22 +131,22 @@ export default function CompactFooter() {
 
             <div className="flex justify-center gap-6 mt-3">
               <a
-                href="tel:01055594040"
+                href="tel:01026972523"
                 className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors group"
               >
                 <div className="bg-gray-800 p-1.5 rounded-full group-hover:bg-green-500 transition-colors">
                   <Phone className="w-4 h-4 text-green-400 group-hover:text-white" />
                 </div>
-                <span className="text-sm group-hover:underline">01055594040</span>
+                <span className="text-sm group-hover:underline">01026972523</span>
               </a>
               <a
-                href="mailto:info@cadoz.com"
+                href="mailto:cadoz.gift@gmail.com"
                 className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors group"
               >
                 <div className="bg-gray-800 p-1.5 rounded-full group-hover:bg-teal-500 transition-colors">
                   <Mail className="w-4 h-4 text-teal-400 group-hover:text-white" />
                 </div>
-                <span className="text-sm group-hover:underline">info@cadoz.com</span>
+                <span className="text-sm group-hover:underline">cadoz.gift@gmail.com</span>
               </a>
             </div>
           </div>

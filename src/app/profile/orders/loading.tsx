@@ -1,10 +1,9 @@
-import Header from "../../../../components/layout/Header"
-import Footer from "../../../../components/layout/Footer"
+
 
 export default function Loading() {
   return (
     <div className="min-h-screen bg-gray-50 rtl">
-      <Header />
+      
 
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex items-center mb-6">
@@ -52,7 +51,7 @@ export default function Loading() {
         </div>
       </div>
 
-      <Footer />
+      
     </div>
   )
 }

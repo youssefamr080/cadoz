@@ -317,7 +317,7 @@ export const GiftProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // تتبع حدث إضافة منتج (يمكن استخدامه مع أدوات التحليلات)
       if (typeof window !== "undefined" && "gtag" in window) {
-        const gtag = (window as any).gtag
+        const gtag = window.gtag
         gtag("event", "add_to_cart", {
           item_id: item.id,
           item_name: item.name,
@@ -442,4 +442,3 @@ export const useGift = () => {
 
   return context
 }
-

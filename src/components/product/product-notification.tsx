@@ -179,31 +179,6 @@ export default function ProductNotification({ productId, productName, isOutOfSto
     }, 500)
   }
 
-  const handleToggleWishlist = () => {
-    if (!user) {
-      setIsLoginModalOpen(true)
-      return
-    }
-
-    // تسجيل حدث طلب الإشعار
-    fetch("/api/recommendations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: user.id,
-        productId,
-        action: "notification_request",
-        sessionId,
-        context: {
-          productName,
-          isOutOfStock,
-        },
-      }),
-    }).catch((error) => console.error("Error recording notification request:", error))
-  }
-
   if (!isOutOfStock) {
     return null
   }

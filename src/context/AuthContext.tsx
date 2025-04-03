@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { toast } from "react-toastify"
-import { jwtDecode } from "jwt-decode"
 
 export interface UserData {
   id: string
@@ -11,15 +10,10 @@ export interface UserData {
   email?: string
   avatarUrl?: string
   sessionId?: string
+  createdAt?: string
 }
 
-interface JwtPayload {
-  userId: string
-  name: string
-  phone: string
-  email?: string
-  exp: number
-}
+// Nota: Se eliminó la interfaz DecodedToken que no se utilizaba
 
 interface AuthContextType {
   user: UserData | null
@@ -43,32 +37,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return localStorage.getItem("authToken")
     }
     return null
-  }
-
-  // التحقق من صلاحية التوكن
-  const isTokenValid = (token: string): boolean => {
-    try {
-      const decoded = jwtDecode<JwtPayload>(token)
-      // التحقق من انتهاء صلاحية التوكن
-      return decoded.exp * 1000 > Date.now()
-    } catch (error) {
-      return false
-    }
-  }
-
-  // استخراج بيانات المستخدم من التوكن
-  const getUserFromToken = (token: string): UserData | null => {
-    try {
-      const decoded = jwtDecode<JwtPayload>(token)
-      return {
-        id: decoded.userId,
-        name: decoded.name,
-        phone: decoded.phone,
-        email: decoded.email,
-      }
-    } catch (error) {
-      return null
-    }
   }
 
   // تحديث بيانات المستخدم

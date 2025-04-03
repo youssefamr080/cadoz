@@ -13,4 +13,3 @@ const GiftPage = () => {
 }
 
 export default GiftPage
-

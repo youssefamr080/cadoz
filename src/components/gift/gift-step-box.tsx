@@ -64,7 +64,7 @@ const GiftStepBox = () => {
 
       // تتبع حدث اختيار الصندوق (يمكن استخدامه مع أدوات التحليلات)
       if (typeof window !== "undefined" && "gtag" in window) {
-        const gtag = (window as any).gtag
+        const gtag = window.gtag
         gtag("event", "select_box", {
           box_id: box.id,
           box_name: box.name,
@@ -390,4 +390,3 @@ const GiftStepBox = () => {
 }
 
 export default GiftStepBox
-

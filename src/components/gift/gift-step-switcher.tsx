@@ -17,7 +17,6 @@ import {
   HelpCircle,
 } from "lucide-react"
 import { giftTheme } from "../../components/gift/lib/gift-theme"
-import { useMediaQuery } from "../../components/gift/hooks/use-media-query"
 import { useLocalStorage } from "../../components/gift/hooks/use-local-storage"
 
 // Lazy load step components for better performance
@@ -43,7 +42,7 @@ const GiftStepWrap = dynamic(() => import("../../components/gift/gift-step-wrap"
   loading: () => <StepLoader title="جاري تحميل التغليف" />,
   ssr: false,
 })
-const GiftSummary = dynamic(() => import("../../components/gift/GiftSummary"), {
+const GiftSummary = dynamic(() => import("../../components/gift/gift-summary"), {
   loading: () => <StepLoader title="جاري تحميل الملخص" />,
   ssr: false,
 })
@@ -291,7 +290,6 @@ const GiftStepSwitcher = () => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { state: giftState, totalItems, isBoxSelected, isWrapSelected, dispatch: giftDispatch } = useGift()
   const shouldReduceMotion = useReducedMotion()
-  const isMobile = useMediaQuery("(max-width: 768px)")
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null)
@@ -399,7 +397,7 @@ const GiftStepSwitcher = () => {
 
       // تتبع تغيير الخطوة (يمكن استخدامه مع أدوات التحليلات)
       if (typeof window !== "undefined" && "gtag" in window) {
-        const gtag = (window as any).gtag
+        const gtag = window.gtag
         gtag("event", "change_step", {
           from_step: state.currentStep,
           to_step: newStep,
@@ -776,4 +774,3 @@ const GiftStepSwitcher = () => {
 }
 
 export default GiftStepSwitcher
-

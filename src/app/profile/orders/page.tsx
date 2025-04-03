@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../../../context/AuthContext"
-import Header from "../../../components/layout/Header"
-import Footer from "../../../components/layout/Footer"
+
 import { Package, Search, Filter, ArrowLeft, Calendar, MapPin } from "lucide-react"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
@@ -15,11 +14,20 @@ import { ar } from "date-fns/locale"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
+interface OrderItem {
+  id: number
+  name: string
+  image: string
+  price: number
+  quantity: number
+  variant?: string
+}
+
 interface Order {
   id: string
   status: string
   createdAt: string
-  items: any[]
+  items: OrderItem[]
   shipping: {
     governorate: string
     address?: string
@@ -91,8 +99,6 @@ const OrdersPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 rtl">
-      <Header />
-
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex items-center mb-6">
           <Button variant="ghost" size="sm" className="mr-2" onClick={() => router.push("/profile")}>
@@ -221,7 +227,6 @@ const OrdersPage = () => {
       </div>
 
       <ToastContainer rtl={true} />
-      <Footer />
     </div>
   )
 }

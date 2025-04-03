@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "../../../../lib/mongodb"
 
+interface UpdateData {
+  status: string
+  updatedAt: Date
+  shippedAt?: Date
+  deliveredAt?: Date
+  cancelledAt?: Date
+}
+
 export async function GET(request: Request, { params }: { params: { orderId: string } }) {
   try {
     const orderId = params.orderId
@@ -41,7 +49,7 @@ export async function PATCH(request: Request, { params }: { params: { orderId: s
     const { db } = await connectToDatabase()
 
     // تحديث حالة الطلب
-    const updateData: any = {
+    const updateData: UpdateData = {
       status,
       updatedAt: new Date(),
     }

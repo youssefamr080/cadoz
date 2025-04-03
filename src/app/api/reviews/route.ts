@@ -79,7 +79,18 @@ export async function POST(request: Request) {
     const userAgent = request.headers.get("user-agent") || ""
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "0.0.0.0"
 
-    if (!productId || !userId || !rating) {
+    // Verificar que el usuario esté autenticado
+    if (!userId || userId === "guest-user") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "يجب تسجيل الدخول لإضافة تقييم",
+        },
+        { status: 401 },
+      )
+    }
+
+    if (!productId || !rating) {
       return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 })
     }
 
@@ -106,19 +117,17 @@ export async function POST(request: Request) {
       )
 
       // تسجيل حدث تحديث التقييم
-      if (userId !== "guest-user") {
-        await db.collection("customerEvents").insertOne({
-          userId,
-          eventType: "update_review",
-          timestamp: now,
-          context: {
-            productId: Number(productId),
-            reviewId: existingReview._id,
-            oldRating: existingReview.rating,
-            newRating: rating,
-          },
-        })
-      }
+      await db.collection("customerEvents").insertOne({
+        userId,
+        eventType: "update_review",
+        timestamp: now,
+        context: {
+          productId: Number(productId),
+          reviewId: existingReview._id,
+          oldRating: existingReview.rating,
+          newRating: rating,
+        },
+      })
 
       return NextResponse.json({
         success: true,
@@ -127,11 +136,15 @@ export async function POST(request: Request) {
       })
     }
 
+    // Obtener el nombre real del usuario desde la base de datos
+    const userInfo = await db.collection("customers").findOne({ id: userId })
+    const displayName = userInfo ? userInfo.name : userName || "مستخدم"
+
     // Create new review
     const result = await db.collection("productReviews").insertOne({
       productId: Number(productId),
       userId,
-      userName,
+      userName: displayName, // Usar el nombre real del usuario
       rating,
       comment,
       createdAt: now,
@@ -140,35 +153,32 @@ export async function POST(request: Request) {
       notHelpful: 0,
       ip,
       userAgent,
-      verified: userId !== "guest-user", // تحديد ما إذا كان التقييم من مستخدم مسجل
+      verified: true, // Siempre es verificado porque requiere autenticación
     })
 
     // تحديث متوسط تقييم المنتج
     await updateProductRating(db, Number(productId))
 
-    // إذا كان المستخدم مسجل الدخول، قم بتحديث بيانات العميل
-    if (userId !== "guest-user") {
-      // تحديث عدد التقييمات للعميل
-      await db.collection("customers").updateOne(
-        { id: userId },
-        {
-          $inc: { reviewCount: 1 },
-          $set: { lastReviewAt: now },
-        },
-      )
+    // تحديث عدد التقييمات للعميل
+    await db.collection("customers").updateOne(
+      { id: userId },
+      {
+        $inc: { reviewCount: 1 },
+        $set: { lastReviewAt: now },
+      },
+    )
 
-      // تسجيل حدث إضافة تقييم
-      await db.collection("customerEvents").insertOne({
-        userId,
-        eventType: "add_review",
-        timestamp: now,
-        context: {
-          productId: Number(productId),
-          reviewId: result.insertedId,
-          rating,
-        },
-      })
-    }
+    // تسجيل حدث إضافة تقييم
+    await db.collection("customerEvents").insertOne({
+      userId,
+      eventType: "add_review",
+      timestamp: now,
+      context: {
+        productId: Number(productId),
+        reviewId: result.insertedId,
+        rating,
+      },
+    })
 
     return NextResponse.json({
       success: true,
@@ -214,7 +224,18 @@ export async function PUT(request: Request) {
     const body = await request.json()
     const { reviewId, userId, action } = body
 
-    if (!reviewId || !userId || !action) {
+    // Verificar que el usuario esté autenticado
+    if (!userId || userId === "guest-user") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "يجب تسجيل الدخول لتقييم المراجعات",
+        },
+        { status: 401 },
+      )
+    }
+
+    if (!reviewId || !action) {
       return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 })
     }
 
@@ -268,19 +289,17 @@ export async function PUT(request: Request) {
       await db.collection("productReviews").updateOne({ _id: new ObjectId(reviewId) }, { $inc: { [updateField]: 1 } })
     }
 
-    // تسجيل حدث التصويت إذا كان المستخدم مسجل الدخول
-    if (userId !== "guest-user") {
-      await db.collection("customerEvents").insertOne({
-        userId,
-        eventType: "review_vote",
-        timestamp: new Date(),
-        context: {
-          reviewId,
-          productId: review.productId,
-          action,
-        },
-      })
-    }
+    // تسجيل حدث التصويت
+    await db.collection("customerEvents").insertOne({
+      userId,
+      eventType: "review_vote",
+      timestamp: new Date(),
+      context: {
+        reviewId,
+        productId: review.productId,
+        action,
+      },
+    })
 
     return NextResponse.json({
       success: true,

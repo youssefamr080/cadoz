@@ -196,4 +196,3 @@ const GiftStepDecorations = () => {
 }
 
 export default GiftStepDecorations
-

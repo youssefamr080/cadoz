@@ -17,8 +17,7 @@ import "swiper/css/free-mode"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
 import "swiper/css/thumbs"
-import Header from "../../../components/layout/Header"
-import Footer from "../../../components/layout/Footer"
+
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { useCart } from "../../../context/CartContext"
@@ -35,6 +34,7 @@ import ProductColorSelector from "../../../components/product/product-color-sele
 import ProductNotification from "../../../components/product/product-notification"
 import RecentlyViewedProducts from "../../../components/product/recently-viewed-products"
 
+
 const ProductPage = () => {
   const { productId } = useParams()
   const router = useRouter()
@@ -49,7 +49,7 @@ const ProductPage = () => {
 
   // User info for reviews (normally would come from auth context)
   const userId = "guest-user" // Replace with actual user ID when authentication is implemented
-  const userName = "زائر" // Replace with actual user name when authentication is implemented
+
 
   // Fetch product data using RTK Query
   const { data: product, isLoading, error } = useGetProductByIdQuery(Number(productId))
@@ -180,6 +180,7 @@ const ProductPage = () => {
         name: product.name,
         image: product.image,
         price: product.price,
+        productId: product.id,
       })
 
       // تسجيل إضافة المنتج للمفضلة
@@ -208,11 +209,11 @@ const ProductPage = () => {
   if (isLoading) {
     return (
       <div className="bg-gray-100 min-h-screen flex flex-col">
-        <Header />
+       
         <div className="container mx-auto px-4 py-20 flex-1 flex items-center justify-center">
           <LoadingSpinner message="جاري تحميل المنتج..." />
         </div>
-        <Footer />
+        
       </div>
     )
   }
@@ -221,7 +222,7 @@ const ProductPage = () => {
   if (error) {
     return (
       <div className="bg-gray-100 min-h-screen flex flex-col">
-        <Header />
+    
         <div className="container mx-auto px-4 py-20 flex-1 flex flex-col items-center justify-center">
           <div className="text-center space-y-4">
             <div className="text-5xl mb-4">⚠️</div>
@@ -235,7 +236,6 @@ const ProductPage = () => {
             </button>
           </div>
         </div>
-        <Footer />
       </div>
     )
   }
@@ -244,7 +244,7 @@ const ProductPage = () => {
   if (!product) {
     return (
       <div className="bg-gray-100 min-h-screen flex flex-col">
-        <Header />
+        
         <div className="container mx-auto px-4 py-20 flex-1 flex flex-col items-center justify-center">
           <div className="text-center space-y-4">
             <div className="text-5xl mb-4">❓</div>
@@ -258,7 +258,7 @@ const ProductPage = () => {
             </button>
           </div>
         </div>
-        <Footer />
+        
       </div>
     )
   }
@@ -272,7 +272,7 @@ const ProductPage = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans flex flex-col">
-      <Header />
+      
       <div className="flex-1">
         <main className="container mx-auto px-4 py-6 md:py-12">
           {/* زر العودة */}
@@ -559,7 +559,7 @@ const ProductPage = () => {
 
           {/* تقييمات المنتج */}
           <div className="mt-10 md:mt-16">
-            <ProductReviews productId={product.id} userId={userId} userName={userName} />
+            <ProductReviews productId={product.id} />
           </div>
 
           {/* المنتجات المشاهدة مؤخرًا */}
@@ -574,7 +574,7 @@ const ProductPage = () => {
         </main>
       </div>
       <ToastContainer rtl={true} />
-      <Footer />
+     
 
       {/* زر ثابت للإضافة إلى السلة في الهواتف المحمولة */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-lg z-50">

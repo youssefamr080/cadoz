@@ -64,7 +64,7 @@ const GiftStepWrap = () => {
 
       // تتبع حدث اختيار التغليف (يمكن استخدامه مع أدوات التحليلات)
       if (typeof window !== "undefined" && "gtag" in window) {
-        const gtag = (window as any).gtag
+        const gtag = window.gtag
         gtag("event", "select_wrap", {
           wrap_id: wrap.id,
           wrap_name: wrap.name,
@@ -391,4 +391,3 @@ const GiftStepWrap = () => {
 }
 
 export default GiftStepWrap
-

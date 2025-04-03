@@ -5,8 +5,6 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../../../context/AuthContext"
-import Header from "../../../components/layout/Header"
-import Footer from "../../../components/layout/Footer"
 import { ArrowLeft, User, Phone, Mail, Lock, Eye, EyeOff, Save, Trash } from "lucide-react"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card"
@@ -51,12 +49,12 @@ const SettingsPage = () => {
       router.push("/")
       toast.error("يرجى تسجيل الدخول للوصول إلى صفحة الإعدادات")
     } else if (user) {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         name: user.name || "",
         phone: user.phone || "",
         email: user.email || "",
-      })
+      }))
     }
   }, [user, isLoading, router])
 
@@ -157,7 +155,6 @@ const SettingsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 rtl">
-      <Header />
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="flex items-center mb-6">
@@ -430,7 +427,6 @@ const SettingsPage = () => {
       </div>
 
       <ToastContainer rtl={true} />
-      <Footer />
     </div>
   )
 }

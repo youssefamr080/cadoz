@@ -9,19 +9,17 @@ import { GiftProvider } from "../../context/GiftContext"
 import { motion, useReducedMotion } from "framer-motion"
 import { Gift, Heart, ShoppingBag, Sparkles, Package, Truck } from "lucide-react"
 import { giftTheme } from "../../components/gift/lib/gift-theme"
-import { useRouter } from "next/navigation"
 import { useToast } from "../../components/gift/hooks/use-toast"
 
 const GiftPageClient = () => {
   const shouldReduceMotion = useReducedMotion()
-  const router = useRouter()
   const { toast } = useToast()
 
   // تتبع مشاهدة الصفحة
   useEffect(() => {
     // تتبع مشاهدة الصفحة (يمكن استخدامه مع أدوات التحليلات)
     if (typeof window !== "undefined" && "gtag" in window) {
-      const gtag = (window as any).gtag
+      const gtag = window.gtag
       gtag("event", "page_view", {
         page_title: "Gift Customization",
         page_location: window.location.href,
@@ -226,4 +224,3 @@ const GiftPageClient = () => {
 }
 
 export default GiftPageClient
-

@@ -198,4 +198,3 @@ const GiftContainer = () => {
 }
 
 export default GiftContainer
-

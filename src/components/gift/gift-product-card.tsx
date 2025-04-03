@@ -35,7 +35,6 @@ const GiftProductCard = ({
   variant = "primary",
   "aria-label": ariaLabel,
 }: GiftProductCardProps) => {
-  const [isHovered, setIsHovered] = useState(false)
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -102,8 +101,6 @@ const GiftProductCard = ({
         isInCart ? `border-2 ${colors.border}` : "border-gray-100 hover:border-gray-200"
       }`}
       whileHover={{ y: -4, boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)" }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
@@ -173,4 +170,3 @@ const GiftProductCard = ({
 }
 
 export default GiftProductCard
-

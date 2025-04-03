@@ -9,7 +9,8 @@ import WhatsappHelper from "../components/home/WhatsappHelper";
 import { AuthProvider } from "../context/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import Header from "../components/layout/Header"
+import Footer from "../components/layout/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ReduxProvider>
             <Providers>
               <WhatsappHelper phoneNumber="+201026972523" />
-              {children}
+              <Header />
+              <main className="pt-[calc(3.8rem+1.75rem)]">{children}</main>
+              <Footer />
               <Analytics />
               <ToastContainer position="top-center" />
             </Providers>

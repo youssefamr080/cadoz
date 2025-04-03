@@ -31,8 +31,7 @@ import { useWishlist } from "../../context/WishlistContext"
 import { useGetProductsQuery } from "../../lib/redux/api/apiSlice"
 
 // Layout Components
-import Header from "../../components/layout/Header"
-import Footer from "../../components/layout/Footer"
+
 
 // Types
 import type { Product } from "../../types/product"
@@ -245,7 +244,7 @@ const GiftResultsPage: React.FC = () => {
       removeFromWishlist(product.id)
       toast.info("تمت الإزالة من المفضلة")
     } else {
-      addToWishlist({ id: product.id, name: product.name, image: product.image, price: product.price })
+      addToWishlist({ id: product.id, name: product.name, image: product.image, price: product.price, productId: product.id })
       toast.success("تمت الإضافة إلى المفضلة")
     }
   }
@@ -340,7 +339,7 @@ const GiftResultsPage: React.FC = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen font-tajawal" dir="rtl">
-      <Header />
+
 
       <main className="container mx-auto px-4 py-4">
         {/* Breadcrumb */}
@@ -1254,7 +1253,7 @@ const GiftResultsPage: React.FC = () => {
         draggable
         pauseOnHover
       />
-      <Footer />
+      
     </div>
   )
 }

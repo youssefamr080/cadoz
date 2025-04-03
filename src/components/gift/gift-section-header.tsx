@@ -65,4 +65,3 @@ const GiftSectionHeader = ({ title, icon, variant = "primary", description }: Gi
 }
 
 export default GiftSectionHeader
-

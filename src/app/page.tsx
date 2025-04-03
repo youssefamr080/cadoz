@@ -4,8 +4,6 @@ import type React from "react"
 
 import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
-import Header from "../components/layout/Header"
-import Footer from "../components/layout/Footer"
 import SeasonalBanner from "../components/home/SeasonalBanner"
 import CountdownTimer from "../components/home/CountdownTimer"
 import PriceRangeSwiper from "../components/home/PriceRangeSwiper"
@@ -22,9 +20,11 @@ import {
   ChevronRight,
   ChevronLeft,
   Star,
-  Heart,
+  Eye,
   Gift,
   ArrowRight,
+  Check,
+  Heart,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -34,6 +34,7 @@ import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
 import "swiper/css/effect-coverflow"
+import { useRouter } from "next/navigation"
 
 // أضف استيراد المكونات الجديدة في بداية الملف
 import SectionDivider from "../components/home/SectionDivider"
@@ -269,119 +270,129 @@ const SectionTitle = ({
   )
 }
 
-// تصغير بطاقة المنتج في الصفحة الرئيسية
+// تصميم جديد لبطاقة المنتج
 const ProductCard = ({ product, accentColor = "blue" }: { product: Product; accentColor?: string }) => {
-  const [isHovered, setIsHovered] = useState(false)
+  const router = useRouter()
 
-  const colorMap: Record<string, { bg: string; text: string; light: string }> = {
-    blue: { bg: "from-blue-500 to-indigo-600", text: "text-blue-600", light: "bg-blue-50" },
-    amber: { bg: "from-amber-500 to-orange-600", text: "text-amber-600", light: "bg-amber-50" },
-    rose: { bg: "from-rose-500 to-pink-600", text: "text-rose-600", light: "bg-rose-50" },
-    emerald: { bg: "from-emerald-500 to-teal-600", text: "text-emerald-600", light: "bg-emerald-50" },
-    violet: { bg: "from-violet-500 to-purple-600", text: "text-violet-600", light: "bg-violet-50" },
+  const colorMap: Record<string, { bg: string; text: string; light: string; border: string }> = {
+    blue: { bg: "from-blue-500 to-indigo-600", text: "text-blue-600", light: "bg-blue-50", border: "border-blue-100" },
+    amber: {
+      bg: "from-amber-500 to-orange-600",
+      text: "text-amber-600",
+      light: "bg-amber-50",
+      border: "border-amber-100",
+    },
+    rose: { bg: "from-rose-500 to-pink-600", text: "text-rose-600", light: "bg-rose-50", border: "border-rose-100" },
+    emerald: {
+      bg: "from-emerald-500 to-teal-600",
+      text: "text-emerald-600",
+      light: "bg-emerald-50",
+      border: "border-emerald-100",
+    },
+    violet: {
+      bg: "from-violet-500 to-purple-600",
+      text: "text-violet-600",
+      light: "bg-violet-50",
+      border: "border-violet-100",
+    },
   }
 
   const colors = colorMap[accentColor] || colorMap.blue
 
+  // فتح صفحة المنتج
+  const handleViewProduct = (e: React.MouseEvent, productId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    router.push(`/product/${productId}`)
+  }
+
   return (
-    <motion.div
-      className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col h-full border border-slate-200"
-      whileHover={{ y: -3 }} // تقليل حركة الارتفاع
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <Link href={`/product/${product.id}`} className="block relative">
-        <div className="relative pt-[100%] overflow-hidden bg-slate-100">
-          <Image
-            src={product.image || "/placeholder.svg?height=200&width=200"} // تقليل حجم الصورة الافتراضية
-            alt={product.name}
-            fill
-            className="object-cover transition-transform group-hover:scale-105 duration-500" // تقليل تأثير التكبير
-            sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, 16vw"
-          />
+    <motion.div className="group relative" whileHover={{ y: -5 }} transition={{ duration: 0.3 }}>
+      <Link href={`/product/${product.id}`} className="block">
+        <div className="relative overflow-hidden rounded-xl bg-white shadow-md hover:shadow-lg transition-all duration-300">
+          {/* صورة المنتج */}
+          <div className="relative aspect-square overflow-hidden">
+            <Image
+              src={product.image || "/placeholder.svg?height=200&width=200"}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform group-hover:scale-105 duration-500"
+              sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+            />
 
-          {/* شارة الخصم */}
-          {product.old_price && (
-            <div
-              className={`absolute top-1 left-1 bg-gradient-to-r ${colors.bg} text-white py-0.5 px-1 text-[8px] font-bold rounded-full shadow-sm`}
+            {/* زر عرض المنتج */}
+            <button
+              className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors z-10"
+              onClick={(e) => handleViewProduct(e, product.id.toString())}
             >
-              {Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
-            </div>
-          )}
+              <Eye className="w-4 h-4 text-gray-600 hover:text-blue-500 transition-colors" />
+            </button>
 
-          {/* شارة المنتج الجديد */}
-          {product.new_arrival && !product.old_price && (
-            <div className="absolute top-1 left-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-0.5 px-1 text-[8px] font-bold rounded-full shadow-sm">
-              جديد
-            </div>
-          )}
+            {/* شارة الخصم */}
+            {product.old_price && (
+              <div
+                className={`absolute top-2 left-2 ${colors.light} ${colors.text} py-1 px-2 text-xs font-bold rounded-lg shadow-sm flex items-center gap-1 ${colors.border} border`}
+              >
+                <Tag className="w-3 h-3" />
+                <span>-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</span>
+              </div>
+            )}
 
-          {/* حالة المخزون */}
-          {product.stock === 0 && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
-              <span className="bg-red-600 text-white py-0.5 px-2 text-xs font-bold rounded-full shadow-md">نفذ</span>
-            </div>
-          )}
+            {/* شارة المنتج الجديد */}
+            {product.new_arrival && !product.old_price && (
+              <div className="absolute top-2 left-2 bg-emerald-50 text-emerald-600 py-1 px-2 text-xs font-bold rounded-lg shadow-sm border border-emerald-100">
+                جديد
+              </div>
+            )}
 
-          {/* طبقة التأثير عند التحويم */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2">
-            <span className="text-white text-[10px] font-medium">عرض التفاصيل</span>
+            {/* حالة المخزون */}
+            {product.stock === 0 && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                <span className="bg-red-600 text-white py-1 px-3 text-sm font-bold rounded-lg shadow-md">نفذ</span>
+              </div>
+            )}
           </div>
 
-          {/* أزرار التفاعل */}
-          <div className="absolute top-1 right-1 flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-5 group-hover:translate-x-0 hidden md:flex">
-            <button className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 transition-colors">
-              <Heart className="w-3 h-3 text-slate-600" />
-            </button>
-            <button className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 transition-colors">
-              <ShoppingBag className="w-3 h-3 text-slate-600" />
-            </button>
+          {/* معلومات المنتج */}
+          <div className="p-3">
+            {/* التقييم */}
+            {product.rating && (
+              <div className="flex items-center mb-1.5">
+                <div className="flex">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-3.5 h-3.5 ${i < Math.floor(product.rating || 0) ? "text-amber-400 fill-amber-400" : "text-slate-300"}`}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs text-slate-500 mr-1">({product.rating})</span>
+              </div>
+            )}
+
+            {/* اسم المنتج */}
+            <h3 className="font-medium text-sm sm:text-base line-clamp-2 mb-2 text-slate-800 min-h-[2.5rem]">
+              {product.name}
+            </h3>
+
+            {/* السعر */}
+            <div className="flex items-center justify-between">
+              <div className={`text-base font-bold ${colors.text}`}>
+                {product.price} <span className="text-xs">ج.م</span>
+              </div>
+
+              {product.old_price ? (
+                <div className="text-slate-500 line-through text-xs">{product.old_price} ج.م</div>
+              ) : product.stock > 0 ? (
+                <div className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 border border-emerald-100">
+                  <Check className="w-3 h-3" />
+                  <span>متوفر</span>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </Link>
-
-      <div className="p-2 flex-1 flex flex-col">
-        <Link href={`/product/${product.id}`} className="block flex-1">
-          <h3
-            className={`font-medium text-xs line-clamp-2 mb-1 text-slate-800 group-hover:${colors.text} transition-colors`}
-          >
-            {product.name}
-          </h3>
-        </Link>
-
-        {/* التقييم */}
-        {product.rating && (
-          <div className="flex items-center mb-1">
-            <div className="flex">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-2.5 h-2.5 ${i < Math.floor(product.rating || 0) ? "text-amber-400 fill-amber-400" : "text-slate-300"}`}
-                />
-              ))}
-            </div>
-            <span className="text-[8px] text-slate-500 mr-1">({product.rating})</span>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between mt-auto">
-          <div>
-            <p className={`text-xs font-bold ${colors.text}`}>
-              {product.price} <span className="text-[8px]">ج.م</span>
-            </p>
-            {product.old_price && <p className="text-slate-500 line-through text-[8px]">{product.old_price} ج.م</p>}
-          </div>
-
-          {/* زر سريع للشراء يظهر عند التحويم */}
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: isHovered ? 1 : 0, scale: isHovered ? 1 : 0.8 }}
-            className={`${colors.light} ${colors.text} p-1 rounded-full shadow-sm`} // تصغير الزر
-          >
-            <ShoppingBag className="w-3 h-3" /> {/* تصغير الأيقونة */}
-          </motion.button>
-        </div>
-      </div>
     </motion.div>
   )
 }
@@ -447,7 +458,7 @@ const HomePage = () => {
           const viewedTags = new Set(parsed.flatMap((p: Product) => p.tags || []).filter(Boolean))
 
           if (viewedCategories.size > 0 || viewedTags.size > 0) {
-            // اختيا�� فئة عشوائية من الفئات المشاهدة
+            // اختيا فئة عشوائية من الفئات المشاهدة
             const categoriesArray = Array.from(viewedCategories)
             const randomCategory = categoriesArray[Math.floor(Math.random() * categoriesArray.length)]
 
@@ -505,7 +516,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
+      
 
       <main>
         {/* بانر الموسم الحالي */}
@@ -560,7 +571,7 @@ const HomePage = () => {
             variants={fadeInUp}
             className="py-16 bg-gradient-to-b from-gray-50 to-white"
           >
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-2 sm:px-4">
               <SectionTitle
                 icon={<TrendingUp className="w-7 h-7" />}
                 title="الأكثر مبيعاً"
@@ -595,8 +606,10 @@ const HomePage = () => {
                     swiper.params.navigation.nextEl = trendingNextRef.current
                   }}
                   breakpoints={{
-                    640: { slidesPerView: 2.5, centeredSlides: false },
-                    768: { slidesPerView: 3, centeredSlides: false },
+                    320: { slidesPerView: 1.5, spaceBetween: 8, centeredSlides: true },
+                    480: { slidesPerView: 2, spaceBetween: 10, centeredSlides: false },
+                    640: { slidesPerView: 2.5, spaceBetween: 12, centeredSlides: false },
+                    768: { slidesPerView: 3, spaceBetween: 16, centeredSlides: false },
                     1024: { slidesPerView: 4, centeredSlides: false },
                     1280: { slidesPerView: 5, centeredSlides: false },
                   }}
@@ -647,7 +660,7 @@ const HomePage = () => {
             variants={fadeInUp}
             className="py-16 bg-white"
           >
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-2 sm:px-4">
               <SectionTitle
                 icon={<Tag className="w-7 h-7" />}
                 title="عروض خاصة"
@@ -682,9 +695,11 @@ const HomePage = () => {
                     swiper.params.navigation.nextEl = saleNextRef.current
                   }}
                   breakpoints={{
-                    640: { slidesPerView: 3, centeredSlides: false },
-                    768: { slidesPerView: 4, centeredSlides: false },
-                    1024: { slidesPerView: 5, centeredSlides: false },
+                    320: { slidesPerView: 1.5, spaceBetween: 8, centeredSlides: true },
+                    480: { slidesPerView: 2, spaceBetween: 10, centeredSlides: false },
+                    640: { slidesPerView: 2.5, spaceBetween: 12, centeredSlides: false },
+                    768: { slidesPerView: 3, spaceBetween: 16, centeredSlides: false },
+                    1024: { slidesPerView: 4, centeredSlides: false },
                     1280: { slidesPerView: 6, centeredSlides: false },
                   }}
                   className="py-8 px-2"
@@ -734,7 +749,7 @@ const HomePage = () => {
             variants={fadeInUp}
             className="py-16 bg-gradient-to-b from-white to-gray-50"
           >
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-2 sm:px-4">
               <SectionTitle
                 icon={<Sparkles className="w-7 h-7" />}
                 title="وصل حديثاً"
@@ -769,9 +784,11 @@ const HomePage = () => {
                     swiper.params.navigation.nextEl = newArrivalsNextRef.current
                   }}
                   breakpoints={{
-                    640: { slidesPerView: 3, centeredSlides: false },
-                    768: { slidesPerView: 4, centeredSlides: false },
-                    1024: { slidesPerView: 5, centeredSlides: false },
+                    320: { slidesPerView: 1.5, spaceBetween: 8, centeredSlides: true },
+                    480: { slidesPerView: 2, spaceBetween: 10, centeredSlides: false },
+                    640: { slidesPerView: 2.5, spaceBetween: 12, centeredSlides: false },
+                    768: { slidesPerView: 3, spaceBetween: 16, centeredSlides: false },
+                    1024: { slidesPerView: 4, centeredSlides: false },
                     1280: { slidesPerView: 6, centeredSlides: false },
                   }}
                   className="py-8 px-2"
@@ -829,7 +846,7 @@ const HomePage = () => {
             variants={fadeInUp}
             className="py-16 bg-white"
           >
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-2 sm:px-4">
               <SectionTitle
                 icon={<Clock className="w-7 h-7" />}
                 title="شاهدت مؤخراً"
@@ -864,8 +881,10 @@ const HomePage = () => {
                     swiper.params.navigation.nextEl = viewedNextRef.current
                   }}
                   breakpoints={{
-                    640: { slidesPerView: 2.5, centeredSlides: false },
-                    768: { slidesPerView: 3, centeredSlides: false },
+                    320: { slidesPerView: 1.5, spaceBetween: 8, centeredSlides: true },
+                    480: { slidesPerView: 2, spaceBetween: 10, centeredSlides: false },
+                    640: { slidesPerView: 2.5, spaceBetween: 12, centeredSlides: false },
+                    768: { slidesPerView: 3, spaceBetween: 16, centeredSlides: false },
                     1024: { slidesPerView: 4, centeredSlides: false },
                     1280: { slidesPerView: 5, centeredSlides: false },
                   }}
@@ -904,7 +923,7 @@ const HomePage = () => {
           variants={fadeInUp}
           className="py-16 bg-gradient-to-b from-gray-50 to-white"
         >
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-2 sm:px-4">
             <SectionTitle
               icon={<Gift className="w-7 h-7" />}
               title="تسوق حسب الفئة"
@@ -973,7 +992,7 @@ const HomePage = () => {
           variants={fadeInUp}
           className="py-16 bg-gradient-to-b from-white to-gray-50"
         >
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-2 sm:px-4">
             <SectionTitle
               icon={<Sparkles className="w-7 h-7" />}
               title="مقترحة لك"
@@ -999,8 +1018,10 @@ const HomePage = () => {
                     dynamicBullets: true,
                   }}
                   breakpoints={{
-                    640: { slidesPerView: 3, centeredSlides: false },
-                    768: { slidesPerView: 4, centeredSlides: false },
+                    320: { slidesPerView: 1.5, spaceBetween: 8, centeredSlides: true },
+                    480: { slidesPerView: 2, spaceBetween: 10, centeredSlides: false },
+                    640: { slidesPerView: 2.5, spaceBetween: 12, centeredSlides: false },
+                    768: { slidesPerView: 3, spaceBetween: 16, centeredSlides: false },
                     1024: { slidesPerView: 5, centeredSlides: false },
                     1280: { slidesPerView: 6, centeredSlides: false },
                   }}
@@ -1022,7 +1043,7 @@ const HomePage = () => {
         </motion.section>
       </main>
 
-      <Footer />
+      
     </div>
   )
 }

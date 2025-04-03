@@ -1,10 +1,7 @@
 "use client"
-
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../../../../context/AuthContext"
-import Header from "../../../../components/layout/Header"
-import Footer from "../../../../components/layout/Footer"
 import { ArrowLeft, Package, Truck, CheckCircle, Clock, XCircle, MapPin, Phone, FileText } from "lucide-react"
 import { Button } from "../../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
@@ -15,17 +12,58 @@ import "react-toastify/dist/ReactToastify.css"
 import Image from "next/image"
 import { FaWhatsapp } from "react-icons/fa"
 
+interface OrderItem {
+  id: number
+  name: string
+  image: string
+  price: number
+  quantity: number
+  variant?: string
+}
+
+interface OrderShipping {
+  governorate: string
+  address?: string
+  phone?: string
+  notes?: string
+}
+
+interface OrderTotals {
+  subtotal: number
+  shippingFees: number
+  discount: number
+  tax: number
+  total: number
+}
+
+interface PromoCode {
+  code: string
+  discountPercentage: number
+}
+
+interface Order {
+  id: string
+  status: string
+  createdAt: string
+  items: OrderItem[]
+  shipping: OrderShipping
+  totals: OrderTotals
+  promoCode?: PromoCode
+}
+
 interface OrderDetailsProps {
-  params: {
+  params: Promise<{
     orderId: string
-  }
+  }>
 }
 
 const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
-  const { orderId } = params
+  const unwrappedParams = React.use(params)
+  const { orderId } = unwrappedParams
+
   const { user, isLoading } = useAuth()
   const router = useRouter()
-  const [order, setOrder] = useState<any>(null)
+  const [order, setOrder] = useState<Order | null>(null)
   const [isLoadingOrder, setIsLoadingOrder] = useState(false)
 
   // التحقق من تسجيل الدخول
@@ -137,7 +175,6 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
   if (isLoadingOrder) {
     return (
       <div className="min-h-screen bg-gray-50 rtl">
-        <Header />
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="flex items-center mb-6">
             <Button variant="ghost" size="sm" className="mr-2" onClick={() => router.push("/profile/orders")}>
@@ -150,7 +187,6 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
             <div className="animate-pulse text-purple-600">جاري تحميل تفاصيل الطلب...</div>
           </div>
         </div>
-        <Footer />
       </div>
     )
   }
@@ -158,7 +194,6 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
   if (!order) {
     return (
       <div className="min-h-screen bg-gray-50 rtl">
-        <Header />
         <div className="container mx-auto px-4 py-8 max-w-6xl">
           <div className="flex items-center mb-6">
             <Button variant="ghost" size="sm" className="mr-2" onClick={() => router.push("/profile/orders")}>
@@ -174,15 +209,12 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
             <Button onClick={() => router.push("/profile/orders")}>العودة إلى الطلبات</Button>
           </div>
         </div>
-        <Footer />
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-gray-50 rtl">
-      <Header />
-
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex items-center mb-6">
           <Button variant="ghost" size="sm" className="mr-2" onClick={() => router.push("/profile/orders")}>
@@ -224,7 +256,7 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {order.items.map((item: any, index: number) => (
+                {order.items.map((item, index) => (
                   <div key={index} className="flex items-start gap-4 p-3 border rounded-lg hover:bg-gray-50">
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden border">
                       <Image
@@ -360,7 +392,6 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
       </div>
 
       <ToastContainer rtl={true} />
-      <Footer />
     </div>
   )
 }

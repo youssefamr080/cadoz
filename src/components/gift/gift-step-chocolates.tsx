@@ -129,7 +129,7 @@ const GiftStepChocolates: React.FC = () => {
 
       // تتبع حدث إضافة منتج (يمكن استخدامه مع أدوات التحليلات)
       if (typeof window !== "undefined" && "gtag" in window) {
-        const gtag = (window as any).gtag
+        const gtag = window.gtag
         gtag("event", "add_to_cart", {
           item_id: chocolate.id,
           item_name: chocolate.name,
@@ -448,4 +448,3 @@ const GiftStepChocolates: React.FC = () => {
 }
 
 export default GiftStepChocolates
-

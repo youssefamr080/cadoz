@@ -2,8 +2,6 @@
 import React, { useState } from "react"
 import { useCart } from "../../context/CartContext"
 import { useAuth } from "../../context/AuthContext"
-import Header from "../../components/layout/Header"
-import Footer from "../../components/layout/Footer"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
@@ -298,7 +296,7 @@ const CartPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 rtl">
-      <Header />
+     
 
       <div className="container mx-auto px-2 sm:px-4 py-6 max-w-4xl">
         <div className="flex items-center mb-4">
@@ -501,13 +499,13 @@ const CartPage = () => {
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        onSuccess={(userData) => {
+        onSuccess={() => {
           setIsLoginModalOpen(false)
-          // Después de iniciar sesión, continuar con el proceso de compra
+          // بعد تسجيل الدخول، استمر في عملية الشراء
           sendInvoiceWhatsApp()
         }}
       />
-      <Footer />
+
     </div>
   )
 }

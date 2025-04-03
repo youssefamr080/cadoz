@@ -4,8 +4,9 @@ import type React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { ShoppingCart, Heart, Star, Check } from "lucide-react"
+import { Star, Eye, Tag, Check } from "lucide-react"
 import type { Product } from "../../types/product"
+import { useRouter } from "next/navigation"
 
 interface ProductCollectionProps {
   products: Product[]
@@ -14,44 +15,61 @@ interface ProductCollectionProps {
 }
 
 const ProductCollection: React.FC<ProductCollectionProps> = ({ products, accentColor = "blue", compact = false }) => {
+  const router = useRouter()
+
   // تحديد الألوان بناءً على اللون الرئيسي
   const getColorClasses = () => {
-    const colorMap: Record<string, { bg: string; text: string; hover: string; shadow: string }> = {
+    const colorMap: Record<
+      string,
+      { bg: string; text: string; hover: string; shadow: string; light: string; border: string }
+    > = {
       blue: {
         bg: "from-blue-500 to-indigo-600",
         text: "text-blue-600",
         hover: "group-hover:text-blue-600",
         shadow: "shadow-blue-200",
+        light: "bg-blue-50",
+        border: "border-blue-100",
       },
       amber: {
         bg: "from-amber-500 to-orange-600",
         text: "text-amber-600",
         hover: "group-hover:text-amber-600",
         shadow: "shadow-amber-200",
+        light: "bg-amber-50",
+        border: "border-amber-100",
       },
       emerald: {
         bg: "from-emerald-500 to-teal-600",
         text: "text-emerald-600",
         hover: "group-hover:text-emerald-600",
         shadow: "shadow-emerald-200",
+        light: "bg-emerald-50",
+        border: "border-emerald-100",
       },
       rose: {
         bg: "from-rose-500 to-pink-600",
         text: "text-rose-600",
         hover: "group-hover:text-rose-600",
         shadow: "shadow-rose-200",
+        light: "bg-rose-50",
+        border: "border-rose-100",
       },
       violet: {
         bg: "from-violet-500 to-purple-600",
         text: "text-violet-600",
         hover: "group-hover:text-violet-600",
         shadow: "shadow-violet-200",
+        light: "bg-violet-50",
+        border: "border-violet-100",
       },
       cyan: {
         bg: "from-cyan-500 to-blue-600",
         text: "text-cyan-600",
         hover: "group-hover:text-cyan-600",
         shadow: "shadow-cyan-200",
+        light: "bg-cyan-50",
+        border: "border-cyan-100",
       },
     }
 
@@ -80,7 +98,11 @@ const ProductCollection: React.FC<ProductCollectionProps> = ({ products, accentC
     },
   }
 
-  // تصغير حجم بطاقات المنتجات
+  // فتح صفحة المنتج
+  const handleViewProduct = (productId: string) => {
+    router.push(`/product/${productId}`)
+  }
+
   return (
     <motion.div
       variants={containerVariants}
@@ -88,107 +110,101 @@ const ProductCollection: React.FC<ProductCollectionProps> = ({ products, accentC
       animate="visible"
       className={`grid ${
         compact
-          ? "grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 md:gap-3" // زيادة عدد الأعمدة وتقليل المسافات
-          : "grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 md:gap-4" // زيادة عدد الأعمدة وتقليل المسافات
+          ? "grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 xs:gap-4 md:gap-5"
+          : "grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 xs:gap-4 md:gap-5"
       }`}
     >
       {products.map((product) => (
-        <motion.div
-          key={product.id}
-          variants={itemVariants}
-          className="group bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col h-full border border-slate-200" // تقليل الظل والتقريب
-        >
-          <Link href={`/product/${product.id}`} className="block relative">
-            <div className="relative pt-[100%] overflow-hidden bg-slate-100">
-              <Image
-                src={product.image || "/placeholder.svg"}
-                alt={product.name}
-                fill
-                className="object-cover transition-transform group-hover:scale-105 duration-500" // تقليل تأثير التكبير
-                sizes="(max-width: 640px) 25vw, (max-width: 768px) 20vw, 16vw" // تحسين أحجام الصور
-              />
+        <motion.div key={product.id} variants={itemVariants} className="group relative">
+          <Link href={`/product/${product.id}`} className="block">
+            <div className="relative overflow-hidden rounded-xl bg-white shadow-md hover:shadow-lg transition-all duration-300">
+              {/* صورة المنتج */}
+              <div className="relative aspect-square overflow-hidden">
+                <Image
+                  src={product.image || "/placeholder.svg"}
+                  alt={product.name}
+                  fill
+                  className="object-cover transition-transform group-hover:scale-105 duration-500"
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
+                />
 
-              {/* شارة الخصم */}
-              {product.old_price && (
-                <div
-                  className={`absolute top-1 left-1 bg-gradient-to-r ${colors.bg} text-white py-0.5 px-1 text-[8px] font-bold rounded-full shadow-sm`} // تصغير الشارة
+                {/* زر عرض المنتج */}
+                <button
+                  className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors z-10"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleViewProduct(product.id.toString())
+                  }}
                 >
-                  {Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
-                </div>
-              )}
+                  <Eye className="w-4 h-4 text-gray-600 hover:text-blue-500 transition-colors" />
+                </button>
 
-              {/* شارة المنتج الجديد */}
-              {product.new_arrival && !product.old_price && (
-                <div className="absolute top-1 left-1 bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-0.5 px-1 text-[8px] font-bold rounded-full shadow-sm">
-                  جديد
-                </div>
-              )}
+                {/* شارة الخصم */}
+                {product.old_price && (
+                  <div
+                    className={`absolute top-2 left-2 ${colors.light} ${colors.text} py-1 px-2 text-xs font-bold rounded-lg shadow-sm flex items-center gap-1 ${colors.border} border`}
+                  >
+                    <Tag className="w-3 h-3" />
+                    <span>-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</span>
+                  </div>
+                )}
 
-              {/* حالة المخزون */}
-              {product.stock === 0 && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
-                  <span className="bg-red-600 text-white py-0.5 px-1.5 text-[10px] font-bold rounded-full shadow-md">
-                    نفذ
-                  </span>
-                </div>
-              )}
+                {/* شارة المنتج الجديد */}
+                {product.new_arrival && !product.old_price && (
+                  <div className="absolute top-2 left-2 bg-emerald-50 text-emerald-600 py-1 px-2 text-xs font-bold rounded-lg shadow-sm border border-emerald-100">
+                    جديد
+                  </div>
+                )}
 
-              {/* طبقة التأثير عند التحويم */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-1">
-                <span className="text-white text-[10px] font-medium">عرض التفاصيل</span>
+                {/* حالة المخزون */}
+                {product.stock === 0 && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
+                    <span className="bg-red-600 text-white py-1 px-3 text-sm font-bold rounded-lg shadow-md">نفذ</span>
+                  </div>
+                )}
               </div>
 
-              {/* أزرار التفاعل - تظهر فقط على الشاشات الكبيرة */}
-              <div className="absolute top-1 right-1 flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-5 group-hover:translate-x-0 hidden md:flex">
-                <button className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 transition-colors">
-                  <Heart className="w-3 h-3 text-slate-600" />
-                </button>
-                <button className="w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-slate-50 transition-colors">
-                  <ShoppingCart className="w-3 h-3 text-slate-600" />
-                </button>
+              {/* معلومات المنتج */}
+              <div className="p-3">
+                {/* التقييم */}
+                {product.rating && !compact && (
+                  <div className="flex items-center mb-1.5">
+                    <div className="flex">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-3.5 h-3.5 ${i < Math.floor(product.rating || 0) ? "text-amber-400 fill-amber-400" : "text-slate-300"}`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-xs text-slate-500 mr-1">({product.rating})</span>
+                  </div>
+                )}
+
+                {/* اسم المنتج */}
+                <h3 className="font-medium text-sm sm:text-base line-clamp-2 mb-2 text-slate-800 min-h-[2.5rem]">
+                  {product.name}
+                </h3>
+
+                {/* السعر */}
+                <div className="flex items-center justify-between">
+                  <div className={`text-base font-bold ${colors.text}`}>
+                    {product.price} <span className="text-xs">ج.م</span>
+                  </div>
+
+                  {product.old_price ? (
+                    <div className="text-slate-500 line-through text-xs">{product.old_price} ج.م</div>
+                  ) : product.stock > 0 ? (
+                    <div className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 border border-emerald-100">
+                      <Check className="w-3 h-3" />
+                      <span>متوفر</span>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </Link>
-
-          <div className="p-1.5 flex-1 flex flex-col">
-            <Link href={`/product/${product.id}`} className="block flex-1">
-              <h3
-                className={`font-medium text-[11px] line-clamp-2 mb-0.5 text-slate-800 ${colors.hover} transition-colors`}
-              >
-                {product.name}
-              </h3>
-            </Link>
-            {/* التقييم - يظهر فقط في الوضع غير المضغوط */}
-            {product.rating && !compact && (
-              <div className="flex items-center mb-1">
-                <div className="flex">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-2.5 h-2.5 ${i < Math.floor(product.rating || 0) ? "text-amber-400 fill-amber-400" : "text-slate-300"}`}
-                    />
-                  ))}
-                </div>
-                <span className="text-[8px] text-slate-500 mr-1">({product.rating})</span>
-              </div>
-            )}
-            <div className="flex items-center justify-between mt-auto">
-              <div>
-                <p className={`text-xs font-bold ${colors.text}`}>
-                  {product.price} <span className="text-[8px]">ج.م</span>
-                </p>
-                {product.old_price && <p className="text-slate-500 line-through text-[8px]">{product.old_price} ج.م</p>}
-              </div>
-
-              {/* حالة المخزون - تظهر فقط في الوضع غير المضغوط */}
-              {!compact && product.stock > 0 && (
-                <span className="text-[8px] text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded-full flex items-center gap-0.5">
-                  <Check className="w-2 h-2" />
-                  متوفر
-                </span>
-              )}
-            </div>
-          </div>
         </motion.div>
       ))}
     </motion.div>

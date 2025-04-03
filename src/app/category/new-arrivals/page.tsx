@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import Header from "../../../components/layout/Header"
-import Footer from "../../../components/layout/Footer"
 import { useGetProductsQuery } from "../../../lib/redux/api/apiSlice"
 import LoadingSpinner from "../../../components/ui/LoadingSpinner"
 import Image from "next/image"
@@ -93,7 +91,7 @@ const NewArrivalsPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <Header />
+      
 
       <main className="pb-16">
         {/* بانر الصفحة */}
@@ -270,7 +268,7 @@ const NewArrivalsPage = () => {
       </main>
 
 
-      <Footer />
+      
     </div>
   )
 }

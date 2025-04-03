@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Star, ThumbsUp, ThumbsDown, MessageSquare, StarHalf } from "lucide-react"
+import { Star, ThumbsUp, ThumbsDown, MessageSquare, StarHalf, AlertCircle } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import { Textarea } from "../../components/ui/textarea"
 import { Skeleton } from "../../components/ui/skeleton"
 import { useToast } from "../../components/gift/hooks/use-toast"
 import { Avatar, AvatarFallback } from "../../components/ui/avatar"
+import { useAuth } from "../../context/AuthContext"
+import LoginModal from "../auth/login-modal"
 
 interface Review {
   _id: string
@@ -18,19 +20,14 @@ interface Review {
   createdAt: string
   helpful: number
   notHelpful: number
+  verified?: boolean
 }
 
 interface ProductReviewsProps {
   productId: number
-  userId?: string
-  userName?: string
 }
 
-export default function ProductReviews({
-  productId,
-  userId = "guest-user", // تعيين قيمة افتراضية للمستخدم الزائر
-  userName = "زائر",
-}: ProductReviewsProps) {
+export default function ProductReviews({ productId }: ProductReviewsProps) {
   const [reviews, setReviews] = useState<Review[]>([])
   const [stats, setStats] = useState({ averageRating: 0, count: 0 })
   const [loading, setLoading] = useState(true)
@@ -39,65 +36,18 @@ export default function ProductReviews({
   const [comment, setComment] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const { toast } = useToast()
-
-  // Handle helpful/not helpful clicks
-  const handleHelpfulClick = async (reviewId: string, type: "helpful" | "notHelpful") => {
-    try {
-      const response = await fetch("/api/reviews", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          reviewId,
-          type,
-          userId,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        // Update local state
-        setReviews((prevReviews) =>
-          prevReviews.map((review) =>
-            review._id === reviewId
-              ? { ...review, [type]: review[type] + 1 }
-              : review
-          )
-        )
-
-        toast({
-          title: "تم بنجاح",
-          description: type === "helpful" ? "تم تحديث التقييم كمفيد" : "تم تحديث التقييم كغير مفيد",
-        })
-      } else {
-        toast({
-          title: "تنبيه",
-          description: data.message || "حدث خطأ أثناء تحديث التقييم",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      console.error("Error updating review:", error)
-      toast({
-        title: "خطأ",
-        description: "حدث خطأ أثناء تحديث التقييم",
-        variant: "destructive",
-      })
-    }
-  }
+  const { user } = useAuth()
 
   // Fetch reviews
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        console.log("Fetching reviews for productId:", productId)
-        const response = await fetch(`/api/reviews?productId=${productId}`)
-        const data = await response.json()
+        setLoading(true)
 
-        console.log("Reviews API response:", data)
+        const response = await fetch(`/api/reviews?productId=${productId}${user?.id ? `&userId=${user.id}` : ""}`)
+        const data = await response.json()
 
         if (data.success) {
           setReviews(data.data.reviews)
@@ -115,10 +65,15 @@ export default function ProductReviews({
     if (productId) {
       fetchReviews()
     }
-  }, [productId])
+  }, [productId, user])
 
   // Submit review
   const handleSubmitReview = async () => {
+    if (!user) {
+      setIsLoginModalOpen(true)
+      return
+    }
+
     if (!userRating) {
       toast({
         title: "خطأ",
@@ -129,13 +84,6 @@ export default function ProductReviews({
     }
 
     setSubmitting(true)
-    console.log("Submitting review:", {
-      productId,
-      userId,
-      userName,
-      rating: userRating,
-      comment,
-    })
 
     try {
       const response = await fetch("/api/reviews", {
@@ -145,15 +93,14 @@ export default function ProductReviews({
         },
         body: JSON.stringify({
           productId,
-          userId,
-          userName,
+          userId: user.id,
+          userName: user.name,
           rating: userRating,
           comment,
         }),
       })
 
       const data = await response.json()
-      console.log("Review submission response:", data)
 
       if (data.success) {
         toast({
@@ -193,6 +140,58 @@ export default function ProductReviews({
     }
   }
 
+  // Handle vote on review
+  const handleVoteReview = async (reviewId: string, action: "helpful" | "notHelpful") => {
+    if (!user) {
+      setIsLoginModalOpen(true)
+      return
+    }
+
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reviewId,
+          userId: user.id,
+          action,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        toast({
+          title: "تم بنجاح",
+          description: "تم تسجيل تقييمك للمراجعة",
+        })
+
+        // Refresh reviews to update counts
+        const refreshResponse = await fetch(`/api/reviews?productId=${productId}`)
+        const refreshData = await refreshResponse.json()
+
+        if (refreshData.success) {
+          setReviews(refreshData.data.reviews)
+        }
+      } else {
+        toast({
+          title: "خطأ",
+          description: data.message || "حدث خطأ أثناء تقييم المراجعة",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error voting on review:", error)
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء تقييم المراجعة",
+        variant: "destructive",
+      })
+    }
+  }
+
   // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -215,6 +214,15 @@ export default function ProductReviews({
     })
 
     return distribution.reverse() // 5 to 1 stars
+  }
+
+  // Handle login success
+  const handleLoginSuccess = () => {
+    setIsLoginModalOpen(false)
+    toast({
+      title: "تم تسجيل الدخول بنجاح",
+      description: "يمكنك الآن إضافة تقييمك",
+    })
   }
 
   // Loading skeleton
@@ -295,6 +303,21 @@ export default function ProductReviews({
             <div className="bg-gray-50 p-4 rounded-lg mb-6">
               <h3 className="font-medium mb-3">أضف تقييمك</h3>
 
+              {!user && (
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-amber-500" />
+                  <p className="text-amber-700 text-sm">يجب تسجيل الدخول لإضافة تقييم</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mr-auto text-amber-600 border-amber-200 hover:bg-amber-100"
+                    onClick={() => setIsLoginModalOpen(true)}
+                  >
+                    تسجيل الدخول
+                  </Button>
+                </div>
+              )}
+
               <div className="flex items-center mb-4 gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -304,11 +327,12 @@ export default function ProductReviews({
                     onMouseEnter={() => setHoveredRating(star)}
                     onMouseLeave={() => setHoveredRating(0)}
                     className="focus:outline-none"
+                    disabled={!user}
                   >
                     <Star
                       className={`w-8 h-8 ${
                         star <= (hoveredRating || userRating) ? "fill-amber-400 text-amber-400" : "text-gray-300"
-                      }`}
+                      } ${!user ? "opacity-50" : ""}`}
                     />
                   </button>
                 ))}
@@ -321,9 +345,10 @@ export default function ProductReviews({
                 onChange={(e) => setComment(e.target.value)}
                 className="mb-4"
                 rows={4}
+                disabled={!user}
               />
 
-              <Button onClick={handleSubmitReview} disabled={submitting || !userRating}>
+              <Button onClick={handleSubmitReview} disabled={submitting || !userRating || !user}>
                 {submitting ? "جاري الإرسال..." : "إرسال التقييم"}
               </Button>
             </div>
@@ -336,12 +361,21 @@ export default function ProductReviews({
                 <div key={review._id} className="border-b border-gray-100 pb-6 last:border-0">
                   <div className="flex items-start gap-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
+                      <AvatarFallback
+                        className={review.verified ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"}
+                      >
+                        {review.userName.charAt(0)}
+                      </AvatarFallback>
                     </Avatar>
 
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-medium">{review.userName}</h4>
+                        <h4 className="font-medium flex items-center gap-1">
+                          {review.userName}
+                          {review.verified && (
+                            <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">مُتحقق</span>
+                          )}
+                        </h4>
                         <span className="text-xs text-gray-500">{formatDate(review.createdAt)}</span>
                       </div>
 
@@ -359,16 +393,18 @@ export default function ProductReviews({
                       {review.comment && <p className="text-gray-700 mt-2 text-sm">{review.comment}</p>}
 
                       <div className="flex items-center gap-4 mt-3">
-                        <button 
-                          onClick={() => handleHelpfulClick(review._id, "helpful")}
+                        <button
                           className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+                          onClick={() => handleVoteReview(review._id, "helpful")}
+                          disabled={!user}
                         >
                           <ThumbsUp className="w-3 h-3" />
                           <span>مفيد ({review.helpful})</span>
                         </button>
-                        <button 
-                          onClick={() => handleHelpfulClick(review._id, "notHelpful")}
+                        <button
                           className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+                          onClick={() => handleVoteReview(review._id, "notHelpful")}
+                          disabled={!user}
                         >
                           <ThumbsDown className="w-3 h-3" />
                           <span>غير مفيد ({review.notHelpful})</span>
@@ -388,6 +424,9 @@ export default function ProductReviews({
           )}
         </div>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} onSuccess={handleLoginSuccess} />
     </div>
   )
 }

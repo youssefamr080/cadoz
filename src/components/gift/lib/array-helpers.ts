@@ -33,7 +33,7 @@ export const shuffleArray = <T,>(array: T[]): T[] => {
  * @param value القيمة المطلوبة
  * @returns مصفوفة مصفاة
  */
-export const filterArrayByProperty = <T,>(array: T[], property: keyof T, value: any): T[] => {
+export const filterArrayByProperty = <T, K extends keyof T>(array: T[], property: K, value: T[K]): T[] => {
   return array.filter((item) => item[property] === value)
 }
 

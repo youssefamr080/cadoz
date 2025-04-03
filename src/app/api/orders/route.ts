@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { connectToDatabase } from "../../../lib/mongodb"
 import type { Order, OrderItem } from "../../../models/Order"
 import { v4 as uuidv4 } from "uuid"
+import type { Document, UpdateFilter } from "mongodb"
 
 export async function POST(request: Request) {
   try {
@@ -43,27 +44,28 @@ export async function POST(request: Request) {
 
     // إذا كان المستخدم مسجل، قم بتحديث بيانات العميل
     if (customerId) {
-      // Verificar si el cliente existe y actualizar sus datos
+      // Verificar si el cliente existe
       const customer = await db.collection("customers").findOne({ id: customerId })
 
       if (customer) {
-        const updateData: any = {
-          $set: {
-            lastOrderAt: new Date(),
-          },
-          $inc: {
-            orderCount: 1,
-          },
-        }
-
-        // Si el cliente ya tiene un array de orders, usamos $push, de lo contrario inicializamos el array
+        // Usar tipos correctos para las operaciones de MongoDB
         if (Array.isArray(customer.orders)) {
-          updateData.$push = { orders: newOrder.id }
+          // Si ya existe un array de orders, usamos $push
+          await db.collection("customers").updateOne({ id: customerId }, {
+            $set: { lastOrderAt: new Date() },
+            $inc: { orderCount: 1 },
+            $push: { orders: newOrder.id },
+          } as unknown as UpdateFilter<Document>)
         } else {
-          updateData.$set.orders = [newOrder.id]
+          // Si no existe, inicializamos el array
+          await db.collection("customers").updateOne({ id: customerId }, {
+            $set: {
+              lastOrderAt: new Date(),
+              orders: [newOrder.id],
+            },
+            $inc: { orderCount: 1 },
+          } as UpdateFilter<Document>)
         }
-
-        await db.collection("customers").updateOne({ id: customerId }, updateData)
       }
     }
 

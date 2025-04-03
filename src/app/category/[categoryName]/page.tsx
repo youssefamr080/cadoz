@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
-import Header from "../../../components/layout/Header"
-import Footer from "../../../components/layout/Footer"
 import CategoryBanner from "../../../components/category/CategoryBanner"
 import SubCategorySwiper from "../../../components/category/SubCategorySwiper"
 import SubCategoryProducts from "../../../components/category/SubCategoryProducts"
@@ -58,7 +56,7 @@ const CategoryPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      
 
       <main>
         {/* بانر القسم */}
@@ -105,7 +103,7 @@ const CategoryPage = () => {
         </div>
       </main>
 
-      <Footer />
+    
     </div>
   )
 }
