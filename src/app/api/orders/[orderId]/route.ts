@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server"
 import { connectToDatabase } from "../../../../lib/mongodb"
 
 interface UpdateData {
@@ -9,9 +9,11 @@ interface UpdateData {
   cancelledAt?: Date
 }
 
-export async function GET(request: Request, { params }: { params: { orderId: string } }) {
+// Fix: Use the async params pattern introduced in Next.js 15
+export async function GET(request: NextRequest, { params }: { params: Promise<{ orderId: string }> }) {
   try {
-    const orderId = params.orderId
+    // Await the params promise to get the actual values
+    const { orderId } = await params
 
     if (!orderId) {
       return NextResponse.json({ success: false, message: "معرف الطلب مطلوب" }, { status: 400 })
@@ -36,9 +38,11 @@ export async function GET(request: Request, { params }: { params: { orderId: str
   }
 }
 
-export async function PATCH(request: Request, { params }: { params: { orderId: string } }) {
+// Fix: Use the async params pattern introduced in Next.js 15
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ orderId: string }> }) {
   try {
-    const orderId = params.orderId
+    // Await the params promise to get the actual values
+    const { orderId } = await params
     const body = await request.json()
     const { status } = body
 

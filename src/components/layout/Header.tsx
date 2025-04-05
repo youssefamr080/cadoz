@@ -9,7 +9,6 @@ import {
   User,
   Home,
   Menu,
-  X,
   ChevronDown,
   LogOut,
   Package,
@@ -32,6 +31,7 @@ import { toast } from "react-toastify"
 import { usePathname } from "next/navigation"
 import { cn } from "../../lib/utils"
 import WishlistDrawer from "./WishlistDrawer"
+import MobileSidebar from "./mobile-sidebar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,7 +68,6 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false)
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null)
   const pathname = usePathname()
-  const mobileMenuRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
 
   // Handle scroll effect
@@ -83,18 +82,6 @@ const Header = () => {
 
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
-        setIsMobileMenuOpen(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
   // Close menus on route change
@@ -156,6 +143,7 @@ const Header = () => {
       )}
       style={{
         backdropFilter: scrolled ? "blur(10px)" : "none",
+        zIndex: 50,
       }}
     >
       {/* Announcement bar with enhanced gradient and animation */}
@@ -267,16 +255,141 @@ const Header = () => {
                             </h3>
                           </div>
                           <div className="p-2">
-                            {[1, 2, 3, 4].map((i) => (
-                              <Link
-                                key={i}
-                                href={`${category.link}/subcategory-${i}`}
-                                className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                              >
-                                <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                <span>فئة فرعية {i}</span>
-                              </Link>
-                            ))}
+                            {category.name === "رجالي" && (
+                              <>
+                                <Link
+                                  href="/category/men#watches"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>ساعات</span>
+                                </Link>
+                                <Link
+                                  href="/category/men#wallets"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>محافظ</span>
+                                </Link>
+                                <Link
+                                  href="/category/men#perfumes"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>عطور</span>
+                                </Link>
+                                <Link
+                                  href="/category/men#handbags"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>شنط يد</span>
+                                </Link>
+                                <Link
+                                  href="/category/men#sunglasses"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>نظارات شمسية</span>
+                                </Link>
+                                <Link
+                                  href="/category/men#spray"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>سبراي</span>
+                                </Link>
+                              </>
+                            )}
+
+                            {category.name === "نسائي" && (
+                              <>
+                                <Link
+                                  href="/category/women#watches"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>ساعات</span>
+                                </Link>
+                                <Link
+                                  href="/category/women#wallets"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>محافظ</span>
+                                </Link>
+                                <Link
+                                  href="/category/women#perfumes"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>عطور</span>
+                                </Link>
+                                <Link
+                                  href="/category/women#accessories"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>إكسسوارات</span>
+                                </Link>
+                                <Link
+                                  href="/category/women#sunglasses"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>نظارات شمسية</span>
+                                </Link>
+                                <Link
+                                  href="/category/women#spray"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>سبراي</span>
+                                </Link>
+                              </>
+                            )}
+
+                            {category.name === "أطفال" && (
+                              <>
+                                <Link
+                                  href="/category/kids#toys"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>العاب اطفال</span>
+                                </Link>
+                                <Link
+                                  href="/category/kids#teddy-bears"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>دباديب</span>
+                                </Link>
+                                <Link
+                                  href="/category/kids#watches"
+                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+                                  onClick={() => setHoveredCategory(null)}
+                                >
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+                                  <span>ساعات اطفال</span>
+                                </Link>
+                              </>
+                            )}
+
                             <div className="mt-2 pt-2 border-t border-gray-100">
                               <Link
                                 href={category.link}
@@ -540,7 +653,8 @@ const Header = () => {
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="overflow-hidden border-t border-gray-100 py-3"
+                className="overflow-visible border-t border-gray-100 py-3 relative"
+                style={{ zIndex: 30 }}
               >
                 <SearchBar showTrendingProducts={false} />
               </motion.div>
@@ -549,205 +663,16 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile side menu - enhanced with animations */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-
-            <motion.div
-              ref={mobileMenuRef}
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 right-0 bottom-0 w-4/5 max-w-xs bg-white shadow-xl z-50 overflow-y-auto"
-            >
-              {/* Header */}
-              <div className="p-4 flex justify-between items-center border-b bg-gradient-to-r from-purple-50 to-indigo-50">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                    <Menu className="h-5 w-5 text-purple-700" />
-                  </div>
-                  <h2 className="text-lg font-bold text-purple-900">القائمة الرئيسية</h2>
-                </div>
-                <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 rounded-full hover:bg-white/50 transition-colors"
-                  aria-label="إغلاق القائمة"
-                >
-                  <X className="h-5 w-5 text-gray-700" />
-                </button>
-              </div>
-
-              {/* User information */}
-              <div className="p-4 border-b bg-gradient-to-br from-white to-purple-50">
-                {user ? (
-                  <div className="flex items-center gap-3">
-                    <div className="relative">
-                      <UserAvatar user={user} />
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800">{user.name}</p>
-                      <p className="text-sm text-gray-500 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                        متصل الآن
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600 mb-2">قم بتسجيل الدخول للاستفادة من جميع المميزات</p>
-                    <Button
-                      onClick={() => {
-                        setIsMobileMenuOpen(false)
-                        setIsLoginModalOpen(true)
-                      }}
-                      className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                    >
-                      <User className="h-4 w-4 mr-2" />
-                      تسجيل الدخول
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* Main menu links */}
-              <div className="p-2">
-                <div className="mb-2 px-2 py-1 text-xs font-medium text-gray-500">الأقسام الرئيسية</div>
-                <ul className="space-y-1">
-                  {categories.map((category) => (
-                    <motion.li key={category.name} whileTap={{ scale: 0.98 }}>
-                      <Link
-                        href={category.link}
-                        className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
-                          pathname === category.link
-                            ? "bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 font-medium shadow-sm"
-                            : "text-gray-700 hover:bg-gray-50"
-                        }`}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            pathname === category.link ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-500"
-                          }`}
-                        >
-                          {category.icon}
-                        </div>
-                        <span>{category.name}</span>
-                        {pathname === category.link && (
-                          <div className="mr-auto">
-                            <div className="w-1.5 h-6 bg-purple-600 rounded-full"></div>
-                          </div>
-                        )}
-                      </Link>
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Secondary links */}
-              <div className="p-2 mt-2">
-                <div className="mb-2 px-2 py-1 text-xs font-medium text-gray-500">روابط سريعة</div>
-                <ul className="space-y-1">
-                  {secondaryLinks.map((link) => (
-                    <motion.li key={link.name} whileTap={{ scale: 0.98 }}>
-                      <Link
-                        href={link.link}
-                        className="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
-                          {link.icon}
-                        </div>
-                        <span>{link.name}</span>
-                      </Link>
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* User account links for logged in users */}
-              {user && (
-                <div className="p-4 border-t mt-4">
-                  <div className="space-y-3">
-                    <Link
-                      href="/profile"
-                      className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 hover:shadow-sm transition-all"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-                        <User className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <span>الملف الشخصي</span>
-                    </Link>
-
-                    <Link
-                      href="/profile/orders"
-                      className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 hover:shadow-sm transition-all"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                        <Package className="h-4 w-4 text-green-600" />
-                      </div>
-                      <span>طلباتي</span>
-                    </Link>
-
-                    <Link
-                      href="/profile/settings"
-                      className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 hover:shadow-sm transition-all"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-                        <Settings className="h-4 w-4 text-amber-600" />
-                      </div>
-                      <span>الإعدادات</span>
-                    </Link>
-
-                    <button
-                      onClick={() => {
-                        handleLogout()
-                        setIsMobileMenuOpen(false)
-                      }}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-red-50 to-rose-50 text-red-700 hover:shadow-sm transition-all"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
-                        <LogOut className="h-4 w-4 text-red-600" />
-                      </div>
-                      <span>تسجيل الخروج</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Footer */}
-              <div className="p-4 mt-6 border-t text-center">
-                <div className="flex justify-center gap-4 mb-2">
-                  {["facebook", "instagram", "twitter"].map((platform) => (
-                    <a
-                      key={platform}
-                      href={`#${platform}`}
-                      className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-purple-100 hover:text-purple-600 transition-colors"
-                    >
-                      <span className="sr-only">{platform}</span>
-                      <div className="w-4 h-4" />
-                    </a>
-                  ))}
-                </div>
-                <p className="text-xs text-gray-500">© {new Date().getFullYear()} كادوز. جميع الحقوق محفوظة</p>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Mobile side menu - now as a separate component */}
+      <MobileSidebar
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        user={user}
+        isLoading={isLoading}
+        logout={handleLogout}
+        categories={categories}
+        secondaryLinks={secondaryLinks}
+      />
 
       {/* Overlay components */}
       <WishlistDrawer isOpen={isWishlistOpen} onClose={() => setIsWishlistOpen(false)} />

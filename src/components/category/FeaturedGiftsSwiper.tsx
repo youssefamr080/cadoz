@@ -47,6 +47,8 @@ interface WishlistItem {
   name: string
   image: string
   price: number
+  productId: number
+  type?: string
 }
 
 const FeaturedGiftsSwiper: React.FC<FeaturedGiftsSwiperProps> = ({ category }) => {
@@ -77,6 +79,7 @@ const FeaturedGiftsSwiper: React.FC<FeaturedGiftsSwiperProps> = ({ category }) =
         name: product.name,
         image: product.image,
         price: product.price,
+        productId: product.id
       }
       addToWishlist(wishlistItem)
       toast.success("تمت الإضافة إلى المفضلة")

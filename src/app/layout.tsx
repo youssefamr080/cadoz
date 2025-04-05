@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import "../styles/swiper.css";
+import "../Styles/swiper.css";
 import { ReduxProvider } from "../providers/ReduxProvider";
 import { Providers } from "../providers/Providers";
 import { Analytics } from "@vercel/analytics/react";

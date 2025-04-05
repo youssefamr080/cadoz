@@ -11,7 +11,21 @@ import { useWishlist } from "../../context/WishlistContext"
 import type { Product } from "../../types/product"
 
 const BrandSwiper = ({ brand, products }: { brand: string; products: Product[] }) => {
-  const { wishlist, toggleWishlist } = useWishlist()
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist()
+
+  const handleWishlistToggle = (product: Product) => {
+    if (wishlist.some((item) => item.id === product.id)) {
+      removeFromWishlist(product.id)
+    } else {
+      addToWishlist({
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        productId: product.id
+      })
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -61,7 +75,7 @@ const BrandSwiper = ({ brand, products }: { brand: string; products: Product[] }
                   className="absolute top-2 right-2 z-10 p-2 bg-white rounded-full shadow-md transition-all hover:scale-110"
                   onClick={(e) => {
                     e.stopPropagation()
-                    toggleWishlist(product)
+                    handleWishlistToggle(product)
                   }}
                 >
                   {wishlist.some((item) => item.id === product.id) ? (

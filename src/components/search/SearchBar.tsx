@@ -299,8 +299,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute left-0 mt-2 w-full bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl z-50 border border-gray-200 overflow-hidden"
-            style={{ backdropFilter: "blur(8px)" }}
+            className="absolute left-0 mt-2 w-full bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl border border-gray-200 overflow-hidden"
+            style={{
+              backdropFilter: "blur(8px)",
+              zIndex: 40,
+              position: "absolute",
+            }}
           >
             {/* Tabs for results and trending */}
             {showTrendingProducts && (
@@ -335,7 +339,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               </div>
             )}
 
-            <div ref={resultsRef} className="max-h-80 overflow-y-auto overscroll-contain">
+            <div ref={resultsRef} className="max-h-[60vh] overflow-y-auto overscroll-contain">
               {/* Tab content based on activeTabIndex */}
               <AnimatePresence mode="wait">
                 {activeTabIndex === 0 ? (

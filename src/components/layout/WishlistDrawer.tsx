@@ -27,8 +27,7 @@ const WishlistDrawer = ({ isOpen, onClose }: WishlistDrawerProps) => {
       name: item.name,
       price: item.price,
       image: item.image,
-      quantity: 1,
-      productId: item.productId,
+      quantity: 1
     })
     toast.success("تمت الإضافة إلى السلة")
   }

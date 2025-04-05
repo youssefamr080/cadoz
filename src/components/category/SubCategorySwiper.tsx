@@ -1,10 +1,12 @@
 "use client"
 
-import { useMemo, useEffect, useState } from "react"
+import { useMemo, useEffect, useState, useRef } from "react"
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Autoplay } from "swiper/modules"
+import { Autoplay, Navigation } from "swiper/modules"
 import Image from "next/image"
-import type { SwiperOptions } from "swiper/types"
+import type { SwiperOptions, Swiper as SwiperType } from "swiper/types"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import { motion } from "framer-motion"
 
 type CategoryType = "men" | "women" | "kids"
 
@@ -58,8 +60,8 @@ const swiperConfig: SwiperOptions = {
     768: { slidesPerView: 5.5 },
     1024: { slidesPerView: 6, spaceBetween: 24 },
   },
-  loop: true,
-  modules: [Autoplay],
+  loop: false,
+  modules: [Autoplay, Navigation],
 }
 
 const SubCategoryItem = ({
@@ -71,7 +73,7 @@ const SubCategoryItem = ({
   isActive: boolean
   onClick: () => void
 }) => (
-  <div
+  <motion.div
     role="button"
     tabIndex={0}
     aria-label={`اختر تصنيف ${sub.name}`}
@@ -80,12 +82,15 @@ const SubCategoryItem = ({
     className={`group flex flex-col items-center cursor-pointer transition-all ${
       isActive ? "scale-105" : "hover:scale-105"
     } active:scale-95`}
+    whileHover={{ y: -5 }}
+    whileTap={{ scale: 0.95 }}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.3 }}
   >
     <div
       className={`relative w-20 h-20 rounded-full shadow-lg border-2 overflow-hidden transition-all duration-300 ${
-        isActive
-          ? "border-primary-500 shadow-xl"
-          : "border-gray-100 group-hover:border-primary-500 group-hover:shadow-xl"
+        isActive ? "border-purple-500 shadow-xl" : "border-gray-100 group-hover:border-purple-300 group-hover:shadow-xl"
       }`}
     >
       <Image
@@ -93,61 +98,86 @@ const SubCategoryItem = ({
         alt={sub.name}
         width={96}
         height={96}
-        className="object-cover w-full h-full"
+        className={`object-cover w-full h-full transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}
         loading="lazy"
         quality={85}
         sizes="(max-width: 768px) 96px, 128px"
       />
+      {isActive && (
+        <motion.div
+          className="absolute inset-0 bg-purple-500/10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        />
+      )}
     </div>
     <p
       className={`mt-3 text-sm font-medium text-center leading-tight transition-colors ${
-        isActive ? "text-primary-600 font-bold" : "text-gray-800 hover:text-primary-600"
+        isActive ? "text-purple-600 font-bold" : "text-gray-800 group-hover:text-purple-600"
       }`}
     >
       {sub.name}
     </p>
-  </div>
+  </motion.div>
 )
 
 const SubCategorySwiper = ({ category, initialSubCategory, onSelectSubCategory }: SubCategorySwiperProps) => {
-  const [selectedSubCategory, setSelectedSubCategory] = useState("")
-
   const categories = useMemo(() => SUB_CATEGORIES[category] || [], [category])
+  const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null)
+  const didInitialSlideRef = useRef(false)
 
-  // Find subcategory by English name or use first one
-  useEffect(() => {
-    const foundSubCategory = categories.find((sub) => sub.englishName === initialSubCategory)
-    if (foundSubCategory) {
-      setSelectedSubCategory(foundSubCategory.englishName)
-      onSelectSubCategory(foundSubCategory.englishName)
-    } else if (categories.length > 0) {
-      setSelectedSubCategory(categories[0].englishName)
-      onSelectSubCategory(categories[0].englishName)
-    }
-  }, [category, initialSubCategory, categories, onSelectSubCategory])
-
+  // تعيين القسم الفرعي عند النقر
   const handleSubCategoryClick = (subCategory: SubCategory) => {
-    setSelectedSubCategory(subCategory.englishName)
+    console.log("SubCategory clicked:", subCategory.englishName)
     onSelectSubCategory(subCategory.englishName)
   }
+
+  // التمرير إلى القسم الفرعي المحدد عندما يتغير
+  useEffect(() => {
+    if (!swiperInstance || !initialSubCategory || categories.length === 0) return
+
+    const index = categories.findIndex((cat) => cat.englishName === initialSubCategory)
+    if (index !== -1) {
+      console.log("Sliding to subcategory index:", index, initialSubCategory)
+      swiperInstance.slideTo(index)
+      didInitialSlideRef.current = true
+    }
+  }, [initialSubCategory, categories, swiperInstance])
 
   if (!categories.length) return null
 
   return (
-    <section className="container mx-auto px-4 py-8">
-      <Swiper {...swiperConfig} className="!pb-2">
+    <section className="container mx-auto px-4 py-4 relative">
+      <Swiper {...swiperConfig} className="!pb-2 !px-6" onSwiper={setSwiperInstance}>
         {categories.map((sub) => (
           <SwiperSlide key={`${category}-${sub.englishName}`}>
             <SubCategoryItem
               sub={sub}
-              isActive={sub.englishName === selectedSubCategory}
+              isActive={sub.englishName === initialSubCategory}
               onClick={() => handleSubCategoryClick(sub)}
             />
           </SwiperSlide>
         ))}
       </Swiper>
+
+      {/* Custom navigation buttons */}
+      <button
+        className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-1.5 text-purple-600 hover:text-purple-800 transition-colors"
+        onClick={() => swiperInstance?.slidePrev()}
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+
+      <button
+        className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full shadow-md p-1.5 text-purple-600 hover:text-purple-800 transition-colors"
+        onClick={() => swiperInstance?.slideNext()}
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
     </section>
   )
 }
 
 export default SubCategorySwiper
+
