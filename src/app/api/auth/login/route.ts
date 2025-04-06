@@ -199,4 +199,3 @@ function detectOS(userAgent: string): string {
   if (/iphone|ipad|ipod/i.test(userAgent)) return "iOS"
   return "Unknown"
 }
-

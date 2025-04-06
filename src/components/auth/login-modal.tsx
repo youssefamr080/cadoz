@@ -4,11 +4,13 @@ import type React from "react"
 
 import { useState } from "react"
 import { X, User, Phone, Lock, Eye, EyeOff } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../components/ui/dialog" 
-import { Button } from "../../components/ui/button"
-import { Input } from "../../components/ui/input"
-import { Label } from "../../components/ui/label"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { toast } from "react-toastify"
+import { signIn } from "next-auth/react"
+import { FcGoogle } from "react-icons/fc"
 
 interface LoginModalProps {
   isOpen: boolean
@@ -24,7 +26,8 @@ export interface UserData {
   name: string
   phone: string
   email?: string
-  password: string
+  password?: string
+  id?: string
 }
 
 export default function LoginModal({
@@ -74,43 +77,53 @@ export default function LoginModal({
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          phone: formData.phone,
-          password: formData.password,
-        }),
+      const result = await signIn("credentials", {
+        redirect: false,
+        phone: formData.phone,
+        password: formData.password,
       })
 
-      const data = await response.json()
+      if (result?.ok) {
+        // الحصول على بيانات المستخدم
+        const response = await fetch("/api/auth/session")
+        const session = await response.json()
 
-      if (data.success) {
-        // حفظ بيانات المستخدم في localStorage
-        localStorage.setItem("userData", JSON.stringify(data.user))
+        if (session?.user) {
+          const userData: UserData = {
+            id: session.user.id,
+            name: session.user.name,
+            phone: session.user.phone || formData.phone,
+            email: session.user.email,
+          }
 
-        // حفظ توكن الجلسة إذا كان موجوداً
-        if (data.user.sessionId) {
-          localStorage.setItem("authToken", data.user.sessionId)
+          // حفظ بيانات المستخدم في localStorage
+          localStorage.setItem("userData", JSON.stringify(userData))
+
+          toast.success("تم تسجيل الدخول بنجاح")
+          onSuccess(userData)
+
+          // إغلاق النافذة بعد تسجيل الدخول
+          setTimeout(() => {
+            onClose()
+          }, 500)
         }
-
-        toast.success("تم تسجيل الدخول بنجاح")
-        onSuccess(data.user)
-
-        // إغلاق النافذة بعد تسجيل الدخول
-        setTimeout(() => {
-          onClose()
-        }, 500)
       } else {
-        toast.error(data.message || "فشل تسجيل الدخول")
+        toast.error("فشل تسجيل الدخول. تأكد من صحة البيانات")
       }
     } catch (error) {
       console.error("Login error:", error)
       toast.error("حدث خطأ أثناء تسجيل الدخول")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signIn("google", { callbackUrl: window.location.href })
+    } catch (error) {
+      console.error("Google login error:", error)
+      toast.error("حدث خطأ أثناء تسجيل الدخول بواسطة جوجل")
     }
   }
 
@@ -159,11 +172,6 @@ export default function LoginModal({
       if (data.success) {
         // حفظ بيانات المستخدم في localStorage
         localStorage.setItem("userData", JSON.stringify(data.user))
-
-        // حفظ توكن الجلسة إذا كان موجوداً
-        if (data.user.sessionId) {
-          localStorage.setItem("authToken", data.user.sessionId)
-        }
 
         // إذا كان التسجيل من أجل الإشعار، قم بإضافة الإشعار
         if (forNotification && productId && productName) {
@@ -241,6 +249,26 @@ export default function LoginModal({
             <span className="sr-only">إغلاق</span>
           </button>
         </DialogHeader>
+
+        {/* زر تسجيل الدخول بواسطة جوجل */}
+        <div className="mb-4">
+          <Button
+            onClick={handleGoogleLogin}
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2 py-5"
+          >
+            <FcGoogle className="w-5 h-5" />
+            <span>تسجيل الدخول بواسطة جوجل</span>
+          </Button>
+          <div className="relative mt-4 mb-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-2 text-gray-500">أو</span>
+            </div>
+          </div>
+        </div>
 
         {step === "login" && (
           <form onSubmit={handleLogin} className="space-y-4">

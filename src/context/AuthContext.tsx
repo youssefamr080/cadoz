@@ -2,18 +2,19 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { toast } from "react-toastify"
+import { useSession, signOut } from "next-auth/react"
 
 export interface UserData {
   id: string
   name: string
   phone: string
   email?: string
+  password?: string
   avatarUrl?: string
   sessionId?: string
   createdAt?: string
+  image?: string
 }
-
-// Nota: Se eliminó la interfaz DecodedToken que no se utilizaba
 
 interface AuthContextType {
   user: UserData | null
@@ -30,6 +31,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const { data: session, status } = useSession()
 
   // الحصول على التوكن
   const getToken = (): string | null => {
@@ -53,6 +55,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const loadUser = async () => {
       try {
         setIsLoading(true)
+
+        // التحقق من وجود جلسة NextAuth
+        if (status === "authenticated" && session?.user) {
+          const userData: UserData = {
+            id: session.user.id as string,
+            name: session.user.name || "",
+            phone: (session.user as { phone?: string }).phone || "",
+            email: session.user.email || "",
+            image: session.user.image || undefined,
+          }
+
+          setUser(userData)
+          localStorage.setItem("userData", JSON.stringify(userData))
+          return
+        }
+
         // التحقق من وجود بيانات المستخدم في التخزين المحلي
         const userDataStr = localStorage.getItem("userData")
 
@@ -82,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     loadUser()
-  }, [])
+  }, [session, status])
 
   // التحقق من صحة جلسة المستخدم
   const verifyUserSession = async (userData: UserData): Promise<boolean> => {
@@ -125,6 +143,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // تسجيل الخروج
   const logout = async () => {
     try {
+      // تسجيل الخروج من NextAuth
+      await signOut({ redirect: false })
+
       // إرسال طلب لإنهاء الجلسة على الخادم
       if (user) {
         await fetch("/api/auth/logout", {

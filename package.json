@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/core": "^0.34.2",
+    "@auth/mongodb-adapter": "^3.8.0",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@googleapis/sheets": "^9.4.0",
     "@headlessui/react": "^2.2.0",
@@ -61,6 +63,7 @@
     "mongodb": "^6.15.0",
     "mongoose": "^8.12.1",
     "next": "^15.2.4",
+    "next-auth": "^4.24.11",
     "openai": "^4.85.4",
     "package": "^1.0.1",
     "prisma": "^6.5.0",
@@ -68,7 +71,7 @@
     "react-dom": "^19.1.0",
     "react-error-boundary": "^5.0.0",
     "react-hot-toast": "^2.5.2",
-    "react-icons": "^5.4.0",
+    "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.15.1",
     "react-redux": "^9.2.0",
     "react-toastify": "^11.0.3",
@@ -76,7 +79,8 @@
     "swiper": "^11.2.4",
     "tailwind-merge": "^3.0.2",
     "three": "^0.173.0",
-    "usehooks-ts": "^3.1.1"
+    "usehooks-ts": "^3.1.1",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
