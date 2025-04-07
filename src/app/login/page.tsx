@@ -123,8 +123,39 @@ const LoginContent = () => {
       const data = await response.json()
 
       if (data.success) {
-        toast.success("تم إنشاء الحساب بنجاح")
-        setStep("login")
+        // تسجيل الدخول تلقائيًا بعد التسجيل
+        const result = await signIn("credentials", {
+          redirect: false,
+          phone: formData.phone,
+          password: formData.password,
+        })
+
+        if (result?.ok) {
+          // الحصول على بيانات المستخدم
+          const sessionResponse = await fetch("/api/auth/session")
+          const session = await sessionResponse.json()
+
+          if (session?.user) {
+            const userData = {
+              id: session.user.id,
+              name: session.user.name,
+              phone: session.user.phone || formData.phone,
+              email: session.user.email,
+            }
+
+            // حفظ بيانات المستخدم في localStorage
+            localStorage.setItem("userData", JSON.stringify(userData))
+
+            // تحديث حالة المصادقة
+            login(userData)
+
+            toast.success("تم إنشاء الحساب وتسجيل الدخول بنجاح")
+            router.push("/")
+          }
+        } else {
+          toast.error("تم إنشاء الحساب بنجاح ولكن فشل تسجيل الدخول التلقائي")
+          setStep("login")
+        }
       } else {
         toast.error(data.message || "حدث خطأ أثناء إنشاء الحساب")
       }

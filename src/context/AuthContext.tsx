@@ -73,27 +73,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // التحقق من وجود بيانات المستخدم في التخزين المحلي
         const userDataStr = localStorage.getItem("userData")
+        const authToken = localStorage.getItem("authToken")
 
-        if (userDataStr) {
+        if (userDataStr && authToken) {
           const userData = JSON.parse(userDataStr) as UserData
 
-          // التحقق من صحة الجلسة
-          const isValid = await verifyUserSession(userData)
+          try {
+            // التحقق من صحة الجلسة
+            const response = await fetch("/api/auth/check-session", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                userId: userData.id,
+                phone: userData.phone,
+                sessionId: authToken,
+              }),
+            })
 
-          if (isValid) {
-            console.log("تم التحقق من صحة جلسة المستخدم:", userData.name)
-            setUser(userData)
-          } else {
-            // إذا كانت الجلسة غير صالحة، قم بتسجيل الخروج
+            const data = await response.json()
+
+            if (data.valid) {
+              console.log("تم التحقق من صحة جلسة المستخدم:", userData.name)
+              setUser(userData)
+            } else {
+              console.log("جلسة المستخدم غير صالحة:", data.message)
+              // إذا كانت الجلسة غير صالحة، قم بتسجيل الخروج
+              localStorage.removeItem("authToken")
+              localStorage.removeItem("userData")
+              setUser(null)
+            }
+          } catch (error) {
+            console.error("Error verifying session:", error)
+            // في حالة حدوث خطأ، نعتبر الجلسة غير صالحة
             localStorage.removeItem("authToken")
             localStorage.removeItem("userData")
-            console.log("جلسة المستخدم غير صالحة، تم تسجيل الخروج")
+            setUser(null)
           }
         }
       } catch (error) {
         console.error("Error loading user data:", error)
         localStorage.removeItem("authToken")
         localStorage.removeItem("userData")
+        setUser(null)
       } finally {
         setIsLoading(false)
       }
@@ -128,16 +151,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // تعديل دالة login لتحفظ بيانات المستخدم بشكل صحيح
   const login = (userData: UserData) => {
-    setUser(userData)
-    localStorage.setItem("userData", JSON.stringify(userData))
-
-    // إذا كان هناك توكن في الاستجابة، قم بتخزينه
-    if (userData.sessionId) {
-      localStorage.setItem("authToken", userData.sessionId)
+    if (!userData || !userData.id || !userData.phone) {
+      console.error("Invalid user data provided to login function")
+      return
     }
 
-    // إضافة تأكيد على نجاح تسجيل الدخول
-    toast.success(`مرحباً ${userData.name}! تم تسجيل الدخول بنجاح`)
+    try {
+      setUser(userData)
+      
+      // تخزين بيانات المستخدم
+      localStorage.setItem("userData", JSON.stringify(userData))
+
+      // تخزين توكن الجلسة
+      if (userData.sessionId) {
+        localStorage.setItem("authToken", userData.sessionId)
+      }
+
+      // إضافة تأكيد على نجاح تسجيل الدخول
+      toast.success(`مرحباً ${userData.name}! تم تسجيل الدخول بنجاح`)
+      
+      console.log("تم تسجيل دخول المستخدم بنجاح:", userData.name)
+    } catch (error) {
+      console.error("Error during login:", error)
+      toast.error("حدث خطأ أثناء تسجيل الدخول")
+    }
   }
 
   // تسجيل الخروج

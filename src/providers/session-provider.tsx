@@ -13,6 +13,7 @@ export default function NextAuthProvider({
       basePath="/api/auth"
       refetchInterval={5 * 60}
       refetchOnWindowFocus={true}
+      session={undefined}
     >
       {children}
     </SessionProvider>

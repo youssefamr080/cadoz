@@ -170,21 +170,47 @@ export default function LoginModal({
       const data = await response.json()
 
       if (data.success) {
-        // حفظ بيانات المستخدم في localStorage
-        localStorage.setItem("userData", JSON.stringify(data.user))
+        // تسجيل الدخول تلقائيًا بعد التسجيل
+        const result = await signIn("credentials", {
+          redirect: false,
+          phone: formData.phone,
+          password: formData.password,
+        })
 
-        // إذا كان التسجيل من أجل الإشعار، قم بإضافة الإشعار
-        if (forNotification && productId && productName) {
-          await addNotification(data.user.id, productId, productName)
+        if (result?.ok) {
+          // الحصول على بيانات المستخدم
+          const sessionResponse = await fetch("/api/auth/session")
+          const session = await sessionResponse.json()
+
+          if (session?.user) {
+            const userData = {
+              id: session.user.id,
+              name: session.user.name,
+              phone: session.user.phone || formData.phone,
+              email: session.user.email,
+            }
+
+            // حفظ بيانات المستخدم في localStorage
+            localStorage.setItem("userData", JSON.stringify(userData))
+
+            // إذا كان التسجيل من أجل الإشعار، قم بإضافة الإشعار
+            if (forNotification && productId && productName) {
+              await addNotification(session.user.id, productId, productName)
+            }
+
+            // استدعاء onSuccess مع بيانات المستخدم الكاملة
+            onSuccess(userData)
+
+            toast.success("تم التسجيل وتسجيل الدخول بنجاح")
+
+            // إغلاق النافذة بعد التسجيل
+            setTimeout(() => {
+              onClose()
+            }, 500)
+          }
+        } else {
+          toast.error("تم التسجيل بنجاح ولكن فشل تسجيل الدخول التلقائي")
         }
-
-        toast.success("تم التسجيل بنجاح")
-        onSuccess(data.user)
-
-        // إغلاق النافذة بعد التسجيل
-        setTimeout(() => {
-          onClose()
-        }, 500)
       } else {
         toast.error(data.message || "فشل التسجيل")
       }
