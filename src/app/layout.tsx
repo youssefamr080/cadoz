@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Providers>
               <WhatsappHelper phoneNumber="+201026972523" />
               <Header />
-              <main className="pt-[calc(3.8rem+1.75rem)]">{children}</main>
+              <main className="pt-[calc(5rem+1.75rem)]">{children}</main>
               <Footer />
               <Analytics />
               <ToastContainer position="top-center" />

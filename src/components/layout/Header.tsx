@@ -18,6 +18,7 @@ import {
   HelpCircle,
   Headphones,
   ShoppingCart,
+  ChevronLeft,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "../../context/CartContext"
@@ -57,6 +58,31 @@ const secondaryLinks = [
   { name: "عن كادوز", link: "/about", icon: <HelpCircle className="w-4 h-4" /> },
 ]
 
+// Subcategories for mega menus
+const subcategories = {
+  رجالي: [
+    { name: "ساعات", link: "/category/men#watches" },
+    { name: "محافظ", link: "/category/men#wallets" },
+    { name: "عطور", link: "/category/men#perfumes" },
+    { name: "شنط يد", link: "/category/men#handbags" },
+    { name: "نظارات شمسية", link: "/category/men#sunglasses" },
+    { name: "سبراي", link: "/category/men#spray" },
+  ],
+  نسائي: [
+    { name: "ساعات", link: "/category/women#watches" },
+    { name: "محافظ", link: "/category/women#wallets" },
+    { name: "عطور", link: "/category/women#perfumes" },
+    { name: "إكسسوارات", link: "/category/women#accessories" },
+    { name: "نظارات شمسية", link: "/category/women#sunglasses" },
+    { name: "سبراي", link: "/category/women#spray" },
+  ],
+  أطفال: [
+    { name: "العاب اطفال", link: "/category/kids#toys" },
+    { name: "دباديب", link: "/category/kids#teddy-bears" },
+    { name: "ساعات اطفال", link: "/category/kids#watches" },
+  ],
+}
+
 const Header = () => {
   const { cart } = useCart()
   const { wishlist } = useWishlist()
@@ -73,11 +99,7 @@ const Header = () => {
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setScrolled(true)
-      } else {
-        setScrolled(false)
-      }
+      setScrolled(window.scrollY > 20)
     }
 
     window.addEventListener("scroll", handleScroll)
@@ -99,6 +121,8 @@ const Header = () => {
     setIsLoginModalOpen(false)
     toast.success("تم تسجيل الدخول بنجاح")
   }
+
+  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0)
 
   // Animation variants
   const badgeVariants = {
@@ -132,7 +156,26 @@ const Header = () => {
     },
   }
 
-  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0)
+  const renderSubcategories = (categoryName: string) => {
+    const items = subcategories[categoryName as keyof typeof subcategories]
+    if (!items) return null
+
+    return (
+      <>
+        {items.map((item, index) => (
+          <Link
+            key={index}
+            href={item.link}
+            className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
+            onClick={() => setHoveredCategory(null)}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+            <span>{item.name}</span>
+          </Link>
+        ))}
+      </>
+    )
+  }
 
   return (
     <header
@@ -143,7 +186,7 @@ const Header = () => {
       )}
       style={{
         backdropFilter: scrolled ? "blur(10px)" : "none",
-        zIndex: 50,
+        zIndex: 100,
       }}
     >
       {/* Announcement bar with enhanced gradient and animation */}
@@ -178,7 +221,7 @@ const Header = () => {
       </div>
 
       <div className="container mx-auto px-4">
-        {/* Unified header for large screens */}
+        {/* Desktop header */}
         <div className="hidden md:flex items-center justify-between h-16">
           <div className="flex items-center">
             {/* Logo with hover effect */}
@@ -255,148 +298,14 @@ const Header = () => {
                             </h3>
                           </div>
                           <div className="p-2">
-                            {category.name === "رجالي" && (
-                              <>
-                                <Link
-                                  href="/category/men#watches"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>ساعات</span>
-                                </Link>
-                                <Link
-                                  href="/category/men#wallets"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>محافظ</span>
-                                </Link>
-                                <Link
-                                  href="/category/men#perfumes"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>عطور</span>
-                                </Link>
-                                <Link
-                                  href="/category/men#handbags"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>شنط يد</span>
-                                </Link>
-                                <Link
-                                  href="/category/men#sunglasses"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>نظارات شمسية</span>
-                                </Link>
-                                <Link
-                                  href="/category/men#spray"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>سبراي</span>
-                                </Link>
-                              </>
-                            )}
-
-                            {category.name === "نسائي" && (
-                              <>
-                                <Link
-                                  href="/category/women#watches"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>ساعات</span>
-                                </Link>
-                                <Link
-                                  href="/category/women#wallets"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>محافظ</span>
-                                </Link>
-                                <Link
-                                  href="/category/women#perfumes"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>عطور</span>
-                                </Link>
-                                <Link
-                                  href="/category/women#accessories"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>إكسسوارات</span>
-                                </Link>
-                                <Link
-                                  href="/category/women#sunglasses"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>نظارات شمسية</span>
-                                </Link>
-                                <Link
-                                  href="/category/women#spray"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>سبراي</span>
-                                </Link>
-                              </>
-                            )}
-
-                            {category.name === "أطفال" && (
-                              <>
-                                <Link
-                                  href="/category/kids#toys"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>العاب اطفال</span>
-                                </Link>
-                                <Link
-                                  href="/category/kids#teddy-bears"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>دباديب</span>
-                                </Link>
-                                <Link
-                                  href="/category/kids#watches"
-                                  className="flex items-center gap-2 p-2 hover:bg-purple-50 rounded-md text-gray-700 transition-colors"
-                                  onClick={() => setHoveredCategory(null)}
-                                >
-                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                                  <span>ساعات اطفال</span>
-                                </Link>
-                              </>
-                            )}
-
+                            {renderSubcategories(category.name)}
                             <div className="mt-2 pt-2 border-t border-gray-100">
                               <Link
                                 href={category.link}
                                 className="flex items-center justify-between w-full p-2 bg-purple-50 hover:bg-purple-100 rounded-md text-purple-700 transition-colors"
                               >
                                 <span className="font-medium">عرض جميع {category.name}</span>
-                                <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                <ChevronLeft className="w-4 h-4" />
                               </Link>
                             </div>
                           </div>
@@ -417,6 +326,7 @@ const Header = () => {
 
             {/* User icons - enhanced with better animations */}
             <div className="flex items-center gap-3">
+              {/* Wishlist button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -437,6 +347,7 @@ const Header = () => {
                 )}
               </motion.button>
 
+              {/* Cart button */}
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="relative">
                 <Link
                   href="/cart"
@@ -455,10 +366,9 @@ const Header = () => {
                     </motion.span>
                   )}
                 </Link>
-
-                {/* Quick cart preview on hover - can be implemented later */}
               </motion.div>
 
+              {/* User profile or login button */}
               {!isLoading &&
                 (user ? (
                   <DropdownMenu>
@@ -540,12 +450,12 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile header - completely redesigned for better UX */}
+        {/* Mobile header - redesigned with centered logo */}
         <div className="md:hidden">
-          {/* Top section with logo and key actions */}
-          <div className="flex items-center justify-between h-16">
-            {/* Logo and menu toggle */}
-            <div className="flex items-center gap-2">
+          {/* Top section with key actions */}
+          <div className="flex items-center justify-between h-16 relative">
+            {/* Left side actions */}
+            <div className="flex items-center gap-3">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -555,20 +465,17 @@ const Header = () => {
                 <Menu className="h-5 w-5 text-gray-700" />
               </motion.button>
 
-              <Link href="/" className="relative" aria-label="الصفحة الرئيسية">
-                <Image
-                  src="/logo.png"
-                  alt="Cadoz Logo"
-                  width={100}
-                  height={32}
-                  priority
-                  className="h-8 w-auto object-contain"
-                />
+              <Link
+                href="/"
+                className={cn(
+                  "p-2 rounded-full transition-colors",
+                  pathname === "/" ? "bg-purple-100 text-purple-700" : "hover:bg-gray-100 text-gray-700",
+                )}
+                aria-label="الرئيسية"
+              >
+                <Home className="h-5 w-5" />
               </Link>
-            </div>
 
-            {/* Primary user actions */}
-            <div className="flex items-center gap-2">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
@@ -580,7 +487,24 @@ const Header = () => {
               >
                 <Search className="h-5 w-5" />
               </motion.button>
+            </div>
 
+            {/* Center logo - fixed positioning to ensure it stays centered */}
+            <div className="flex justify-center absolute left-0 right-0 top-0 bottom-0 pointer-events-none items-center">
+              <Link href="/" className="pointer-events-auto" aria-label="الصفحة الرئيسية">
+                <Image
+                  src="/logo.png"
+                  alt="Cadoz Logo"
+                  width={90}
+                  height={30}
+                  priority
+                  className="h-7 w-auto object-contain"
+                />
+              </Link>
+            </div>
+
+            {/* Right side actions */}
+            <div className="flex items-center gap-3">
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsWishlistOpen(true)}
@@ -663,7 +587,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile side menu - now as a separate component */}
+      {/* Mobile side menu */}
       <MobileSidebar
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}

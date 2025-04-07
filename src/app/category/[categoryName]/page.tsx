@@ -113,8 +113,8 @@ const CategoryPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      <main>
+    <div className="min-h-screen bg-gray-50">
+      <main className="space-y-6">
         {/* بانر القسم */}
         <div className="w-full">
           <CategoryBanner category={categoryName} />

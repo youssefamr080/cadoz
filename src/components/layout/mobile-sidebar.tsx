@@ -142,7 +142,16 @@ const MobileSidebar = ({
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="fixed top-0 right-0 bottom-0 w-4/5 max-w-xs bg-white shadow-xl overflow-y-auto"
-            style={{ zIndex: 60 }}
+            style={{ 
+              zIndex: 101,
+              height: "100vh",
+              position: "fixed",
+              right: 0,
+              top: 0,
+              bottom: 0,
+              overflowY: "auto",
+              WebkitOverflowScrolling: "touch"
+            }}
           >
             {/* Header */}
             <div className="p-4 flex justify-between items-center border-b bg-gradient-to-r from-purple-50 to-indigo-50">
