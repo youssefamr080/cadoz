@@ -1,10 +1,15 @@
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { getBoxesCollection } from "@/lib/gift-db-helpers"
 import { ObjectId } from "mongodb"
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+// Use the async params pattern introduced in Next.js 15
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const id = params.id
+    // Await the params promise to get the actual values
+    const { id } = await params
 
     const collection = await getBoxesCollection()
     const box = await collection.findOne({ _id: new ObjectId(id) })

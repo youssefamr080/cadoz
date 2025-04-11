@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { getBoxesCollection } from "@/lib/gift-db-helpers"
 import { ObjectId } from "mongodb"
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = request.nextUrl
     const category = searchParams.get("category")
     const id = searchParams.get("id")
 
