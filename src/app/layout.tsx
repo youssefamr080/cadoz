@@ -32,7 +32,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <main className="pt-[calc(5rem+1.75rem)]">{children}</main>
               <Footer />
               <Analytics />
-              <ToastContainer position="top-center" />
+              <ToastContainer 
+                position="top-center" 
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop
+                closeOnClick
+                rtl={true}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
             </Providers>
           </ReduxProvider>
         </AuthProvider>

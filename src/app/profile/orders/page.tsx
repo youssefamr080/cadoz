@@ -11,8 +11,7 @@ import { Input } from "../../../components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { format } from "date-fns"
 import { ar } from "date-fns/locale"
-import { toast, ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+import { toast } from "react-toastify"
 
 interface OrderItem {
   id: number
@@ -225,11 +224,8 @@ const OrdersPage = () => {
           </div>
         )}
       </div>
-
-      <ToastContainer rtl={true} />
     </div>
   )
 }
 
 export default OrdersPage
-

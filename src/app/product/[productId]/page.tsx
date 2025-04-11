@@ -18,7 +18,7 @@ import "swiper/css/navigation"
 import "swiper/css/pagination"
 import "swiper/css/thumbs"
 
-import { toast, ToastContainer } from "react-toastify"
+import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { useCart } from "../../../context/CartContext"
 import { useWishlist } from "../../../context/WishlistContext"
@@ -573,8 +573,6 @@ const ProductPage = () => {
           </div>
         </main>
       </div>
-      <ToastContainer rtl={true} />
-     
 
       {/* زر ثابت للإضافة إلى السلة في الهواتف المحمولة */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-lg z-50">
@@ -665,4 +663,3 @@ const ProductPage = () => {
 }
 
 export default ProductPage
-

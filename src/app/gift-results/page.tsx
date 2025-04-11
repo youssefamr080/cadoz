@@ -7,7 +7,7 @@ import Link from "next/link"
 
 // UI Components
 import { motion, AnimatePresence } from "framer-motion"
-import { toast, ToastContainer } from "react-toastify"
+import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
 // Icons
@@ -1242,18 +1242,6 @@ const GiftResultsPage: React.FC = () => {
         )}
       </AnimatePresence>
 
-      <ToastContainer
-        position="bottom-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={true}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-      
     </div>
   )
 }

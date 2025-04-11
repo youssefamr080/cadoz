@@ -7,7 +7,7 @@ import { Button } from "../../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
 import { format } from "date-fns"
 import { ar } from "date-fns/locale"
-import { toast, ToastContainer } from "react-toastify"
+import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import Image from "next/image"
 import { FaWhatsapp } from "react-icons/fa"
@@ -390,11 +390,8 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
           </CardContent>
         </Card>
       </div>
-
-      <ToastContainer rtl={true} />
     </div>
   )
 }
 
 export default OrderDetailsPage
-

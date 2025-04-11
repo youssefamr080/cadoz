@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import { useCart } from "../../context/CartContext"
 import { useAuth } from "../../context/AuthContext"
 import { useRouter } from "next/navigation"
-import { toast, ToastContainer } from "react-toastify"
+import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { FiShoppingBag, FiGift, FiArrowLeft, FiTrash2, FiPlus, FiMinus, FiTag, FiUser } from "react-icons/fi"
 import { FaWhatsapp } from "react-icons/fa"
@@ -494,17 +494,6 @@ const CartPage = () => {
         </AnimatePresence>
       </div>
 
-      <ToastContainer 
-        rtl={true}
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover 
-      />
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
