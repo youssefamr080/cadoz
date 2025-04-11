@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import { useCart } from "../../context/CartContext"
 import { useAuth } from "../../context/AuthContext"
 import { useRouter } from "next/navigation"
-import { toast } from "react-toastify"
+import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { FiShoppingBag, FiGift, FiArrowLeft, FiTrash2, FiPlus, FiMinus, FiTag, FiUser } from "react-icons/fi"
 import { FaWhatsapp } from "react-icons/fa"
@@ -11,7 +11,6 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 import ShippingProgress from "../../components/cart/shipping-progress"
 import CouponInput from "../../components/cart/coupon-input"
-import { ToastContainer } from "react-toastify"
 import LoginModal from "../../components/auth/login-modal"
 
 // تعريف واجهات البيانات
@@ -495,7 +494,17 @@ const CartPage = () => {
         </AnimatePresence>
       </div>
 
-      <ToastContainer rtl={true} />
+      <ToastContainer 
+        rtl={true}
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover 
+      />
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
@@ -762,7 +771,7 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                     <div className="flex-1">
                       <div className="font-medium text-xs">{giftItem.name}</div>
                       <div className="text-xs text-gray-500">
-                        {giftItem.price.toFixed(2)} ج.م × {giftItem.quantity}
+                        {typeof giftItem.price === 'number' ? giftItem.price.toFixed(2) : '0.00'} ج.م × {giftItem.quantity}
                       </div>
                     </div>
                   </div>
@@ -787,7 +796,7 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                   </div>
                   <div>
                     <div className="text-xs">{item.giftData.box.name}</div>
-                    <div className="text-xs text-gray-500">{item.giftData.box.price.toFixed(2)} ج.م</div>
+                    <div className="text-xs text-gray-500">{typeof item.giftData.box.price === 'number' ? item.giftData.box.price.toFixed(2) : '0.00'} ج.م</div>
                   </div>
                 </div>
               </div>
@@ -807,7 +816,7 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                   </div>
                   <div>
                     <div className="text-xs">{item.giftData.wrap.name}</div>
-                    <div className="text-xs text-gray-500">{item.giftData.wrap.price.toFixed(2)} ج.م</div>
+                    <div className="text-xs text-gray-500">{typeof item.giftData.wrap.price === 'number' ? item.giftData.wrap.price.toFixed(2) : '0.00'} ج.م</div>
                   </div>
                 </div>
               </div>
@@ -820,4 +829,3 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
 }
 
 export default CartPage
-

@@ -23,7 +23,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
 import { addGiftToCart } from "@/lib/redux/slices/cartSlice"
 import { clearGift } from "@/lib/redux/slices/giftSlice"
 import { useRouter } from "next/navigation"
-import { toast } from "react-toastify"
+import { toast, ToastOptions } from "react-toastify"
 
 export default function GiftSummary() {
   const { selectedBox, selectedProducts, selectedDecorations, selectedBag, personalMessage } = useGift()
@@ -78,11 +78,23 @@ export default function GiftSummary() {
       )
 
       if (addGiftToCart.fulfilled.match(resultAction)) {
-        // Mostrar mensaje de éxito
-        toast.success("تمت إضافة الهدية إلى السلة بنجاح!", {
+        // Improved toast configuration to prevent errors
+        const toastOptions: ToastOptions = {
           position: "top-center",
           autoClose: 1500,
-        })
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          closeButton: true,
+          onClose: () => {
+            // No-op function to ensure close handler exists
+          }
+        };
+        
+        // Show success message with safer configuration
+        toast.success("تمت إضافة الهدية إلى السلة بنجاح!", toastOptions);
 
         setOrderComplete(true)
 
@@ -90,7 +102,7 @@ export default function GiftSummary() {
         setTimeout(() => {
           dispatch(clearGift())
           // التوجيه إلى صفحة السلة الحالية
-          router.push("/cart-page") // تأكد من تغيير هذا إلى المسار الصحيح لصفحة السلة الحالية
+          router.push("/cart") // تأكد من تغيير هذا إلى المسار الصحيح لصفحة السلة الحالية
         }, 1500)
       } else if (addGiftToCart.rejected.match(resultAction)) {
         setError((resultAction.payload as string) || "حدث خطأ أثناء إضافة الهدية إلى السلة")

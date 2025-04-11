@@ -44,7 +44,7 @@ export const addGiftToCart = createAsyncThunk(
       }
 
       // إنشاء عنصر السلة
-      const cartItem = createGiftCartItem(
+      const cartItem = await createGiftCartItem(
         selectedBox,
         selectedProducts,
         selectedDecorations,
