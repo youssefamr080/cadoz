@@ -81,6 +81,10 @@ const subcategories = {
     { name: "دباديب", link: "/category/kids#teddy-bears" },
     { name: "ساعات اطفال", link: "/category/kids#watches" },
   ],
+  هدايا: [
+    { name: "هدايا مخصصه", link: "/custom-gifts" },
+    { name: "تخصيص هدية", link: "/gift" },
+  ],
 }
 
 const Header = () => {

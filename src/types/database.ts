@@ -1,0 +1,301 @@
+import type { ObjectId } from "mongodb"
+
+// إضافة تعريف PersonalMessage
+export interface PersonalMessage {
+  message: string
+  recipient: string
+  sender: string
+}
+
+// الأنواع الأساسية
+export interface MongoDocument {
+  _id: ObjectId
+}
+
+// نوع Box
+export interface BoxDocument extends MongoDocument {
+  name: string
+  price: number
+  dimensions: string
+  description: string
+  image: string
+  category: string
+  stock: number
+}
+
+// نوع Product (renamed to GiftProduct)
+export interface GiftProductDocument extends MongoDocument {
+  name: string
+  price: number
+  image: string
+  category: string
+  stock: number
+  popular: boolean
+  flavor?: string
+  occasion?: string
+}
+
+// نوع Decoration
+export interface DecorationDocument extends MongoDocument {
+  name: string
+  price: number
+  image: string
+  stock: number
+}
+
+// نوع Bag
+export interface BagDocument extends MongoDocument {
+  name: string
+  price: number
+  image: string
+  description: string
+  color: string
+  stock: number
+}
+
+// نوع Inspiration
+export interface InspirationDocument extends MongoDocument {
+  name: string
+  description: string
+  image: string
+  rating: number
+  reviews: number
+  box: {
+    id: string
+    name: string
+    price: number
+    dimensions: string
+    description: string
+    image: string
+    category: string
+    stock: number
+  }
+  products: Array<{
+    id: string
+    name: string
+    price: number
+    image: string
+    quantity: number
+    category: string
+    stock: number
+    popular: boolean
+  }>
+  decorations: Array<{
+    id: string
+    name: string
+    price: number
+    image: string
+    stock: number
+  }>
+  bag: {
+    id: string
+    name: string
+    price: number
+    image: string
+    description: string
+    color: string
+    stock: number
+  }
+}
+
+// نوع CustomGift
+export interface CustomGiftDocument extends MongoDocument {
+  name: string
+  description: string
+  price: number
+  image: string
+  category: string
+}
+
+// نوع SavedItem
+export interface SavedItemDocument extends MongoDocument {
+  userId: string
+  items: Array<{
+    id: string
+    name: string
+    price: number
+    image: string
+    type: "box" | "product" | "decoration" | "bag"
+  }>
+}
+
+// أنواع للأجزاء المستخدمة في الواجهة
+export interface Box {
+  id: string
+  name: string
+  price: number
+  dimensions: string
+  description: string
+  image: string
+  category: string
+  stock: number
+}
+
+export interface GiftProduct {
+  id: string
+  name: string
+  price: number
+  image: string
+  category: string
+  stock: number
+  popular: boolean
+  flavor?: string
+  occasion?: string
+  quantity?: number
+}
+
+export interface Decoration {
+  id: string
+  name: string
+  price: number
+  image: string
+  stock: number
+}
+
+export interface Bag {
+  id: string
+  name: string
+  price: number
+  image: string
+  description: string
+  color: string
+  stock: number
+  pattern?: string
+}
+
+export interface Inspiration {
+  id: string
+  name: string
+  description: string
+  image: string
+  rating: number
+  reviews: number
+  box: Box
+  products: Array<GiftProduct & { quantity: number }>
+  decorations: Decoration[]
+  bag: Bag
+}
+
+export interface CustomGift {
+  id: string
+  name: string
+  description: string
+  price: number
+  image: string
+  category: string
+}
+
+export interface SavedItem {
+  id: string
+  name: string
+  price: number
+  image: string
+  type: "box" | "product" | "decoration" | "bag"
+}
+
+// تعريف واجهة بيانات الهدية للتكامل مع نظام السلة
+export interface GiftItem {
+  name: string
+  id: string
+  quantity: number
+  image: string
+  price: number
+}
+
+export interface GiftBox {
+  name: string
+  image: string
+  price: number
+}
+
+export interface GiftWrap {
+  name: string
+  image: string
+  price: number
+}
+
+export interface GiftData {
+  items: GiftItem[]
+  box: GiftBox | null
+  wrap: GiftWrap | null
+  message?: string
+  recipient?: string
+  createdAt?: string
+  totalPrice?: number
+}
+
+// واجهة عنصر السلة المتوافقة مع نظام السلة الحالي
+export interface CartItem {
+  id: number
+  name: string
+  image: string
+  price: number
+  quantity: number
+  category?: string
+  variant?: string
+  color?: string
+  discount?: number
+  originalPrice?: number
+  stock?: number
+  giftDetails?: string
+  giftData?: GiftData
+}
+
+export interface Order {
+  id: string
+  userId: string | undefined
+  box: { id: string; name: string; price: number }
+  products: Array<{ id: string; name: string; price: number; quantity: number }>
+  decorations: Array<{ id: string; name: string; price: number }>
+  bag?: { id: string; name: string; price: number }
+  personalMessage?: PersonalMessage
+  totalPrice: number
+  status: string
+  createdAt: Date
+}
+
+export interface OrderDocument {
+  _id?: ObjectId
+  userId: string | undefined
+  box: { id: string; name: string; price: number }
+  products: Array<{ id: string; name: string; price: number; quantity: number }>
+  decorations: Array<{ id: string; name: string; price: number }>
+  bag?: { id: string; name: string; price: number }
+  personalMessage?: PersonalMessage
+  totalPrice: number
+  status: string
+  createdAt: Date
+}
+
+export type Product = GiftProduct
+
+// تعريف أنواع إضافية للتعامل مع الأخطاء المذكورة
+export interface GiftOption {
+  id: string; // تغيير من number إلى string
+  name: string;
+  price: number;
+  image: string;
+}
+
+export interface GiftDecoration extends GiftOption {
+  stock: number;
+}
+
+export interface GiftWrapOption extends GiftOption {
+  stock: number;
+}
+
+// تعريف نوع GiftAction للتعامل مع أخطاء gift-customizer.tsx
+export type GiftAction = 
+  | "UPDATE_GIFT_COLOR" 
+  | "UPDATE_GIFT_MESSAGE" 
+  | "ADD_ITEM" 
+  | "REMOVE_ITEM";
+
+// تعريف نوع GiftState للتعامل مع أخطاء gift-customizer.tsx
+export interface GiftState {
+  color?: string;
+  message?: string;
+  items?: GiftItem[];
+  // أضف أي خصائص أخرى مطلوبة
+}

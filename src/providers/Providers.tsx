@@ -1,26 +1,34 @@
 "use client"
 
+import type React from "react"
 
-import { AuthProvider } from "../context/AuthContext"
-import { CartProvider } from "../context/CartContext"
-import { WishlistProvider } from "../context/WishlistContext"
-import { GiftProvider } from "../context/GiftContext"
+import { Provider } from "react-redux"
+import { store } from "@/lib/redux/store"
+
+import { ThemeProvider } from "@/context/ThemeContext"
+import { GiftProvider } from "@/context/gift-context"
+import { AuthProvider } from "@/context/AuthContext"
+import { CartProvider } from "@/context/CartContext"
+import { WishlistProvider } from "@/context/WishlistContext"
+
 import { ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-
-      <AuthProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <GiftProvider>
-              {children}
-              <ToastContainer position="top-center" />
-            </GiftProvider>
-          </WishlistProvider>
-        </CartProvider>
-      </AuthProvider>
-
+    <Provider store={store}>
+      <ThemeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <GiftProvider>
+                {children}
+                <ToastContainer position="top-center" autoClose={4000} />
+              </GiftProvider>
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </Provider>
   )
-} 
+}

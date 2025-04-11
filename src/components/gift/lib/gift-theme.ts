@@ -1,89 +1,48 @@
 // ملف موحد للألوان والمتغيرات المشتركة لضمان اتساق التصميم
 
 export const giftTheme = {
-  // الألوان الرئيسية
   colors: {
-    primary: {
-      light: "bg-indigo-50",
-      medium: "bg-indigo-100",
-      default: "bg-indigo-500",
-      dark: "bg-indigo-600",
-      text: "text-indigo-600",
-      border: "border-indigo-500",
-      hover: "hover:bg-indigo-600",
-    },
-    secondary: {
-      light: "bg-purple-50",
-      medium: "bg-purple-100",
-      default: "bg-purple-500",
-      dark: "bg-purple-600",
-      text: "text-purple-600",
-      border: "border-purple-500",
-      hover: "hover:bg-purple-600",
-    },
-    accent: {
-      light: "bg-pink-50",
-      medium: "bg-pink-100",
-      default: "bg-pink-500",
-      dark: "bg-pink-600",
-      text: "text-pink-600",
-      border: "border-pink-500",
-      hover: "hover:bg-pink-600",
-    },
-    neutral: {
-      light: "bg-gray-50",
-      medium: "bg-gray-100",
-      default: "bg-gray-500",
-      dark: "bg-gray-600",
-      text: "text-gray-600",
-      border: "border-gray-200",
+    primary: "#8B5CF6",
+    secondary: "#6366F1",
+    accent: "#EC4899",
+    background: "#F9FAFB",
+    text: {
+      primary: "#1F2937",
+      secondary: "#4B5563",
+      light: "#9CA3AF",
     },
   },
-
-  // التدرجات اللونية
   gradients: {
-    primary: "bg-gradient-to-r from-indigo-500 to-purple-500",
-    secondary: "bg-gradient-to-r from-purple-500 to-pink-500",
-    light: "bg-gradient-to-r from-indigo-50 to-purple-50",
+    primary: "bg-gradient-to-r from-purple-500 to-indigo-500",
+    secondary: "bg-gradient-to-r from-indigo-500 to-pink-500",
+    accent: "bg-gradient-to-r from-pink-500 to-rose-500",
+    light: "bg-gradient-to-b from-white to-gray-50",
   },
-
-  // الظلال
   shadows: {
     sm: "shadow-sm",
     md: "shadow-md",
     lg: "shadow-lg",
     xl: "shadow-xl",
   },
-
-  // الحواف المستديرة
-  rounded: {
-    sm: "rounded-md",
-    md: "rounded-lg",
-    lg: "rounded-xl",
-    full: "rounded-full",
+  spacing: {
+    xs: "0.25rem",
+    sm: "0.5rem",
+    md: "1rem",
+    lg: "1.5rem",
+    xl: "2rem",
   },
-
-  // التحولات
+  borderRadius: {
+    sm: "0.25rem",
+    md: "0.5rem",
+    lg: "1rem",
+    xl: "1.5rem",
+  },
   transitions: {
-    default: "transition-all duration-300",
-    fast: "transition-all duration-200",
-    slow: "transition-all duration-500",
+    fast: "duration-200",
+    normal: "duration-300",
+    slow: "duration-500",
   },
-
-  // أنماط الأزرار
-  buttons: {
-    primary:
-      "bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 shadow-md",
-    secondary: "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm",
-    accent: "bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600 shadow-md",
-  },
-
-  // أنماط البطاقات
-  cards: {
-    default: "bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg",
-    selected: "ring-2 ring-indigo-500 ring-offset-2",
-  },
-}
+} as const
 
 // أنماط موحدة للـ Swiper
 export const swiperStyles = `
