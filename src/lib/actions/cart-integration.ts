@@ -10,7 +10,7 @@ export async function createGiftPreviewImage(): Promise<string> {
 // تأكد من أن وظيفة createGiftCartItem تنتج عنصر سلة متوافق مع نظام السلة الحالي
 
 // تحديث الجزء الخاص بإنشاء عنصر السلة للتأكد من توافقه مع نظام السلة الحالي
-export async function createGiftCartItem( // Change this line
+export async function createGiftCartItem(
   selectedBox: Box | null,
   selectedProducts: GiftProduct[],
   selectedDecorations: Decoration[],
@@ -19,6 +19,7 @@ export async function createGiftCartItem( // Change this line
 ): Promise<CartItem> {
   // تحويل المنتجات المختارة إلى تنسيق GiftItem
   const giftItems = selectedProducts.map((product) => ({
+    id: product.id,
     name: product.name,
     quantity: product.quantity || 1,
     image: product.image,
