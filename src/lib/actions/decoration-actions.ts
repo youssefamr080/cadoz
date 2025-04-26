@@ -52,6 +52,20 @@ export async function getDecorationById(id: string): Promise<Decoration | null> 
   }
 }
 
+// جلب عدة زينة حسب قائمة المعرفات
+export async function getDecorationsByIds(ids: string[]): Promise<Decoration[]> {
+  try {
+    if (!ids || ids.length === 0) return [];
+    const objectIds = ids.map((id) => new ObjectId(id));
+    const collection = await getDecorationsCollection();
+    const decorations = await collection.find({ _id: { $in: objectIds } }).toArray();
+    return decorations.map(mapDecorationDocument);
+  } catch (error) {
+    console.error("Error fetching decorations by ids:", error);
+    throw new Error("فشل في جلب الزينة حسب المعرفات");
+  }
+}
+
 // تحديث مخزون الزينة
 export async function updateDecorationStock(id: string, newStock: number): Promise<void> {
   try {

@@ -42,27 +42,58 @@ export default function PersonalizedRecommendations({
       try {
         setLoading(true)
 
-        // الحصول على المنتجات المشاهدة من التخزين المحلي
-        const viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]")
-        const excludeIds = viewedProducts.map((p: Product) => p.id).join(",")
+        // Safely parse cart data
+        let cartItems = [];
+        try {
+          const cartData = localStorage.getItem("cart");
+          if (cartData) {
+            const parsedCart = JSON.parse(cartData);
+            cartItems = Array.isArray(parsedCart) ? parsedCart : [];
+          }
+        } catch (e) {
+          console.error("Error parsing cart data:", e);
+        }
 
-        // بناء معلمات الاستعلام
+        const viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]");
+        const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+        const interestedProducts = JSON.parse(localStorage.getItem("interestedProducts") || "[]");
+
+        const allInteracted = [...viewedProducts, ...wishlist, ...cartItems, ...interestedProducts];
+        const excludeIds = [...new Set(allInteracted.map((p: Product) => p.id))].join(",");
+        
+        const categories = allInteracted.map((p) => p.category).filter(Boolean);
+        const tags = allInteracted.flatMap((p) => p.tags || []).filter(Boolean);
+        const mostCommonCategory = categories.sort((a, b) =>
+          categories.filter(v => v === a).length - categories.filter(v => v === b).length
+        ).pop();
+        const mostCommonTags = [...new Set(tags)].slice(0, 3);
+        
         const params = new URLSearchParams({
           excludeIds,
           limit: limit.toString(),
           personalized: "true",
-        })
-
-        // إضافة معرف المستخدم إذا كان متاحًا
+        });
+        if (mostCommonCategory) params.append("category", mostCommonCategory);
+        if (mostCommonTags.length) params.append("tags", mostCommonTags.join(","));
         if (user?.id) {
-          params.append("userId", user.id)
+          params.append("userId", user.id);
         }
 
+        const CacheService = (await import("@/lib/services/cache-service")).default;
+        const cacheKey = `personalized_recommendations_${params.toString()}`;
+        const cached = await CacheService.getItem<Product[]>(cacheKey);
+        if (cached && Array.isArray(cached) && cached.length > 0) {
+          setRecommendations(cached);
+          setLoading(false);
+          return;
+        }
+        
         const response = await fetch(`/api/recommendations?${params.toString()}`)
         const data = await response.json()
 
         if (data.success) {
           setRecommendations(data.data)
+          await CacheService.setItem(cacheKey, data.data, 30);
         }
       } catch (error) {
         console.error("Error fetching personalized recommendations:", error)
@@ -193,4 +224,3 @@ export default function PersonalizedRecommendations({
     </div>
   )
 }
-

@@ -51,6 +51,7 @@
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
+    "embla-carousel-react": "^8.6.0",
     "express": "^4.21.2",
     "framer-motion": "^12.4.3",
     "fuse.js": "^7.1.0",
@@ -63,7 +64,7 @@
     "mongo": "^0.1.0",
     "mongodb": "^6.15.0",
     "mongoose": "^8.12.1",
-    "next": "^15.2.4",
+    "next": "^15.3.1",
     "next-auth": "^4.24.11",
     "openai": "^4.85.4",
     "package": "^1.0.1",
@@ -86,13 +87,15 @@
     "three": "^0.173.0",
     "tsparticles-slim": "^2.12.0",
     "usehooks-ts": "^3.1.1",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/stylis": "^4.2.7",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",
     "autoprefixer": "^10.4.20",
@@ -100,7 +103,7 @@
     "eslint-config-next": "15.1.6",
     "postcss": "^8.5.2",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "typescript": "5.3.3"
   },
   "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
   "main": "countdown.js",

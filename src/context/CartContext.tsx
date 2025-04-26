@@ -314,17 +314,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [promoCode])
 
+  // إضافة تأثير لمراقبة تأهل الشحن المجاني
+  useEffect(() => {
+    const FREE_SHIPPING_THRESHOLD = 500
+    const cartSubtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
+    
+    if (cartSubtotal >= FREE_SHIPPING_THRESHOLD) {
+      toast.success("تم تطبيق الشحن المجاني تلقائياً لتجاوز الطلب 500 ج.م! 🎉", {
+        toastId: 'free-shipping-notification'
+      })
+    }
+  }, [cart])
+
   // ========== وظائف التعامل مع السلة ==========
   const addToCart = useCallback((item: CartItem, quantity = 1) => {
     dispatch({ type: "ADD_ITEM", payload: { item, quantity } })
-    toast.success(`تمت إضافة ${item.name} إلى السلة`, {
-      position: "bottom-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    })
+    // إزالة الإشعار المكرر هنا لأن الإشعار يظهر في صفحة المنتج
   }, [])
 
   const removeFromCart = useCallback(
@@ -384,6 +389,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const promoFreeShipping =
       promoCode.isValid && promoDetails && ("freeShipping" in promoDetails ? promoDetails.freeShipping : false)
 
+    // التحقق من الحد الأدنى للشحن المجاني
+    const FREE_SHIPPING_THRESHOLD = 500
+    const cartSubtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0)
+    if (cartSubtotal >= FREE_SHIPPING_THRESHOLD) {
+      return 0
+    }
+
     if (promoFreeShipping) return 0
 
     const fees = {
@@ -397,7 +409,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
 
     return fees[shipping.governorate as keyof typeof fees] || 150
-  }, [shipping.governorate, promoCode])
+  }, [shipping.governorate, promoCode, cart])
 
   // ========== وظائف التعامل مع كوبونات الخصم ==========
   const setPromoCode = useCallback((code: string) => {
@@ -537,4 +549,3 @@ export const useCart = (): CartContextType => {
   }
   return context
 }
-

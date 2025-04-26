@@ -2,6 +2,26 @@ import { NextResponse } from "next/server"
 import { connectToDatabase } from "../../../lib/mongodb"
 import type { Document, UpdateFilter, Db } from "mongodb"
 
+// Export the type for MongoDB update operations
+export type CustomerRecommendationUpdateQuery = {
+  $push?: {
+    recommendations: {
+      $each: RecommendationEntry[];
+    };
+  };
+  $inc?: {
+    "stats.totalShown"?: number;
+    "stats.totalClicked"?: number;
+    "stats.totalPurchased"?: number;
+  };
+  $set?: {
+    lastUpdatedAt?: Date;
+    "stats.ctr"?: number;
+    "stats.conversionRate"?: number;
+    "recommendations.$"?: Partial<RecommendationEntry>;
+  };
+};
+
 interface DeviceInfo {
   userAgent: string
   ip: string
@@ -71,26 +91,17 @@ interface RecommendationEntry {
 }
 
 interface CustomerRecommendation extends Document {
-  userId: string
-  generatedAt: Date
-  recommendations: Array<{
-    productId: number
-    score: number
-    reason: string
-    shown: boolean
-    shownAt: Date
-    clicked?: boolean
-    clickedAt?: Date
-    addedToCart?: boolean
-    addedToCartAt?: Date
-  }>
+  userId: string;
+  generatedAt: Date;
+  lastUpdatedAt: Date;
+  recommendations: RecommendationEntry[];
   stats: {
-    totalShown: number
-    totalClicked: number
-    totalPurchased: number
-    ctr: number
-    conversionRate: number
-  }
+    totalShown: number;
+    totalClicked: number;
+    totalPurchased: number;
+    ctr: number;
+    conversionRate: number;
+  };
 }
 
 interface ProductView extends Document {
@@ -135,9 +146,20 @@ export async function GET(request: Request) {
     const limit = Number.parseInt(searchParams.get("limit") || "12")
     const usePersonalized = searchParams.get("personalized") === "true"
     const priceRange = searchParams.get("priceRange")?.split("-").map(Number) || []
-    const sessionId = searchParams.get("sessionId") // إضافة معرف الجلسة
+    const sessionId = searchParams.get("sessionId")
 
     const { db } = await connectToDatabase()
+
+    // استخراج تفضيلات المستخدم إذا كان متاحًا
+    let userPreferences: UserPreference | null = null
+    if (userId && usePersonalized) {
+      userPreferences = await getUserPreferences(db, userId)
+    } else {
+      userPreferences = createDefaultPreferences(category, tags, priceRange)
+    }
+
+    // الحصول على المنتجات الموصى بها
+    const recommendations = await getRecommendedProducts(db, excludeIds, userPreferences, limit, usePersonalized)
 
     // تسجيل طلب التوصيات إذا كان المستخدم مسجل الدخول
     if (userId && userId !== "anonymous") {
@@ -166,22 +188,8 @@ export async function GET(request: Request) {
           $inc: { recommendationRequests: 1 },
         },
       )
-    }
 
-    // استخراج تفضيلات المستخدم إذا كان متاحًا
-    let userPreferences: UserPreference | null = null
-    if (userId && usePersonalized) {
-      userPreferences = await getUserPreferences(db, userId)
-    } else {
-      // إنشاء تفضيلات افتراضية من المعلمات المقدمة
-      userPreferences = createDefaultPreferences(category, tags, priceRange)
-    }
-
-    // الحصول على المنتجات الموصى بها
-    const recommendations = await getRecommendedProducts(db, excludeIds, userPreferences, limit, usePersonalized)
-
-    // تسجيل التوصيات المقدمة للمستخدم المسجل
-    if (userId && userId !== "anonymous") {
+      // تسجيل التوصيات المقدمة للمستخدم المسجل
       const recommendationEntries: RecommendationEntry[] = recommendations.map((product) => ({
         productId: product.id,
         score: product.score || 0,
@@ -190,29 +198,38 @@ export async function GET(request: Request) {
         shownAt: new Date(),
       }))
 
-      const updateFilter = {
-        $setOnInsert: {
+      // First, try to find an existing recommendation document
+      const existingRec = await db.collection<CustomerRecommendation>("customerRecommendations")
+        .findOne({ userId, generatedAt: { $gte: new Date(Date.now() - 3600000) } });
+
+      if (existingRec) {
+        // Update existing document with proper typing
+        await db.collection<CustomerRecommendation>("customerRecommendations").updateOne(
+          { userId, generatedAt: { $gte: new Date(Date.now() - 3600000) } },
+          {
+            $set: { 
+              lastUpdatedAt: new Date(),
+              recommendations: [...existingRec.recommendations, ...recommendationEntries],
+              "stats.totalShown": existingRec.stats.totalShown + recommendationEntries.length 
+            }
+          }
+        );
+      } else {
+        // Create new document
+        await db.collection<CustomerRecommendation>("customerRecommendations").insertOne({
           userId,
           generatedAt: new Date(),
+          lastUpdatedAt: new Date(),
+          recommendations: recommendationEntries,
           stats: {
             totalShown: recommendationEntries.length,
             totalClicked: 0,
             totalPurchased: 0,
             ctr: 0,
-            conversionRate: 0,
-          },
-        },
-        $push: {
-          recommendations: { $each: recommendationEntries }
-        },
-        $inc: { "stats.totalShown": recommendationEntries.length },
-      } as unknown as UpdateFilter<CustomerRecommendation>
-
-      await db.collection<CustomerRecommendation>("customerRecommendations").updateOne(
-        { userId, generatedAt: { $gte: new Date(Date.now() - 3600000) } },
-        updateFilter,
-        { upsert: true },
-      )
+            conversionRate: 0
+          }
+        });
+      }
     }
 
     return NextResponse.json({

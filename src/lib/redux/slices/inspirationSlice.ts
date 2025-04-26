@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import type { Inspiration } from "@/types/database"
+import type { Inspiration } from "@/types/inspiration"
 import { getAllInspirations, getInspirationById, getPopularInspirations } from "@/lib/actions/inspiration-actions"
 
 interface InspirationState {

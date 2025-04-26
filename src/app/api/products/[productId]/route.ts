@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { connectToDatabase } from "../../../../lib/mongodb"
 
-// Fix: Use the async params pattern introduced in Next.js 15
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ productId: string }> }
+  context: { params: Promise<{ productId: string }> }
 ) {
   try {
     // Await the params promise to get the actual values
-    const { productId } = await params
+    const { productId } = await context.params
     const productIdNum = Number.parseInt(productId)
 
     if (isNaN(productIdNum)) {
@@ -36,4 +35,3 @@ export async function GET(
     return NextResponse.json({ success: false, message: "Failed to fetch product" }, { status: 500 })
   }
 }
-

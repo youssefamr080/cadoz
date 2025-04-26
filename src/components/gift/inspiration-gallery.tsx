@@ -6,9 +6,9 @@ import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useGift } from "@/context/gift-context"
 import { Button } from "@/components/ui/button"
-import { Star, Share2, Copy, ChevronLeft, ChevronRight } from "lucide-react"
+import { Star, Copy, ChevronLeft, ChevronRight, Eye } from "lucide-react"
 import { getPopularInspirations } from "@/lib/actions/inspiration-actions"
-import type { Inspiration } from "@/types/database"
+import type { Inspiration } from "@/types/inspiration"
 import Image from "next/image"
 
 export default function InspirationGallery() {
@@ -63,22 +63,7 @@ export default function InspirationGallery() {
     loadInspiration(gift)
   }
 
-  const handleShare = (giftId: string) => {
-    // Implementation for sharing functionality
-    const shareUrl = `${window.location.origin}/inspiration/${giftId}`
-
-    if (navigator.share) {
-      navigator.share({
-        title: "هدية مخصصة",
-        text: "شاهد هذه الهدية المخصصة الرائعة!",
-        url: shareUrl,
-      })
-    } else {
-      // Fallback for browsers that don't support navigator.share
-      navigator.clipboard.writeText(shareUrl)
-      alert("تم نسخ الرابط!")
-    }
-  }
+  // Removed unused handleShare function to fix lint error
 
   const nextSlide = () => {
     if (currentIndex < inspirationGifts.length - visibleItems) {
@@ -175,9 +160,16 @@ export default function InspirationGallery() {
                       <p className="text-sm text-gray-600 mb-4">{gift.description}</p>
 
                       <div className="flex justify-between">
-                        <Button variant="outline" size="sm" onClick={() => handleShare(gift.id)} className="text-xs">
-                          <Share2 className="w-3 h-3 mr-1" />
-                          مشاركة
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          className="text-xs"
+                        >
+                          <a href={`/inspiration/${gift.id}`}>
+                            <Eye className="w-3 h-3 mr-1" />
+                            عرض الهدية
+                          </a>
                         </Button>
 
                         <Button

@@ -1,0 +1,27 @@
+// تعريف نوع Inspiration المستخدم في مكونات الإلهام
+
+
+export interface Inspiration {
+  id: string
+  name: string
+  description: string
+  image: string
+  rating: number
+  reviews: number
+  box: string // box ID only
+  products: string[] // product IDs only
+  decorations: string[] // decoration IDs only
+  bag: string // bag ID only
+  likes?: number
+  dislikes?: number;
+  comments?: Array<{
+    _id: string;
+    userId: string;
+    userName: string;
+    comment: string;
+    createdAt: string;
+  }>;
+  likedBy?: string[];
+  dislikedBy?: string[];
+  ratings?: Array<{ userId: string; rating: number }>;
+}

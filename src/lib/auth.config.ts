@@ -17,31 +17,43 @@ export const authOptions: AuthOptions = {
         phone: { label: "Phone", type: "text" },
         password: { label: "Password", type: "password" },
       },
+      // Enhanced authorize for better debugging and reliability
       async authorize(credentials) {
+        console.log("[AUTH] Received credentials:", credentials);
         if (!credentials?.phone || !credentials?.password) {
-          return null
+          console.error("[AUTH] Missing phone or password in credentials", credentials);
+          return null;
         }
-
-        const { db } = await connectToDatabase()
-        const user = await db.collection("customers").findOne({ phone: credentials.phone })
-
+        const { db } = await connectToDatabase();
+        const user = await db.collection("customers").findOne({ phone: credentials.phone });
         if (!user) {
-          return null
+          console.error(`[AUTH] No user found for phone: ${credentials.phone}`);
+          return null;
         }
-
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
-
+        // Defensive: ensure password exists
+        if (!user.password) {
+          console.error(`[AUTH] User found but missing password. User:`, user);
+          return null;
+        }
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
         if (!isPasswordValid) {
-          return null
+          console.error(`[AUTH] Invalid password for phone: ${credentials.phone}`);
+          return null;
         }
-
-        return {
+        // Defensive: ensure id, name, phone exist
+        if (!user.id || !user.name || !user.phone) {
+          console.error(`[AUTH] User missing required fields (id, name, phone):`, user);
+          return null;
+        }
+        const userObj = {
           id: user.id,
           name: user.name,
-          email: user.email,
+          email: user.email || "",
           phone: user.phone,
-          image: user.image,
-        }
+          image: user.image || undefined,
+        };
+        console.log("[AUTH] Authorized user:", userObj);
+        return userObj;
       },
     }),
   ],

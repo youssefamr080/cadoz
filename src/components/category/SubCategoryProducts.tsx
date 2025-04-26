@@ -109,4 +109,3 @@ const SubCategoryProducts = ({ category, subCategory, sortOrder = "popularity" }
 }
 
 export default SubCategoryProducts
-

@@ -55,6 +55,20 @@ export async function getBoxById(id: string): Promise<Box | null> {
   }
 }
 
+// جلب عدة صناديق حسب قائمة المعرفات
+export async function getBoxesByIds(ids: string[]): Promise<Box[]> {
+  try {
+    if (!ids || ids.length === 0) return [];
+    const objectIds = ids.map((id) => new ObjectId(id));
+    const collection = await getBoxesCollection();
+    const boxes = await collection.find({ _id: { $in: objectIds } }).toArray();
+    return boxes.map(mapBoxDocument);
+  } catch (error) {
+    console.error("Error fetching boxes by ids:", error);
+    throw new Error("فشل في جلب الصناديق حسب المعرفات");
+  }
+}
+
 // تحديث مخزون الصندوق
 export async function updateBoxStock(id: string, newStock: number): Promise<void> {
   try {

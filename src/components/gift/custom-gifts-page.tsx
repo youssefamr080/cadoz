@@ -50,7 +50,7 @@ export default function CustomGiftsPage() {
             <p className="text-gray-600 mt-2">اختر من مجموعة الهدايا المخصصة التي يمكن تصميمها حسب طلبك</p>
           </motion.div>
 
-          <Link href="/">
+          <Link href="/gift">
             <Button variant="outline" className="gap-2">
               <ArrowRight className="w-4 h-4" />
               العودة للرئيسية

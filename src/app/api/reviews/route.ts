@@ -310,4 +310,3 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: false, message: "Failed to record vote" }, { status: 500 })
   }
 }
-

@@ -53,12 +53,21 @@ const LoginContent = () => {
     setIsLoading(true)
 
     try {
+      // Log the form data before sending
+      console.log("[LOGIN] Sending credentials:", formData);
+      if (!formData.phone || !formData.password) {
+        toast.error("رقم الهاتف وكلمة المرور مطلوبان");
+        return;
+      }
       const result = await signIn("credentials", {
         redirect: false,
         phone: formData.phone,
         password: formData.password,
-      })
-
+      });
+      console.log("[LOGIN] signIn result:", result);
+      if (result?.error) {
+        toast.error("فشل تسجيل الدخول: " + result.error);
+      }
       if (result?.ok) {
         // الحصول على بيانات المستخدم
         const response = await fetch("/api/auth/session")

@@ -212,4 +212,3 @@ const ProductCollection: React.FC<ProductCollectionProps> = ({ products, accentC
 }
 
 export default ProductCollection
-

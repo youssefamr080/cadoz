@@ -18,7 +18,12 @@ import {
   clearSavedItemsThunk,
   loadSavedItemsFromLocalStorage,
 } from "@/lib/redux/slices/giftSlice"
-import type { Box, GiftProduct, Decoration, Bag, SavedItem, Inspiration, PersonalMessage } from "@/types/database"
+import type { Box, GiftProduct, Decoration, Bag, SavedItem, PersonalMessage } from "@/types/database"
+import type { Inspiration } from "@/types/inspiration"
+import { getBoxesByIds } from "@/lib/actions/box-actions"
+import { getBagsByIds } from "@/lib/actions/bag-actions"
+import { getGiftProductsByIds } from "@/lib/actions/product-actions"
+import { getDecorationsByIds } from "@/lib/actions/decoration-actions"
 
 interface GiftContextType {
   selectedBox: Box | null
@@ -125,15 +130,23 @@ export function GiftProvider({ children }: { children: ReactNode }) {
     dispatch(setPersonalMessage(message))
   }
 
-  const handleLoadInspiration = (gift: Inspiration) => {
-    dispatch(setSelectedBox(gift.box))
-    gift.products.forEach((product) => {
-      dispatch(addProduct(product))
-    })
-    gift.decorations.forEach((decoration) => {
-      dispatch(addDecoration(decoration))
-    })
-    dispatch(setSelectedBag(gift.bag))
+  const handleLoadInspiration = async (gift: Inspiration) => {
+    const [boxArr, bagArr, products, decorations] = await Promise.all([
+      gift.box ? getBoxesByIds([gift.box]) : [],
+      gift.bag ? getBagsByIds([gift.bag]) : [],
+      gift.products && gift.products.length > 0 ? getGiftProductsByIds(gift.products) : [],
+      gift.decorations && gift.decorations.length > 0 ? getDecorationsByIds(gift.decorations) : [],
+    ])
+    const box = boxArr && boxArr.length > 0 ? boxArr[0] : null
+    const bag = bagArr && bagArr.length > 0 ? bagArr[0] : null
+    if (box) dispatch(setSelectedBox(box))
+    if (products && products.length > 0) {
+      products.forEach((product) => dispatch(addProduct(product)))
+    }
+    if (decorations && decorations.length > 0) {
+      decorations.forEach((decoration) => dispatch(addDecoration(decoration)))
+    }
+    if (bag) dispatch(setSelectedBag(bag))
   }
 
   return (

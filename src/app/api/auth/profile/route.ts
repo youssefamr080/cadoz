@@ -33,4 +33,3 @@ export async function GET() {
     return NextResponse.json({ success: false, message: "حدث خطأ أثناء جلب الملف الشخصي" }, { status: 500 })
   }
 }
-

@@ -23,7 +23,25 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <WishlistProvider>
               <GiftProvider>
                 {children}
-                <ToastContainer position="top-center" autoClose={4000} />
+                <ToastContainer
+                  position="bottom-right"
+                  autoClose={2500}
+                  hideProgressBar={false}
+                  newestOnTop={true}
+                  closeOnClick
+                  rtl={true}
+                  pauseOnFocusLoss={false}
+                  draggable={false}
+                  pauseOnHover={true}
+                  theme="light"
+                  limit={3}
+                  style={{
+                    "--toastify-icon-color-success": "var(--green-500)",
+                    "--toastify-icon-color-error": "var(--red-500)",
+                    "--toastify-icon-color-warning": "var(--yellow-500)",
+                    "--toastify-icon-color-info": "var(--blue-500)",
+                  } as any}
+                />
               </GiftProvider>
             </WishlistProvider>
           </CartProvider>

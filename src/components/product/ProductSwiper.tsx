@@ -7,7 +7,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
-import { Product } from "../../data/products";
+import { Product } from "../../types/database";
 
 interface Props {
   products: Product[];

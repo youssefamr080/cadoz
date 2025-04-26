@@ -147,4 +147,3 @@ export default function ProductImageGallery({ images, alt, aspectRatio = "square
     </div>
   )
 }
-

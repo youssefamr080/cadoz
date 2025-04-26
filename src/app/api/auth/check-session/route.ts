@@ -1,6 +1,24 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/mongodb"
 
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth.config";
+
+export async function GET() {
+  try {
+    // Use NextAuth to get the current session
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ user: null }, { status: 401 });
+    }
+    // Optionally, add provider info if available
+    return NextResponse.json({ user: session.user, provider: 'credentials' });
+  } catch (error) {
+    console.error("Error in GET /api/auth/check-session:", error);
+    return NextResponse.json({ user: null, message: "Internal server error" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -57,4 +75,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ valid: false, message: "Internal server error" }, { status: 500 })
   }
 }
-

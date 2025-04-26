@@ -43,21 +43,39 @@ export default function ProductRecommendations({ productId, category, tags }: Pr
 
     const fetchRecommendations = async () => {
       try {
-        // Get viewed products from localStorage
-        const viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]")
-        const excludeIds = [...viewedProducts.map((p: Product) => p.id), productId].join(",")
+        // Safely parse cart data
+        let cartItems = [];
+        try {
+          const cartData = localStorage.getItem("cart");
+          if (cartData) {
+            const parsedCart = JSON.parse(cartData);
+            cartItems = Array.isArray(parsedCart) ? parsedCart : [];
+          }
+        } catch (e) {
+          console.error("Error parsing cart data:", e);
+        }
 
+        const viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]");
+        const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+        const interestedProducts = JSON.parse(localStorage.getItem("interestedProducts") || "[]");
+
+        const allInteracted = [...viewedProducts, ...wishlist, ...cartItems, ...interestedProducts];
+        const excludeIds = [...new Set([...allInteracted.map((p: Product) => p.id), productId])].join(",");
+        // الأكثر تكرارًا
+        const categories = allInteracted.map((p) => p.category).filter(Boolean);
+        const tagsAll = allInteracted.flatMap((p) => p.tags || []).filter(Boolean);
+        const mostCommonCategory = category || (categories.sort((a, b) =>
+          categories.filter(v => v === a).length - categories.filter(v => v === b).length
+        ).pop());
+        const mostCommonTags = tags?.length ? tags : [...new Set(tagsAll)].slice(0, 3);
         // Build query params
         const params = new URLSearchParams({
           excludeIds,
           limit: "12",
           sessionId,
-        })
-
-        if (category) params.append("category", category)
-        if (tags?.length) params.append("tags", tags.join(","))
-
-        // إضافة معرف المستخدم إذا كان مسجل الدخول
+        });
+        if (mostCommonCategory) params.append("category", mostCommonCategory);
+        if (mostCommonTags.length) params.append("tags", mostCommonTags.join(","));
         if (user?.id) {
           params.append("userId", user.id)
           params.append("personalized", "true")
@@ -220,4 +238,3 @@ export default function ProductRecommendations({ productId, category, tags }: Pr
     </div>
   )
 }
-

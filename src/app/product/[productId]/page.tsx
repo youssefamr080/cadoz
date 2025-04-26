@@ -32,8 +32,9 @@ import ProductImageGallery from "../../../components/product/product-image-galle
 import ProductInfoTabs from "../../../components/product/product-info-tabs"
 import ProductColorSelector from "../../../components/product/product-color-selector"
 import ProductNotification from "../../../components/product/product-notification"
-import RecentlyViewedProducts from "../../../components/product/recently-viewed-products"
 
+
+import useProductInterestTracker from "@/hooks/useProductInterestTracker";
 
 const ProductPage = () => {
   const { productId } = useParams()
@@ -53,6 +54,11 @@ const ProductPage = () => {
 
   // Fetch product data using RTK Query
   const { data: product, isLoading, error } = useGetProductByIdQuery(Number(productId))
+
+  // تتبع اهتمام المستخدم بالمنتج (مدة التصفح)
+  // سيتم تسجيل المنتج في localStorage ضمن interestedProducts إذا ظل المستخدم عليه أكثر من 10 ثوانٍ
+  // يمكنك تغيير الزمن بتمريره كمعامل ثاني
+    useProductInterestTracker(product, 15000);
 
   // تعيين الصورة الرئيسية عند تحميل المنتج
   useEffect(() => {
@@ -561,12 +567,6 @@ const ProductPage = () => {
           <div className="mt-10 md:mt-16">
             <ProductReviews productId={product.id} />
           </div>
-
-          {/* المنتجات المشاهدة مؤخرًا */}
-          <div className="mt-10 md:mt-16">
-            <RecentlyViewedProducts excludeProductId={product.id} />
-          </div>
-
           {/* منتجات موصى بها */}
           <div className="mt-10 md:mt-16">
             <ProductRecommendations productId={product.id} category={product.category} tags={product.tags} />

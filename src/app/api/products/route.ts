@@ -6,6 +6,9 @@ export async function GET(request: Request) {
   try {
     console.log("🔍 تم استلام طلب API للمنتجات")
 
+    // Connect to database
+    const { db } = await connectToDatabase()
+
     // استخراج معلمات الاستعلام من URL
     const { searchParams } = new URL(request.url)
     console.log("📝 معلمات الاستعلام:", Object.fromEntries(searchParams.entries()))
@@ -164,11 +167,6 @@ export async function GET(request: Request) {
     if (searchParams.has("hasMultipleImages") && searchParams.get("hasMultipleImages") === "true") {
       query.images = { $exists: true, $not: { $size: 0 } }
     }
-
-    // الاتصال بقاعدة البيانات
-    console.log("🔌 جاري الاتصال بقاعدة البيانات MongoDB...")
-    const { db } = await connectToDatabase()
-    console.log("✅ تم الاتصال بنجاح بقاعدة البيانات MongoDB")
 
     // البحث في المفضلات (إذا كان مطلوبًا)
     if (searchParams.has("favorites") && searchParams.has("userId") && searchParams.get("favorites") === "true") {

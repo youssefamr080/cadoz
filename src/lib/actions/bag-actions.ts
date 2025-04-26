@@ -54,6 +54,20 @@ export async function getBagById(id: string): Promise<Bag | null> {
   }
 }
 
+// جلب عدة شنط حسب قائمة المعرفات
+export async function getBagsByIds(ids: string[]): Promise<Bag[]> {
+  try {
+    if (!ids || ids.length === 0) return [];
+    const objectIds = ids.map((id) => new ObjectId(id));
+    const collection = await getBagsCollection();
+    const bags = await collection.find({ _id: { $in: objectIds } }).toArray();
+    return bags.map(mapBagDocument);
+  } catch (error) {
+    console.error("Error fetching bags by ids:", error);
+    throw new Error("فشل في جلب الشنط حسب المعرفات");
+  }
+}
+
 // تحديث مخزون الشنطة
 export async function updateBagStock(id: string, newStock: number): Promise<void> {
   try {

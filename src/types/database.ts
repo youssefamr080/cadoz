@@ -60,6 +60,21 @@ export interface InspirationDocument extends MongoDocument {
   image: string
   rating: number
   reviews: number
+  likes: number
+  dislikes: number
+  likedBy: string[]
+  dislikedBy: string[]
+  ratings: Array<{
+    userId: string
+    rating: number
+  }>
+  comments: Array<{
+    _id: string | ObjectId
+    userId: string
+    userName: string
+    comment: string
+    createdAt: string | Date
+  }>
   box: {
     id: string
     name: string
@@ -195,8 +210,8 @@ export interface SavedItem {
 
 // تعريف واجهة بيانات الهدية للتكامل مع نظام السلة
 export interface GiftItem {
-  name: string
   id: string
+  name: string
   quantity: number
   image: string
   price: number

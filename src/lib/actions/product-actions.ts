@@ -68,6 +68,20 @@ export async function getProductById(id: string): Promise<GiftProduct | null> {
   }
 }
 
+// جلب عدة منتجات حسب قائمة المعرفات
+export async function getGiftProductsByIds(ids: string[]): Promise<GiftProduct[]> {
+  try {
+    if (!ids || ids.length === 0) return [];
+    const objectIds = ids.map((id) => new ObjectId(id));
+    const collection = await getGiftProductsCollection();
+    const products = await collection.find({ _id: { $in: objectIds } }).toArray();
+    return products.map(mapGiftProductDocument);
+  } catch (error) {
+    console.error("Error fetching products by ids:", error);
+    throw new Error("فشل في جلب المنتجات حسب المعرفات");
+  }
+}
+
 // تحديث مخزون المنتج
 export async function updateProductStock(id: string, newStock: number): Promise<void> {
   try {
