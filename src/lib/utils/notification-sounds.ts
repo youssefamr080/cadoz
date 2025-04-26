@@ -13,7 +13,7 @@ export function initNotificationSounds() {
   if (soundInitialized) return
   
   // تحميل مسبق للأصوات لتحسين الأداء
-  Object.entries(notificationSounds).forEach(([type, path]) => {
+  Object.entries(notificationSounds).forEach(([, path]) => {
     const audio = new Audio(path)
     audio.preload = "auto"
     audio.volume = 0.4

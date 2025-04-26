@@ -23,30 +23,25 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
 import { addGiftToCart } from "@/lib/redux/slices/cartSlice"
 import { clearGift } from "@/lib/redux/slices/giftSlice"
 import { useRouter } from "next/navigation"
-import { toast, ToastOptions } from "react-toastify"
+import { toast } from "react-toastify"
 
 export default function GiftSummary() {
   const { selectedBox, selectedProducts, selectedDecorations, selectedBag, personalMessage } = useGift()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [orderComplete, setOrderComplete] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const dispatch = useAppDispatch()
-  const isSubmitting = useAppSelector((state) => state.cart.isLoading)
   const cartError = useAppSelector((state) => state.cart.error)
 
   const router = useRouter()
 
-  interface Item {
-    quantity?: number;
-    price: number;
-  }
-  
-    const calculateSubtotal = (items: Item[]) => {
-      return items.reduce((total, item) => {
-        const quantity = item.quantity || 1
-        return total + item.price * quantity
-      }, 0)
+  const calculateSubtotal = (items: { quantity?: number; price: number }[]) => {
+    return items.reduce((total, item) => {
+      const quantity = item.quantity || 1
+      return total + item.price * quantity
+    }, 0)
   }
 
   const boxSubtotal = selectedBox ? selectedBox.price : 0
@@ -64,53 +59,35 @@ export default function GiftSummary() {
     }
 
     try {
+      setIsSubmitting(true)
       setError(null)
 
-      // Usar el thunk de Redux para agregar al carrito
-      const resultAction = await dispatch(
-        addGiftToCart({
-          selectedBox,
-          selectedProducts,
-          selectedDecorations,
-          selectedBag,
-          personalMessage: personalMessage || undefined,
-        }),
-      )
+      // Add to cart with full GiftProduct structure
+      await dispatch(addGiftToCart({
+        selectedBox,
+        selectedProducts,
+        selectedDecorations,
+        selectedBag,
+        personalMessage
+      }))
 
-      if (addGiftToCart.fulfilled.match(resultAction)) {
-        // Improved toast configuration to prevent errors
-        const toastOptions: ToastOptions = {
-          position: "top-center",
-          autoClose: 1500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          closeButton: true,
-          onClose: () => {
-            // No-op function to ensure close handler exists
-          }
-        };
-        
-        // Show success message with safer configuration
-        toast.success("تمت إضافة الهدية إلى السلة بنجاح!", toastOptions);
+      toast.success("تمت إضافة الهدية إلى السلة بنجاح!", {
+        position: "top-center",
+        autoClose: 1500
+      })
 
-        setOrderComplete(true)
+      // Clear gift state
+      dispatch(clearGift())
 
-        // Limpiar la regalo después de agregarها al carrito
-        setTimeout(() => {
-          dispatch(clearGift())
-          // التوجيه إلى صفحة السلة الحالية
-          router.push("/cart") // تأكد من تغيير هذا إلى المسار الصحيح لصفحة السلة الحالية
-        }, 1500)
-      } else if (addGiftToCart.rejected.match(resultAction)) {
-        setError((resultAction.payload as string) || "حدث خطأ أثناء إضافة الهدية إلى السلة")
-      }
+      setOrderComplete(true)
+      setTimeout(() => {
+        router.push("/cart")
+      }, 1500)
     } catch (err) {
       console.error("Error adding gift to cart:", err)
       setError("حدث خطأ أثناء إضافة الهدية إلى السلة. يرجى المحاولة مرة أخرى.")
     } finally {
+      setIsSubmitting(false)
       setShowConfirmDialog(false)
     }
   }
@@ -138,12 +115,12 @@ export default function GiftSummary() {
     <div>
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-900 mb-2">ملخص الهدية</h2>
-        <p className="text-gray-600">مراجعة اختياراتك وإضافة الهدية إلى السلة</p>
+        <p className="text-gray-600">مراجعة محتويات هديتك المميزة قبل إضافتها للسلة</p>
       </div>
 
-      {/* Add Personal Message Component */}
+      {/* Personal Message Component */}
       <PersonalMessage />
-
+      
       <div className="space-y-6">
         {/* Box Summary */}
         {selectedBox && (

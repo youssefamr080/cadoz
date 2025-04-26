@@ -96,4 +96,30 @@ export const swiperStyles = `
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Cart items swiper styles */
+.cart-items-swiper {
+  padding: 4px 2px 20px 2px;
+  margin: -4px -2px;
+}
+
+.cart-items-swiper .swiper-slide {
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.cart-items-swiper .swiper-slide:hover {
+  transform: translateY(-2px);
+}
+
+@media (max-width: 640px) {
+  .cart-items-swiper {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .cart-items-swiper .swiper-slide {
+    width: 160px !important;
+  }
+}
 `

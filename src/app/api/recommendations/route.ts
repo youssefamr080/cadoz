@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "../../../lib/mongodb"
-import type { Document, UpdateFilter, Db } from "mongodb"
+import type { Document, Db } from "mongodb"
 
 // Export the type for MongoDB update operations
 export type CustomerRecommendationUpdateQuery = {

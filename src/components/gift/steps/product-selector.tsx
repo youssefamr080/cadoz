@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import type { Product } from "@/types/database"
 
 import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -10,10 +11,13 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Heart, Search, Plus, Minus, AlertTriangle } from "lucide-react"
+import { Heart, Search, Plus, Minus, AlertTriangle, ShoppingCart } from "lucide-react"
 import { getAllProducts, filterProducts, searchProducts } from "@/lib/actions/product-actions"
-import type { Product } from "@/types/database"
 import Image from "next/image"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { FreeMode, Navigation } from "swiper/modules"
+import "swiper/css"
+import "swiper/css/free-mode"
 
 const categories = ["الكل", "شوكولاتة", "حلويات", "شيبسي"]
 
@@ -43,7 +47,69 @@ const occasionOptions = [
 ]
 
 export default function ProductSelector() {
-  const { selectedProducts, addProduct, updateProductQuantity, saveForLater } = useGift()
+  const { 
+    selectedProducts, 
+    addProduct, 
+    updateProductQuantity, 
+    cartItems, 
+    addCartItemToGift, 
+    saveForLater 
+  } = useGift()
+  
+  // Render cart items section at the start of the component
+  const renderCartItems = () => {
+    return (
+      <div className="mb-6">
+        {cartItems.length > 0 ? (
+          <>
+            <h3 className="font-medium text-lg mb-4 text-purple-800 flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5" />
+              منتجات من السلة
+            </h3>
+            <Swiper
+              modules={[FreeMode, Navigation]}
+              spaceBetween={12}
+              slidesPerView="auto"
+              freeMode={true}
+              className="cart-items-swiper"
+              dir="rtl"
+            >
+              {cartItems.map((item) => (
+                <SwiperSlide key={item.id} className="!w-[160px] sm:!w-[180px]">
+                  <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-purple-100 h-full">
+                    <div className="relative aspect-square bg-gray-50 rounded-t-lg">
+                      <Image
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.name}
+                        fill
+                        className="object-contain p-2"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <h4 className="font-medium text-sm mb-2 line-clamp-2 min-h-[40px]">{item.name}</h4>
+                      <div className="flex items-center justify-between">
+                        <span className="text-purple-600 font-medium text-sm">{item.price} ج.م</span>
+                        <button
+                          onClick={() => addCartItemToGift(item)}
+                          className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs hover:bg-purple-200 transition-colors"
+                        >
+                          إضافة
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </>
+        ) : (
+          <div className="bg-purple-50 rounded-lg p-4 text-center">
+            <p className="text-purple-600 text-sm">لا توجد منتجات في السلة حالياً</p>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("الكل")
@@ -238,10 +304,11 @@ export default function ProductSelector() {
   }
 
   return (
-    <div>
+    <div className="space-y-6">
+      {renderCartItems()}
       <div className="mb-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">اختر الشوكولاتة والحلويات</h2>
-        <p className="text-gray-600">أضف الشوكولاتة والحلويات المفضلة لديك إلى هديتك</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">اختر محتويات الهدية</h2>
+        <p className="text-gray-600">أضف المنتجات التي تريد وضعها في صندوق الهدية</p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">

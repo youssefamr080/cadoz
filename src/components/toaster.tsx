@@ -31,7 +31,7 @@ const ToastItem = memo(({
   id: string
   title: string
   description?: string
-  variant?: string
+  variant?: "default" | "success" | "error" | "warning" | "info"
   visible: boolean
 }) => {
   const prefersReducedMotion = useReducedMotion()
@@ -50,7 +50,7 @@ const ToastItem = memo(({
       }}
     >
       <Toast
-        variant={variant as any}
+        variant={variant}
         className={cn(
           "toast-base",
           variant !== "default" && `toast-${variant}`

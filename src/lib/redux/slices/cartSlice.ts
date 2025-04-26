@@ -18,7 +18,7 @@ const initialState: CartState = {
   error: null,
 }
 
-// Thunk لإضافة هدية إلى السلة الحالية
+// Thunk to add a gift to the current cart
 export const addGiftToCart = createAsyncThunk(
   "cart/addGiftToCart",
   async (
@@ -38,12 +38,12 @@ export const addGiftToCart = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      // التحقق من وجود منتج واحد على الأقل
+      // Validate at least one product
       if (selectedProducts.length === 0) {
         return rejectWithValue("يرجى إضافة منتج واحد على الأقل للهدية")
       }
 
-      // إنشاء عنصر السلة
+      // Create cart item
       const cartItem = await createGiftCartItem(
         selectedBox,
         selectedProducts,
@@ -52,11 +52,17 @@ export const addGiftToCart = createAsyncThunk(
         personalMessage,
       )
 
-      // إضافة العنصر إلى السلة الحالية
+      // Get existing cart and add new item
       const existingCart = localStorage.getItem("cadoz-cart")
       const cart = existingCart ? JSON.parse(existingCart) : []
       cart.push(cartItem)
+
+      // Update localStorage immediately
       localStorage.setItem("cadoz-cart", JSON.stringify(cart))
+
+      // Dispatch a custom event to notify cart context
+      const cartUpdateEvent = new CustomEvent("cartUpdated", { detail: cart })
+      window.dispatchEvent(cartUpdateEvent)
 
       return cartItem
     } catch (error) {
@@ -77,6 +83,7 @@ const cartSlice = createSlice({
       })
       .addCase(addGiftToCart.fulfilled, (state) => {
         state.isLoading = false
+        state.error = null
       })
       .addCase(addGiftToCart.rejected, (state, action) => {
         state.isLoading = false

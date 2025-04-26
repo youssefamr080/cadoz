@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
 import {
   setSelectedBox,
@@ -18,12 +18,13 @@ import {
   clearSavedItemsThunk,
   loadSavedItemsFromLocalStorage,
 } from "@/lib/redux/slices/giftSlice"
-import type { Box, GiftProduct, Decoration, Bag, SavedItem, PersonalMessage } from "@/types/database"
+import type { Box, GiftProduct, Decoration, Bag, SavedItem, PersonalMessage, CartItem } from "@/types/database"
 import type { Inspiration } from "@/types/inspiration"
 import { getBoxesByIds } from "@/lib/actions/box-actions"
 import { getBagsByIds } from "@/lib/actions/bag-actions"
 import { getGiftProductsByIds } from "@/lib/actions/product-actions"
 import { getDecorationsByIds } from "@/lib/actions/decoration-actions"
+import { useCart } from "./CartContext"
 
 interface GiftContextType {
   selectedBox: Box | null
@@ -32,6 +33,7 @@ interface GiftContextType {
   selectedBag: Bag | null
   savedItems: SavedItem[]
   personalMessage: PersonalMessage | null
+  cartItems: CartItem[] // إضافة منتجات السلة
   setSelectedBox: (box: Box) => void
   addProduct: (product: GiftProduct) => void
   removeProduct: (productId: string) => void
@@ -45,12 +47,16 @@ interface GiftContextType {
   clearGift: () => void
   setPersonalMessage: (message: PersonalMessage) => void
   loadInspiration: (gift: Inspiration) => void
+  addCartItemToGift: (item: CartItem) => void // إضافة منتج من السلة إلى الهدية
+  removeCartItem: (itemId: number) => void // إزالة منتج من قائمة منتجات السلة
+  clearCartItemsFromCart: (itemIds: number[]) => void // إزالة منتجات السلة من السلة
 }
 
 const GiftContext = createContext<GiftContextType | undefined>(undefined)
 
 export function GiftProvider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()
+  const { removeFromCart } = useCart()
 
   // Seleccionar el estado desde Redux
   const selectedBox = useAppSelector((state) => state.gift.selectedBox)
@@ -59,6 +65,7 @@ export function GiftProvider({ children }: { children: ReactNode }) {
   const selectedBag = useAppSelector((state) => state.gift.selectedBag)
   const savedItems = useAppSelector((state) => state.gift.savedItems)
   const personalMessage = useAppSelector((state) => state.gift.personalMessage)
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
 
   // Cargar los elementos guardados al montar el componente
   useEffect(() => {
@@ -73,6 +80,12 @@ export function GiftProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error("Error parsing saved items from localStorage:", error)
       }
+    }
+
+    const savedCartItems = localStorage.getItem('cart-to-gift-items')
+    if (savedCartItems) {
+      setCartItems(JSON.parse(savedCartItems))
+      localStorage.removeItem('cart-to-gift-items')
     }
   }, [dispatch])
 
@@ -149,6 +162,32 @@ export function GiftProvider({ children }: { children: ReactNode }) {
     if (bag) dispatch(setSelectedBag(bag))
   }
 
+  const handleAddCartItemToGift = (item: CartItem) => {
+    handleAddProduct({
+      id: item.id.toString(),
+      name: item.name,
+      image: item.image,
+      price: item.price,
+      quantity: item.quantity,
+      category: "cart-item",
+      stock: item.stock || 999,
+      popular: false
+    })
+    setCartItems(prev => prev.filter(i => i.id !== item.id))
+    // Remove from cart after adding to gift
+    removeFromCart(item.id)
+  }
+
+  const handleRemoveCartItem = (itemId: number) => {
+    setCartItems(prev => prev.filter(item => item.id !== itemId))
+  }
+
+  const handleClearCartItemsFromCart = (itemIds: number[]) => {
+    itemIds.forEach(id => {
+      removeFromCart(id)
+    })
+  }
+
   return (
     <GiftContext.Provider
       value={{
@@ -158,6 +197,7 @@ export function GiftProvider({ children }: { children: ReactNode }) {
         selectedBag,
         savedItems,
         personalMessage,
+        cartItems,
         setSelectedBox: handleSetSelectedBox,
         addProduct: handleAddProduct,
         removeProduct: handleRemoveProduct,
@@ -171,6 +211,9 @@ export function GiftProvider({ children }: { children: ReactNode }) {
         clearGift: handleClearGift,
         setPersonalMessage: handleSetPersonalMessage,
         loadInspiration: handleLoadInspiration,
+        addCartItemToGift: handleAddCartItemToGift,
+        removeCartItem: handleRemoveCartItem,
+        clearCartItemsFromCart: handleClearCartItemsFromCart,
       }}
     >
       {children}

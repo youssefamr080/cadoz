@@ -36,11 +36,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
                   theme="light"
                   limit={3}
                   style={{
-                    "--toastify-icon-color-success": "var(--green-500)",
-                    "--toastify-icon-color-error": "var(--red-500)",
-                    "--toastify-icon-color-warning": "var(--yellow-500)",
-                    "--toastify-icon-color-info": "var(--blue-500)",
-                  } as any}
+                    ["--toastify-icon-color-success" as string]: "var(--green-500)",
+                    ["--toastify-icon-color-error" as string]: "var(--red-500)",
+                    ["--toastify-icon-color-warning" as string]: "var(--yellow-500)",
+                    ["--toastify-icon-color-info" as string]: "var(--blue-500)",
+                  }}
                 />
               </GiftProvider>
             </WishlistProvider>

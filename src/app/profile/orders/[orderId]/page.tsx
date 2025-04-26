@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../../../../context/AuthContext"
-import { ArrowLeft, Package, Truck, CheckCircle, Clock, XCircle, MapPin, Phone, FileText } from "lucide-react"
+import { ArrowLeft, Package, Truck, CheckCircle, Clock, XCircle, MapPin, Phone, FileText, Gift } from "lucide-react"
 import { Button } from "../../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
 import { format } from "date-fns"
@@ -19,6 +19,24 @@ interface OrderItem {
   price: number
   quantity: number
   variant?: string
+  giftData?: {
+    box?: {
+      name: string
+      price: number
+    }
+    wrap?: {
+      name: string
+      price: number
+    }
+    recipient?: string
+    message?: string
+    items?: {
+      name: string
+      image: string
+      price: number
+      quantity: number
+    }[]
+  }
 }
 
 interface OrderShipping {
@@ -266,13 +284,101 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
                         objectFit="cover"
                         quality={85}
                       />
+                      {item.giftData && (
+                        <div className="absolute top-0 right-0 bg-purple-500 text-white text-xs px-1.5 py-0.5 rounded-bl-lg">
+                          هدية
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium">{item.name}</h4>
                       {item.variant && <p className="text-sm text-gray-500">{item.variant}</p>}
-                      <div className="flex items-center justify-between mt-1">
-                        <span className="text-sm">الكمية: {item.quantity}</span>
-                        <span className="font-bold text-purple-600">{item.price.toFixed(2)} ج.م</span>
+                      
+                      {item.giftData && (
+                        <div className="mt-2 space-y-3">
+                          {/* Gift Products */}
+                          {item.giftData.items && item.giftData.items.length > 0 && (
+                            <div className="bg-gray-50 p-3 rounded-lg space-y-2">
+                              <div className="text-sm font-medium text-purple-700">محتويات الهدية:</div>
+                              {item.giftData.items.map((giftItem, idx) => (
+                                <div key={idx} className="flex items-center justify-between text-sm">
+                                  <div className="flex items-center gap-2">
+                                    <div className="relative w-8 h-8 rounded overflow-hidden">
+                                      <Image
+                                        src={giftItem.image || "/placeholder.svg"}
+                                        alt={giftItem.name}
+                                        layout="fill"
+                                        objectFit="cover"
+                                      />
+                                    </div>
+                                    <span>{giftItem.name}</span>
+                                    <span className="text-gray-500">×{giftItem.quantity}</span>
+                                  </div>
+                                  <span className="font-medium">{giftItem.price.toFixed(2)} ج.م</span>
+                                </div>
+                              ))}
+                              <div className="pt-2 border-t text-sm flex justify-between">
+                                <span>إجمالي المحتويات:</span>
+                                <span className="font-bold text-purple-600">
+                                  {item.giftData.items.reduce((sum, i) => sum + (i.price * i.quantity), 0).toFixed(2)} ج.م
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Gift Box */}
+                          {item.giftData.box && (
+                            <div className="flex items-center justify-between bg-amber-50 p-2 rounded-lg">
+                              <div className="flex items-center gap-2 text-amber-700">
+                                <Package className="w-4 h-4" />
+                                <span className="text-sm">صندوق: {item.giftData.box.name}</span>
+                              </div>
+                              <span className="text-sm font-medium">{item.giftData.box.price.toFixed(2)} ج.م</span>
+                            </div>
+                          )}
+
+                          {/* Gift Wrap */}
+                          {item.giftData.wrap && (
+                            <div className="flex items-center justify-between bg-pink-50 p-2 rounded-lg">
+                              <div className="flex items-center gap-2 text-pink-700">
+                                <Gift className="w-4 h-4" />
+                                <span className="text-sm">تغليف: {item.giftData.wrap.name}</span>
+                              </div>
+                              <span className="text-sm font-medium">{item.giftData.wrap.price.toFixed(2)} ج.م</span>
+                            </div>
+                          )}
+
+                          {/* Recipient & Message */}
+                          {(item.giftData.recipient || item.giftData.message) && (
+                            <div className="bg-purple-50 p-3 rounded-lg space-y-2 border border-purple-100">
+                              {item.giftData.recipient && (
+                                <div className="text-sm">
+                                  <span className="font-medium text-purple-700">المستلم:</span>
+                                  <span className="text-gray-700"> {item.giftData.recipient}</span>
+                                </div>
+                              )}
+                              {item.giftData.message && (
+                                <div className="text-sm">
+                                  <span className="font-medium text-purple-700">الرسالة:</span>
+                                  <p className="mt-1 text-gray-600 italic bg-white p-2 rounded-md border border-purple-100">
+                                    &quot;{item.giftData.message}&quot;
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Gift Total */}
+                          <div className="flex justify-between items-center pt-2 border-t">
+                            <span className="text-sm font-medium text-gray-600">إجمالي الهدية:</span>
+                            <span className="font-bold text-purple-600 text-lg">{item.price.toFixed(2)} ج.م</span>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center justify-between mt-3">
+                        <span className="text-sm text-gray-600">الكمية: {item.quantity}</span>
+                        <span className="font-bold text-gray-900">{(item.price * item.quantity).toFixed(2)} ج.م</span>
                       </div>
                     </div>
                   </div>

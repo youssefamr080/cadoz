@@ -70,9 +70,9 @@ export async function createGiftCartItem(
 
   // إنشاء عنصر السلة متوافق مع نظام السلة الحالي
   return {
-    id: Date.now(), // يمكن تغيير هذا حسب متطلبات نظام السلة الحالي
-    name: "هدية مميزة",
-    image: "/placeholder.svg?height=300&width=300", // سيتم استبدالها بصورة حقيقية في الواجهة
+    id: Date.now(), // Use timestamp as numeric ID
+    name: "هدية مخصصة",
+    image: selectedBox?.image || "/images/box.png",
     price: totalPrice,
     quantity: 1,
     category: "هدايا",

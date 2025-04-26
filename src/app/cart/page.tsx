@@ -293,6 +293,17 @@ const CartPage = () => {
     sendInvoiceWhatsApp()
   }
 
+  const handleGiftSetup = () => {
+    const selectedItems = cart.filter(item => !item.giftData); // فقط المنتجات غير المضافة للهدايا
+    if (selectedItems.length > 0) {
+      // حفظ المنتجات المحددة في localStorage لاستخدامها في صفحة الهدية
+      localStorage.setItem('cart-to-gift-items', JSON.stringify(selectedItems));
+      router.push('/gift');
+    } else {
+      toast.info('يرجى إضافة منتجات للسلة أولاً');
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 rtl">
      
@@ -329,7 +340,7 @@ const CartPage = () => {
                       <p className="text-sm text-amber-700">أضف تغليف هدايا فاخر وبطاقة إهداء شخصية</p>
                     </div>
                     <button
-                      onClick={() => router.push("/gift")}
+                      onClick={handleGiftSetup}
                       className="mr-auto bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-md transition-shadow"
                     >
                       تجهيز كهدية
@@ -461,7 +472,7 @@ const CartPage = () => {
                     {/* أزرار العمليات */}
                     <div className="flex flex-col gap-3 pt-4">
                       <button
-                        onClick={() => router.push("/gift")}
+                        onClick={handleGiftSetup}
                         className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-3 rounded-lg hover:shadow-lg transition-all flex items-center justify-center gap-2"
                       >
                         <FiGift className="text-xl" />

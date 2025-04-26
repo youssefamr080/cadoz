@@ -291,6 +291,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [])
 
+  // Listen for cart updates from gift additions
+  useEffect(() => {
+    const handleCartUpdate = (event: CustomEvent<CartItem[]>) => {
+      dispatch({ type: "INITIALIZE_CART", payload: { items: event.detail } })
+    }
+
+    window.addEventListener("cartUpdated", handleCartUpdate as EventListener)
+    
+    return () => {
+      window.removeEventListener("cartUpdated", handleCartUpdate as EventListener)
+    }
+  }, [])
+
   // ========== حفظ البيانات في التخزين المحلي ==========
   useEffect(() => {
     if (cart.length > 0) {
@@ -433,21 +446,67 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return false
     }
 
+    // التحقق من تسجيل الدخول
+    const userData = localStorage.getItem("userData")
+    if (!userData) {
+      toast.error("يجب تسجيل الدخول لاستخدام كود الخصم")
+      setPromoCodeState((prev) => ({
+        ...prev,
+        isValid: false,
+        errorMessage: "يجب تسجيل الدخول",
+      }))
+      return false
+    }
+
+    const user = JSON.parse(userData)
+    
     return new Promise((resolve) => {
-      setTimeout(() => {
+      setTimeout(async () => {
         const normalizedCode = promoCode.code.toUpperCase()
         const promoDetails = VALID_PROMO_CODES[normalizedCode as keyof typeof VALID_PROMO_CODES]
 
         if (promoDetails) {
-          setPromoCodeState((prev) => ({
-            ...prev,
-            code: normalizedCode,
-            isValid: true,
-            discountPercentage: promoDetails.discountPercentage,
-            errorMessage: undefined,
-          }))
-          toast.success(`تم تطبيق كود الخصم: ${promoDetails.message}`)
-          resolve(true)
+          try {
+            // التحقق من صلاحية استخدام الكود
+            const response = await fetch("/api/promo-codes/validate", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                code: normalizedCode,
+                userId: user.id,
+              }),
+            })
+
+            const data = await response.json()
+
+            if (!data.success) {
+              setPromoCodeState((prev) => ({
+                ...prev,
+                isValid: false,
+                discountPercentage: 0,
+                errorMessage: data.message,
+              }))
+              toast.error(data.message)
+              resolve(false)
+              return
+            }
+
+            setPromoCodeState((prev) => ({
+              ...prev,
+              code: normalizedCode,
+              isValid: true,
+              discountPercentage: promoDetails.discountPercentage,
+              errorMessage: undefined,
+            }))
+            toast.success(`تم تطبيق كود الخصم: ${promoDetails.message}`)
+            resolve(true)
+          } catch (error) {
+            console.error("Error validating promo code:", error)
+            toast.error("حدث خطأ أثناء التحقق من كود الخصم")
+            resolve(false)
+          }
         } else {
           setPromoCodeState((prev) => ({
             ...prev,
