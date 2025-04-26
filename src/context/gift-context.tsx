@@ -56,7 +56,7 @@ const GiftContext = createContext<GiftContextType | undefined>(undefined)
 
 export function GiftProvider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()
-  const { removeFromCart } = useCart()
+  const { cart, removeFromCart } = useCart()
 
   // Seleccionar el estado desde Redux
   const selectedBox = useAppSelector((state) => state.gift.selectedBox)
@@ -66,6 +66,20 @@ export function GiftProvider({ children }: { children: ReactNode }) {
   const savedItems = useAppSelector((state) => state.gift.savedItems)
   const personalMessage = useAppSelector((state) => state.gift.personalMessage)
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+
+  // Load cart items that aren't already gifts
+  useEffect(() => {
+    const nonGiftCartItems = cart.filter(item => !item.giftData).map(item => ({
+      ...item,
+      giftData: {
+        items: [],
+        box: null,
+        wrap: null,
+        totalPrice: item.price
+      }
+    }) as CartItem)
+    setCartItems(nonGiftCartItems)
+  }, [cart])
 
   // Cargar los elementos guardados al montar el componente
   useEffect(() => {

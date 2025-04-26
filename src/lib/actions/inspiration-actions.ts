@@ -15,7 +15,8 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
     image: doc.image,
     rating: doc.rating,
     reviews: doc.reviews,
-    box: doc.box.id,
+    // Pass the MongoDB _id of the box instead of the nested id field
+    box: typeof doc.box === 'string' ? doc.box : doc.box.id.toString(),
     products: doc.products.map((p: { id: string } | string) => typeof p === 'string' ? p : p.id),
     decorations: doc.decorations.map((d: { id: string } | string) => typeof d === 'string' ? d : d.id),
     bag: typeof doc.bag === 'string' ? doc.bag : doc.bag.id,
@@ -29,7 +30,8 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
       createdAt: typeof c.createdAt === "string" ? c.createdAt : (c.createdAt instanceof Date ? c.createdAt.toISOString() : "")
     })),
     likedBy: doc.likedBy ?? [],
-    dislikedBy: doc.dislikedBy ?? []
+    dislikedBy: doc.dislikedBy ?? [],
+    ratings: doc.ratings ?? []
   }
 }
 
