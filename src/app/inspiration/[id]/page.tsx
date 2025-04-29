@@ -8,6 +8,7 @@ import { getBagById } from "@/lib/actions/bag-actions";
 import { getDecorationsByIds } from "@/lib/actions/decoration-actions";
 import type { Inspiration } from "@/types/inspiration";
 import InspirationClient from "./InspirationClient";
+import UseInspirationButton from "./UseInspirationButton";
 import { BoxIcon, GiftIcon, SparklesIcon } from "lucide-react"; // Example icons
 import { Metadata } from 'next'
 
@@ -125,6 +126,7 @@ export default async function InspirationPage({ params }: Props) {
                 sizes="(max-width: 1024px) 90vw, 33vw"
               />
             </div>
+            <UseInspirationButton inspiration={inspiration} />
             {/* Interactive Section */}
             <div className="mt-6 bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
               <h3 className="text-lg font-semibold mb-3 text-center text-gray-700">

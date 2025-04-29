@@ -5,12 +5,17 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useGift } from "@/context/gift-context"
 import { Button } from "@/components/ui/button"
 import { Star, Copy, ChevronLeft, ChevronRight, Eye, ChevronDown } from "lucide-react"
-import { getPopularInspirations } from "@/lib/actions/inspiration-actions"
 import type { Inspiration } from "@/types/inspiration"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
-export default function InspirationGallery() {
+interface CategoryInspirationGalleryProps {
+  category: string
+}
+
+export default function CategoryInspirationGallery({ category }: CategoryInspirationGalleryProps) {
+  const router = useRouter();
   const { loadInspiration } = useGift()
   const [currentIndex, setCurrentIndex] = useState(0)
   const swiperRef = useRef<HTMLDivElement>(null)
@@ -48,24 +53,37 @@ export default function InspirationGallery() {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  // Fetch inspiration gifts
+  // Fetch inspiration gifts by category using API endpoint
   useEffect(() => {
     const fetchInspirations = async () => {
       try {
         setIsLoading(true)
-        const data = await getPopularInspirations()
-        setInspirationGifts(data)
-        setError(null)
+        const response = await fetch(`/api/gift/inspirations?category=${category}`)
+        const result = await response.json()
+        
+        console.log('API response:', result)
+        
+        if (result.success) {
+          console.log('Inspirations data:', result.data)
+          setInspirationGifts(result.data)
+          setError(null)
+        } else {
+          throw new Error(result.error || 'حدث خطأ أثناء جلب البيانات')
+        }
       } catch (err) {
-        console.error("Error loading inspirations:", err)
-        setError("حدث خطأ أثناء تحميل هدايا الإلهام. يرجى المحاولة مرة أخرى.")
+        console.error(`Error loading inspirations for category ${category}:`, err)
+        setError(`حدث خطأ أثناء تحميل هدايا الإلهام للفئة ${category}. يرجى المحاولة مرة أخرى.`)
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchInspirations()
-  }, [])
+  }, [category])
+
+  const handleUseInspiration = (gift: Inspiration) => {
+    loadInspiration(gift)
+  }
 
   const nextSlide = () => {
     if (currentIndex < inspirationGifts.length - visibleItems) {
@@ -97,13 +115,23 @@ export default function InspirationGallery() {
 
   const handleTouchEnd = () => {
     setIsSwiping(false)
-    if (touchStart - touchEnd > 50) {  // Reduced threshold for better responsiveness
+    if (touchStart - touchEnd > 50) { // Reduced threshold for better responsiveness
       // Swipe left
       nextSlide()
-    } else if (touchStart - touchEnd < -50) {  // Reduced threshold for better responsiveness
+    } else if (touchStart - touchEnd < -50) { // Reduced threshold for better responsiveness
       // Swipe right
       prevSlide()
     }
+  }
+
+  // Get category name in Arabic
+  const getCategoryArabicName = (categoryName: string): string => {
+    const names: Record<string, string> = {
+      men: "رجالي",
+      women: "نسائي",
+      kids: "أطفال",
+    }
+    return names[categoryName as keyof typeof names] || categoryName
   }
 
   // Calculate translateX with smoother transition
@@ -114,7 +142,16 @@ export default function InspirationGallery() {
 
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">استلهم من هدايا أخرى</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold text-gray-900">استلهم من هدايا {getCategoryArabicName(category)}</h2>
+        <Link 
+          href="/inspirations" 
+          className="flex items-center text-purple-600 hover:text-purple-800 transition-colors text-sm font-medium"
+        >
+          عرض كل الهدايا الجاهزة
+          <ChevronLeft className="h-4 w-4 mr-1" />
+        </Link>
+      </div>
       <p className="text-gray-600 mb-6">اختر من هذه الهدايا المخصصة الشائعة أو استخدمها كنقطة بداية</p>
 
       {isLoading ? (
@@ -123,6 +160,11 @@ export default function InspirationGallery() {
         </div>
       ) : error ? (
         <div className="text-center p-8 text-red-500">{error}</div>
+      ) : inspirationGifts.length === 0 ? (
+        <div className="text-center p-8 text-gray-500 flex flex-col items-center">
+          <p className="mb-2">لا توجد هدايا إلهام متاحة لهذه الفئة حالياً</p>
+          <p className="text-sm text-purple-600">يمكنك زيارة /api/gift/inspirations/seed لإضافة بيانات تجريبية</p>
+        </div>
       ) : (
         <div className="relative">
           {/* Navigation arrows - made larger and more visible for mobile */}
@@ -230,7 +272,10 @@ export default function InspirationGallery() {
                         <Button
                           size="sm"
                           className="text-xs bg-purple-600 hover:bg-purple-700 flex-1"
-                          onClick={() => loadInspiration(gift)}
+                          onClick={() => {
+                            handleUseInspiration(gift);
+                            router.push(`/gift`);
+                          }}
                         >
                           <Copy className="w-3 h-3 mr-1" />
                           استخدام

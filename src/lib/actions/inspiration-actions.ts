@@ -31,7 +31,8 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
     })),
     likedBy: doc.likedBy ?? [],
     dislikedBy: doc.dislikedBy ?? [],
-    ratings: doc.ratings ?? []
+    ratings: doc.ratings ?? [],
+    category: doc.category // Include the category field
   }
 }
 
@@ -148,5 +149,18 @@ export async function getPopularInspirations(limit = 4): Promise<Inspiration[]> 
   } catch (error) {
     console.error("Error fetching popular inspirations:", error)
     throw new Error("فشل في جلب هدايا الإلهام الشائعة")
+  }
+}
+
+// جلب هدايا الإلهام حسب الفئة
+export async function getInspirationsByCategory(category: string, limit = 4): Promise<Inspiration[]> {
+  try {
+    const collection = await getInspirationsCollection()
+    // استخدام خاصية category الجديدة للفلترة
+    const inspirations = await collection.find({ "category": category }).sort({ rating: -1, reviews: -1 }).limit(limit).toArray()
+    return inspirations.map(mapInspirationDocument)
+  } catch (error) {
+    console.error(`Error fetching inspirations for category ${category}:`, error)
+    throw new Error(`فشل في جلب هدايا الإلهام للفئة ${category}`)
   }
 }

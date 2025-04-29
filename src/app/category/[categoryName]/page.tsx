@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import CategoryBanner from "../../../components/category/CategoryBanner"
 import SubCategorySwiper from "../../../components/category/SubCategorySwiper"
 import SubCategoryProducts from "../../../components/category/SubCategoryProducts"
-import FeaturedGiftsSwiper from "../../../components/category/FeaturedGiftsSwiper"
+import CategoryInspirationGallery from "../../../components/category/CategoryInspirationGallery"
 import { FilterIcon, SlidersHorizontal } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -120,23 +120,13 @@ const CategoryPage = () => {
           <CategoryBanner category={categoryName} />
         </div>
 
-        {/* سويبر الهدايا المميزة */}
+        {/* سويبر هدايا الإلهام */}
         <div className="py-6 bg-white shadow-sm">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800">هدايا جاهزة - {getCategoryArabicName(categoryName)}</h2>
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-purple-50 text-purple-700 text-sm px-3 py-1 rounded-full font-medium"
-              >
-                هدايا مميزة
-              </motion.div>
-            </div>
-            <FeaturedGiftsSwiper category={categoryName} />
+            <CategoryInspirationGallery category={categoryName} />
           </div>
         </div>
+
 
         {/* سويبر الفئات الفرعية */}
         <div className="sticky top-16 z-20 bg-white shadow-sm border-b border-gray-100">

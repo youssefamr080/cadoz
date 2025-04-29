@@ -111,6 +111,8 @@ export interface InspirationDocument extends MongoDocument {
     color: string
     stock: number
   }
+  category?: string // Added category field for filtering inspirations by category (men, women, kids)
+  updatedAt?: Date // Added updatedAt field for tracking when the inspiration was last updated
 }
 
 // نوع CustomGift

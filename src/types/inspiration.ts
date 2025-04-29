@@ -24,4 +24,5 @@ export interface Inspiration {
   likedBy?: string[];
   dislikedBy?: string[];
   ratings?: Array<{ userId: string; rating: number }>;
+  category?: string; // Added category field
 }

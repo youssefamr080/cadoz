@@ -1,16 +1,16 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ThumbsUp, ThumbsDown, MessageCircle, Share2, Star } from "lucide-react"; // Added Star for clarity
-import InspirationComments from "@/components/gift/InspirationComments"; // Assuming this exists
-import InspirationReactions from "@/components/gift/InspirationReactions"; // Assuming this exists
-import InspirationStars from "@/components/gift/InspirationStars";       // Assuming this exists
+import { ThumbsUp, ThumbsDown, MessageCircle, Share2, Star } from "lucide-react"; 
+import InspirationComments from "@/components/gift/InspirationComments"; 
+import InspirationReactions from "@/components/gift/InspirationReactions"; 
+import InspirationStars from "@/components/gift/InspirationStars";       
 import useAuthStore from "@/lib/stores/useAuthStore";
 import type { Inspiration } from "@/types/inspiration";
-import { Badge } from "@/components/ui/badge"; // Shadcn UI component
-import { Card } from "@/components/ui/card";   // Shadcn UI component
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Shadcn UI component
-import { Button } from "@/components/ui/button"; // Using Button for Share for consistency
+import { Badge } from "@/components/ui/badge"; 
+import { Card } from "@/components/ui/card";   
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; 
+import { Button } from "@/components/ui/button"; 
 
 interface Props {
 	inspiration: Inspiration;
