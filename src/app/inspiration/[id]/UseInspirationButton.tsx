@@ -22,8 +22,8 @@ export default function UseInspirationButton({ inspiration }: UseInspirationButt
   return (
     <div className="mt-4">
       <Button
-        size="sm"
-        className="text-xs bg-purple-600 hover:bg-purple-700 w-full"
+        size="lg"
+        className="text-sm bg-purple-600 hover:bg-purple-700 w-full"
         onClick={handleUse}
       >
         <Copy className="w-3 h-3 mr-1" />

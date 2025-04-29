@@ -18,7 +18,9 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const inspiration = await getInspirationById(params.id)
+  // Await params before accessing its properties
+  const { id } = await params;
+  const inspiration = await getInspirationById(id)
   
   return {
     title: inspiration ? `${inspiration.name} | Cadoz Inspirations` : 'Inspiration | Cadoz',
@@ -78,7 +80,9 @@ const ItemCard = ({
 };
 
 export default async function InspirationPage({ params }: Props) {
-  const inspiration: Inspiration | null = await getInspirationById(params.id)
+  // Await params before accessing its properties
+  const { id } = await params;
+  const inspiration: Inspiration | null = await getInspirationById(id)
 
   if (!inspiration) {
     notFound()
