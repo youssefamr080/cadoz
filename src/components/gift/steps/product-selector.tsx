@@ -107,7 +107,7 @@ export default function ProductSelector() {
   const [selectedCategory, setSelectedCategory] = useState("الكل")
   const [sortBy, setSortBy] = useState("popular")
   const [availabilityFilter, setAvailabilityFilter] = useState(false)
-  const [flavorFilter, setFlavorFilter] = useState<string[]>([])
+  const [flavorFilter] = useState<string[]>([])
   const [occasionFilter, setOccasionFilter] = useState<string>("")
 
   const [quantities, setQuantities] = useState<Record<string, number>>({})

@@ -25,7 +25,7 @@ export default function InspirationReactions({ inspirationId, likes, dislikes, l
     setLoading("like");
     try {
       // API now handles both adding and removing likes
-      const result = await likeInspiration(inspirationId, userId);
+      await likeInspiration(inspirationId, userId);
       
       // Update parent component with the updated state from the server
       // This ensures UI is in sync with the database
@@ -44,7 +44,7 @@ export default function InspirationReactions({ inspirationId, likes, dislikes, l
     setLoading("dislike");
     try {
       // API now handles both adding and removing dislikes
-      const result = await dislikeInspiration(inspirationId, userId);
+      await dislikeInspiration(inspirationId, userId);
       
       // Update parent component with the updated state from the server
       // This ensures UI is in sync with the database
