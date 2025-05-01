@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
+import { toast } from "react-toastify"
 import {
   setSelectedBox,
   addProduct,
@@ -158,22 +159,43 @@ export function GiftProvider({ children }: { children: ReactNode }) {
   }
 
   const handleLoadInspiration = async (gift: Inspiration) => {
-    const [boxArr, bagArr, products, decorations] = await Promise.all([
-      gift.box ? getBoxesByIds([gift.box]) : [],
-      gift.bag ? getBagsByIds([gift.bag]) : [],
-      gift.products && gift.products.length > 0 ? getGiftProductsByIds(gift.products) : [],
-      gift.decorations && gift.decorations.length > 0 ? getDecorationsByIds(gift.decorations) : [],
-    ])
-    const box = boxArr && boxArr.length > 0 ? boxArr[0] : null
-    const bag = bagArr && bagArr.length > 0 ? bagArr[0] : null
-    if (box) dispatch(setSelectedBox(box))
-    if (products && products.length > 0) {
-      products.forEach((product) => dispatch(addProduct(product)))
+    try {
+      // مسح الهدية الحالية قبل تحميل الإلهام الجديد
+      dispatch(clearGift())
+      
+      // جلب جميع العناصر المرتبطة بالإلهام
+      const [boxArr, bagArr, products, decorations] = await Promise.all([
+        gift.box ? getBoxesByIds([gift.box]) : [],
+        gift.bag ? getBagsByIds([gift.bag]) : [],
+        gift.products && gift.products.length > 0 ? getGiftProductsByIds(gift.products) : [],
+        gift.decorations && gift.decorations.length > 0 ? getDecorationsByIds(gift.decorations) : [],
+      ])
+      
+      // تحديث حالة الهدية بالعناصر الجديدة
+      const box = boxArr && boxArr.length > 0 ? boxArr[0] : null
+      const bag = bagArr && bagArr.length > 0 ? bagArr[0] : null
+      
+      // إضافة العناصر بالترتيب الصحيح: الصندوق أولاً، ثم المنتجات، ثم الديكورات، ثم الكيس
+      if (box) dispatch(setSelectedBox(box))
+      
+      if (products && products.length > 0) {
+        products.forEach((product) => dispatch(addProduct(product)))
+      }
+      
+      if (decorations && decorations.length > 0) {
+        decorations.forEach((decoration) => dispatch(addDecoration(decoration)))
+      }
+      
+      if (bag) dispatch(setSelectedBag(bag))
+      
+      // إضافة إشعار نجاح للمستخدم
+      toast.success(`تم تحميل الإلهام "${gift.name}" بنجاح`)
+    } catch (error) {
+      // معالجة الأخطاء
+      console.error("حدث خطأ أثناء تحميل الإلهام:", error)
+      // إضافة إشعار خطأ للمستخدم
+      toast.error("حدث خطأ أثناء تحميل الإلهام، يرجى المحاولة مرة أخرى")
     }
-    if (decorations && decorations.length > 0) {
-      decorations.forEach((decoration) => dispatch(addDecoration(decoration)))
-    }
-    if (bag) dispatch(setSelectedBag(bag))
   }
 
   const handleAddCartItemToGift = (item: CartItem) => {
