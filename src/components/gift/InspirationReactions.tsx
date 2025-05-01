@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { likeInspiration, dislikeInspiration } from "@/lib/actions/inspiration-actions";
+import { toast } from "react-toastify";
 
 interface InspirationReactionsProps {
   inspirationId: string;
@@ -19,19 +20,41 @@ export default function InspirationReactions({ inspirationId, likes, dislikes, l
   const hasDisliked = userId && dislikedBy.includes(userId);
 
   const handleLike = async () => {
-    if (!userId || hasLiked) return;
+    if (!userId) return;
+    
     setLoading("like");
-    await likeInspiration(inspirationId, userId);
-    setLoading(null);
-    onReact("like");
+    try {
+      // API now handles both adding and removing likes
+      const result = await likeInspiration(inspirationId, userId);
+      
+      // Update parent component with the updated state from the server
+      // This ensures UI is in sync with the database
+      onReact("like");
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      toast.error("حدث خطأ أثناء تسجيل الإعجاب");
+    } finally {
+      setLoading(null);
+    }
   };
 
   const handleDislike = async () => {
-    if (!userId || hasDisliked) return;
+    if (!userId) return;
+    
     setLoading("dislike");
-    await dislikeInspiration(inspirationId, userId);
-    setLoading(null);
-    onReact("dislike");
+    try {
+      // API now handles both adding and removing dislikes
+      const result = await dislikeInspiration(inspirationId, userId);
+      
+      // Update parent component with the updated state from the server
+      // This ensures UI is in sync with the database
+      onReact("dislike");
+    } catch (error) {
+      console.error("Error toggling dislike:", error);
+      toast.error("حدث خطأ أثناء تسجيل عدم الإعجاب");
+    } finally {
+      setLoading(null);
+    }
   };
 
   return (
@@ -39,8 +62,8 @@ export default function InspirationReactions({ inspirationId, likes, dislikes, l
       <button
         className={`flex items-center gap-1 px-3 py-1 rounded transition ${hasLiked ? "bg-green-600 text-white" : "bg-green-50 text-green-700 hover:bg-green-100"}`}
         onClick={handleLike}
-        disabled={loading === "like" || !userId || hasLiked}
-        title={userId ? (hasLiked ? "لقد قمت بالإعجاب" : "إعجاب") : "سجل الدخول أولاً"}
+        disabled={loading === "like" || !userId}
+        title={userId ? (hasLiked ? "إلغاء الإعجاب" : "إعجاب") : "سجل الدخول أولاً"}
       >
         <ThumbsUp className="w-5 h-5" />
         <span>{likes}</span>
@@ -48,8 +71,8 @@ export default function InspirationReactions({ inspirationId, likes, dislikes, l
       <button
         className={`flex items-center gap-1 px-3 py-1 rounded transition ${hasDisliked ? "bg-red-600 text-white" : "bg-red-50 text-red-700 hover:bg-red-100"}`}
         onClick={handleDislike}
-        disabled={loading === "dislike" || !userId || hasDisliked}
-        title={userId ? (hasDisliked ? "لقد قمت بعدم الإعجاب" : "عدم إعجاب") : "سجل الدخول أولاً"}
+        disabled={loading === "dislike" || !userId}
+        title={userId ? (hasDisliked ? "إلغاء عدم الإعجاب" : "عدم إعجاب") : "سجل الدخول أولاً"}
       >
         <ThumbsDown className="w-5 h-5" />
         <span>{dislikes}</span>

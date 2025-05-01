@@ -28,14 +28,6 @@ const sortOptions = [
   { value: "nameAsc", label: "الاسم: أ-ي" },
 ]
 
-// Add flavor options
-const flavorOptions = [
-  { id: "sweet", label: "حلو" },
-  { id: "salty", label: "مالح" },
-  { id: "sour", label: "حامض" },
-  { id: "spicy", label: "حار" },
-  { id: "mixed", label: "مشكل" },
-]
 
 // Add occasion options
 const occasionOptions = [
@@ -359,29 +351,6 @@ export default function ProductSelector() {
             onCheckedChange={(checked) => setAvailabilityFilter(checked as boolean)}
           />
           <Label htmlFor="availability">عرض المنتجات المتوفرة فقط</Label>
-        </div>
-
-        <div>
-          <Label className="block mb-2">النكهة</Label>
-          <div className="flex flex-wrap gap-2">
-            {flavorOptions.map((flavor) => (
-              <div key={flavor.id} className="flex items-center space-x-2 space-x-reverse">
-                <Checkbox
-                  id={`flavor-${flavor.id}`}
-                  checked={flavorFilter.includes(flavor.id)}
-                  onChange={(e) => {
-                    const target = e.target as HTMLInputElement
-                    if (target.checked) {
-                      setFlavorFilter((prev) => [...prev, flavor.id])
-                    } else {
-                      setFlavorFilter((prev) => prev.filter((f) => f !== flavor.id))
-                    }
-                  }}
-                />
-                <Label htmlFor={`flavor-${flavor.id}`}>{flavor.label}</Label>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div>

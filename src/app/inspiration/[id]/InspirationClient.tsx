@@ -43,50 +43,66 @@ export default function InspirationClient({ inspiration }: Props) {
 	}, []);
 
 	// --- Handlers ---
-	const handleReact = (type: "like" | "dislike") => {
+	const handleReact = async (type: "like" | "dislike") => {
 		if (!userId) {
 			showAuthPopup();
 			return;
 		}
 
-        let newLikes = likes;
-        let newDislikes = dislikes;
-        let newLikedBy = [...likedBy];
-        let newDislikedBy = [...dislikedBy];
+        // This function is called after the API call in InspirationReactions component
+        // The API now handles the toggle logic and returns the updated state
+        // We just need to refresh the inspiration data to show accurate counts
+        
+        try {
+            // Fetch the latest data for this inspiration to get updated counts
+            const response = await fetch(`/api/gift/inspirations/${inspiration.id}`);
+            if (response.ok) {
+                const data = await response.json();
+                // Update all reaction-related state with fresh data from the server
+                setLikes(data.likes || 0);
+                setDislikes(data.dislikes || 0);
+                setLikedBy(data.likedBy || []);
+                setDislikedBy(data.dislikedBy || []);
+            }
+        } catch (error) {
+            console.error("Error refreshing inspiration data:", error);
+            // Fallback to toggle logic if API fails
+            let newLikes = likes;
+            let newDislikes = dislikes;
+            let newLikedBy = [...likedBy];
+            let newDislikedBy = [...dislikedBy];
 
-		if (type === "like") {
-			if (newLikedBy.includes(userId)) { // Remove like
-				newLikedBy = newLikedBy.filter((id) => id !== userId);
-                newLikes--;
-			} else { // Add like
-				newLikedBy.push(userId);
-                newLikes++;
-				if (newDislikedBy.includes(userId)) { // Remove dislike if exists
-					newDislikedBy = newDislikedBy.filter((id) => id !== userId);
-                    newDislikes--;
-				}
-			}
-		} else { // type === 'dislike'
-            if (newDislikedBy.includes(userId)) { // Remove dislike
-                newDislikedBy = newDislikedBy.filter((id) => id !== userId);
-                newDislikes--;
-            } else { // Add dislike
-                newDislikedBy.push(userId);
-                newDislikes++;
-                if (newLikedBy.includes(userId)) { // Remove like if exists
+            if (type === "like") {
+                if (newLikedBy.includes(userId)) {
                     newLikedBy = newLikedBy.filter((id) => id !== userId);
-                    newLikes--;
+                    newLikes = Math.max(0, newLikes - 1);
+                } else {
+                    newLikedBy.push(userId);
+                    newLikes++;
+                    if (newDislikedBy.includes(userId)) {
+                        newDislikedBy = newDislikedBy.filter((id) => id !== userId);
+                        newDislikes = Math.max(0, newDislikes - 1);
+                    }
+                }
+            } else { // type === 'dislike'
+                if (newDislikedBy.includes(userId)) {
+                    newDislikedBy = newDislikedBy.filter((id) => id !== userId);
+                    newDislikes = Math.max(0, newDislikes - 1);
+                } else {
+                    newDislikedBy.push(userId);
+                    newDislikes++;
+                    if (newLikedBy.includes(userId)) {
+                        newLikedBy = newLikedBy.filter((id) => id !== userId);
+                        newLikes = Math.max(0, newLikes - 1);
+                    }
                 }
             }
+
+            setLikes(newLikes);
+            setDislikes(newDislikes);
+            setLikedBy(newLikedBy);
+            setDislikedBy(newDislikedBy);
         }
-
-        setLikes(Math.max(0, newLikes));
-        setDislikes(Math.max(0, newDislikes));
-        setLikedBy(newLikedBy);
-        setDislikedBy(newDislikedBy);
-
-        // NOTE: You'd typically call an API action here to persist the change
-		// e.g., updateInspirationReactions(inspiration.id, { likes, dislikes, likedBy, dislikedBy });
 	};
 
 	const handleCommentAdded = (comment: typeof comments[number]) => {

@@ -85,29 +85,83 @@ export async function addInspirationComment(inspirationId: string, userId: strin
 // لايك للإلهام
 export async function likeInspiration(inspirationId: string, userId: string) {
   const collection = await getInspirationsCollection();
-  await collection.updateOne(
-    { _id: new ObjectId(inspirationId) },
-    {
-      $addToSet: { likedBy: userId },
-      $pull: { dislikedBy: userId },
-      $inc: { likes: 1 },
-      $set: { updatedAt: new Date() },
-    }
-  );
+  const inspiration = await collection.findOne({ _id: new ObjectId(inspirationId) });
+  
+  // التحقق مما إذا كان المستخدم قد قام بالإعجاب بالفعل
+  const alreadyLiked = inspiration?.likedBy?.includes(userId);
+  
+  if (alreadyLiked) {
+    // إذا كان المستخدم قد قام بالإعجاب بالفعل، قم بإزالة الإعجاب
+    await collection.updateOne(
+      { _id: new ObjectId(inspirationId) },
+      {
+        $pull: { likedBy: userId },
+        $inc: { likes: -1 },
+        $set: { updatedAt: new Date() },
+      }
+    );
+  } else {
+    // إذا لم يكن المستخدم قد قام بالإعجاب، أضف الإعجاب وأزل عدم الإعجاب إذا وجد
+    await collection.updateOne(
+      { _id: new ObjectId(inspirationId) },
+      {
+        $addToSet: { likedBy: userId },
+        $pull: { dislikedBy: userId },
+        $inc: { likes: 1, dislikes: inspiration?.dislikedBy?.includes(userId) ? -1 : 0 },
+        $set: { updatedAt: new Date() },
+      }
+    );
+  }
+  
+  // إرجاع الحالة المحدثة
+  const updatedInspiration = await collection.findOne({ _id: new ObjectId(inspirationId) });
+  return {
+    likes: updatedInspiration?.likes || 0,
+    dislikes: updatedInspiration?.dislikes || 0,
+    likedBy: updatedInspiration?.likedBy || [],
+    dislikedBy: updatedInspiration?.dislikedBy || []
+  };
 }
 
 // ديسلايك للإلهام
 export async function dislikeInspiration(inspirationId: string, userId: string) {
   const collection = await getInspirationsCollection();
-  await collection.updateOne(
-    { _id: new ObjectId(inspirationId) },
-    {
-      $addToSet: { dislikedBy: userId },
-      $pull: { likedBy: userId },
-      $inc: { dislikes: 1 },
-      $set: { updatedAt: new Date() },
-    }
-  );
+  const inspiration = await collection.findOne({ _id: new ObjectId(inspirationId) });
+  
+  // التحقق مما إذا كان المستخدم قد قام بعدم الإعجاب بالفعل
+  const alreadyDisliked = inspiration?.dislikedBy?.includes(userId);
+  
+  if (alreadyDisliked) {
+    // إذا كان المستخدم قد قام بعدم الإعجاب بالفعل، قم بإزالة عدم الإعجاب
+    await collection.updateOne(
+      { _id: new ObjectId(inspirationId) },
+      {
+        $pull: { dislikedBy: userId },
+        $inc: { dislikes: -1 },
+        $set: { updatedAt: new Date() },
+      }
+    );
+  } else {
+    // إذا لم يكن المستخدم قد قام بعدم الإعجاب، أضف عدم الإعجاب وأزل الإعجاب إذا وجد
+    await collection.updateOne(
+      { _id: new ObjectId(inspirationId) },
+      {
+        $addToSet: { dislikedBy: userId },
+        $pull: { likedBy: userId },
+        $inc: { dislikes: 1, likes: inspiration?.likedBy?.includes(userId) ? -1 : 0 },
+        $set: { updatedAt: new Date() },
+      }
+    );
+  }
+  
+  // إرجاع الحالة المحدثة
+  const updatedInspiration = await collection.findOne({ _id: new ObjectId(inspirationId) });
+  return {
+    likes: updatedInspiration?.likes || 0,
+    dislikes: updatedInspiration?.dislikes || 0,
+    likedBy: updatedInspiration?.likedBy || [],
+    dislikedBy: updatedInspiration?.dislikedBy || []
+  };
 }
 
 // تقييم إلهام
