@@ -118,7 +118,17 @@ const MobileSidebar = ({
         { name: "ساعات اطفال", link: "/category/kids#watches" },
       ]
     },
-    ...categories.filter(cat => !["رجالي", "نسائي", "أطفال"].includes(cat.name))
+    {
+      name: "هدايا",
+      link: "/gift",
+      icon: categories.find(cat => cat.name === "أهدايا")?.icon,
+      subCategories: [
+        { name: "هدايا جاهزة", link: "/inspirations" },
+        { name: "تخصيص هدية", link: "/gift" },
+        { name: "هدايا شخصيه", link: "/custom-gifts" },
+      ]
+    },
+    ...categories.filter(cat => !["رجالي", "نسائي", "أطفال", "هدايا"].includes(cat.name))
   ]
 
   return (

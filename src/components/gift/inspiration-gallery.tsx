@@ -114,7 +114,6 @@ export default function InspirationGallery() {
 
   return (
     <div className="mb-8">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">استلهم من هدايا أخرى</h2>
       <p className="text-gray-600 mb-6">اختر من هذه الهدايا المخصصة الشائعة أو استخدمها كنقطة بداية</p>
 
       {isLoading ? (
