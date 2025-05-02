@@ -105,7 +105,7 @@ export default function BoxSelector() {
           }}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {boxes.map((box) => (
+            {boxes.map((box, boxIndex) => (
               <motion.div
                 key={box.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -126,7 +126,14 @@ export default function BoxSelector() {
                         <div className="w-8 h-8 border-4 border-gray-200 border-t-purple-500 rounded-full animate-spin"></div>
                       </div>
                     ) : (
-                      <Image src={box.image || "/placeholder.svg"} alt={box.name} fill className="object-cover p-4" />
+                      <Image 
+                        src={box.image || "/placeholder.svg"} 
+                        alt={box.name} 
+                        fill 
+                        sizes="(max-width: 480px) 80vw, (max-width: 768px) 40vw, 25vw"
+                        className="object-cover p-4" 
+                        priority={boxIndex < 2} // إعطاء الأولوية للصناديق الأولى
+                      />
                     )}
                   </div>
                   <div className="p-4">

@@ -27,7 +27,13 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ user, size = "md" }) => {
     <Avatar className={`${sizeClasses[size]} bg-purple-100`}>
       {user.image ? (
         <div className="relative h-full w-full">
-          <Image src={user.image || "/placeholder.svg"} alt={user.name || "User"} fill className="object-cover" />
+          <Image 
+            src={user.image || "/placeholder.svg"} 
+            alt={user.name || "User"} 
+            fill 
+            sizes="(max-width: 768px) 40px, 60px"
+            className="object-cover" 
+          />
         </div>
       ) : (
         <AvatarFallback className="bg-purple-100 text-purple-700 font-medium">{getInitial(user.name)}</AvatarFallback>

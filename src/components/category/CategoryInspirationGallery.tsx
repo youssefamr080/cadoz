@@ -27,6 +27,8 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
+  // عدد المنتجات التي سيتم جلبها
+  const maxInspirationCount = 10 // عرض 10 منتجات
 
   // Toggle description visibility for a gift
   const toggleDescription = (giftId: string) => {
@@ -36,36 +38,74 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
     }))
   }
 
-  // Update visible items based on screen size
+  // Update visible items based on screen size with improved responsiveness
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 640) {
-        setVisibleItems(2) // Show 2 items on mobile
+      // تحسين عرض العناصر على الهاتف
+      if (window.innerWidth < 480) {
+        setVisibleItems(1.5) // عرض منتج ونصف على الهواتف الصغيرة
+      } else if (window.innerWidth < 640) {
+        setVisibleItems(1.8) // عرض منتج ونصف مع جزء أكبر من المنتج التالي
       } else if (window.innerWidth < 1024) {
-        setVisibleItems(2) // Show 2 items on tablets
+        setVisibleItems(2.5) // عرض منتجين ونصف على الأجهزة اللوحية
       } else {
-        setVisibleItems(3) // Show 3 items on desktop
+        setVisibleItems(3.8) // عرض 3 منتجات مع جزء كبير من المنتج التالي
       }
     }
 
     handleResize()
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
+    
+    // استخدام ResizeObserver للحصول على أداء أفضل
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(handleResize);
+      if (swiperRef.current) {
+        resizeObserver.observe(swiperRef.current);
+      }
+    } else {
+      // الطريقة القديمة كاحتياطي
+      window.addEventListener("resize", handleResize);
+    }
+    
+    return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      } else {
+        window.removeEventListener("resize", handleResize);
+      }
+    };
   }, [])
 
-  // Fetch inspiration gifts by category using API endpoint
+  // Fetch inspiration gifts by category using API endpoint with limit and process for consistent display
   useEffect(() => {
     const fetchInspirations = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch(`/api/gift/inspirations?category=${category}`)
+        // إضافة معلمة لتحديد عدد النتائج
+        console.log(`جلب المنتجات للفئة ${category} بحد أقصى: ${maxInspirationCount}`)
+        
+        const response = await fetch(`/api/gift/inspirations?category=${category}&limit=${maxInspirationCount}`)
         const result = await response.json()
-        
-        console.log('API response:', result)
-        
+                
         if (result.success) {
-          console.log('Inspirations data:', result.data)
-          setInspirationGifts(result.data)
+          const data = result.data || []
+          console.log(`تم استلام عدد المنتجات للفئة ${category}: ${data.length}`, data)
+          
+          // تكرار البيانات إذا كان عددها أقل من 10 لضمان وجود ما يكفي للعرض
+          let processedData = [...data]
+          if (data.length < maxInspirationCount && data.length > 0) {
+            while (processedData.length < maxInspirationCount) {
+              // إضافة نسخة من البيانات الموجودة مع تعديل المعرف لتجنب التكرار
+              const clonedItem = {
+                ...data[processedData.length % data.length],
+                id: `${data[processedData.length % data.length].id}_clone_${processedData.length}_${category}`
+              }
+              processedData.push(clonedItem)
+            }
+          }
+          
+          console.log(`عدد المنتجات النهائي للفئة ${category}: ${processedData.length}`)
+          setInspirationGifts(processedData)
           setError(null)
         } else {
           throw new Error(result.error || 'حدث خطأ أثناء جلب البيانات')
@@ -79,7 +119,7 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
     }
 
     fetchInspirations()
-  }, [category])
+  }, [category, maxInspirationCount])
 
   const handleUseInspiration = (gift: Inspiration) => {
     loadInspiration(gift)
@@ -101,25 +141,36 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
     }
   }
 
-  // Touch handlers for mobile swiping with improved sensitivity
+  // Touch handlers for mobile swiping with improved sensitivity and prevention of scroll conflicts
   const handleTouchStart = (e: React.TouchEvent) => {
+    // تخزين نقطة البداية للمس
     setTouchStart(e.targetTouches[0].clientX)
     setIsSwiping(true)
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (isSwiping) {
+      // تخزين النقطة الحالية للمس
       setTouchEnd(e.targetTouches[0].clientX)
+      
+      // منع التمرير العمودي إذا كان المستخدم يقوم بالسويب الأفقي
+      const diffX = Math.abs(e.targetTouches[0].clientX - touchStart);
+      if (diffX > 10) {
+        // منع التمرير العمودي أثناء السويب الأفقي
+        e.preventDefault();
+        e.stopPropagation();
+      }
     }
   }
 
   const handleTouchEnd = () => {
+    if (!isSwiping) return; // تجنب المعالجة إذا لم يكن هناك سويب
+    
     setIsSwiping(false)
-    if (touchStart - touchEnd > 50) { // Reduced threshold for better responsiveness
-      // Swipe left
+    // تحسين حساسية السويب مع عتبة أقل
+    if (touchStart - touchEnd > 40) {  // سويب لليسار
       nextSlide()
-    } else if (touchStart - touchEnd < -50) { // Reduced threshold for better responsiveness
-      // Swipe right
+    } else if (touchStart - touchEnd < -40) {  // سويب لليمين
       prevSlide()
     }
   }
@@ -134,9 +185,12 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
     return names[categoryName as keyof typeof names] || categoryName
   }
 
-  // Calculate translateX with smoother transition
+  // Calculate translateX with smoother transition and fix empty space issue
   const calculateTranslateX = () => {
-    const basePercentage = -(currentIndex * (100 / visibleItems))
+    // منع التمرير إلى ما بعد العناصر المتاحة
+    const maxIndex = Math.max(0, inspirationGifts.length - visibleItems)
+    const safeIndex = Math.min(currentIndex, maxIndex)
+    const basePercentage = -(safeIndex * (100 / visibleItems))
     return `${basePercentage}%`
   }
 
@@ -193,13 +247,20 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
           {/* Swiper container with improved touch handling */}
           <div
             ref={swiperRef}
-            className="overflow-hidden rounded-xl"
+            className="overflow-hidden rounded-xl relative"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            style={{ touchAction: 'pan-y' }} // السماح بالتمرير العمودي فقط
           >
+            {/* مؤشر التحميل أثناء السويب */}
+            {isSwiping && (
+              <div className="absolute inset-0 bg-white bg-opacity-20 flex items-center justify-center z-10 pointer-events-none">
+                <div className="w-8 h-8 border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin"></div>
+              </div>
+            )}
             <div
-              className="flex transition-transform duration-500 ease-out"
+              className="flex transition-transform duration-300 ease-out will-change-transform"
               style={{ transform: `translateX(${calculateTranslateX()})` }}
             >
               {inspirationGifts.map((gift) => (
@@ -217,7 +278,10 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
                         src={gift.image || "/placeholder.svg"} 
                         alt={gift.name} 
                         fill 
+                        sizes="(max-width: 480px) 100vw, (max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        priority={currentIndex === 0 && gift.id === inspirationGifts[0]?.id} // إعطاء الأولوية للصورة الرئيسية فقط
                         className="object-cover transition-transform duration-700 hover:scale-110" 
+                        loading={currentIndex === 0 && gift.id === inspirationGifts[0]?.id ? "eager" : "lazy"}
                       />
                       <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full px-2 py-1 flex items-center shadow-sm">
                         <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />

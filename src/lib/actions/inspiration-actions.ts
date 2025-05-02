@@ -8,6 +8,24 @@ import { ObjectId } from "mongodb"
 
 // تحويل كائن المستند من MongoDB إلى النوع المستخدم في الواجهة
 function mapInspirationDocument(doc: InspirationDocument): Inspiration {
+  // حفظ معلومات الكميات من المنتجات
+  const productQuantities: Record<string, number> = {};
+  
+  // استخراج معلومات الكميات من مصفوفة المنتجات
+  if (doc.products && Array.isArray(doc.products)) {
+    doc.products.forEach((p: any) => {
+      if (typeof p === 'object' && p !== null) {
+        const productId = typeof p.id === 'string' ? p.id : p.id?.toString();
+        if (productId && p.quantity) {
+          productQuantities[productId] = typeof p.quantity === 'number' ? 
+            p.quantity : 
+            (typeof p.quantity === 'object' && p.quantity.$numberInt ? 
+              parseInt(p.quantity.$numberInt) : 1);
+        }
+      }
+    });
+  }
+  
   return {
     id: doc._id.toString(),
     name: doc.name,
@@ -17,7 +35,13 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
     reviews: doc.reviews,
     // Pass the MongoDB _id of the box instead of the nested id field
     box: typeof doc.box === 'string' ? doc.box : doc.box.id.toString(),
-    products: doc.products.map((p: { id: string } | string) => typeof p === 'string' ? p : p.id),
+    // حفظ معرفات المنتجات
+    products: doc.products.map((p: any) => {
+      const productId = typeof p === 'string' ? p : (p.id ? (typeof p.id === 'string' ? p.id : p.id.toString()) : '');
+      return productId;
+    }),
+    // حفظ معلومات الكميات للاستخدام لاحقاً
+    productQuantities: productQuantities,
     decorations: doc.decorations.map((d: { id: string } | string) => typeof d === 'string' ? d : d.id),
     bag: typeof doc.bag === 'string' ? doc.bag : doc.bag.id,
     // إضافة دعم المنتجات الأساسية
@@ -34,7 +58,7 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
     likedBy: doc.likedBy ?? [],
     dislikedBy: doc.dislikedBy ?? [],
     ratings: doc.ratings ?? [],
-    category: doc.category // Include the category field
+    category: doc.category || doc["category "] // معالجة مشكلة المسافة في اسم الحقل
   }
 }
 

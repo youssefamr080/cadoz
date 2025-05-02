@@ -72,7 +72,7 @@ export default function BagSelector() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence>
-            {bags.map((bag) => (
+            {bags.map((bag, bagIndex) => (
               <motion.div
                 key={bag.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -95,7 +95,14 @@ export default function BagSelector() {
                       </div>
                     ) : (
                       <>
-                        <Image src={bag.image || "/placeholder.svg"} alt={bag.name} fill className="object-cover p-4" />
+                        <Image 
+                          src={bag.image || "/placeholder.svg"} 
+                          alt={bag.name} 
+                          fill 
+                          sizes="(max-width: 480px) 80vw, (max-width: 768px) 40vw, 25vw"
+                          className="object-cover p-4" 
+                          priority={bagIndex === 0} // إعطاء الأولوية للكيس الأول
+                        />
                         {bag.stock <= 5 && (
                           <div className="absolute top-2 right-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full flex items-center">
                             <AlertTriangle className="w-3 h-3 mr-1" />

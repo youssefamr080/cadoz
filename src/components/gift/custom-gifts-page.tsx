@@ -80,7 +80,7 @@ export default function CustomGiftsPage() {
           <div className="text-center p-8 text-red-500">{error}</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {customGifts.map((item) => (
+            {customGifts.map((item, itemIndex) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -90,7 +90,14 @@ export default function CustomGiftsPage() {
               >
                 <Card className="h-full flex flex-col">
                   <div className="relative aspect-square bg-gray-100">
-                    <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover p-4" />
+                    <Image 
+                      src={item.image || "/placeholder.svg"} 
+                      alt={item.name} 
+                      fill 
+                      sizes="(max-width: 480px) 80vw, (max-width: 768px) 40vw, 25vw"
+                      className="object-cover p-4" 
+                      priority={itemIndex < 2} // إعطاء الأولوية للمنتجات الأولى
+                    />
                   </div>
                   <CardHeader>
                     <CardTitle>{item.name}</CardTitle>

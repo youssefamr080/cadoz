@@ -10,6 +10,7 @@ export interface Inspiration {
   reviews: number
   box: string // box ID only
   products: string[] // product IDs only
+  productQuantities: Record<string, number> // كميات المنتجات مرتبطة بمعرفات المنتجات
   decorations: string[] // decoration IDs only
   bag: string // bag ID only
   Mainproducts?: string[] // main product IDs only

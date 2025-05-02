@@ -108,7 +108,13 @@ export default function SavedItems() {
                 className="flex items-center bg-gray-50 rounded-lg p-2"
               >
                 <div className="relative w-12 h-12 rounded overflow-hidden bg-white">
-                  <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover p-1" />
+                  <Image 
+                    src={item.image || "/placeholder.svg"} 
+                    alt={item.name} 
+                    fill 
+                    sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 33vw"
+                    className="object-cover p-1" 
+                  />
                 </div>
                 <div className="mr-3 flex-grow">
                   <h4 className="font-medium text-sm">{item.name}</h4>
