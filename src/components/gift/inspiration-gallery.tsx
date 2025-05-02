@@ -84,7 +84,7 @@ export default function InspirationGallery() {
         console.log(`تم استلام عدد المنتجات: ${data.length}`, data)
         
         // تكرار البيانات إذا كان عددها أقل من 10 لضمان وجود ما يكفي للعرض
-        let processedData = [...data]
+        const processedData = [...data]
         if (data.length < maxInspirationCount && data.length > 0) {
           while (processedData.length < maxInspirationCount) {
             // إضافة نسخة من البيانات الموجودة مع تعديل المعرف لتجنب التكرار

@@ -13,7 +13,7 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
   
   // استخراج معلومات الكميات من مصفوفة المنتجات
   if (doc.products && Array.isArray(doc.products)) {
-    doc.products.forEach((p: any) => {
+    doc.products.forEach((p: { id: string | ObjectId; quantity?: number | { $numberInt?: string } }) => {
       if (typeof p === 'object' && p !== null) {
         const productId = typeof p.id === 'string' ? p.id : p.id?.toString();
         if (productId && p.quantity) {
@@ -36,7 +36,7 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
     // Pass the MongoDB _id of the box instead of the nested id field
     box: typeof doc.box === 'string' ? doc.box : doc.box.id.toString(),
     // حفظ معرفات المنتجات
-    products: doc.products.map((p: any) => {
+    products: doc.products.map((p: string | { id: string | ObjectId; name?: string; price?: number; image?: string; quantity?: number; category?: string; stock?: number; popular?: boolean }) => {
       const productId = typeof p === 'string' ? p : (p.id ? (typeof p.id === 'string' ? p.id : p.id.toString()) : '');
       return productId;
     }),
