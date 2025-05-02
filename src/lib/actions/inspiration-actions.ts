@@ -20,6 +20,8 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
     products: doc.products.map((p: { id: string } | string) => typeof p === 'string' ? p : p.id),
     decorations: doc.decorations.map((d: { id: string } | string) => typeof d === 'string' ? d : d.id),
     bag: typeof doc.bag === 'string' ? doc.bag : doc.bag.id,
+    // إضافة دعم المنتجات الأساسية
+    Mainproducts: doc.Mainproducts ? doc.Mainproducts.map((mp: { id: string } | string) => typeof mp === 'string' ? mp : mp.id) : undefined,
     likes: doc.likes ?? 0,
     dislikes: doc.dislikes ?? 0,
     comments: (doc.comments ?? []).map((c) => ({

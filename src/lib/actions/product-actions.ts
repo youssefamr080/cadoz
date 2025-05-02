@@ -15,7 +15,6 @@ function mapGiftProductDocument(doc: GiftProductDocument): GiftProduct {
     category: doc.category,
     stock: doc.stock,
     popular: doc.popular,
-    flavor: doc.flavor,
     occasion: doc.occasion,
   }
 }

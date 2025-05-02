@@ -11,8 +11,7 @@ import { AuthProvider } from "@/context/AuthContext"
 import { CartProvider } from "@/context/CartContext"
 import { WishlistProvider } from "@/context/WishlistContext"
 
-import { ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+// ToastContainer is now centralized in layout.tsx
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -23,25 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <WishlistProvider>
               <GiftProvider>
                 {children}
-                <ToastContainer
-                  position="bottom-right"
-                  autoClose={2500}
-                  hideProgressBar={false}
-                  newestOnTop={true}
-                  closeOnClick
-                  rtl={true}
-                  pauseOnFocusLoss={false}
-                  draggable={false}
-                  pauseOnHover={true}
-                  theme="light"
-                  limit={3}
-                  style={{
-                    ["--toastify-icon-color-success" as string]: "var(--green-500)",
-                    ["--toastify-icon-color-error" as string]: "var(--red-500)",
-                    ["--toastify-icon-color-warning" as string]: "var(--yellow-500)",
-                    ["--toastify-icon-color-info" as string]: "var(--blue-500)",
-                  }}
-                />
+                {/* ToastContainer moved to root layout for centralized notifications */}
               </GiftProvider>
             </WishlistProvider>
           </CartProvider>

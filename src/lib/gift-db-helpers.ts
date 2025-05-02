@@ -3,6 +3,7 @@ import type { Collection } from "mongodb"
 import type {
   BoxDocument,
   GiftProductDocument,
+  MainProductDocument,
   DecorationDocument,
   BagDocument,
   InspirationDocument,
@@ -20,6 +21,10 @@ export async function getBoxesCollection(): Promise<Collection<BoxDocument>> {
 export async function getGiftProductsCollection(): Promise<Collection<GiftProductDocument>> {
   const { db } = await connectToDatabase()
   return db.collection("gift_products")
+}
+export async function getMainProductsCollection(): Promise<Collection<MainProductDocument>> {
+  const { db } = await connectToDatabase()
+  return db.collection("products")
 }
 
 export async function getDecorationsCollection(): Promise<Collection<DecorationDocument>> {

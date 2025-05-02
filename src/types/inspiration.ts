@@ -12,6 +12,7 @@ export interface Inspiration {
   products: string[] // product IDs only
   decorations: string[] // decoration IDs only
   bag: string // bag ID only
+  Mainproducts?: string[] // main product IDs only
   likes?: number
   dislikes?: number;
   comments?: Array<{

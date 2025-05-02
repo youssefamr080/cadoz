@@ -31,7 +31,6 @@ export interface GiftProductDocument extends MongoDocument {
   category: string
   stock: number
   popular: boolean
-  flavor?: string
   occasion?: string
 }
 
@@ -51,6 +50,14 @@ export interface BagDocument extends MongoDocument {
   description: string
   color: string
   stock: number
+}
+// نوع MainProduct
+export interface MainProductDocument extends MongoDocument {
+  name: string
+  price: number
+  image: string
+  description: string
+  category: string
 }
 
 // نوع Inspiration
@@ -85,6 +92,14 @@ export interface InspirationDocument extends MongoDocument {
     category: string
     stock: number
   }
+  Mainproducts: Array<{
+    id: string
+    name: string
+    price: number
+    image: string
+    category: string
+    stock: number
+  }>
   products: Array<{
     id: string
     name: string

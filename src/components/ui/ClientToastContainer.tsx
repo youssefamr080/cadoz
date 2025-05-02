@@ -1,21 +1,10 @@
 "use client"
 
-import { ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+// NOTE: This component is deprecated - ToastContainer is now centralized in layout.tsx
+// Using multiple ToastContainer instances causes conflicts and errors
+// Keep this component for backwards compatibility but render nothing
 
 export default function ClientToastContainer() {
-  return (
-    <ToastContainer
-      position="top-center"
-      autoClose={3000}
-      hideProgressBar={false}
-      newestOnTop
-      closeOnClick
-      rtl={true}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-      theme="light"
-    />
-  )
-} 
+  // Return null to prevent rendering duplicate ToastContainer
+  return null
+}

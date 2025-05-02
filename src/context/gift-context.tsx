@@ -25,6 +25,7 @@ import { getBoxesByIds } from "@/lib/actions/box-actions"
 import { getBagsByIds } from "@/lib/actions/bag-actions"
 import { getGiftProductsByIds } from "@/lib/actions/product-actions"
 import { getDecorationsByIds } from "@/lib/actions/decoration-actions"
+import { getMainProductsByIds } from "@/lib/actions/main-product-actions"
 import { useCart } from "./CartContext"
 
 interface GiftContextType {
@@ -164,11 +165,12 @@ export function GiftProvider({ children }: { children: ReactNode }) {
       dispatch(clearGift())
       
       // جلب جميع العناصر المرتبطة بالإلهام
-      const [boxArr, bagArr, products, decorations] = await Promise.all([
+      const [boxArr, bagArr, products, decorations, mainProducts] = await Promise.all([
         gift.box ? getBoxesByIds([gift.box]) : [],
         gift.bag ? getBagsByIds([gift.bag]) : [],
         gift.products && gift.products.length > 0 ? getGiftProductsByIds(gift.products) : [],
         gift.decorations && gift.decorations.length > 0 ? getDecorationsByIds(gift.decorations) : [],
+        gift.Mainproducts && gift.Mainproducts.length > 0 ? getMainProductsByIds(gift.Mainproducts) : [],
       ])
       
       // تحديث حالة الهدية بالعناصر الجديدة
@@ -178,6 +180,18 @@ export function GiftProvider({ children }: { children: ReactNode }) {
       // إضافة العناصر بالترتيب الصحيح: الصندوق أولاً، ثم المنتجات، ثم الديكورات، ثم الكيس
       if (box) dispatch(setSelectedBox(box))
       
+      if (mainProducts && mainProducts.length > 0) {
+        mainProducts.forEach((mainProduct) => {
+          // Add main products as regular products with a special category
+          dispatch(addProduct({
+            ...mainProduct,
+            category: "main-product",  // Mark as main product
+            popular: false,  // Default value
+            stock: 999  // Default value
+          }))
+        })
+      }
+
       if (products && products.length > 0) {
         products.forEach((product) => dispatch(addProduct(product)))
       }

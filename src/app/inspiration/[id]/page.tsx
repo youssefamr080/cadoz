@@ -6,6 +6,7 @@ import { getGiftProductsByIds } from "@/lib/actions/product-actions";
 import { getBoxById } from "@/lib/actions/box-actions";
 import { getBagById } from "@/lib/actions/bag-actions";
 import { getDecorationsByIds } from "@/lib/actions/decoration-actions";
+import { getMainProductsByIds } from "@/lib/actions/main-product-actions";
 import type { Inspiration } from "@/types/inspiration";
 import InspirationClient from "./InspirationClient";
 import UseInspirationButton from "./UseInspirationButton";
@@ -89,7 +90,7 @@ export default async function InspirationPage({ params }: Props) {
   }
 
   // Fetch related items concurrently for potential performance improvement
-  const [productsData, boxData, bagData, decorationsData] = await Promise.all([
+  const [productsData, boxData, bagData, decorationsData, mainProductsData] = await Promise.all([
     inspiration.products && inspiration.products.length > 0
       ? getGiftProductsByIds(inspiration.products)
       : Promise.resolve([]),
@@ -98,19 +99,24 @@ export default async function InspirationPage({ params }: Props) {
     inspiration.decorations && inspiration.decorations.length > 0
       ? getDecorationsByIds(inspiration.decorations)
       : Promise.resolve([]),
+    inspiration.Mainproducts && inspiration.Mainproducts.length > 0
+      ? getMainProductsByIds(inspiration.Mainproducts)
+      : Promise.resolve([]),
   ]);
 
   const products = productsData || [];
   const box = boxData;
   const bag = bagData;
   const decorations = decorationsData || [];
+  const mainProducts = mainProductsData || [];
 
   // Calculate total price
   const totalPrice =
     products.reduce((sum, p) => sum + (p?.price || 0), 0) +
     (box?.price || 0) +
     (bag?.price || 0) +
-    decorations.reduce((sum, d) => sum + (d?.price || 0), 0);
+    decorations.reduce((sum, d) => sum + (d?.price || 0), 0) +
+    mainProducts.reduce((sum, mp) => sum + (mp?.price || 0), 0);
 
   return (
     <div className="container mx-auto max-w-6xl py-10 px-4">
@@ -185,6 +191,25 @@ export default async function InspirationPage({ params }: Props) {
                     />
                   ) : (
                      <EmptyItemPlaceholder text="لا يوجد كيس" />
+                  )}
+                </div>
+              </SectionWrapper>
+            )}
+
+            {mainProducts.length > 0 && (
+              <SectionWrapper title="المنتجات الأساسية" icon={<GiftIcon className="w-5 h-5 mr-2 text-green-600" />}>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {mainProducts.map((mainProduct) =>
+                    mainProduct ? (
+                      <ItemCard
+                        key={mainProduct.id}
+                        name={mainProduct.name}
+                        price={mainProduct.price}
+                        image={mainProduct.image}
+                        alt={mainProduct.name}
+                        size="medium"
+                      />
+                    ) : null
                   )}
                 </div>
               </SectionWrapper>
