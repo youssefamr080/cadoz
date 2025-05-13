@@ -10,6 +10,7 @@ import { getMainProductsByIds } from "@/lib/actions/main-product-actions";
 import type { Inspiration } from "@/types/inspiration";
 import InspirationClient from "./InspirationClient";
 import UseInspirationButton from "./UseInspirationButton";
+import AddToCartButton from "./AddToCartButton";
 import { BoxIcon, GiftIcon, SparklesIcon } from "lucide-react"; // Example icons
 import { Metadata } from 'next'
 
@@ -226,9 +227,14 @@ export default async function InspirationPage({ params }: Props) {
               </div>
             </div>
             
-            {/* Enhanced Call to Action Button */}
-            <div className="mt-4 transform hover:-translate-y-1 transition-transform duration-300">
-              <UseInspirationButton inspiration={inspiration} />
+            {/* Enhanced Call to Action Buttons */}
+            <div className="mt-4 space-y-3">
+              <div className="transform hover:-translate-y-1 transition-transform duration-300">
+                <UseInspirationButton inspiration={inspiration} />
+              </div>
+              <div className="transform hover:-translate-y-1 transition-transform duration-300">
+                <AddToCartButton inspiration={inspiration} />
+              </div>
             </div>
             
             {/* Interactive Section with enhanced styling */}

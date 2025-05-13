@@ -27,7 +27,7 @@ export default function UseInspirationButton({ inspiration }: UseInspirationButt
         onClick={handleUse}
       >
         <Copy className="w-3 h-3 mr-1" />
-         استخدم هذه الهدية
+         تعديل هذه الهدية
       </Button>
     </div>
   );

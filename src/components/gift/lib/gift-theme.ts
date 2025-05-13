@@ -46,11 +46,64 @@ export const giftTheme = {
 
 // أنماط موحدة للـ Swiper
 export const swiperStyles = `
+/* أنماط لجميع Swiper Components */
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  display: none !important; /* إخفاء الأيقونات الافتراضية */
+}
+
+.swiper-pagination {
+  position: relative !important;
+  bottom: 0 !important;
+  margin-top: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.swiper-pagination-bullet {
+  width: 6px !important;
+  height: 6px !important;
+  background: #e0e7ff !important;
+  opacity: 1 !important;
+  border: 1px solid #6366f1 !important;
+  margin: 0 3px !important;
+  transition: all 0.3s ease !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #6366f1 !important;
+  transform: scale(1.5) !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.swiper-button-disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+
+.swiper-slide-shadow-left,
+.swiper-slide-shadow-right {
+  border-radius: 12px !important;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* أنماط خاصة بـ Gift Swiper */
 .gift-swiper .swiper-pagination {
   position: relative;
   bottom: 0;
   margin-top: 12px;
 }
+
 .gift-swiper .swiper-pagination-bullet {
   width: 6px;
   height: 6px;
@@ -58,10 +111,12 @@ export const swiperStyles = `
   opacity: 1;
   border: 1px solid #6366f1;
 }
+
 .gift-swiper .swiper-pagination-bullet-active {
   background: #6366f1;
   transform: scale(1.2);
 }
+
 .gift-swiper .swiper-button-next,
 .gift-swiper .swiper-button-prev {
   color: #6366f1;
@@ -71,30 +126,62 @@ export const swiperStyles = `
   border-radius: 50%;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
+
 .gift-swiper .swiper-button-next:after,
 .gift-swiper .swiper-button-prev:after {
   font-size: 12px;
   font-weight: bold;
 }
+
 .gift-swiper .swiper-button-disabled {
   opacity: 0.35;
 }
+
 @media (max-width: 640px) {
   .gift-swiper .swiper-button-next,
   .gift-swiper .swiper-button-prev {
     display: none;
   }
 }
-.swiper-slide-shadow-left,
-.swiper-slide-shadow-right {
-  border-radius: 12px;
+
+/* أنماط خاصة بـ Inspiration Swiper */
+.gift-inspiration-swiper .swiper-wrapper,
+.category-inspiration-swiper .swiper-wrapper {
+  padding-top: 5px; /* إضافة مساحة للظلال العلوية */
+  padding-bottom: 15px; /* إضافة مساحة للظلال السفلية */
+  margin-bottom: 10px; /* إضافة مساحة قبل pagination */
 }
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+
+.gift-inspiration-swiper .swiper-slide,
+.category-inspiration-swiper .swiper-slide {
+  height: auto !important; /* ضمان أن كل سلايد يأخذ الارتفاع المناسب له */
+  transition: transform 0.3s ease;
 }
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+.gift-inspiration-swiper .swiper-button-next,
+.gift-inspiration-swiper .swiper-button-prev,
+.category-inspiration-swiper .swiper-button-next,
+.category-inspiration-swiper .swiper-button-prev {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Hide default pagination styles for a cleaner look */
+.gift-inspiration-swiper .swiper-pagination-bullets,
+.category-inspiration-swiper .swiper-pagination-bullets {
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+@media (max-width: 640px) {
+  .gift-inspiration-swiper .swiper-button-next,
+  .gift-inspiration-swiper .swiper-button-prev,
+  .category-inspiration-swiper .swiper-button-next,
+  .category-inspiration-swiper .swiper-button-prev {
+    width: 30px !important;
+    height: 30px !important;
+  }
 }
 
 /* Cart items swiper styles */

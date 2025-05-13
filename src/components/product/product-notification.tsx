@@ -61,7 +61,7 @@ export default function ProductNotification({ productId, productName, isOutOfSto
 
   // إضافة إشعار جديد
   const addNotification = async (userId: string, productId: number, productName: string) => {
-    if (!user) {
+    if (!user || !user.id || !user.phone || !user.name) {
       setIsLoginModalOpen(true)
       return
     }
@@ -97,6 +97,7 @@ export default function ProductNotification({ productId, productName, isOutOfSto
           productId,
           productName,
           phone: user.phone,
+          name: user.name,
           createdAt: new Date(),
         }),
       })

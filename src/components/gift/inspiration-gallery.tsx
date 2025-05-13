@@ -1,29 +1,189 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGift } from "@/context/gift-context"
 import { Button } from "@/components/ui/button"
-import { Star, Copy, ChevronLeft, ChevronRight, Eye, ChevronDown } from "lucide-react"
+import { Star, ChevronLeft, ChevronRight, Eye, ChevronDown, Heart, ShoppingCart, Edit } from "lucide-react"
 import { getPopularInspirations } from "@/lib/actions/inspiration-actions"
 import type { Inspiration } from "@/types/inspiration"
+// Import types as needed
 import Image from "next/image"
 import Link from "next/link"
+import { toast } from "react-toastify"
+// Redux imports no longer needed with Zustand
+import { getBoxesByIds } from "@/lib/actions/box-actions"
+import { getBagsByIds } from "@/lib/actions/bag-actions"
+import { getGiftProductsByIds } from "@/lib/actions/product-actions" 
+import { getDecorationsByIds } from "@/lib/actions/decoration-actions"
+import { getMainProductsByIds } from "@/lib/actions/main-product-actions"
+// Import Swiper components and modules
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Navigation, Pagination, FreeMode, Autoplay } from "swiper/modules"
+// Import Swiper styles
+import "swiper/css"
+import "swiper/css/navigation"
+import "swiper/css/pagination"
+import "swiper/css/free-mode"
 
 export default function InspirationGallery() {
   const { loadInspiration } = useGift()
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const swiperRef = useRef<HTMLDivElement>(null)
-  const [touchStart, setTouchStart] = useState(0)
-  const [touchEnd, setTouchEnd] = useState(0)
-  const [isSwiping, setIsSwiping] = useState(false)
-  const [visibleItems, setVisibleItems] = useState(3)
   const [inspirationGifts, setInspirationGifts] = useState<Inspiration[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
+  const [likedItems, setLikedItems] = useState<Record<string, boolean>>({})
+  const [addingToCart, setAddingToCart] = useState<Record<string, boolean>>({})
   // عدد المنتجات التي سيتم جلبها
   const maxInspirationCount = 10 // عرض 10 منتجات
+
+  // Add gift directly to cart
+  const handleAddToCart = async (gift: Inspiration, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // Set loading state for this gift
+    setAddingToCart(prev => ({
+      ...prev,
+      [gift.id]: true
+    }));
+    
+    try {
+      // Validate at least one product
+      if (gift.products.length === 0) {
+        toast.error("لا يمكن إضافة هدية بدون منتجات");
+        return;
+      }
+      
+      // Fetch all related items by IDs - same approach as in handleLoadInspiration
+      const [boxArr, bagArr, productsArr, decorationsArr, mainProductsArr] = await Promise.all([
+        gift.box ? getBoxesByIds([gift.box]) : [],
+        gift.bag ? getBagsByIds([gift.bag]) : [],
+        gift.products && gift.products.length > 0 ? getGiftProductsByIds(gift.products) : [],
+        gift.decorations && gift.decorations.length > 0 ? getDecorationsByIds(gift.decorations) : [],
+        gift.Mainproducts && gift.Mainproducts.length > 0 ? getMainProductsByIds(gift.Mainproducts) : [],
+      ]);
+      
+      // Extract the fetched objects
+      const box = boxArr && boxArr.length > 0 ? boxArr[0] : null;
+      const bag = bagArr && bagArr.length > 0 ? bagArr[0] : null;
+      
+      // Ensure all products have price and quantity
+      const productsWithQuantities = productsArr.map(product => ({
+        ...product,
+        price: typeof product.price === 'number' ? product.price : 0,
+        quantity: gift.productQuantities?.[product.id] || 1
+      }));
+      
+      // Ensure all main products have price and quantity
+      const mainProductsWithQuantities = mainProductsArr.map(product => ({
+        ...product,
+        price: typeof product.price === 'number' ? product.price : 0,
+        quantity: gift.productQuantities?.[product.id] || 1 // Use same productQuantities for main products
+      }));
+      
+      // Calculate total price - same logic as in createGiftCartItem
+      const productsTotal = productsWithQuantities.reduce(
+        (sum, item) => sum + (item.price * (item.quantity || 1)), 
+        0
+      );
+      
+      const mainProductsTotal = mainProductsWithQuantities.reduce(
+        (sum, item) => sum + (item.price * (item.quantity || 1)), 
+        0
+      );
+      
+      const boxPrice = box && typeof box.price === 'number' ? box.price : 0;
+      const bagPrice = bag && typeof bag.price === 'number' ? bag.price : 0;
+      
+      // Calculate decorations price using a loop instead of reduce
+      let decorationsPrice = 0;
+      for (const decoration of decorationsArr) {
+        decorationsPrice += typeof decoration.price === 'number' ? decoration.price : 0;
+      }
+      
+      const totalPrice = productsTotal + mainProductsTotal + boxPrice + bagPrice + decorationsPrice;
+      
+      // Create a cart item with the same structure as createGiftCartItem
+      const cartItem = {
+        id: Date.now(), // Use timestamp as ID
+        name: gift.name || "هدية مخصصة",
+        image: gift.image || box?.image || "/images/box.png",
+        price: totalPrice,
+        quantity: 1,
+        category: "هدايا",
+        variant: "مخصص",
+        stock: 1,
+        giftDetails: gift.description || "هدية مخصصة",
+        giftData: {
+          items: [
+            ...productsWithQuantities.map(p => ({
+              id: p.id,
+              name: p.name,
+              image: p.image,
+              price: p.price,
+              quantity: p.quantity || 1,
+              type: 'gift'
+            })),
+            ...mainProductsWithQuantities.map(p => ({
+              id: p.id,
+              name: p.name,
+              image: p.image,
+              price: p.price,
+              quantity: p.quantity || 1,
+              type: 'main'
+            })),
+          ],
+          box: box ? {
+            name: box.name,
+            image: box.image,
+            price: boxPrice
+          } : null,
+          wrap: bag ? {
+            name: bag.name,
+            image: bag.image,
+            price: bagPrice
+          } : null,
+          totalPrice: totalPrice,
+          createdAt: new Date().toISOString()
+        }
+      };
+      
+      // Get existing cart and add new item
+      const existingCart = localStorage.getItem("cadoz-cart");
+      const cart = existingCart ? JSON.parse(existingCart) : [];
+      cart.push(cartItem);
+      
+      // Update localStorage
+      localStorage.setItem("cadoz-cart", JSON.stringify(cart));
+      
+      // Dispatch a custom event to notify cart context
+      const cartUpdateEvent = new CustomEvent("cartUpdated", { detail: cart });
+      window.dispatchEvent(cartUpdateEvent);
+      
+      toast.success(`تمت إضافة هدية "${gift.name}" إلى السلة بنجاح!`, {
+        position: "top-center",
+        autoClose: 1500
+      });
+    } catch (err) {
+      console.error("خطأ في إضافة الهدية إلى السلة:", err);
+      toast.error("حدث خطأ أثناء إضافة الهدية إلى السلة");
+    } finally {
+      // Clear loading state
+      setAddingToCart(prev => ({
+        ...prev,
+        [gift.id]: false
+      }));
+    }
+  };
+
+  // Toggle like state for a gift
+  const toggleLike = (giftId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLikedItems(prev => ({
+      ...prev,
+      [giftId]: !prev[giftId]
+    }))
+  }
 
   // Toggle description visibility for a gift
   const toggleDescription = (giftId: string) => {
@@ -32,44 +192,6 @@ export default function InspirationGallery() {
       [giftId]: !prev[giftId]
     }))
   }
-
-  // Update visible items based on screen size with improved responsiveness
-  useEffect(() => {
-    const handleResize = () => {
-      // تحسين عرض العناصر على الهاتف
-      if (window.innerWidth < 480) {
-        setVisibleItems(1.5) // عرض منتج ونصف على الهواتف الصغيرة
-      } else if (window.innerWidth < 640) {
-        setVisibleItems(1.8) // عرض منتج ونصف مع جزء أكبر من المنتج التالي
-      } else if (window.innerWidth < 1024) {
-        setVisibleItems(2.5) // عرض منتجين ونصف على الأجهزة اللوحية
-      } else {
-        setVisibleItems(3.8) // عرض 3 منتجات مع جزء كبير من المنتج التالي
-      }
-    }
-
-    handleResize()
-    
-    // استخدام ResizeObserver للحصول على أداء أفضل
-    let resizeObserver: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      resizeObserver = new ResizeObserver(handleResize);
-      if (swiperRef.current) {
-        resizeObserver.observe(swiperRef.current);
-      }
-    } else {
-      // الطريقة القديمة كاحتياطي
-      window.addEventListener("resize", handleResize);
-    }
-    
-    return () => {
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      } else {
-        window.removeEventListener("resize", handleResize);
-      }
-    };
-  }, [])
 
   // Fetch inspiration gifts with limit and log results for debugging
   useEffect(() => {
@@ -110,228 +232,189 @@ export default function InspirationGallery() {
     fetchInspirations()
   }, [maxInspirationCount])
 
-  const nextSlide = () => {
-    if (currentIndex < inspirationGifts.length - visibleItems) {
-      setCurrentIndex(currentIndex + 1)
-    } else {
-      setCurrentIndex(0) // Loop back to the beginning
+  // Calculate slides per view based on screen size
+  const getSlidesPerView = () => {
+    if (typeof window !== "undefined") {
+      if (window.innerWidth < 480) return 1.2
+      if (window.innerWidth < 640) return 1.8
+      if (window.innerWidth < 1024) return 2.5
+      return 3.2
     }
-  }
-
-  const prevSlide = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1)
-    } else {
-      setCurrentIndex(inspirationGifts.length - visibleItems) // Loop to the end
-    }
-  }
-
-  // Touch handlers for mobile swiping with improved sensitivity and prevention of scroll conflicts
-  const handleTouchStart = (e: React.TouchEvent) => {
-    // تخزين نقطة البداية للمس
-    setTouchStart(e.targetTouches[0].clientX)
-    setIsSwiping(true)
-  }
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (isSwiping) {
-      // تخزين النقطة الحالية للمس
-      setTouchEnd(e.targetTouches[0].clientX)
-      
-      // منع التمرير العمودي إذا كان المستخدم يقوم بالسويب الأفقي
-      const diffX = Math.abs(e.targetTouches[0].clientX - touchStart);
-      if (diffX > 10) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }
-  }
-
-  const handleTouchEnd = () => {
-    if (!isSwiping) return; // تجنب المعالجة إذا لم يكن هناك سويب
-    
-    setIsSwiping(false)
-    // تحسين حساسية السويب مع عتبة أقل
-    if (touchStart - touchEnd > 40) {  // سويب لليسار
-      nextSlide()
-    } else if (touchStart - touchEnd < -40) {  // سويب لليمين
-      prevSlide()
-    }
-  }
-
-  // Calculate translateX with smoother transition and fix empty space issue
-  const calculateTranslateX = () => {
-    // منع التمرير إلى ما بعد العناصر المتاحة
-    const maxIndex = Math.max(0, inspirationGifts.length - visibleItems)
-    const safeIndex = Math.min(currentIndex, maxIndex)
-    const basePercentage = -(safeIndex * (100 / visibleItems))
-    return `${basePercentage}%`
+    return 3 // Default fallback
   }
 
   return (
-    <div className="mb-8">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-gray-900">هدايا جاهزة للإلهام</h2>
+    <div className="mb-0 sm:mb-4">
+      <div className="flex justify-between items-center mb-3">
+        <h2 className="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">هدايا جاهزة للإلهام</h2>
         <Link 
           href="/inspirations" 
-          className="flex items-center text-purple-600 hover:text-purple-800 transition-colors text-sm font-medium"
+          className="flex items-center text-purple-600 hover:text-purple-800 transition-colors text-xs sm:text-sm font-medium"
         >
-          عرض كل الهدايا الجاهزة
-          <ChevronLeft className="h-4 w-4 mr-1" />
+          عرض الكل
+          <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
         </Link>
       </div>
-      <p className="text-gray-600 mb-6">اختر من هذه الهدايا المخصصة الشائعة أو استخدمها كنقطة بداية</p>
+      <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">اختر من هذه الهدايا الجاهزة أو استخدمها كنقطة بداية لهديتك الخاصة</p>
 
       {isLoading ? (
-        <div className="flex justify-center items-center min-h-[200px]">
-          <div className="w-10 h-10 border-4 border-gray-200 border-t-purple-500 rounded-full animate-spin"></div>
+        <div className="flex justify-center items-center min-h-[180px]">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 border-3 sm:border-4 border-gray-200 border-t-purple-500 rounded-full animate-spin"></div>
         </div>
       ) : error ? (
-        <div className="text-center p-8 text-red-500">{error}</div>
+        <div className="text-center p-6 text-red-500 text-sm">{error}</div>
       ) : (
-        <div className="relative">
-          {/* Navigation arrows - made larger and more visible for mobile */}
-          <div className="absolute top-1/2 right-1 -translate-y-1/2 z-10">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-full bg-white shadow-lg w-10 h-10 border-purple-200 hover:bg-purple-50" 
-              onClick={prevSlide}
-            >
-              <ChevronRight className="h-6 w-6 text-purple-600" />
-            </Button>
-          </div>
-
-          <div className="absolute top-1/2 left-1 -translate-y-1/2 z-10">
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="rounded-full bg-white shadow-lg w-10 h-10 border-purple-200 hover:bg-purple-50" 
-              onClick={nextSlide}
-            >
-              <ChevronLeft className="h-6 w-6 text-purple-600" />
-            </Button>
-          </div>
-
-          {/* Swiper container with improved touch handling */}
-          <div
-            ref={swiperRef}
-            className="overflow-hidden rounded-xl relative"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            style={{ touchAction: 'pan-y' }} // السماح بالتمرير العمودي فقط
+        <div className="relative gift-inspiration-swiper">
+          {/* استخدام مكتبة Swiper.js بدلاً من التنفيذ اليدوي */}
+          <Swiper
+            modules={[Navigation, Pagination, FreeMode, Autoplay]}
+            spaceBetween={12}
+            slidesPerView={getSlidesPerView()}
+            navigation={{
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+            }}
+            pagination={{
+              clickable: true,
+              el: '.swiper-pagination',
+              bulletActiveClass: 'swiper-pagination-bullet-active',
+              bulletClass: 'swiper-pagination-bullet',
+            }}
+            freeMode={{
+              enabled: true,
+              sticky: true,
+              momentumBounce: false,
+            }}
+            autoplay={{
+              delay: 5000,
+              disableOnInteraction: true,
+              pauseOnMouseEnter: true,
+            }}
+            dir="rtl"
+            className="rounded-xl pb-10"
           >
-            {/* مؤشر التحميل أثناء السويب */}
-            {isSwiping && (
-              <div className="absolute inset-0 bg-white bg-opacity-20 flex items-center justify-center z-10 pointer-events-none">
-                <div className="w-8 h-8 border-2 border-gray-300 border-t-purple-500 rounded-full animate-spin"></div>
-              </div>
-            )}
-            <div
-              className="flex transition-transform duration-300 ease-out will-change-transform"
-              style={{ transform: `translateX(${calculateTranslateX()})` }}
-            >
-              {inspirationGifts.map((gift) => (
-                <div key={gift.id} className="flex-shrink-0 px-2 pb-4" style={{ width: `${100 / visibleItems}%` }}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ y: -5 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-white rounded-2xl border overflow-hidden shadow-md h-full"
-                  >
-                    {/* Image with improved aspect ratio */}
-                    <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
-                      <Image 
-                        src={gift.image || "/placeholder.svg"} 
-                        alt={gift.name} 
-                        fill 
-                        sizes="(max-width: 480px) 100vw, (max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        priority={currentIndex === 0 && gift.id === inspirationGifts[0]?.id} // إعطاء الأولوية للصورة الرئيسية فقط
-                        className="object-cover transition-transform duration-700 hover:scale-110" 
-                        loading={currentIndex === 0 && gift.id === inspirationGifts[0]?.id ? "eager" : "lazy"}
+            {inspirationGifts.map((gift) => (
+              <SwiperSlide key={gift.id} className="pb-4">
+                <motion.div
+                  whileHover={{ y: -5 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white rounded-2xl border border-purple-100 overflow-hidden shadow-md h-full hover:shadow-xl transition-shadow duration-300"
+                >
+                  {/* Image with improved aspect ratio */}
+                  <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden group">
+                    <Image 
+                      src={gift.image || "/placeholder.svg"} 
+                      alt={gift.name} 
+                      fill 
+                      sizes="(max-width: 480px) 100vw, (max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover transition-transform duration-700 hover:scale-110" 
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <button 
+                      onClick={(e) => toggleLike(gift.id, e)}
+                      className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md z-10 transition-transform duration-300 hover:scale-110"
+                    >
+                      <Heart 
+                        className={`w-3.5 h-3.5 ${likedItems[gift.id] ? 'text-red-500 fill-red-500' : 'text-gray-400'}`} 
                       />
-                      <div className="absolute top-2 right-2 bg-white bg-opacity-90 rounded-full px-2 py-1 flex items-center shadow-sm">
-                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                        <span className="text-xs font-medium ml-1">{gift.rating}</span>
-                      </div>
+                    </button>
+                    <div className="absolute top-2 left-2 bg-white bg-opacity-90 rounded-full px-2 py-1 flex items-center shadow-sm z-10">
+                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                      <span className="text-xs font-medium ml-1">{gift.rating}</span>
                     </div>
+                    
+                    {/* Quick action button - Changed to "تعديل الهدية" (Edit Gift) */}
+                    <motion.button
+                      initial={{ opacity: 0, y: 20 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      onClick={() => loadInspiration(gift)}
+                      className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    >
+                      <Edit className="w-3 h-3" />
+                      تخصيص الهدية
+                    </motion.button>
+                  </div>
 
-                    <div className="p-3">
-                      {/* Name with expandable arrow */}
-                      <div 
-                        className="flex justify-between items-center cursor-pointer py-1"
-                        onClick={() => toggleDescription(gift.id)}
+                  <div className="p-3">
+                    {/* Name with expandable arrow */}
+                    <div 
+                      className="flex justify-between items-center cursor-pointer py-1"
+                      onClick={() => toggleDescription(gift.id)}
+                    >
+                      <h3 className="font-medium text-gray-900 truncate text-sm">{gift.name}</h3>
+                      <motion.div
+                        animate={{ rotate: expandedItems[gift.id] ? 180 : 0 }}
+                        transition={{ duration: 0.3 }}
                       >
-                        <h3 className="font-medium text-gray-900 truncate">{gift.name}</h3>
-                        <motion.div
-                          animate={{ rotate: expandedItems[gift.id] ? 180 : 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <ChevronDown className="w-4 h-4 text-gray-500" />
-                        </motion.div>
-                      </div>
-
-                      {/* Expandable description */}
-                      <AnimatePresence>
-                        {expandedItems[gift.id] && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="overflow-hidden"
-                          >
-                            <p className="text-sm text-gray-600 my-2 line-clamp-3">{gift.description}</p>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-
-                      {/* Action buttons */}
-                      <div className="flex justify-between mt-3 gap-1">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                          className="text-xs flex-1"
-                        >
-                          <Link href={`/inspiration/${gift.id}`}>
-                            <Eye className="w-3 h-3 mr-1" />
-                            عرض
-                          </Link>
-                        </Button>
-
-                        <Button
-                          size="sm"
-                          className="text-xs bg-purple-600 hover:bg-purple-700 flex-1"
-                          onClick={() => loadInspiration(gift)}
-                        >
-                          <Copy className="w-3 h-3 mr-1" />
-                          استخدام
-                        </Button>
-                      </div>
+                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                      </motion.div>
                     </div>
-                  </motion.div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Improved pagination dots with active indicator */}
-          <div className="flex justify-center mt-6">
-            {Array.from({ length: Math.ceil(inspirationGifts.length / visibleItems) }).map((_, index) => (
-              <button
-                key={index}
-                className={`mx-1 transition-all duration-300 ${
-                  Math.floor(currentIndex / visibleItems) === index 
-                    ? "w-6 h-2 bg-purple-600 rounded-full" 
-                    : "w-2 h-2 bg-gray-300 rounded-full"
-                }`}
-                onClick={() => setCurrentIndex(index * visibleItems)}
-              />
+                    {/* Expandable description */}
+                    <AnimatePresence>
+                      {expandedItems[gift.id] && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="overflow-hidden"
+                        >
+                          <p className="text-xs text-gray-600 my-2 line-clamp-3">{gift.description}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Action buttons - Changed "استخدام" to "اضافة للسلة" (Add to Cart) */}
+                    <div className="flex justify-between mt-3 gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                        className="text-xs flex-1 h-8 rounded-xl"
+                      >
+                        <Link href={`/inspiration/${gift.id}`}>
+                          <Eye className="w-3 h-3 mr-1" />
+                          عرض
+                        </Link>
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        className="text-xs bg-purple-600 hover:bg-purple-700 flex-1 h-8 rounded-xl"
+                        onClick={(e) => handleAddToCart(gift, e)}
+                        disabled={addingToCart[gift.id]}
+                      >
+                        {addingToCart[gift.id] ? (
+                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                        ) : (
+                          <ShoppingCart className="w-3 h-3 mr-1" />
+                        )}
+                        اضافة للسلة
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              </SwiperSlide>
             ))}
-          </div>
+
+            {/* Custom navigation buttons */}
+            <button className="swiper-button-next absolute top-1/2 left-1 -translate-y-1/2 z-10 rounded-full bg-white shadow-lg w-8 h-8 sm:w-10 sm:h-10 border border-purple-200 flex items-center justify-center hover:bg-purple-50 cursor-pointer">
+              <ChevronLeft className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600" />
+            </button>
+            
+            <button className="swiper-button-prev absolute top-1/2 right-1 -translate-y-1/2 z-10 rounded-full bg-white shadow-lg w-8 h-8 sm:w-10 sm:h-10 border border-purple-200 flex items-center justify-center hover:bg-purple-50 cursor-pointer">
+              <ChevronRight className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600" />
+            </button>
+          </Swiper>
+          
+          {/* Custom pagination */}
+          <div className="swiper-pagination flex justify-center mt-3"></div>
         </div>
       )}
     </div>

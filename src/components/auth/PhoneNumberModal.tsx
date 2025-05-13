@@ -2,10 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import useAuthStore from '@/lib/stores/useAuthStore';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/lib/redux/store';
+import { updatePhoneNumber } from '@/lib/redux/slices/authSlice';
 
 const PhoneNumberModal = () => {
-  const { user, phoneNumberRequired, updatePhoneNumber, error } = useAuthStore();
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const phoneNumberRequired = useSelector((state: RootState) => state.auth.phoneNumberRequired);
+  const error = useSelector((state: RootState) => state.auth.error);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -45,10 +50,10 @@ const PhoneNumberModal = () => {
     
     try {
       if (user?.id) {
-        await updatePhoneNumber({
+        await dispatch(updatePhoneNumber({
           userId: user.id,
           phoneNumber
-        });
+        })).unwrap();
         toast.success('تم تحديث رقم الهاتف بنجاح');
       }
     } catch (err) {

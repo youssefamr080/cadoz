@@ -4,18 +4,67 @@ import { connectToDatabase } from "@/lib/mongodb"
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth.config";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Use NextAuth to get the current session
+    console.log("[API] check-session: Checking session status");
+    
+    // 1. محاولة الحصول على الجلسة من NextAuth
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
-      return NextResponse.json({ user: null }, { status: 401 });
+    
+    // 2. إذا كانت الجلسة موجودة، نعيد بيانات المستخدم
+    if (session && session.user && session.user.id) {
+      console.log("[API] check-session: Found NextAuth session for user:", session.user.id);
+      return NextResponse.json({ 
+        user: session.user, 
+        provider: 'credentials',
+        source: 'nextauth'
+      });
     }
-    // Optionally, add provider info if available
-    return NextResponse.json({ user: session.user, provider: 'credentials' });
+    
+    // 3. إذا لم تكن الجلسة موجودة، نحاول البحث عن بيانات المستخدم في قاعدة البيانات
+    // نحصل على معرف المستخدم من الكوكيز إذا كان متاحًا
+    const cookies = request.headers.get('cookie');
+    let userId = null;
+    
+    if (cookies) {
+      const userIdMatch = cookies.match(/userId=([^;]+)/);
+      if (userIdMatch) {
+        userId = userIdMatch[1];
+        console.log("[API] check-session: Found userId in cookies:", userId);
+      }
+    }
+    
+    if (userId) {
+      const { db } = await connectToDatabase();
+      const user = await db.collection("customers").findOne({ id: userId });
+      
+      if (user) {
+        console.log("[API] check-session: Found user in database:", user.id);
+        // تحويل بيانات المستخدم إلى الصيغة المطلوبة
+        const userData = {
+          id: user.id,
+          name: user.name || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          phoneNumber: user.phone || '',
+          image: user.image,
+          role: user.role || 'user'
+        };
+        
+        return NextResponse.json({ 
+          user: userData, 
+          provider: 'credentials',
+          source: 'database'
+        });
+      }
+    }
+    
+    // 4. إذا لم نجد بيانات المستخدم في أي مكان، نعيد استجابة ناجحة ولكن بدون بيانات مستخدم
+    console.log("[API] check-session: No session found");
+    return NextResponse.json({ user: null, message: "No session found" }, { status: 200 });
   } catch (error) {
-    console.error("Error in GET /api/auth/check-session:", error);
-    return NextResponse.json({ user: null, message: "Internal server error" }, { status: 500 });
+    console.error("[API] Error in GET /api/auth/check-session:", error);
+    return NextResponse.json({ user: null, message: "Internal server error" }, { status: 200 });
   }
 }
 

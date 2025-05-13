@@ -331,3 +331,74 @@
     @apply text-current hover:text-current focus:ring-2 focus:ring-current focus:ring-opacity-20;
   }
 }
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti {
+  animation: confetti-fall linear forwards;
+}
+
+/* Custom styles for Swiper pagination */
+.gift-inspiration-swiper .swiper-pagination {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  text-align: center;
+}
+
+.gift-inspiration-swiper .swiper-pagination-bullet {
+  width: 6px;
+  height: 6px;
+  display: inline-block;
+  margin: 0 3px;
+  border-radius: 50%;
+  background-color: #ccc;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.gift-inspiration-swiper .swiper-pagination-bullet-active {
+  opacity: 1;
+  background-color: #9333ea; /* Purple-600 */
+  width: 20px;
+  border-radius: 5px;
+}
+
+/* Hide default swiper navigation arrows */
+.gift-inspiration-swiper .swiper-button-next::after,
+.gift-inspiration-swiper .swiper-button-prev::after {
+  display: none;
+}
+
+/* Advanced mobile optimizations */
+@media (max-width: 768px) {
+  .gift-inspiration-swiper .swiper-slide {
+    transition: transform 0.3s ease;
+  }
+  
+  .gift-inspiration-swiper .swiper-slide-active {
+    transform: scale(1.02);
+  }
+  
+  .gift-inspiration-swiper .swiper-pagination-bullet {
+    width: 5px;
+    height: 5px;
+    margin: 0 2px;
+  }
+  
+  .gift-inspiration-swiper .swiper-pagination-bullet-active {
+    width: 16px;
+  }
+}

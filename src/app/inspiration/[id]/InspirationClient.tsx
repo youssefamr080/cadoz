@@ -5,7 +5,9 @@ import { ThumbsUp, ThumbsDown, MessageCircle, Share2, Star } from "lucide-react"
 import InspirationComments from "@/components/gift/InspirationComments"; 
 import InspirationReactions from "@/components/gift/InspirationReactions"; 
 import InspirationStars from "@/components/gift/InspirationStars";       
-import useAuthStore from "@/lib/stores/useAuthStore";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/lib/redux/store";
+import { checkSession } from "@/lib/redux/slices/authSlice";
 import type { Inspiration } from "@/types/inspiration";
 import { Badge } from "@/components/ui/badge"; 
 import { Card } from "@/components/ui/card";   
@@ -17,13 +19,14 @@ interface Props {
 }
 
 export default function InspirationClient({ inspiration }: Props) {
-	const { user, checkSession } = useAuthStore();
+	const dispatch = useDispatch<AppDispatch>();
+	const user = useSelector((state: RootState) => state.auth.user);
 	const userId = user?.id || null;
 	const userName = user?.name || null;
 
 	useEffect(() => {
-		checkSession();
-	}, [checkSession]);
+		dispatch(checkSession());
+	}, [dispatch]);
 
 	// --- Local State for Interactivity ---
 	const [likes, setLikes] = useState(inspiration.likes ?? 0);

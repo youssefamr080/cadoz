@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import Image from "next/image"
 import Link from "next/link"
-import { Star, Copy, Eye, Filter, Search, X } from "lucide-react"
+import { Filter, Search, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Inspiration } from "@/types/inspiration"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
+import InspirationCard from "./InspirationCard"
 
 export default function InspirationsPage() {
 
@@ -368,61 +368,11 @@ export default function InspirationsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="relative aspect-square bg-gray-100">
-                  <Image 
-                    src={gift.image || "/placeholder.svg"} 
-                    alt={gift.name} 
-                    fill 
-                    className="object-cover"
-                  />
-                  
-                  {/* Category Badge */}
-                  {gift.category && (
-                    <div className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full">
-                      {getCategoryArabicName(gift.category)}
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-gray-900 line-clamp-1">{gift.name}</h3>
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                      <span className="text-sm font-medium ml-1">{gift.rating}</span>
-                      <span className="text-xs text-gray-500 ml-1">({gift.reviews})</span>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">{gift.description}</p>
-
-                  <div className="flex justify-between">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild
-                      className="text-xs"
-                    >
-                      <Link href={`/inspiration/${gift.id}`}>
-                        <Eye className="w-3 h-3 mr-1" />
-                        عرض الهدية
-                      </Link>
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      asChild
-                      className="text-xs bg-purple-600 hover:bg-purple-700 flex items-center justify-center gap-1"
-                    >
-                      <Link href={`/inspiration/${gift.id}`}>
-                        <Copy className="w-3 h-3" />
-                        استخدام هذه الهدية
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
+                <InspirationCard 
+                  gift={gift} 
+                  getCategoryArabicName={getCategoryArabicName} 
+                />
               </motion.div>
             ))}
           </div>

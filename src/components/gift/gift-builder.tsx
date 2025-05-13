@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGift } from "@/context/gift-context"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -11,7 +11,7 @@ import DecorationSelector from "@/components/gift/steps/decoration-selector"
 import BagSelector from "@/components/gift/steps/bag-selector"
 import GiftSummary from "@/components/gift/steps/gift-summary"
 import SavedItems from "@/components/gift/saved-items"
-import { ChevronLeft, ChevronRight, Gift, Package, ShoppingCart, Sparkles, Palette, ClipboardList, Bookmark, User } from "lucide-react"
+import { ChevronLeft, ChevronRight, Gift, Package, ShoppingCart, Sparkles, Palette, ClipboardList, Bookmark, Zap, ArrowUp } from "lucide-react"
 import InspirationGallery from "@/components/gift/inspiration-gallery"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -49,6 +49,8 @@ export default function GiftBuilder() {
   const [isLoading, setIsLoading] = useState(false)
   const isMobile = useMediaQuery("(max-width: 768px)")
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const handleStepChange = (step: string) => {
     setIsLoading(true)
@@ -72,6 +74,19 @@ export default function GiftBuilder() {
     }
   }
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 500);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const renderStepContent = () => {
     switch (currentStep) {
       case "box":
@@ -90,39 +105,57 @@ export default function GiftBuilder() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-50 py-8 px-4 md:px-6 lg:px-8 rtl">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-50 pb-20 px-4 md:px-6 lg:px-8 rtl" ref={contentRef}>
       <div className="max-w-7xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: -20 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.5 }}
-          className="text-center mb-8"
+          className="text-center mb-6 pt-6 md:mb-8 md:pt-8"
         >
-          <div className="inline-block mb-4 bg-gradient-to-br from-purple-500 to-pink-500 p-2 rounded-full">
-            <Gift className="w-8 h-8 text-white" />
+          <div className="inline-block mb-3 md:mb-4 bg-gradient-to-br from-purple-500 to-pink-500 p-2 rounded-full shadow-lg">
+            <Gift className="w-6 h-6 md:w-8 md:h-8 text-white" />
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">اصنع هديتك الشخصية</h1>
-          <p className="text-gray-600 mt-3 max-w-lg mx-auto">قم بتخصيص هديتك الخاصة بخطوات بسيطة واختر من مجموعة متنوعة من المنتجات والتصاميم</p>
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">اصنع هديتك الشخصية</h1>
+          <p className="text-sm md:text-base text-gray-600 mt-2 md:mt-3 max-w-lg mx-auto">قم بتخصيص هديتك الخاصة بخطوات بسيطة واختر من مجموعة متنوعة من المنتجات والتصاميم</p>
 
-          <div className="mt-6">
+          <div className="mt-4 md:mt-6">
             <Link href="/custom-gifts">
-              <Button variant="outline" size="lg" className=" gap-2 px-8 py-4 text-lg md:text-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg rounded-full">
-                <User className="w-4 h-4" />
+              <Button variant="outline" size="sm" className="gap-2 px-4 py-2 md:px-8 md:py-4 md:text-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg rounded-full">
+                <Zap className="w-3 h-3 md:w-4 md:h-4" />
                 تخصيص الهدايا الشخصية
               </Button>
             </Link>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Gift Preview - Fixed at the top or side */}
-          <div className="lg:col-span-5 xl:col-span-4 lg:order-1 order-1">
-            <div className="sticky top-8 z-10">
+        {/* Mobile Layout - Reordering for mobile */}
+        {isMobile && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mb-6"
+          >
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-purple-100">
+              <div className="p-3 border-b bg-gradient-to-r from-purple-50 to-purple-100">
+                <h2 className="text-center text-lg font-bold text-purple-700">هدايا جاهزة للإلهام</h2>
+                <p className="text-center text-xs text-gray-600 mt-1">اختر من المجموعات الجاهزة أو خصص هديتك</p>
+              </div>
+              <InspirationGallery />
+            </div>
+          </motion.div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+          {/* Gift Preview - Fixed at the top for mobile, side for desktop */}
+          <div className={`${isMobile ? 'order-1' : 'lg:col-span-5 xl:col-span-4 lg:order-1 order-1'}`}>
+            <div className={`${!isMobile && 'sticky top-8 z-10'}`}>
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }} 
                 animate={{ opacity: 1, scale: 1 }} 
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-lg border border-purple-100"
+                className="bg-white rounded-2xl overflow-hidden shadow-xl border border-purple-100"
               >
                 <GiftPreview />
 
@@ -159,25 +192,29 @@ export default function GiftBuilder() {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-7 xl:col-span-8 lg:order-2 order-2">
-            {/* Inspiration Gallery */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="mb-8"
-            >
-              <InspirationGallery />
-            </motion.div>
+          <div className={`${isMobile ? 'order-2' : 'lg:col-span-7 xl:col-span-8 lg:order-2 order-2'}`}>
+            {/* Inspiration Gallery - Only show on desktop */}
+            {!isMobile && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="mb-8"
+              >
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-purple-100 p-4">
+                  <InspirationGallery />
+                </div>
+              </motion.div>
+            )}
 
             {/* Gift Builder Steps */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8 border border-purple-100"
+              className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 border border-purple-100"
             >
-              <div className="p-4 border-b">
+              <div className="p-3 md:p-4 border-b bg-gradient-to-r from-white to-purple-50">
                 <Tabs value={currentStep} onValueChange={handleStepChange} className="w-full">
                   <TabsList className="w-full justify-between bg-gray-100 p-1 rounded-xl">
                     {steps.map((step, index) => {
@@ -188,7 +225,7 @@ export default function GiftBuilder() {
                           key={step.id}
                           value={step.id}
                           className={cn(
-                            "flex flex-col md:flex-row items-center gap-1 md:gap-2 px-2 md:px-4 py-2 md:py-3 rounded-lg transition-all duration-300",
+                            "flex flex-col md:flex-row items-center gap-1 md:gap-2 px-1 md:px-4 py-1.5 md:py-3 rounded-lg transition-all duration-300",
                             isActive
                               ? "bg-white shadow-md text-purple-600 border-b-2 border-purple-500 translate-y-[-2px]"
                               : "hover:bg-white/50"
@@ -197,12 +234,12 @@ export default function GiftBuilder() {
                           onMouseLeave={() => setActiveTooltip(null)}
                         >
                           <div className={cn(
-                            "w-8 h-8 flex items-center justify-center rounded-full text-xs transition-all duration-300",
+                            "w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full text-xs transition-all duration-300",
                             isActive 
                               ? "bg-purple-100 text-purple-600" 
                               : "bg-gray-200 text-gray-700"
                           )}>
-                            {isMobile ? index + 1 : <StepIcon className="w-4 h-4" />}
+                            {isMobile ? index + 1 : <StepIcon className="w-3 h-3 md:w-4 md:h-4" />}
                           </div>
                           <span className={cn(
                             "text-xs md:text-sm font-medium transition-all duration-300",
@@ -211,7 +248,7 @@ export default function GiftBuilder() {
                             {isMobile ? "" : step.title}
                           </span>
                           {isMobile && activeTooltip === step.id && (
-                            <div className="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded px-2 py-1 z-50">
+                            <div className="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded px-2 py-1 z-50 w-max">
                               {step.title}
                             </div>
                           )}
@@ -222,7 +259,7 @@ export default function GiftBuilder() {
                 </Tabs>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 md:p-6">
                 <AnimatePresence mode="wait">
                   {isLoading ? (
                     <motion.div
@@ -230,10 +267,10 @@ export default function GiftBuilder() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="min-h-[400px] flex items-center justify-center"
+                      className={`min-h-[${isMobile ? '300px' : '400px'}] flex items-center justify-center`}
                     >
                       <div className="relative">
-                        <div className="w-16 h-16 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin"></div>
+                        <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin"></div>
                         <div className="absolute inset-0 flex items-center justify-center text-purple-600 text-sm font-medium">
                           جاري...
                         </div>
@@ -246,7 +283,7 @@ export default function GiftBuilder() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.4 }}
-                      className="min-h-[400px]"
+                      className={`min-h-[${isMobile ? '300px' : '400px'}]`}
                     >
                       {renderStepContent()}
                     </motion.div>
@@ -254,41 +291,48 @@ export default function GiftBuilder() {
                 </AnimatePresence>
               </div>
 
-              <div className="p-5 border-t bg-gradient-to-r from-purple-50 to-pink-50 flex justify-between items-center">
-                <Button
-                  onClick={goToPreviousStep}
-                  disabled={currentIndex === 0}
-                  variant="outline"
-                  size="lg"
-                  className="px-6 py-2 rounded-full border-2 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-300 shadow-sm hover:shadow"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                  <span>السابق</span>
-                </Button>
+              <div className="p-3 md:p-4 border-t bg-gradient-to-r from-purple-50 to-white">
+                <div className="flex justify-between">
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 rounded-xl border-purple-200"
+                    onClick={goToPreviousStep}
+                    disabled={currentIndex === 0}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                    <span className="hidden sm:inline">السابق</span>
+                  </Button>
 
-                <div className="hidden md:flex items-center">
-                  {steps.map((step, idx) => (
-                    <div 
-                      key={step.id} 
-                      className={`w-2 h-2 mx-1 rounded-full ${currentIndex === idx ? 'bg-purple-600' : 'bg-gray-300'}`}
-                    />
-                  ))}
+                  <Button
+                    className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 rounded-xl"
+                    onClick={goToNextStep}
+                    disabled={currentIndex === steps.length - 1}
+                  >
+                    <span className="hidden sm:inline">التالي</span>
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
                 </div>
-
-                <Button
-                  onClick={goToNextStep}
-                  disabled={currentIndex === steps.length - 1}
-                  size="lg"
-                  className="px-6 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-300 shadow-md hover:shadow-lg"
-                >
-                  <span>{currentIndex === steps.length - 2 ? "اكمال الهدية" : "التالي"}</span>
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
               </div>
             </motion.div>
           </div>
         </div>
       </div>
+
+      {/* Scroll to top button */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            onClick={scrollToTop}
+            className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-purple-600 text-white shadow-lg flex items-center justify-center z-50 hover:bg-purple-700 transition-colors"
+            aria-label="العودة للأعلى"
+          >
+            <ArrowUp className="h-5 w-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

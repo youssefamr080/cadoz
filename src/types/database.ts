@@ -161,6 +161,8 @@ export interface Box {
   image: string
   category: string
   stock: number
+  texture?: string
+  hasRibbon?: boolean
 }
 
 export interface GiftProduct {

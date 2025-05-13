@@ -1,4 +1,4 @@
-/* Swiper styles */
+/* Swiper general styles */
 .swiper {
   width: 100%;
   height: 100%;
@@ -18,6 +18,87 @@
   object-fit: cover;
 }
 
+/* أنماط لجميع Swiper Components */
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  display: none !important; /* إخفاء الأيقونات الافتراضية */
+}
+
+.swiper-pagination {
+  position: relative !important;
+  bottom: 0 !important;
+  margin-top: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.swiper-pagination-bullet {
+  width: 6px !important;
+  height: 6px !important;
+  background: #e0e7ff !important;
+  opacity: 1 !important;
+  border: 1px solid #6366f1 !important;
+  margin: 0 3px !important;
+  transition: all 0.3s ease !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #6366f1 !important;
+  transform: scale(1.5) !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.swiper-button-disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+
+.swiper-slide-shadow-left,
+.swiper-slide-shadow-right {
+  border-radius: 12px !important;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Inspiration Swiper Styles */
+.gift-inspiration-swiper .swiper-wrapper,
+.category-inspiration-swiper .swiper-wrapper {
+  padding-top: 5px; /* إضافة مساحة للظلال العلوية */
+  padding-bottom: 15px; /* إضافة مساحة للظلال السفلية */
+  margin-bottom: 10px; /* إضافة مساحة قبل pagination */
+}
+
+.gift-inspiration-swiper .swiper-slide,
+.category-inspiration-swiper .swiper-slide {
+  height: auto !important; /* ضمان أن كل سلايد يأخذ الارتفاع المناسب له */
+  transition: transform 0.3s ease;
+}
+
+.gift-inspiration-swiper .swiper-button-next,
+.gift-inspiration-swiper .swiper-button-prev,
+.category-inspiration-swiper .swiper-button-next,
+.category-inspiration-swiper .swiper-button-prev {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: white !important;
+  color: #6366f1 !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  border: 1px solid #e5e7eb !important;
+}
+
 /* Navigation buttons */
 .swiper-button-next,
 .swiper-button-prev {
@@ -33,15 +114,19 @@
   font-size: 20px;
 }
 
-/* Pagination */
-.swiper-pagination-bullet {
-  background: #000;
-  opacity: 0.5;
+/* Cart items swiper styles */
+.cart-items-swiper {
+  padding: 4px 2px 20px 2px;
+  margin: -4px -2px;
 }
 
-.swiper-pagination-bullet-active {
-  opacity: 1;
-  background: #000;
+.cart-items-swiper .swiper-slide {
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.cart-items-swiper .swiper-slide:hover {
+  transform: translateY(-2px);
 }
 
 /* Product slider specific */
@@ -58,6 +143,16 @@
 @media (max-width: 640px) {
   .swiper-button-next,
   .swiper-button-prev {
-    display: none;
+    width: 32px !important;
+    height: 32px !important;
+  }
+  
+  .cart-items-swiper {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  .cart-items-swiper .swiper-slide {
+    width: 160px !important;
   }
 } 

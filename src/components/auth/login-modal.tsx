@@ -11,6 +11,15 @@ import { Label } from "@/components/ui/label"
 import { toast } from "react-toastify"
 import { signIn } from "next-auth/react"
 import { FcGoogle } from "react-icons/fc"
+import type { UserData } from "@/context/AuthContext"
+
+// واجهة خاصة بنموذج تسجيل الدخول
+interface LoginFormData {
+  name: string;
+  phone: string;
+  email: string;
+  password: string;
+}
 
 interface LoginModalProps {
   isOpen: boolean
@@ -22,13 +31,7 @@ interface LoginModalProps {
   productName?: string
 }
 
-export interface UserData {
-  name: string
-  phone: string
-  email?: string
-  password?: string
-  id?: string
-}
+// تم استيراد UserData من AuthContext.tsx
 
 export default function LoginModal({
   isOpen,
@@ -39,7 +42,7 @@ export default function LoginModal({
   productId,
   productName,
 }: LoginModalProps) {
-  const [formData, setFormData] = useState<UserData>({
+  const [formData, setFormData] = useState<LoginFormData>({
     name: "",
     phone: "",
     email: "",
@@ -75,45 +78,89 @@ export default function LoginModal({
     }
 
     setIsLoading(true)
+    console.log("[LOGIN] Starting login process with phone:", formData.phone)
 
     try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        phone: formData.phone,
-        password: formData.password,
+      // إعداد لتسجيل الدخول
+
+      // 2. نحاول تسجيل الدخول باستخدام API الخاص بنا
+      console.log("[LOGIN] Calling login API")
+      const loginResponse = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phone: formData.phone,
+          password: formData.password,
+        }),
       })
 
-      if (result?.ok) {
-        // الحصول على بيانات المستخدم
-        const response = await fetch("/api/auth/session")
-        const session = await response.json()
+      const loginData = await loginResponse.json()
+      console.log("[LOGIN] Login API response:", loginData.success ? "success" : "failed", loginData.message || "")
 
-        if (session?.user) {
-          const userData: UserData = {
-            id: session.user.id,
-            name: session.user.name,
-            phone: session.user.phone || formData.phone,
-            email: session.user.email,
-          }
-
-          // حفظ بيانات المستخدم في localStorage
-          localStorage.setItem("userData", JSON.stringify(userData))
-
-          toast.success("تم تسجيل الدخول بنجاح")
-          onSuccess(userData)
-
-          // إغلاق النافذة بعد تسجيل الدخول
-          setTimeout(() => {
-            onClose()
-          }, 500)
+      if (loginData.success) {
+        // 3. إذا نجح تسجيل الدخول عبر API، نقوم بتحديث بيانات المستخدم
+        const userData: UserData = {
+          id: loginData.user.id,
+          name: loginData.user.name,
+          phone: loginData.user.phone || formData.phone,
+          email: loginData.user.email || "",
+          image: loginData.user.image,
+          phoneNumber: loginData.user.phone || formData.phone,
+          role: loginData.user.role || "user"
         }
+
+        // 4. حفظ بيانات المستخدم في localStorage
+        console.log("[LOGIN] Saving user data to localStorage")
+        localStorage.setItem("userData", JSON.stringify(userData))
+
+        // 5. استخدام NextAuth لتسجيل الدخول وإنشاء جلسة
+        try {
+          console.log("[LOGIN] Attempting NextAuth signIn")
+          const result = await signIn("credentials", {
+            redirect: false,
+            phone: formData.phone,
+            password: formData.password,
+          })
+
+          console.log("[LOGIN] NextAuth signIn result:", result?.ok ? "success" : "failed")
+          
+          // 6. إذا نجح NextAuth، نقوم بتحديث الجلسة
+          if (result?.ok) {
+            console.log("[LOGIN] NextAuth login successful")
+          } else {
+            // حتى لو فشل NextAuth، نستمر لأن API الخاص بنا نجح
+            console.warn("[LOGIN] NextAuth login failed, but API login was successful")
+          }
+        } catch (nextAuthError) {
+          // 7. إذا فشل NextAuth، نستمر لأن API الخاص بنا نجح
+          console.error("[LOGIN] NextAuth error:", nextAuthError)
+          console.warn("[LOGIN] Continuing with API login only")
+        }
+
+        // 8. إعلام المستخدم بنجاح تسجيل الدخول
+        toast.success("تم تسجيل الدخول بنجاح")
+        
+        // 9. استدعاء دالة النجاح وإرسال بيانات المستخدم
+        console.log("[LOGIN] Calling onSuccess with user data")
+        onSuccess(userData)
+
+        // 10. إغلاق النافذة بعد تسجيل الدخول
+        setTimeout(() => {
+          onClose()
+        }, 500)
       } else {
-        toast.error("فشل تسجيل الدخول. تأكد من صحة البيانات")
+        // إذا فشل تسجيل الدخول عبر API، نعرض رسالة الخطأ
+        console.error("[LOGIN] API login failed:", loginData.message)
+        toast.error(loginData.message || "فشل تسجيل الدخول. تأكد من صحة البيانات")
       }
     } catch (error) {
-      console.error("Login error:", error)
+      // إذا حدث خطأ غير متوقع، نعرض رسالة الخطأ
+      console.error("[LOGIN] Unexpected error during login:", error)
       toast.error("حدث خطأ أثناء تسجيل الدخول")
     } finally {
+      // إنهاء حالة التحميل
       setIsLoading(false)
     }
   }

@@ -5,25 +5,36 @@ import { ObjectId } from "mongodb"
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { userId, productId, productName, phone, createdAt } = body
+    const { userId, productId, productName, phone, name, createdAt } = body
     const userAgent = request.headers.get("user-agent") || ""
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "0.0.0.0"
 
-    if (!userId || !productId || !productName || !phone) {
-      return NextResponse.json({ success: false, message: "بيانات غير مكتملة" }, { status: 400 })
+    // التحقق من البيانات المطلوبة
+    if (!userId || !productId || !productName || !phone || !name) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "بيانات غير مكتملة",
+        missingFields: {
+          userId: !userId,
+          productId: !productId,
+          productName: !productName,
+          phone: !phone,
+          name: !name
+        }
+      }, { status: 400 })
     }
 
     const { db } = await connectToDatabase()
 
     // التحقق من وجود إشعار مسبق لنفس المستخدم والمنتج
     const existingNotification = await db.collection("notifications").findOne({
-      userId,
-      productId,
+      userId: String(userId), // تحويل إلى نص للتأكد من التطابق
+      productId: Number(productId),
     })
 
     if (existingNotification) {
       // تحديث الإشعار الموجود
-      await db.collection("notifications").updateOne(
+      const updateResult = await db.collection("notifications").updateOne(
         { _id: existingNotification._id },
         {
           $set: {
@@ -31,19 +42,31 @@ export async function POST(request: Request) {
             lastRequestIp: ip,
             lastUserAgent: userAgent,
             requestCount: (existingNotification.requestCount || 1) + 1,
+            name: String(name), // تحويل إلى نص للتأكد من التخزين الصحيح
           },
+          $addToSet: {
+            requestedProducts: {
+              productId: Number(productId),
+              productName: String(productName),
+              requestedAt: new Date(),
+            }
+          }
         },
       )
 
+      if (!updateResult.modifiedCount) {
+        throw new Error("Failed to update existing notification")
+      }
+
       // تسجيل حدث تحديث الإشعار
       await db.collection("customerEvents").insertOne({
-        userId,
+        userId: String(userId),
         eventType: "notification_update",
         timestamp: new Date(),
         context: {
           productId: Number(productId),
           notificationId: existingNotification._id,
-          productName,
+          productName: String(productName),
         },
       })
 
@@ -56,43 +79,61 @@ export async function POST(request: Request) {
 
     // إنشاء إشعار جديد
     const notification = {
-      userId,
+      userId: String(userId),
       productId: Number(productId),
-      productName,
-      phone,
+      productName: String(productName),
+      phone: String(phone),
+      name: String(name),
       createdAt: createdAt || new Date(),
       updatedAt: new Date(),
-      status: "pending", // pending, sent, cancelled
+      status: "pending",
       ip,
       userAgent,
       requestCount: 1,
-      source: "product_page", // يمكن تغييره حسب مصدر الطلب
+      source: "product_page",
+      requestedProducts: [{
+        productId: Number(productId),
+        productName: String(productName),
+        requestedAt: new Date(),
+      }]
     }
 
     const result = await db.collection("notifications").insertOne(notification)
 
+    if (!result.insertedId) {
+      throw new Error("Failed to create new notification")
+    }
+
     // تحديث بيانات العميل
     await db.collection("customers").updateOne(
-      { id: userId },
+      { id: String(userId) },
       {
         $inc: { notificationCount: 1 },
-        $set: { lastNotificationAt: new Date() },
+        $set: { 
+          lastNotificationAt: new Date(),
+          name: String(name)
+        },
         $addToSet: { interestedProducts: Number(productId) },
       },
+      { upsert: true } // إنشاء وثيقة جديدة إذا لم تكن موجودة
     )
 
     // تحديث بيانات المنتج
-    await db.collection("products").updateOne({ id: Number(productId) }, { $inc: { notificationRequests: 1 } })
+    await db.collection("products").updateOne(
+      { id: Number(productId) }, 
+      { $inc: { notificationRequests: 1 } },
+      { upsert: true } // إنشاء وثيقة جديدة إذا لم تكن موجودة
+    )
 
     // تسجيل حدث إنشاء الإشعار
     await db.collection("customerEvents").insertOne({
-      userId,
+      userId: String(userId),
       eventType: "notification_create",
       timestamp: new Date(),
       context: {
         productId: Number(productId),
         notificationId: result.insertedId,
-        productName,
+        productName: String(productName),
       },
     })
 
@@ -106,7 +147,11 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("Error creating notification:", error)
-    return NextResponse.json({ success: false, message: "حدث خطأ أثناء تسجيل الإشعار" }, { status: 500 })
+    return NextResponse.json({ 
+      success: false, 
+      message: "حدث خطأ أثناء تسجيل الإشعار",
+      error: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
   }
 }
 

@@ -1,8 +1,14 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, type ReactNode } from "react"
 import { toast } from "react-toastify"
 import { useSession, signOut } from "next-auth/react"
+import { useSelector, useDispatch } from "react-redux"
+import { RootState, AppDispatch } from "@/lib/redux/store"
+import { setUser, logout as reduxLogout, updateProfile, checkSession as reduxCheckSession } from "@/lib/redux/slices/authSlice"
+
+// استيراد نوع UserRole من Redux
+type UserRole = 'user' | 'admin';
 
 export interface UserData {
   id: string
@@ -14,6 +20,8 @@ export interface UserData {
   sessionId?: string
   createdAt?: string
   image?: string
+  role?: UserRole // تغيير النوع من string إلى UserRole
+  phoneNumber?: string // إضافة لدعم التوافق مع مكونات أخرى
 }
 
 interface AuthContextType {
@@ -29,9 +37,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<UserData | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const { data: session, status } = useSession()
+  const dispatch = useDispatch<AppDispatch>()
+  const reduxUser = useSelector((state: RootState) => state.auth.user)
+  const isLoading = useSelector((state: RootState) => state.auth.isLoading)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: session } = useSession()
+  
+  // Convert Redux user to AuthContext UserData format
+  const user: UserData | null = reduxUser ? {
+    id: reduxUser.id,
+    name: reduxUser.name,
+    phone: reduxUser.phoneNumber || "",
+    email: reduxUser.email,
+    image: reduxUser.image,
+  } : null
 
   // الحصول على التوكن
   const getToken = (): string | null => {
@@ -43,130 +62,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // تحديث بيانات المستخدم
   const updateUserData = (data: Partial<UserData>) => {
-    if (user) {
-      const updatedUser = { ...user, ...data }
-      setUser(updatedUser)
-      localStorage.setItem("userData", JSON.stringify(updatedUser))
-    }
-  }
-
-  // تحميل بيانات المستخدم عند بدء التطبيق
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        setIsLoading(true)
-
-        // التحقق من وجود جلسة NextAuth
-        if (status === "authenticated" && session?.user) {
-          const userData: UserData = {
-            id: session.user.id as string,
-            name: session.user.name || "",
-            phone: (session.user as { phone?: string }).phone || "",
-            email: session.user.email || "",
-            image: session.user.image || undefined,
-          }
-
-          setUser(userData)
-          localStorage.setItem("userData", JSON.stringify(userData))
-          return
-        }
-
-        // التحقق من وجود بيانات المستخدم في التخزين المحلي
-        const userDataStr = localStorage.getItem("userData")
-        const authToken = localStorage.getItem("authToken")
-
-        if (userDataStr && authToken) {
-          const userData = JSON.parse(userDataStr) as UserData
-
-          try {
-            // التحقق من صحة الجلسة
-            const response = await fetch("/api/auth/check-session", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                userId: userData.id,
-                phone: userData.phone,
-                sessionId: authToken,
-              }),
-            })
-
-            const data = await response.json()
-
-            if (data.valid) {
-              console.log("تم التحقق من صحة جلسة المستخدم:", userData.name)
-              setUser(userData)
-            } else {
-              console.log("جلسة المستخدم غير صالحة:", data.message)
-              // إذا كانت الجلسة غير صالحة، قم بتسجيل الخروج
-              localStorage.removeItem("authToken")
-              localStorage.removeItem("userData")
-              setUser(null)
-            }
-          } catch (error) {
-            console.error("Error verifying session:", error)
-            // في حالة حدوث خطأ، نعتبر الجلسة غير صالحة
-            localStorage.removeItem("authToken")
-            localStorage.removeItem("userData")
-            setUser(null)
-          }
-        }
-      } catch (error) {
-        console.error("Error loading user data:", error)
-        localStorage.removeItem("authToken")
-        localStorage.removeItem("userData")
-        setUser(null)
-      } finally {
-        setIsLoading(false)
+    if (reduxUser) {
+      // Convert UserData format to Redux User format
+      const reduxUserData = {
+        ...data,
+        phoneNumber: data.phone,
+        // نستخدم نوع UserRole مباشرة لأنه متوافق مع النوع المطلوب في Redux
+        role: data.role || 'user' as UserRole
       }
-    }
-
-    loadUser()
-  }, [session, status])
-
-  // التحقق من صحة جلسة المستخدم
-  const verifyUserSession = async (userData: UserData): Promise<boolean> => {
-    if (!userData || !userData.id || !userData.phone) return false
-
-    try {
-      const response = await fetch("/api/auth/check-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: userData.id,
-          phone: userData.phone,
-        }),
-      })
-
-      const data = await response.json()
-      return data.valid === true
-    } catch (error) {
-      console.error("Error verifying user session:", error)
-      return false
+      
+      dispatch(updateProfile(reduxUserData))
     }
   }
 
-  // تعديل دالة login لتحفظ بيانات المستخدم بشكل صحيح
+  // We don't need this useEffect anymore as the Redux state handles session management
+
+  // ملاحظة: تم إزالة دالة verifyUserSession غير المستخدمة
+
+  // تعديل دالة login لاستخدام Redux
   const login = (userData: UserData) => {
-    if (!userData || !userData.id || !userData.phone) {
+    if (!userData || !userData.id || !userData.name) {
       console.error("Invalid user data provided to login function")
       return
     }
 
     try {
-      setUser(userData)
+      // Convert to Redux user format and dispatch setUser action
+      dispatch(setUser({
+        id: userData.id,
+        name: userData.name,
+        email: userData.email || "",
+        // Support both phone and phoneNumber for better compatibility
+        phoneNumber: userData.phone,
+        phone: userData.phone,
+        role: "user",
+        image: userData.image,
+      }))
       
-      // تخزين بيانات المستخدم
-      localStorage.setItem("userData", JSON.stringify(userData))
-
-      // تخزين توكن الجلسة
-      if (userData.sessionId) {
-        localStorage.setItem("authToken", userData.sessionId)
+      // Store minimal user data in localStorage for components that might need it
+      if (typeof window !== "undefined") {
+        const minimalUserData = {
+          id: userData.id,
+          name: userData.name,
+          phone: userData.phone,
+          email: userData.email || ""
+        }
+        localStorage.setItem("userData", JSON.stringify(minimalUserData))
       }
-
+      
       // إضافة تأكيد على نجاح تسجيل الدخول
       toast.success(`مرحباً ${userData.name}! تم تسجيل الدخول بنجاح`)
       
@@ -177,39 +120,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  // تسجيل الخروج
+  // تسجيل الخروج - now using Redux
   const logout = async () => {
     try {
       // تسجيل الخروج من NextAuth
       await signOut({ redirect: false })
-
-      // إرسال طلب لإنهاء الجلسة على الخادم
-      if (user) {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: user.id,
-          }),
-        })
-      }
-    } catch (error) {
-      console.error("Error logging out:", error)
-    } finally {
+      
+      // Use Redux logout action
+      await dispatch(reduxLogout()).unwrap()
+      
       // حذف بيانات المستخدم من التخزين المحلي
-      setUser(null)
       localStorage.removeItem("authToken")
       localStorage.removeItem("userData")
-      toast.info("تم تسجيل الخروج بنجاح")
+      toast.info("تم تسجيل الخروج")
+    } catch (error) {
+      console.error("Error logging out:", error)
     }
   }
 
   // التحقق من جلسة المستخدم الحالية
   const checkSession = async (): Promise<boolean> => {
-    if (!user) return false
-    return await verifyUserSession(user)
+    try {
+      await dispatch(reduxCheckSession()).unwrap()
+      return true
+    } catch (error) {
+      console.error("Error checking session:", error)
+      return false
+    }
   }
 
   return (

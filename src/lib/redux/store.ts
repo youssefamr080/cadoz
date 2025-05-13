@@ -5,6 +5,7 @@ import giftReducer from "./slices/giftSlice"
 import cartReducer from "./slices/cartSlice"
 import inspirationReducer from "./slices/inspirationSlice"
 import customGiftReducer from "./slices/customGiftSlice"
+import authReducer from "./slices/authSlice"
 
 export const store = configureStore({
   reducer: {
@@ -13,6 +14,7 @@ export const store = configureStore({
     cart: cartReducer,
     inspiration: inspirationReducer,
     customGift: customGiftReducer,
+    auth: authReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
