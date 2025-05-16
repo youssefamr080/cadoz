@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getAllProducts } from '@/lib/actions/product-actions';
 import { getAllInspirations } from '@/lib/actions/inspiration-actions';
 import { 
-  stringSimilarity, 
   normalizeArabicText, 
   generateArabicAlternatives,
   enhancedLevenshteinForArabic

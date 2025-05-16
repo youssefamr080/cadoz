@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { 
   Search, X, Clock, ArrowUpRight, 
   Sparkles, Tag, Settings, CheckCircle2, 
-  Lightbulb, Gift, ShoppingBag, Filter,
-  ArrowDownAZ, ArrowDownZA, Percent, CalendarClock,
-  SlidersHorizontal, PanelLeftClose, PanelLeftOpen, Check
+  Lightbulb, Gift, ShoppingBag, Filter
 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useSearchStore } from "@/lib/stores/useSearchStore";
@@ -16,15 +14,12 @@ import { HighlightText } from "@/components/ui/highlight-text";
 import { RelevanceIndicator } from "@/components/ui/relevance-indicator";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useOnClickOutside } from "@/lib/hooks/useOnClickOutside";
-import { useKeyboardNavigation } from "@/lib/hooks/useKeyboardNavigation";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip } from "@/components/ui/tooltip";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+// Keyboard navigation hooks imported as needed
+// UI components imported as needed
 // نستخدم مكونات بسيطة بدلا من المكونات غير الموجودة
 import type { Product } from "@/types/product";
 import type { Inspiration } from "@/types/inspiration";
-import { highlightMatches } from "@/lib/utils/arabic-text-utils";
+// Utility functions imported as needed
 
 interface SearchBarEnhancedProps {
   // وظائف التحديد
@@ -51,17 +46,9 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   onProductSelect,
   onInspirationSelect,
   className = "",
-  showTrendingItems = true,
-  maxResults = 20,
   debounceTime = 300,
   placeholder = "ابحث عن منتجات أو هدايا جاهزة...",
-  enableFilters = true,
-  initialCategory = "",
-  showSortOptions = true,
-  showSettingsButton = true,
-  compact = false,
-  preloadSuggestions = true,
-  autoFocus = false
+  preloadSuggestions = true
 }) => {
   // المراجع للوصول المباشر إلى عناصر DOM
   const searchRef = useRef<HTMLDivElement>(null);
@@ -70,19 +57,14 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
 
   // حالات المكون المحلية
   const [isFocused, setIsFocused] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [selectedIndex] = useState(-1);
   const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "products" | "inspirations">("all");
-  const [showFilters, setShowFilters] = useState(enableFilters && !compact);
+  // Filters state is managed but not currently used in the UI
   
-  // حالات التصفية والترتيب
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("relevance"); // relevance, price-asc, price-desc, newest, discount
+  // Filter and sort states (currently not active in UI but kept for future use)
   
-  // حالات إضافية لإعدادات البحث
-  const [isHighlightingEnabled, setIsHighlightingEnabled] = useState(true);
-  const [isFuzzySearchEnabled, setIsFuzzySearchEnabled] = useState(true);
+  // Search settings states (currently not active in UI but kept for future use)
 
   // استخراج الحالة والوظائف من مخزن البحث (Zustand)
   const {
@@ -91,29 +73,19 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
     recentSearches,
     searchResults,
     isLoading,
-    error,
-    activeFilter,
     enableSpellCorrection,
     enableAutocomplete,
-    enableFuzzySearch,
-    enableKeywordHighlighting,
     productsCache,
     inspirationsCache,
-    popularCategories,
-    popularOccasions,
-    commonWords,
-    setQuery,
-    search,
+    setQuery: setStoreQuery,
+    search: performStoreSearch,
     clearSearch,
     addRecentSearch,
     clearRecentSearches,
-    setActiveFilter,
     toggleSpellCorrection,
     toggleAutocomplete,
-    toggleFuzzySearch,
-    toggleKeywordHighlighting,
     updateProductsCache,
-    updateInspirationsCache
+    updateInspirationsCache,
   } = useSearchStore();
 
   // تأخير البحث لتحسين الأداء عند الكتابة
@@ -122,13 +94,12 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       performSearch(value);
     }
   }, debounceTime);
-
+  
   // استدعاء API البحث مع تطبيق فلترة المنتجات في واجهة المستخدم بدلاً من تعديل المخزن
   const performSearch = (searchQuery: string) => {
     if (searchQuery.length >= 2) {
       // نستخدم الدالة الحالية للبحث بدون تمرير المعاملات الإضافية
-      // وسنطبق التصفية والترتيب على النتائج بعد ذلك في الواجهة
-      search(searchQuery);
+      performStoreSearch(searchQuery);
       
       // إضافة إلى البحوث الأخيرة فقط للاستعلامات الهادفة
       if (searchQuery.length >= 3) {
@@ -136,11 +107,10 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       }
     }
   };
-  
-  // معالجة تغيير الإدخال مع دعم التصحيح التلقائي والاقتراحات
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setQuery(value);
+    setStoreQuery(value);
     
     if (value.length >= 2) {
       debouncedSearch(value);
@@ -148,58 +118,61 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       clearSearch();
     }
   };
-  
-  // معالجة تغيير الفئة المحددة
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-    if (query.length >= 2) {
-      performSearch(query);
-    }
-  };
-  
-  // معالجة تغيير نطاق السعر
-  const handlePriceRangeChange = (range: string) => {
-    setSelectedPriceRange(range);
-    if (query.length >= 2) {
-      performSearch(query);
-    }
-  };
-  
-  // معالجة تغيير طريقة الترتيب
-  const handleSortChange = (sort: string) => {
-    setSortBy(sort);
-    if (query.length >= 2) {
-      performSearch(query);
-    }
-  };
 
-  // Handle click outside to close dropdown
   useOnClickOutside(searchRef, () => {
     setIsFocused(false);
   });
 
-  // Handle keyboard navigation
-  useKeyboardNavigation({
-    containerRef: resultsRef,
-    itemSelector: "[data-search-item]",
-    selectedIndex,
-    setSelectedIndex,
-    onEnter: () => {
-      const items = resultsRef.current?.querySelectorAll("[data-search-item]");
-      if (items && selectedIndex >= 0 && selectedIndex < items.length) {
-        (items[selectedIndex] as HTMLElement).click();
+  // Fetch products and inspirations for search
+  const fetchData = async () => {
+    try {
+      // Fetch products if cache is empty
+      if (productsCache.length === 0) {
+        const productsResponse = await fetch('/api/products');
+        const productsData = await productsResponse.json();
+        if (productsData.success && Array.isArray(productsData.data)) {
+          updateProductsCache(productsData.data);
+        }
       }
-    },
-    onEscape: () => {
-      setIsFocused(false);
-    },
-    isActive: isFocused
-  });
+      
+      // Fetch inspirations if cache is empty
+      if (inspirationsCache.length === 0) {
+        const inspirationsResponse = await fetch('/api/gift/inspirations');
+        const inspirationsData = await inspirationsResponse.json();
+        if (inspirationsData.success && Array.isArray(inspirationsData.data)) {
+          updateInspirationsCache(inspirationsData.data);
+        }
+      }
+      
+      // تحميل مقترحات البحث الشائعة مسبقًا إذا تم تمكين الخيار
+      if (preloadSuggestions) {
+        const suggestionsResponse = await fetch('/api/search?query=ه');
+        const suggestionsData = await suggestionsResponse.json();
+        if (suggestionsData.success && suggestionsData.suggestions) {
+          localStorage.setItem('cadoz-search-suggestions', JSON.stringify(suggestionsData.suggestions));
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching search data:', err);
+    }
+  };
 
-  // Handle tab change
+  useEffect(() => {
+    if (preloadSuggestions) {
+      fetchData();
+    }
+  }, [preloadSuggestions, fetchData]);
+
   const handleTabChange = (tab: "all" | "products" | "inspirations") => {
     setActiveTab(tab);
-    setActiveFilter(tab === "all" ? "all" : tab === "products" ? "product" : "inspiration");
+  };
+
+  // تطبيق اقتراح أو بحث سابق
+  const applySearchTerm = (term: string) => {
+    setStoreQuery(term);
+    performSearch(term);
+    addRecentSearch(term);
+    inputRef.current?.focus();
   };
 
   // Handle result selection
@@ -212,132 +185,10 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
     setIsFocused(false);
   };
 
-  // تطبيق اقتراح أو بحث سابق
-  const applySearchTerm = (term: string) => {
-    setQuery(term);
-    performSearch(term);
-    addRecentSearch(term);
-    inputRef.current?.focus();
-  };
-
-  // Fetch products and inspirations for search
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch products if cache is empty
-        if (productsCache.length === 0) {
-          const productsResponse = await fetch('/api/products');
-          const productsData = await productsResponse.json();
-          if (productsData.success && Array.isArray(productsData.data)) {
-            updateProductsCache(productsData.data);
-          }
-        }
-        
-        // Fetch inspirations if cache is empty
-        if (inspirationsCache.length === 0) {
-          const inspirationsResponse = await fetch('/api/gift/inspirations');
-          const inspirationsData = await inspirationsResponse.json();
-          if (inspirationsData.success && Array.isArray(inspirationsData.data)) {
-            updateInspirationsCache(inspirationsData.data);
-          }
-        }
-        
-        // تحميل مقترحات البحث الشائعة مسبقًا إذا تم تمكين الخيار
-        if (preloadSuggestions) {
-          const suggestionsResponse = await fetch('/api/search?query=ه');
-          const suggestionsData = await suggestionsResponse.json();
-          if (suggestionsData.success && suggestionsData.suggestions) {
-            // تخزين الاقتراحات في المتصفح للاستخدام المستقبلي
-            localStorage.setItem('cadoz-search-suggestions', JSON.stringify(suggestionsData.suggestions));
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching search data:', err);
-      }
-    };
-    fetchData();
-  }, [productsCache.length, inspirationsCache.length, updateProductsCache, updateInspirationsCache]);
-
-  // تحديث إعدادات البحث المحسن من المخزن
-  useEffect(() => {
-    setIsHighlightingEnabled(enableKeywordHighlighting);
-    setIsFuzzySearchEnabled(enableFuzzySearch);
-  }, [enableKeywordHighlighting, enableFuzzySearch]);
-
-  // استخراج الفئات من نتائج البحث لعرضها كخيارات تصفية
-  const availableCategories = useMemo(() => {
-    // الفئات المتوفرة من نتائج البحث
-    const categoriesFromResults = searchResults
-      .filter(result => result.type === 'product' && result.category)
-      .map(result => result.category as string);
-    
-    // دمج مع الفئات الشائعة
-    const allCategories = [...new Set([...popularCategories, ...categoriesFromResults])];
-    
-    return allCategories;
-  }, [searchResults, popularCategories]);
-
-  // تحضير نطاقات الأسعار للتصفية
-  const priceRanges = useMemo(() => [
-    { value: "", label: "جميع الأسعار" },
-    { value: "0-100", label: "أقل من 100 ج.م" },
-    { value: "100-250", label: "100 - 250 ج.م" },
-    { value: "250-500", label: "250 - 500 ج.م" },
-    { value: "500-1000", label: "500 - 1000 ج.م" },
-    { value: "1000-5000", label: "أكثر من 1000 ج.م" }
-  ], []);
-
-  // تحضير خيارات الترتيب
-  const sortOptions = useMemo(() => [
-    { value: "relevance", label: "الأكثر صلة", icon: <Sparkles size={14} /> },
-    { value: "price-asc", label: "السعر: من الأقل للأعلى", icon: <ArrowDownAZ size={14} /> },
-    { value: "price-desc", label: "السعر: من الأعلى للأقل", icon: <ArrowDownZA size={14} /> },
-    { value: "discount", label: "أعلى خصم", icon: <Percent size={14} /> },
-    { value: "newest", label: "الأحدث", icon: <CalendarClock size={14} /> }
-  ], []);
-
-  // تعريف تأثيرات الحركة باستخدام framer-motion
-  const containerVariants: Variants = {
-    hidden: { opacity: 0, y: -5 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.2 } }
-  };
-
-  const resultsVariants: Variants = {
-    hidden: { opacity: 0, y: -10 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      transition: { 
-        duration: 0.3, 
-        staggerChildren: 0.05 
-      } 
-    }
-  };
-
-  const resultItemVariants: Variants = {
-    hidden: { opacity: 0, y: -5 },
-    visible: { opacity: 1, y: 0 }
-  };
-
-  // مكون لعرض زر ذكي للتصفية
-  const FilterButton = ({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) => (
-    <button
-      className={`px-2 py-1 text-xs rounded-full border transition-colors ${active 
-        ? 'bg-purple-100 text-purple-800 border-purple-300' 
-        : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'}`}
-      onClick={onClick}
-    >
-      {active && <Check className="inline-block ml-1" size={10} />}
-      {label}
-    </button>
-  );
-
-  // Determine search mode
   const searchMode = (() => {
     if (isLoading) return "loading";
     if (query.length < 2) return recentSearches.length > 0 ? "recent" : "empty";
-    if (searchResults.length === 0) return "empty";
-    return "results";
+    return searchResults.length > 0 ? "results" : "no-results";
   })();
 
   // Animation variants

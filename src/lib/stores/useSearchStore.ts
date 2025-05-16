@@ -7,8 +7,6 @@ import {
   normalizeArabicText, 
   generateAlternativeSpellings, 
   calculateSimilarity,
-  getSuggestions,
-  extractKeywords,
   correctSpelling
 } from '@/lib/utils/arabic-text-utils';
 
@@ -336,9 +334,6 @@ export const useSearchStore = create<SearchState>()(
           
           // تطبيع الاستعلام
           const normalizedQuery = normalizeArabicText(query);
-          
-          // تقسيم الاستعلام إلى مصطلحات للبحث
-          const searchTerms = normalizedQuery.split(/\s+/).filter(term => term.length > 1);
           
           // If the query is not related to recent searches, don't show results
           if (!isInRecentSearches && query.length < 4) {
