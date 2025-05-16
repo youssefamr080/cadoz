@@ -24,7 +24,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "../../context/CartContext"
 import { useWishlist } from "../../context/WishlistContext"
 import { useAuth } from "../../context/AuthContext"
-import SearchBar from "../search/SearchBar"
+import SearchBarEnhanced from "../search/SearchBarEnhanced"
 import UserAvatar from "../user/UserAvatar"
 import { Button } from "../../components/ui/button"
 import LoginModal from "../auth/login-modal"
@@ -328,7 +328,7 @@ const Header = () => {
           <div className="flex items-center gap-4">
             {/* Search bar */}
             <div className="w-64 lg:w-80">
-              <SearchBar />
+              <SearchBarEnhanced />
             </div>
 
             {/* User icons - enhanced with better animations */}
@@ -587,7 +587,11 @@ const Header = () => {
                 className="overflow-visible border-t border-gray-100 py-3 relative"
                 style={{ zIndex: 30 }}
               >
-                <SearchBar showTrendingProducts={false} />
+                <SearchBarEnhanced 
+                  showTrendingItems={false} 
+                  placeholder="ابحث عن منتجات أو هدايا جاهزة..." 
+                  className="max-w-3xl mx-auto"
+                />
               </motion.div>
             )}
           </AnimatePresence>

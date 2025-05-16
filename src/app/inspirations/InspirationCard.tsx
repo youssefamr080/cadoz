@@ -16,12 +16,24 @@ import { getDecorationsByIds } from "@/lib/actions/decoration-actions";
 import { getMainProductsByIds } from "@/lib/actions/main-product-actions";
 import type { Inspiration } from "@/types/inspiration";
 
+import { HighlightText } from "@/components/ui/highlight-text";
+import { RelevanceIndicator } from "@/components/ui/relevance-indicator";
+
 interface InspirationCardProps {
   gift: Inspiration;
   getCategoryArabicName?: (category: string) => string;
+  searchTerms?: string[];
+  relevanceScore?: number;
+  showRelevance?: boolean;
 }
 
-export default function InspirationCard({ gift, getCategoryArabicName }: InspirationCardProps) {
+export default function InspirationCard({ 
+  gift, 
+  getCategoryArabicName,
+  searchTerms = [],
+  relevanceScore = 0,
+  showRelevance = false
+}: InspirationCardProps) {
   const router = useRouter();
   const { loadInspiration } = useGift();
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
@@ -69,11 +81,39 @@ export default function InspirationCard({ gift, getCategoryArabicName }: Inspira
         return;
       }
       
+      // Extract product IDs from the products array
+      let productIds: string[] = [];
+      let productQuantities: Record<string, number> = {};
+      
+      if (gift.products && gift.products.length > 0) {
+        // Check if products are objects or just string IDs
+        if (typeof gift.products[0] === 'string') {
+          // Old format: array of IDs
+          productIds = gift.products as string[];
+          // Use quantities from productQuantities if available
+          productQuantities = gift.productQuantities || {};
+        } else {
+          // New format: array of objects with id and quantity
+          const productsWithQuantity = gift.products as { id: string; quantity: number | { $numberInt: string } }[];
+          
+          productIds = productsWithQuantity.map(p => {
+            const id = p.id;
+            // Handle quantity whether it's a number or an object
+            const quantity = typeof p.quantity === 'number' 
+              ? p.quantity 
+              : parseInt((p.quantity as { $numberInt: string }).$numberInt || '1', 10);
+              
+            productQuantities[id] = quantity;
+            return id;
+          });
+        }
+      }
+      
       // Fetch all related items by IDs
       const [boxArr, bagArr, productsArr, decorationsArr, mainProductsArr] = await Promise.all([
         gift.box ? getBoxesByIds([gift.box]) : [],
         gift.bag ? getBagsByIds([gift.bag]) : [],
-        gift.products && gift.products.length > 0 ? getGiftProductsByIds(gift.products) : [],
+        productIds.length > 0 ? getGiftProductsByIds(productIds) : [],
         gift.decorations && gift.decorations.length > 0 ? getDecorationsByIds(gift.decorations) : [],
         gift.Mainproducts && gift.Mainproducts.length > 0 ? getMainProductsByIds(gift.Mainproducts) : [],
       ]);
@@ -259,7 +299,22 @@ export default function InspirationCard({ gift, getCategoryArabicName }: Inspira
           className="flex justify-between items-center cursor-pointer py-1"
           onClick={() => toggleDescription(gift.id)}
         >
-          <h3 className="font-medium text-gray-900 truncate text-sm">{gift.name}</h3>
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-medium text-gray-900 truncate text-sm">
+              {searchTerms.length > 0 ? (
+                <HighlightText 
+                  text={gift.name} 
+                  searchTerms={searchTerms} 
+                  highlightClassName="bg-yellow-100 text-gray-900 px-0.5 rounded"
+                />
+              ) : gift.name}
+            </h3>
+            {showRelevance && relevanceScore > 0 && (
+              <div className="flex-shrink-0">
+                <RelevanceIndicator score={relevanceScore} size="sm" />
+              </div>
+            )}
+          </div>
           <motion.div
             animate={{ rotate: expandedItems[gift.id] ? 180 : 0 }}
             transition={{ duration: 0.3 }}
@@ -278,11 +333,53 @@ export default function InspirationCard({ gift, getCategoryArabicName }: Inspira
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
-              <p className="text-xs text-gray-600 my-2 line-clamp-3">{gift.description}</p>
+              <p className="text-xs text-gray-600 my-2 line-clamp-3">
+                {searchTerms.length > 0 ? (
+                  <HighlightText 
+                    text={gift.description} 
+                    searchTerms={searchTerms} 
+                    highlightClassName="bg-yellow-100 text-gray-900 px-0.5 rounded"
+                  />
+                ) : gift.description}
+              </p>
+              
+              {/* Occasions */}
+              {gift.occasions && gift.occasions.length > 0 && (
+                <div className="mt-2">
+                  <h4 className="text-xs font-medium text-gray-700 mb-1">المناسبات:</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {gift.occasions.map((occasion, index) => (
+                      <span 
+                        key={`${gift.id}-occasion-${index}`}
+                        className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full"
+                      >
+                        {occasion}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Tags */}
+              {gift.tags && gift.tags.length > 0 && (
+                <div className="mt-2">
+                  <h4 className="text-xs font-medium text-gray-700 mb-1">الكلمات المفتاحية:</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {gift.tags.map((tag, index) => (
+                      <span 
+                        key={`${gift.id}-tag-${index}`}
+                        className="text-[10px] bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
-
+        
         {/* Action buttons */}
         <div className="flex justify-between mt-3 gap-1">
           <Button

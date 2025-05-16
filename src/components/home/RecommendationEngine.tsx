@@ -3,9 +3,9 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import type { Product } from "../../types/product"
-import ProductCollection from "./ProductCollection"
 import { motion } from "framer-motion"
 import LoadingSpinner from "../ui/LoadingSpinner"
+import ProductSwiper from "./ProductSwiper"
 
 interface RecommendationEngineProps {
   title?: string
@@ -122,7 +122,7 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
           <p className="text-center text-gray-600 max-w-2xl">{subtitle}</p>
         </div>
 
-        <ProductCollection products={recommendations} accentColor="violet" />
+        <ProductSwiper products={recommendations} />
       </div>
     </motion.section>
   )

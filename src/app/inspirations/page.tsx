@@ -3,13 +3,106 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
-import { Filter, Search, X } from "lucide-react"
+import { Filter, Search, X, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Inspiration } from "@/types/inspiration"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import InspirationCard from "./InspirationCard"
+
+// Fuzzy search utility functions
+const removeDiacritics = (str: string): string => {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+}
+
+// Calculate Levenshtein distance for fuzzy matching
+const levenshteinDistance = (a: string, b: string): number => {
+  const matrix = []
+
+  // Increment along the first column of each row
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i]
+  }
+
+  // Increment each column in the first row
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j
+  }
+
+  // Fill in the rest of the matrix
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1]
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1,     // insertion
+          matrix[i - 1][j] + 1      // deletion
+        )
+      }
+    }
+  }
+
+  return matrix[b.length][a.length]
+}
+
+// Calculate similarity score between two strings (0-1)
+const stringSimilarity = (str1: string, str2: string): number => {
+  if (!str1 || !str2) return 0
+  
+  const s1 = removeDiacritics(str1.toLowerCase())
+  const s2 = removeDiacritics(str2.toLowerCase())
+  
+  // Exact match gets highest score
+  if (s1 === s2) return 1
+  
+  // Check if one string contains the other
+  if (s1.includes(s2)) return 0.9
+  if (s2.includes(s1)) return 0.8
+  
+  const maxLen = Math.max(s1.length, s2.length)
+  if (maxLen === 0) return 1.0 // Both strings are empty
+  
+  // Calculate normalized Levenshtein distance
+  const distance = levenshteinDistance(s1, s2)
+  return 1 - (distance / maxLen)
+}
+
+// Calculate relevance score for an inspiration based on search terms
+const calculateRelevance = (inspiration: Inspiration, searchTerms: string[]): number => {
+  if (!searchTerms.length) return 0
+  
+  let totalScore = 0
+  const fields = [
+    { value: inspiration.name || "", weight: 10 },
+    { value: inspiration.description || "", weight: 5 },
+    { value: (inspiration.occasions || []).join(" "), weight: 8 },
+    { value: (inspiration.tags || []).join(" "), weight: 7 },
+    { value: inspiration.category || "", weight: 6 }
+  ]
+  
+  // Calculate score for each search term against each field
+  for (const term of searchTerms) {
+    let termScore = 0
+    
+    for (const field of fields) {
+      const similarity = stringSimilarity(term, field.value)
+      termScore += similarity * field.weight
+      
+      // Boost score for exact matches in any field
+      if (field.value.toLowerCase().includes(term.toLowerCase())) {
+        termScore += field.weight * 0.5
+      }
+    }
+    
+    totalScore += termScore
+  }
+  
+  // Normalize score based on number of terms
+  return totalScore / searchTerms.length
+}
 
 export default function InspirationsPage() {
 
@@ -22,7 +115,18 @@ export default function InspirationsPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
   const [ratingFilter, setRatingFilter] = useState<number>(0)
-  const [sortBy, setSortBy] = useState<string>("popularity")
+  const [sortBy, setSortBy] = useState<string>("relevance")
+  const [searchMode, setSearchMode] = useState<"standard" | "fuzzy">("fuzzy")
+  
+  // New state for occasions and tags filtering
+  const [selectedOccasions, setSelectedOccasions] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [availableOccasions, setAvailableOccasions] = useState<string[]>([])
+  const [availableTags, setAvailableTags] = useState<string[]>([])
+  
+  // State for search results with relevance scores
+  const [searchResults, setSearchResults] = useState<Array<{inspiration: Inspiration, score: number}>>([])
+  const [searchTerms, setSearchTerms] = useState<string[]>([])
 
   // Fetch all inspirations
   useEffect(() => {
@@ -33,8 +137,33 @@ export default function InspirationsPage() {
         const result = await response.json()
         
         if (result.success) {
-          setInspirations(result.data)
-          setFilteredInspirations(result.data)
+          const inspirationsData = result.data
+          setInspirations(inspirationsData)
+          setFilteredInspirations(inspirationsData)
+          
+          // Extract unique occasions and tags from all inspirations
+          const allOccasions = new Set<string>()
+          const allTags = new Set<string>()
+          
+          inspirationsData.forEach((inspiration: Inspiration) => {
+            // Add occasions to set
+            if (inspiration.occasions && Array.isArray(inspiration.occasions)) {
+              inspiration.occasions.forEach(occasion => {
+                if (occasion) allOccasions.add(occasion)
+              })
+            }
+            
+            // Add tags to set
+            if (inspiration.tags && Array.isArray(inspiration.tags)) {
+              inspiration.tags.forEach(tag => {
+                if (tag) allTags.add(tag)
+              })
+            }
+          })
+          
+          // Convert sets to sorted arrays
+          setAvailableOccasions(Array.from(allOccasions).sort())
+          setAvailableTags(Array.from(allTags).sort())
         } else {
           throw new Error(result.error || "حدث خطأ أثناء جلب البيانات")
         }
@@ -49,23 +178,102 @@ export default function InspirationsPage() {
     fetchInspirations()
   }, [])
 
-  // Filter inspirations based on category, search query, and other filters
+  // Process search query and extract search terms
+  useEffect(() => {
+    if (!searchQuery) {
+      setSearchTerms([])
+      return
+    }
+    
+    const query = searchQuery.toLowerCase().trim()
+    // Split the query into individual terms for more precise matching
+    const terms = query.split(/\s+/).filter(term => term.length > 0)
+    setSearchTerms(terms)
+  }, [searchQuery])
+  
+  // Filter inspirations based on category, search query, occasions, tags, and other filters
   useEffect(() => {
     if (inspirations.length === 0) return
 
     let filtered = [...inspirations]
+    let scoredResults: Array<{inspiration: Inspiration, score: number}> = []
 
     // Filter by category
     if (activeCategory !== "all") {
       filtered = filtered.filter(item => item.category === activeCategory)
     }
 
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(
-        item => item.name.toLowerCase().includes(query) || 
-                item.description.toLowerCase().includes(query)
+    // Advanced search functionality with fuzzy matching and relevance scoring
+    if (searchTerms.length > 0) {
+      // Calculate relevance scores for all inspirations
+      scoredResults = filtered.map(inspiration => ({
+        inspiration,
+        score: calculateRelevance(inspiration, searchTerms)
+      }))
+      
+      if (searchMode === "fuzzy") {
+        // Keep only results with a minimum relevance score
+        scoredResults = scoredResults.filter(result => result.score > 0.15)
+        
+        // Sort by relevance score
+        scoredResults.sort((a, b) => b.score - a.score)
+        
+        // Extract just the inspirations for further filtering
+        filtered = scoredResults.map(result => result.inspiration)
+      } else {
+        // Standard search mode - exact matching only
+        filtered = filtered.filter(item => {
+          return searchTerms.some(term => {
+            const nameMatch = item.name?.toLowerCase().includes(term)
+            const descMatch = item.description?.toLowerCase().includes(term)
+            const occasionMatch = item.occasions?.some(occasion => 
+              occasion?.toLowerCase().includes(term)
+            )
+            const tagMatch = item.tags?.some(tag => 
+              tag?.toLowerCase().includes(term)
+            )
+            
+            return nameMatch || descMatch || occasionMatch || tagMatch
+          })
+        })
+      }
+    } else {
+      // No search terms, reset scored results
+      scoredResults = filtered.map(inspiration => ({
+        inspiration,
+        score: 0
+      }))
+    }
+    
+    // Filter by occasions
+    if (selectedOccasions.length > 0) {
+      filtered = filtered.filter(item => {
+        if (!item.occasions || !Array.isArray(item.occasions)) return false
+        // Check if any of the selected occasions match this item's occasions
+        return selectedOccasions.some(selectedOccasion => 
+          item.occasions?.includes(selectedOccasion)
+        )
+      })
+      
+      // Update scored results to match filtered items
+      scoredResults = scoredResults.filter(result => 
+        filtered.some(item => item.id === result.inspiration.id)
+      )
+    }
+    
+    // Filter by tags
+    if (selectedTags.length > 0) {
+      filtered = filtered.filter(item => {
+        if (!item.tags || !Array.isArray(item.tags)) return false
+        // Check if any of the selected tags match this item's tags
+        return selectedTags.some(selectedTag => 
+          item.tags?.includes(selectedTag)
+        )
+      })
+      
+      // Update scored results to match filtered items
+      scoredResults = scoredResults.filter(result => 
+        filtered.some(item => item.id === result.inspiration.id)
       )
     }
 
@@ -75,14 +283,38 @@ export default function InspirationsPage() {
       const totalPrice = 300 // Placeholder - in a real app, you'd calculate this from the components
       return totalPrice >= priceRange[0] && totalPrice <= priceRange[1]
     })
+    
+    // Update scored results to match filtered items
+    scoredResults = scoredResults.filter(result => 
+      filtered.some(item => item.id === result.inspiration.id)
+    )
 
     // Filter by rating
     if (ratingFilter > 0) {
       filtered = filtered.filter(item => item.rating >= ratingFilter)
+      
+      // Update scored results to match filtered items
+      scoredResults = scoredResults.filter(result => 
+        filtered.some(item => item.id === result.inspiration.id)
+      )
     }
 
     // Sort the results
     switch (sortBy) {
+      case "relevance":
+        // If we have search terms, sort by relevance score
+        if (searchTerms.length > 0) {
+          // Already sorted by score in scoredResults
+          filtered = scoredResults.map(result => result.inspiration)
+        } else {
+          // Default to popularity if no search terms
+          filtered.sort((a, b) => {
+            const aPopularity = (a.rating * (a.reviews || 1)) + (a.likes || 0) + (a.comments?.length || 0)
+            const bPopularity = (b.rating * (b.reviews || 1)) + (b.likes || 0) + (b.comments?.length || 0)
+            return bPopularity - aPopularity
+          })
+        }
+        break
       case "price_asc":
         filtered.sort(() => 300 - 300) // Placeholder - would use actual prices
         break
@@ -93,18 +325,34 @@ export default function InspirationsPage() {
         filtered.sort((a, b) => b.rating - a.rating)
         break
       case "newest":
-        // Assuming newer items have higher IDs or there's a createdAt field
-        filtered.sort((a, b) => b.id.localeCompare(a.id))
+        // Sort by updatedAt if available, otherwise by ID
+        filtered.sort((a, b) => {
+          // Check if updatedAt exists and convert to comparable format
+          const aDate = a.updatedAt ? 
+            (typeof a.updatedAt === 'string' ? a.updatedAt : a.updatedAt.$date?.$numberLong) : 
+            a.id
+          const bDate = b.updatedAt ? 
+            (typeof b.updatedAt === 'string' ? b.updatedAt : b.updatedAt.$date?.$numberLong) : 
+            b.id
+          
+          // Compare as strings if not directly comparable
+          return String(bDate).localeCompare(String(aDate))
+        })
         break
       case "popularity":
-      default:
-        // Sort by a combination of rating and reviews
-        filtered.sort((a, b) => (b.rating * b.reviews) - (a.rating * a.reviews))
+        // Sort by a combination of rating, reviews, likes, and comments
+        filtered.sort((a, b) => {
+          const aPopularity = (a.rating * (a.reviews || 1)) + (a.likes || 0) + (a.comments?.length || 0)
+          const bPopularity = (b.rating * (b.reviews || 1)) + (b.likes || 0) + (b.comments?.length || 0)
+          return bPopularity - aPopularity
+        })
         break
     }
 
+    // Update state
     setFilteredInspirations(filtered)
-  }, [inspirations, activeCategory, searchQuery, priceRange, ratingFilter, sortBy])
+    setSearchResults(scoredResults)
+  }, [inspirations, activeCategory, searchTerms, searchMode, priceRange, ratingFilter, sortBy, selectedOccasions, selectedTags])
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category)
@@ -116,6 +364,8 @@ export default function InspirationsPage() {
     setPriceRange([0, 1000])
     setRatingFilter(0)
     setSortBy("popularity")
+    setSelectedOccasions([])
+    setSelectedTags([])
     setIsFilterOpen(false)
   }
 
@@ -188,12 +438,22 @@ export default function InspirationsPage() {
                   className="pl-9 pr-10 py-2 w-full text-sm"
                 />
                 {searchQuery && (
-                  <button 
-                    onClick={() => setSearchQuery("")}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                    <button 
+                      onClick={() => setSearchMode(searchMode === "fuzzy" ? "standard" : "fuzzy")}
+                      className={`p-1 rounded-full ${searchMode === "fuzzy" ? 'bg-purple-100 text-purple-600' : 'text-gray-400 hover:text-gray-600'}`}
+                      title={searchMode === "fuzzy" ? "البحث الذكي مفعل" : "تفعيل البحث الذكي"}
+                    >
+                      <Sparkles className="h-3 w-3" />
+                    </button>
+                    <button 
+                      onClick={() => setSearchQuery("")}
+                      className="text-gray-400 hover:text-gray-600"
+                      title="مسح البحث"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -208,7 +468,7 @@ export default function InspirationsPage() {
                   فلترة متقدمة
                 </Button>
 
-                {(activeCategory !== "all" || searchQuery || ratingFilter > 0 || sortBy !== "popularity") && (
+                {(activeCategory !== "all" || searchQuery || ratingFilter > 0 || sortBy !== "popularity" || selectedOccasions.length > 0 || selectedTags.length > 0) && (
                   <Button 
                     variant="ghost" 
                     size="sm"
@@ -234,6 +494,58 @@ export default function InspirationsPage() {
               >
                 <div className="border-t pt-3 mt-2">
                   <div className="grid grid-cols-1 gap-3">
+                    {/* Occasions Filter */}
+                    {availableOccasions.length > 0 && (
+                      <div>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">المناسبة</label>
+                        <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 border border-gray-200 rounded bg-white">
+                          {availableOccasions.map((occasion) => (
+                            <div 
+                              key={occasion}
+                              className={`text-xs cursor-pointer px-2 py-1 rounded-full transition-colors ${selectedOccasions.includes(occasion) 
+                                ? 'bg-purple-600 text-white' 
+                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
+                              onClick={() => {
+                                if (selectedOccasions.includes(occasion)) {
+                                  setSelectedOccasions(selectedOccasions.filter(o => o !== occasion))
+                                } else {
+                                  setSelectedOccasions([...selectedOccasions, occasion])
+                                }
+                              }}
+                            >
+                              {occasion}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tags Filter */}
+                    {availableTags.length > 0 && (
+                      <div>
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">الكلمات المفتاحية</label>
+                        <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 border border-gray-200 rounded bg-white">
+                          {availableTags.map((tag) => (
+                            <div 
+                              key={tag}
+                              className={`text-xs cursor-pointer px-2 py-1 rounded-full transition-colors ${selectedTags.includes(tag) 
+                                ? 'bg-purple-600 text-white' 
+                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'}`}
+                              onClick={() => {
+                                if (selectedTags.includes(tag)) {
+                                  setSelectedTags(selectedTags.filter(t => t !== tag))
+                                } else {
+                                  setSelectedTags([...selectedTags, tag])
+                                }
+                              }}
+                            >
+                              {tag}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div>
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">السعر</label>
                       <div className="flex items-center gap-2">
@@ -276,6 +588,7 @@ export default function InspirationsPage() {
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
                       >
+                        <option value="relevance">الصلة بالبحث</option>
                         <option value="popularity">الأكثر شعبية</option>
                         <option value="price_asc">السعر: من الأقل للأعلى</option>
                         <option value="price_desc">السعر: من الأعلى للأقل</option>
@@ -308,8 +621,8 @@ export default function InspirationsPage() {
           </AnimatePresence>
         </div>
 
-        {/* Results Count */}
-        <div className="flex justify-between items-center mb-4">
+        {/* Results Count and Active Filters */}
+        <div className="flex flex-col gap-2 mb-4">
           <div className="text-sm text-gray-600">
             {!isLoading && (
               <span>
@@ -320,6 +633,73 @@ export default function InspirationsPage() {
               </span>
             )}
           </div>
+          
+          {/* Active Filters Display */}
+          {(searchQuery || selectedOccasions.length > 0 || selectedTags.length > 0 || ratingFilter > 0) && (
+            <div className="flex flex-wrap gap-2 items-center">
+              <span className="text-xs text-gray-500">الفلاتر النشطة:</span>
+              
+              {/* Search Query */}
+              {searchQuery && (
+                <div className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                  <span>بحث: {searchQuery}</span>
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="hover:text-purple-900 text-purple-700"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+              
+              {/* Occasions */}
+              {selectedOccasions.map(occasion => (
+                <div key={`occasion-${occasion}`} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                  <span>مناسبة: {occasion}</span>
+                  <button 
+                    onClick={() => setSelectedOccasions(selectedOccasions.filter(o => o !== occasion))}
+                    className="hover:text-blue-900 text-blue-700"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              
+              {/* Tags */}
+              {selectedTags.map(tag => (
+                <div key={`tag-${tag}`} className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                  <span>كلمة مفتاحية: {tag}</span>
+                  <button 
+                    onClick={() => setSelectedTags(selectedTags.filter(t => t !== tag))}
+                    className="hover:text-green-900 text-green-700"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              
+              {/* Rating */}
+              {ratingFilter > 0 && (
+                <div className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                  <span>التقييم: {ratingFilter}+ نجوم</span>
+                  <button 
+                    onClick={() => setRatingFilter(0)}
+                    className="hover:text-yellow-900 text-yellow-700"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+              
+              {/* Clear All Button */}
+              <button 
+                onClick={clearFilters}
+                className="text-xs text-red-600 hover:text-red-800 underline"
+              >
+                مسح الكل
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Inspirations Grid */}
@@ -352,7 +732,7 @@ export default function InspirationsPage() {
           </div>
         ) : filteredInspirations.length === 0 ? (
           <div className="text-center p-12 bg-white rounded-lg shadow-sm">
-            <div className="text-gray-500 mb-2">لا توجد هدايا تطابق معايير البحث الخاصة بك</div>
+            <div className="text-gray-500 mb-2 text-lg">لم يتم العثور على هدايا مطابقة</div>
             <Button 
               onClick={clearFilters}
               className="bg-purple-600 hover:bg-purple-700 text-white"
@@ -362,19 +742,28 @@ export default function InspirationsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-            {filteredInspirations.map((gift) => (
-              <motion.div
-                key={gift.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <InspirationCard 
-                  gift={gift} 
-                  getCategoryArabicName={getCategoryArabicName} 
-                />
-              </motion.div>
-            ))}
+            {filteredInspirations.map((gift) => {
+              // Find the relevance score for this gift
+              const resultItem = searchResults.find(item => item.inspiration.id === gift.id);
+              const relevanceScore = resultItem?.score || 0;
+              
+              return (
+                <motion.div
+                  key={gift.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <InspirationCard 
+                    gift={gift} 
+                    getCategoryArabicName={getCategoryArabicName}
+                    searchTerms={searchTerms}
+                    relevanceScore={relevanceScore}
+                    showRelevance={searchTerms.length > 0 && searchMode === "fuzzy"}
+                  />
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>

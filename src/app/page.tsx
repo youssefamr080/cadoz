@@ -8,6 +8,9 @@ import SeasonalBanner from "../components/home/SeasonalBanner"
 import CountdownTimer from "../components/home/CountdownTimer"
 import PriceRangeSwiper from "../components/home/PriceRangeSwiper"
 import GiftFinderSection from "../components/home/GiftFinderSection"
+import { TrendingProductsSwiper, DiscountedProductsSwiper, NewProductsSwiper } from "../components/home/ProductSwiper"
+import MainCategorySwiper from "../components/home/MainCategorySwiper"
+import InspirationGallery from "../components/gift/inspiration-gallery"
 import { useGetProductsQuery } from "../lib/redux/api/apiSlice"
 import LoadingSpinner from "../components/ui/LoadingSpinner"
 import type { Product } from "../types/product"
@@ -21,10 +24,7 @@ import {
   ChevronLeft,
   Star,
   Eye,
-  Gift,
-  ArrowRight,
   Check,
-  Heart,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -406,12 +406,7 @@ const HomePage = () => {
   const [isMobile, setIsMobile] = useState(false)
 
   // مراجع للسويبرات للتحكم بها
-  const trendingPrevRef = useRef<HTMLButtonElement>(null)
-  const trendingNextRef = useRef<HTMLButtonElement>(null)
-  const newArrivalsPrevRef = useRef<HTMLButtonElement>(null)
-  const newArrivalsNextRef = useRef<HTMLButtonElement>(null)
-  const salePrevRef = useRef<HTMLButtonElement>(null)
-  const saleNextRef = useRef<HTMLButtonElement>(null)
+
   const viewedPrevRef = useRef<HTMLButtonElement>(null)
   const viewedNextRef = useRef<HTMLButtonElement>(null)
 
@@ -543,6 +538,21 @@ const HomePage = () => {
         {/* أضف فواصل الأقسام بين الأقسام المختلفة */}
         <SectionDivider color="violet" />
 
+        {/* معرض الهدايا الجاهزة للإلهام */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="py-6 bg-white"
+        >
+          <div className="container mx-auto px-4">
+            <InspirationGallery />
+          </div>
+        </motion.section>
+        {/* أضف فواصل الأقسام بين الأقسام المختلفة */}
+        <SectionDivider color="amber" />
+
         {/* مساعد اختيار الهدايا */}
         <GiftFinderSection />
         {/* أضف فواصل الأقسام بين الأقسام المختلفة */}
@@ -563,86 +573,33 @@ const HomePage = () => {
         {/* أضف فواصل الأقسام بين الأقسام المختلفة */}
         <SectionDivider color="emerald" />
 
-        {/* المنتجات الرائجة - سويبر محسن */}
+        {/* الأكثر رواجاً - سويبر محسن */}
         {trendingData?.data.length > 0 && (
           <motion.section
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
-            className="py-16 bg-gradient-to-b from-gray-50 to-white"
+            className="py-16 bg-gradient-to-b from-white to-gray-50"
           >
             <div className="container mx-auto px-2 sm:px-4">
               <SectionTitle
                 icon={<TrendingUp className="w-7 h-7" />}
-                title="الأكثر مبيعاً"
-                subtitle="اكتشف الهدايا المفضلة لدى متسوقينا والتي حازت على إعجاب الكثيرين"
-                accentColor="from-amber-400 to-orange-600"
+                title="الأكثر رواجاً"
+                subtitle="المنتجات الأكثر مبيعاً والأعلى تقييماً من عملائنا"
+                accentColor="from-blue-400 to-indigo-600"
               />
-
-              <div className="relative">
-                <Swiper
-                  modules={[Navigation, Pagination, Autoplay]}
-                  spaceBetween={16}
-                  slidesPerView={1.2}
-                  centeredSlides={isMobile}
-                  loop={true}
-                  autoplay={{
-                    delay: 5000,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                  }}
-                  pagination={{
-                    clickable: true,
-                    dynamicBullets: true,
-                  }}
-                  navigation={{
-                    prevEl: trendingPrevRef.current,
-                    nextEl: trendingNextRef.current,
-                  }}
-                  onBeforeInit={(swiper) => {
-                    // @ts-expect-error Navigation is not typed correctly
-                    swiper.params.navigation.prevEl = trendingPrevRef.current
-                    // @ts-expect-error Navigation is not typed correctly
-                    swiper.params.navigation.nextEl = trendingNextRef.current
-                  }}
-                  breakpoints={{
-                    320: { slidesPerView: 1.5, spaceBetween: 8, centeredSlides: true },
-                    480: { slidesPerView: 2, spaceBetween: 10, centeredSlides: false },
-                    640: { slidesPerView: 2.5, spaceBetween: 12, centeredSlides: false },
-                    768: { slidesPerView: 3, spaceBetween: 16, centeredSlides: false },
-                    1024: { slidesPerView: 4, centeredSlides: false },
-                    1280: { slidesPerView: 5, centeredSlides: false },
-                  }}
-                  className="py-10 px-2"
-                >
-                  {trendingData.data.map((product) => (
-                    <SwiperSlide key={`trending-${product.id}`}>
-                      <ProductCard product={product} accentColor="amber" />
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-
-                {/* أزرار التنقل المخصصة */}
-                <SwiperCustomButton direction="prev" onClick={() => trendingPrevRef.current?.click()} color="amber" />
-                <SwiperCustomButton direction="next" onClick={() => trendingNextRef.current?.click()} color="amber" />
-
-                {/* أزرار التنقل الخفية للسويبر */}
-                <button ref={trendingPrevRef} className="sr-only">
-                  السابق
-                </button>
-                <button ref={trendingNextRef} className="sr-only">
-                  التالي
-                </button>
-              </div>
+              
+              {/* استخدام المكون الجديد للمنتجات الرائجة */}
+              <TrendingProductsSwiper products={trendingData.data} />
 
               <div className="text-center mt-10">
                 <Link
-                  href="/category/best-sellers"
-                  className="group inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-600 text-white px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-lg shadow-amber-200/30 hover:shadow-amber-300/50 hover:scale-105"
+                  href="/category/trending"
+                  className="group inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-lg shadow-blue-200/30 hover:shadow-blue-300/50 hover:scale-105"
                 >
-                  <ShoppingBag className="w-5 h-5" />
-                  <span>عرض جميع المنتجات الرائجة</span>
+                  <TrendingUp className="w-5 h-5" />
+                  <span>عرض المزيد من المنتجات الرائجة</span>
                   <ChevronRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
@@ -668,62 +625,9 @@ const HomePage = () => {
                 subtitle="خصومات حصرية لفترة محدودة على مجموعة مختارة من الهدايا المميزة"
                 accentColor="from-rose-500 to-red-600"
               />
-
-              <div className="relative">
-                <Swiper
-                  modules={[Navigation, Pagination, Autoplay]}
-                  spaceBetween={12}
-                  slidesPerView={1.5}
-                  centeredSlides={isMobile}
-                  loop={true}
-                  autoplay={{
-                    delay: 4000,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                  }}
-                  pagination={{
-                    clickable: true,
-                    dynamicBullets: true,
-                  }}
-                  navigation={{
-                    prevEl: salePrevRef.current,
-                    nextEl: saleNextRef.current,
-                  }}
-                  onBeforeInit={(swiper) => {
-                    // @ts-expect-error Navigation is not typed correctly
-                    swiper.params.navigation.prevEl = salePrevRef.current
-                    // @ts-expect-error Navigation is not typed correctly
-                    swiper.params.navigation.nextEl = saleNextRef.current
-                  }}
-                  breakpoints={{
-                    320: { slidesPerView: 1.5, spaceBetween: 8, centeredSlides: true },
-                    480: { slidesPerView: 2, spaceBetween: 10, centeredSlides: false },
-                    640: { slidesPerView: 2.5, spaceBetween: 12, centeredSlides: false },
-                    768: { slidesPerView: 3, spaceBetween: 16, centeredSlides: false },
-                    1024: { slidesPerView: 4, centeredSlides: false },
-                    1280: { slidesPerView: 6, centeredSlides: false },
-                  }}
-                  className="py-8 px-2"
-                >
-                  {saleData.data.map((product) => (
-                    <SwiperSlide key={`sale-${product.id}`}>
-                      <ProductCard product={product} accentColor="rose" />
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-
-                {/* أزرار التنقل المخصصة */}
-                <SwiperCustomButton direction="prev" onClick={() => salePrevRef.current?.click()} color="rose" />
-                <SwiperCustomButton direction="next" onClick={() => saleNextRef.current?.click()} color="rose" />
-
-                {/* أزرار التنقل الخفية للسويبر */}
-                <button ref={salePrevRef} className="sr-only">
-                  السابق
-                </button>
-                <button ref={saleNextRef} className="sr-only">
-                  التالي
-                </button>
-              </div>
+              
+              {/* استخدام المكون الجديد للمنتجات المخفضة */}
+              <DiscountedProductsSwiper products={saleData.data} />
 
               <div className="text-center mt-10">
                 <Link
@@ -757,75 +661,14 @@ const HomePage = () => {
                 subtitle="اكتشف أحدث الهدايا في متجرنا التي وصلت للتو من أفضل الماركات العالمية"
                 accentColor="from-emerald-400 to-teal-600"
               />
-
-              <div className="relative">
-                <Swiper
-                  modules={[Navigation, Pagination, Autoplay]}
-                  spaceBetween={12}
-                  slidesPerView={1.5}
-                  centeredSlides={isMobile}
-                  loop={true}
-                  autoplay={{
-                    delay: 6000,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                  }}
-                  pagination={{
-                    clickable: true,
-                    dynamicBullets: true,
-                  }}
-                  navigation={{
-                    prevEl: newArrivalsPrevRef.current,
-                    nextEl: newArrivalsNextRef.current,
-                  }}
-                  onBeforeInit={(swiper) => {
-                    // @ts-expect-error Navigation is not typed correctly
-                    swiper.params.navigation.prevEl = newArrivalsPrevRef.current
-                    // @ts-expect-error Navigation is not typed correctly
-                    swiper.params.navigation.nextEl = newArrivalsNextRef.current
-                  }}
-                  breakpoints={{
-                    320: { slidesPerView: 1.5, spaceBetween: 8, centeredSlides: true },
-                    480: { slidesPerView: 2, spaceBetween: 10, centeredSlides: false },
-                    640: { slidesPerView: 2.5, spaceBetween: 12, centeredSlides: false },
-                    768: { slidesPerView: 3, spaceBetween: 16, centeredSlides: false },
-                    1024: { slidesPerView: 4, centeredSlides: false },
-                    1280: { slidesPerView: 6, centeredSlides: false },
-                  }}
-                  className="py-8 px-2"
-                >
-                  {newArrivalsData.data.map((product) => (
-                    <SwiperSlide key={`new-${product.id}`}>
-                      <ProductCard product={product} accentColor="emerald" />
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-
-                {/* أزرار التنقل المخصصة */}
-                <SwiperCustomButton
-                  direction="prev"
-                  onClick={() => newArrivalsPrevRef.current?.click()}
-                  color="emerald"
-                />
-                <SwiperCustomButton
-                  direction="next"
-                  onClick={() => newArrivalsNextRef.current?.click()}
-                  color="emerald"
-                />
-
-                {/* أزرار التنقل الخفية للسويبر */}
-                <button ref={newArrivalsPrevRef} className="sr-only">
-                  السابق
-                </button>
-                <button ref={newArrivalsNextRef} className="sr-only">
-                  التالي
-                </button>
-              </div>
+              
+              {/* استخدام المكون الجديد للمنتجات الجديدة */}
+              <NewProductsSwiper products={newArrivalsData.data} />
 
               <div className="text-center mt-10">
                 <Link
                   href="/category/new-arrivals"
-                  className="group inline-flex items-center gap-2 bg-gradient-to-r from-emerald-400 to-teal-600 text-white px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-lg shadow-emerald-200/30 hover:shadow-emerald-300/50 hover:scale-105"
+                  className="group inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-3 rounded-full font-medium transition-all duration-300 shadow-lg shadow-emerald-200/30 hover:shadow-emerald-300/50 hover:scale-105"
                 >
                   <Sparkles className="w-5 h-5" />
                   <span>عرض جميع المنتجات الجديدة</span>
@@ -837,6 +680,29 @@ const HomePage = () => {
         )}
         {/* أضف فواصل الأقسام بين الأقسام المختلفة */}
         <SectionDivider color="violet" />
+        
+        {/* سويبر الفئات الرئيسية والفرعية */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeInUp}
+          className="py-16 bg-white"
+        >
+          <div className="container mx-auto px-2 sm:px-4">
+            <SectionTitle
+              icon={<ShoppingBag className="w-7 h-7" />}
+              title="تسوق حسب الفئة"
+              subtitle="تصفح منتجاتنا حسب الفئات الرئيسية والفرعية لتجد ما تبحث عنه بسهولة"
+              accentColor="from-purple-400 to-indigo-600"
+            />
+            
+            <MainCategorySwiper />
+          </div>
+        </motion.section>
+        
+        {/* أضف فواصل الأقسام بين الأقسام المختلفة */}
+        <SectionDivider color="amber" />
 
         {/* المنتجات التي شاهدتها مؤخراً - سويبر محسن */}
         {viewedProducts.length > 0 && (
@@ -913,77 +779,7 @@ const HomePage = () => {
             </div>
           </motion.section>
         )}
-        {/* أضف فواصل الأقسام بين الأقسام المختلفة */}
-        <SectionDivider color="amber" />
-
-        {/* قسم الفئات الرئيسية - محسن */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeInUp}
-          className="py-16 bg-gradient-to-b from-gray-50 to-white"
-        >
-          <div className="container mx-auto px-2 sm:px-4">
-            <SectionTitle
-              icon={<Gift className="w-7 h-7" />}
-              title="تسوق حسب الفئة"
-              subtitle="استكشف مجموعاتنا المميزة من الهدايا المصنفة حسب الفئات الرئيسية"
-              accentColor="from-violet-500 to-purple-600"
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-4xl mx-auto">
-              {[
-                {
-                  name: "هدايا رجالية",
-                  icon: <Gift className="w-8 h-8" />,
-                  color: "bg-blue-500",
-                  gradient: "from-blue-500 to-indigo-600",
-                  description: "هدايا مميزة للرجال تناسب جميع الأذواق والمناسبات",
-                  slug: "men",
-                },
-                {
-                  name: "هدايا نسائية",
-                  icon: <Heart className="w-8 h-8" />,
-                  color: "bg-pink-500",
-                  gradient: "from-pink-500 to-rose-600",
-                  description: "هدايا فاخرة للنساء بلمسة خاصة تناسب كل الأوقات",
-                  slug: "women",
-                },
-                {
-                  name: "هدايا أطفال",
-                  icon: <Star className="w-8 h-8" />,
-                  color: "bg-amber-500",
-                  gradient: "from-amber-500 to-yellow-600",
-                  description: "هدايا ممتعة وتعليمية للأطفال من جميع الأعمار",
-                  slug: "kids",
-                },
-              ].map((category, index) => (
-                <Link href={`/category/${category.slug}`} key={index}>
-                  <motion.div
-                    whileHover={{ y: -8, scale: 1.03 }}
-                    className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all overflow-hidden border border-slate-200 h-full"
-                  >
-                    <div className={`h-2 bg-gradient-to-r ${category.gradient}`}></div>
-                    <div className="p-8 flex flex-col items-center text-center">
-                      <div
-                        className={`w-20 h-20 bg-gradient-to-br ${category.gradient} rounded-full flex items-center justify-center text-white mb-6 shadow-lg`}
-                      >
-                        {category.icon}
-                      </div>
-                      <h3 className="font-bold text-xl text-slate-800 mb-3">{category.name}</h3>
-                      <p className="text-slate-600 text-sm mb-4">{category.description}</p>
-                      <div className="mt-2 text-sm font-medium bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-full py-2 px-4 flex items-center hover:bg-slate-100 transition-colors">
-                        <span>تسوق الآن</span>
-                        <ArrowRight className="w-4 h-4 mr-1" />
-                      </div>
-                    </div>
-                  </motion.div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </motion.section>
+        
 
         {/* المنتجات المقترحة لك - سويبر */}
         <motion.section

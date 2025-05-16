@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/redux/store";
 import { checkSession } from "@/lib/redux/slices/authSlice";
 import type { Inspiration } from "@/types/inspiration";
+import { normalizeComments } from "@/types/comment";
 import { Badge } from "@/components/ui/badge"; 
 import { Card } from "@/components/ui/card";   
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; 
@@ -35,7 +36,10 @@ export default function InspirationClient({ inspiration }: Props) {
 	const [dislikedBy, setDislikedBy] = useState<string[]>(
 		inspiration.dislikedBy ?? []
 	);
-	const [comments, setComments] = useState(inspiration.comments ?? []);
+	const [comments, setComments] = useState(() => {
+		// Normalize comments from MongoDB format to application format
+		return inspiration.comments ? normalizeComments(inspiration.comments) : [];
+	});
 	const [rating, setRating] = useState(inspiration.rating ?? 0);
 	const [reviews, setReviews] = useState(inspiration.reviews ?? 0);
 

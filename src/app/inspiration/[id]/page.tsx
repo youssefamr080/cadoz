@@ -154,10 +154,38 @@ export default async function InspirationPage({ params }: Props) {
     notFound()
   }
 
+  // Extract product IDs from the products array
+  let productIds: string[] = [];
+  let productQuantities: Record<string, number> = {};
+  
+  if (inspiration.products && inspiration.products.length > 0) {
+    // Check if products are objects or just string IDs
+    if (typeof inspiration.products[0] === 'string') {
+      // Old format: array of IDs
+      productIds = inspiration.products as string[];
+      // Use quantities from productQuantities if available
+      productQuantities = inspiration.productQuantities || {};
+    } else {
+      // New format: array of objects with id and quantity
+      const productsWithQuantity = inspiration.products as { id: string; quantity: number | { $numberInt: string } }[];
+      
+      productIds = productsWithQuantity.map(p => {
+        const id = p.id;
+        // Handle quantity whether it's a number or an object
+        const quantity = typeof p.quantity === 'number' 
+          ? p.quantity 
+          : parseInt((p.quantity as { $numberInt: string }).$numberInt || '1', 10);
+          
+        productQuantities[id] = quantity;
+        return id;
+      });
+    }
+  }
+  
   // Fetch related items concurrently for potential performance improvement
   const [productsData, boxData, bagData, decorationsData, mainProductsData] = await Promise.all([
-    inspiration.products && inspiration.products.length > 0
-      ? getGiftProductsByIds(inspiration.products)
+    productIds.length > 0
+      ? getGiftProductsByIds(productIds)
       : Promise.resolve([]),
     inspiration.box ? getBoxById(inspiration.box) : Promise.resolve(null),
     inspiration.bag ? getBagById(inspiration.bag) : Promise.resolve(null),

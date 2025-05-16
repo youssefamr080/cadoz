@@ -31,7 +31,7 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
       const [boxArr, bagArr, productsArr, decorationsArr, mainProductsArr] = await Promise.all([
         inspiration.box ? getBoxesByIds([inspiration.box]) : [],
         inspiration.bag ? getBagsByIds([inspiration.bag]) : [],
-        inspiration.products && inspiration.products.length > 0 ? getGiftProductsByIds(inspiration.products) : [],
+        inspiration.products && inspiration.products.length > 0 ? getGiftProductsByIds(inspiration.products.map(p => p.id)) : [],
         inspiration.decorations && inspiration.decorations.length > 0 ? getDecorationsByIds(inspiration.decorations) : [],
         inspiration.Mainproducts && inspiration.Mainproducts.length > 0 ? getMainProductsByIds(inspiration.Mainproducts) : [],
       ]);

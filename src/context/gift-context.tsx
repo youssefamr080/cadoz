@@ -164,11 +164,40 @@ export function GiftProvider({ children }: { children: ReactNode }) {
       // مسح الهدية الحالية قبل تحميل الإلهام الجديد
       dispatch(clearGift())
       
+      // تحضير معرفات المنتجات والكميات
+      let productIds: string[] = [];
+      let productQuantities: Record<string, number> = {};
+      
+      // التعامل مع الصيغة الجديدة للمنتجات (كائنات تحتوي على معرف وكمية)
+      if (gift.products && gift.products.length > 0) {
+        // تحقق مما إذا كانت المنتجات عبارة عن كائنات أو مجرد سلاسل نصية
+        if (typeof gift.products[0] === 'string') {
+          // الصيغة القديمة: مصفوفة من المعرفات
+          productIds = gift.products as string[];
+          // استخدام الكميات من productQuantities إذا كانت متوفرة
+          productQuantities = gift.productQuantities || {};
+        } else {
+          // الصيغة الجديدة: مصفوفة من الكائنات التي تحتوي على معرف وكمية
+          const productsWithQuantity = gift.products as { id: string; quantity: number | { $numberInt: string } }[];
+          
+          productIds = productsWithQuantity.map(p => {
+            const id = p.id;
+            // التعامل مع الكمية سواء كانت رقماً أو كائناً
+            const quantity = typeof p.quantity === 'number' 
+              ? p.quantity 
+              : parseInt((p.quantity as { $numberInt: string }).$numberInt || '1', 10);
+              
+            productQuantities[id] = quantity;
+            return id;
+          });
+        }
+      }
+      
       // جلب جميع العناصر المرتبطة بالإلهام
       const [boxArr, bagArr, products, decorations, mainProducts] = await Promise.all([
         gift.box ? getBoxesByIds([gift.box]) : [],
         gift.bag ? getBagsByIds([gift.bag]) : [],
-        gift.products && gift.products.length > 0 ? getGiftProductsByIds(gift.products) : [],
+        productIds.length > 0 ? getGiftProductsByIds(productIds) : [],
         gift.decorations && gift.decorations.length > 0 ? getDecorationsByIds(gift.decorations) : [],
         gift.Mainproducts && gift.Mainproducts.length > 0 ? getMainProductsByIds(gift.Mainproducts) : [],
       ])
@@ -193,7 +222,20 @@ export function GiftProvider({ children }: { children: ReactNode }) {
       }
 
       if (products && products.length > 0) {
-        products.forEach((product) => dispatch(addProduct(product)))
+        products.forEach((product) => {
+          // تعيين الكمية المناسبة للمنتج إذا كانت متوفرة
+          const quantity = productQuantities[product.id] || 1;
+          const productWithQuantity = {
+            ...product,
+            quantity
+          };
+          dispatch(addProduct(productWithQuantity));
+          
+          // إذا كانت الكمية أكبر من 1، قم بتحديث الكمية
+          if (quantity > 1) {
+            dispatch(updateProductQuantity({ id: product.id, quantity }));
+          }
+        })
       }
       
       if (decorations && decorations.length > 0) {
@@ -201,6 +243,16 @@ export function GiftProvider({ children }: { children: ReactNode }) {
       }
       
       if (bag) dispatch(setSelectedBag(bag))
+      
+      // إضافة معلومات إضافية للإلهام في localStorage للاستخدام المستقبلي
+      if (gift.occasions || gift.tags) {
+        localStorage.setItem('current_inspiration_metadata', JSON.stringify({
+          id: gift.id,
+          occasions: gift.occasions || [],
+          tags: gift.tags || [],
+          category: gift.category || ''
+        }));
+      }
       
       // إضافة إشعار نجاح للمستخدم
       toast.success(`تم تحميل الإلهام "${gift.name}" بنجاح`)

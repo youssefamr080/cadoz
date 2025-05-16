@@ -54,11 +54,39 @@ export default function InspirationGallery() {
         return;
       }
       
+      // Extract product IDs from the products array
+      let productIds: string[] = [];
+      let productQuantities: Record<string, number> = {};
+      
+      if (gift.products && gift.products.length > 0) {
+        // Check if products are objects or just string IDs
+        if (typeof gift.products[0] === 'string') {
+          // Old format: array of IDs
+          productIds = gift.products as string[];
+          // Use quantities from productQuantities if available
+          productQuantities = gift.productQuantities || {};
+        } else {
+          // New format: array of objects with id and quantity
+          const productsWithQuantity = gift.products as { id: string; quantity: number | { $numberInt: string } }[];
+          
+          productIds = productsWithQuantity.map(p => {
+            const id = p.id;
+            // Handle quantity whether it's a number or an object
+            const quantity = typeof p.quantity === 'number' 
+              ? p.quantity 
+              : parseInt((p.quantity as { $numberInt: string }).$numberInt || '1', 10);
+              
+            productQuantities[id] = quantity;
+            return id;
+          });
+        }
+      }
+      
       // Fetch all related items by IDs - same approach as in handleLoadInspiration
       const [boxArr, bagArr, productsArr, decorationsArr, mainProductsArr] = await Promise.all([
         gift.box ? getBoxesByIds([gift.box]) : [],
         gift.bag ? getBagsByIds([gift.bag]) : [],
-        gift.products && gift.products.length > 0 ? getGiftProductsByIds(gift.products) : [],
+        productIds.length > 0 ? getGiftProductsByIds(productIds) : [],
         gift.decorations && gift.decorations.length > 0 ? getDecorationsByIds(gift.decorations) : [],
         gift.Mainproducts && gift.Mainproducts.length > 0 ? getMainProductsByIds(gift.Mainproducts) : [],
       ]);
