@@ -123,6 +123,7 @@ const MobileSidebar = ({
       link: "/gift",
       icon: categories.find(cat => cat.name === "أهدايا")?.icon,
       subCategories: [
+        { name: "المساعد الذكي للهدايا", link: "/smart-gift-finder" },
         { name: "هدايا جاهزة", link: "/inspirations" },
         { name: "تخصيص هدية", link: "/gift" },
         { name: "هدايا شخصيه", link: "/custom-gifts" },

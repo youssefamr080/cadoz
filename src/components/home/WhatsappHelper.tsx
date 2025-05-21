@@ -3,8 +3,9 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { PhoneIcon as WhatsApp, X, Phone, Volume2, VolumeX, Settings, Sun, Moon, Languages } from 'lucide-react'
+import { PhoneIcon as WhatsApp, X, Phone, Volume2, VolumeX, Settings, Sun, Moon, Languages, Gift } from 'lucide-react'
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 interface WhatsappHelperProps {
   phoneNumber: string
@@ -54,6 +55,7 @@ const WhatsappHelper: React.FC<WhatsappHelperProps> = ({
   collectUserInfo = false,
   enableAnalytics = false,
 }) => {
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -331,6 +333,13 @@ const WhatsappHelper: React.FC<WhatsappHelperProps> = ({
     return currentLanguage === "ar" ? ar : en
   }
 
+  // إضافة دالة للانتقال إلى المساعد الذكي
+  const goToSmartGiftFinder = () => {
+    playSound("click")
+    router.push("/smart-gift-finder")
+    setIsOpen(false)
+  }
+
   return (
     <div 
       ref={containerRef}
@@ -567,6 +576,27 @@ const WhatsappHelper: React.FC<WhatsappHelperProps> = ({
                       </span>
                       <span className="text-xs px-2 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
                         {t("مباشر", "Live")}
+                      </span>
+                    </motion.button>
+
+                    <motion.button
+                      variants={optionVariants}
+                      initial="hidden"
+                      animate="visible"
+                      custom={1}
+                      whileHover="hover"
+                      onClick={goToSmartGiftFinder}
+                      className="flex items-center justify-between w-full bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm py-3 px-4 rounded-md shadow-sm transition-colors duration-200 border border-gray-100 dark:border-gray-600"
+                    >
+                      <span className="flex items-center">
+                        <Gift
+                          className={`w-5 h-5 ${currentLanguage === "ar" ? "ml-3" : "mr-3"}`}
+                          style={{ color: primaryColor }}
+                        />
+                        <span>{t("المساعد الذكي للهدايا", "Smart Gift Finder")}</span>
+                      </span>
+                      <span className="text-xs px-2 py-1 rounded-full bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200">
+                        {t("ذكي", "Smart")}
                       </span>
                     </motion.button>
                   </div>

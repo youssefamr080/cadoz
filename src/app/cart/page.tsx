@@ -45,6 +45,11 @@ interface CartItemType {
     } | null
     message?: string
     recipient?: string
+    decorations?: Array<{
+      name: string
+      image: string
+      price: number
+    }>
   }
 }
 
@@ -733,19 +738,23 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
       </div>
 
       {expanded && item.giftData && (
-        <div className="bg-gray-50 p-3 space-y-3 text-sm">
+        <div className="bg-gray-50 p-4 space-y-4 text-sm">
           {/* المستلم والرسالة */}
           {(item.giftData.recipient || item.giftData.message) && (
-            <div className="bg-white p-2 rounded-lg border border-purple-100">
+            <div className="bg-white p-3 rounded-lg border border-purple-100 shadow-sm">
+              <h3 className="font-medium text-purple-700 mb-2 flex items-center gap-1">
+                <FiUser className="w-4 h-4" />
+                معلومات الإهداء
+              </h3>
               {item.giftData.recipient && (
-                <div className="mb-1">
-                  <span className="font-medium">المستلم:</span> {item.giftData.recipient}
+                <div className="mb-2">
+                  <span className="font-medium text-gray-700">المستلم:</span> {item.giftData.recipient}
                 </div>
               )}
               {item.giftData.message && (
                 <div>
-                  <span className="font-medium">الرسالة:</span>
-                  <p className="italic mt-1 text-gray-600 border-r-2 border-purple-300 pr-2">
+                  <span className="font-medium text-gray-700">الرسالة:</span>
+                  <p className="italic mt-1 text-gray-600 border-r-2 border-purple-300 pr-2 bg-purple-50 p-2 rounded">
                     &ldquo;{item.giftData.message}&rdquo;
                   </p>
                 </div>
@@ -753,14 +762,17 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
             </div>
           )}
 
-          {/* منتجات الهدية */}
+          {/* المنتجات الأساسية */}
           {item.giftData.items && item.giftData.items.length > 0 && (
-            <div>
-              <div className="font-medium mb-2 text-purple-700">منتجات الهدية:</div>
-              <div className="space-y-2">
+            <div className="bg-white p-3 rounded-lg border shadow-sm">
+              <h3 className="font-medium text-purple-700 mb-3 flex items-center gap-1">
+                <FiGift className="w-4 h-4" />
+                المنتجات
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {item.giftData.items.map((giftItem, idx) => (
-                  <div key={idx} className="flex items-center gap-2 bg-white p-2 rounded-lg border">
-                    <div className="relative w-8 h-8 rounded overflow-hidden border">
+                  <div key={idx} className="flex items-center gap-3 bg-gray-50 p-2 rounded-lg border">
+                    <div className="relative w-12 h-12 rounded-lg overflow-hidden border bg-white">
                       <Image
                         src={giftItem.image || "/placeholder.svg"}
                         alt={giftItem.name}
@@ -769,9 +781,13 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                       />
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-xs">{giftItem.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {typeof giftItem.price === 'number' ? giftItem.price.toFixed(2) : '0.00'} ج.م × {giftItem.quantity}
+                      <div className="font-medium text-sm">{giftItem.name}</div>
+                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                        <span>{typeof giftItem.price === 'number' ? giftItem.price.toFixed(2) : '0.00'} ج.م</span>
+                        <span className="text-gray-400">×</span>
+                        <span className="bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full text-xs">
+                          {giftItem.quantity}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -781,47 +797,87 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
           )}
 
           {/* صندوق الهدية والتغليف */}
-          <div className="flex gap-2 flex-wrap">
-            {item.giftData.box && (
-              <div className="bg-white p-2 rounded-lg border flex-1 min-w-[45%]">
-                <div className="font-medium text-amber-700 mb-1">صندوق الهدية:</div>
-                <div className="flex items-center gap-2">
-                  <div className="relative w-8 h-8 rounded overflow-hidden border">
-                    <Image
-                      src={item.giftData.box.image || "/placeholder.svg"}
-                      alt={item.giftData.box.name}
-                      layout="fill"
-                      objectFit="cover"
-                    />
+          {(item.giftData.box || item.giftData.wrap) && (
+            <div className="bg-white p-3 rounded-lg border shadow-sm">
+              <h3 className="font-medium text-purple-700 mb-3 flex items-center gap-1">
+                <FiGift className="w-4 h-4" />
+                التغليف والصندوق
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {item.giftData.box && (
+                  <div className="bg-gray-50 p-3 rounded-lg border">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden border bg-white">
+                        <Image
+                          src={item.giftData.box.image || "/placeholder.svg"}
+                          alt={item.giftData.box.name}
+                          layout="fill"
+                          objectFit="cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm">{item.giftData.box.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {typeof item.giftData.box.price === 'number' ? item.giftData.box.price.toFixed(2) : '0.00'} ج.م
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs">{item.giftData.box.name}</div>
-                    <div className="text-xs text-gray-500">{typeof item.giftData.box.price === 'number' ? item.giftData.box.price.toFixed(2) : '0.00'} ج.م</div>
-                  </div>
-                </div>
-              </div>
-            )}
+                )}
 
-            {item.giftData.wrap && (
-              <div className="bg-white p-2 rounded-lg border flex-1 min-w-[45%]">
-                <div className="font-medium text-pink-700 mb-1">تغليف الهدية:</div>
-                <div className="flex items-center gap-2">
-                  <div className="relative w-8 h-8 rounded overflow-hidden border">
-                    <Image
-                      src={item.giftData.wrap.image || "/placeholder.svg"}
-                      alt={item.giftData.wrap.name}
-                      layout="fill"
-                      objectFit="cover"
-                    />
+                {item.giftData.wrap && (
+                  <div className="bg-gray-50 p-3 rounded-lg border">
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden border bg-white">
+                        <Image
+                          src={item.giftData.wrap.image || "/placeholder.svg"}
+                          alt={item.giftData.wrap.name}
+                          layout="fill"
+                          objectFit="cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm">{item.giftData.wrap.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {typeof item.giftData.wrap.price === 'number' ? item.giftData.wrap.price.toFixed(2) : '0.00'} ج.م
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs">{item.giftData.wrap.name}</div>
-                    <div className="text-xs text-gray-500">{typeof item.giftData.wrap.price === 'number' ? item.giftData.wrap.price.toFixed(2) : '0.00'} ج.م</div>
-                  </div>
-                </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* الزينة */}
+          {item.giftData.decorations && item.giftData.decorations.length > 0 && (
+            <div className="bg-white p-3 rounded-lg border shadow-sm">
+              <h3 className="font-medium text-purple-700 mb-3 flex items-center gap-1">
+                <FiGift className="w-4 h-4" />
+                الزينة
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {item.giftData.decorations.map((decoration, idx) => (
+                  <div key={idx} className="bg-gray-50 p-2 rounded-lg border">
+                    <div className="relative w-full aspect-square rounded-lg overflow-hidden border bg-white mb-2">
+                      <Image
+                        src={decoration.image || "/placeholder.svg"}
+                        alt={decoration.name}
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    </div>
+                    <div className="text-center">
+                      <div className="font-medium text-xs">{decoration.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {typeof decoration.price === 'number' ? decoration.price.toFixed(2) : '0.00'} ج.م
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

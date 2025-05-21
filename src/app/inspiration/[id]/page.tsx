@@ -60,6 +60,9 @@ const ItemCard = ({
 			  : "w-16 h-16 sm:w-20 sm:h-20";
 	const textSize = size === "small" ? "text-xs" : "text-sm";
 
+	// حساب السعر الإجمالي
+	const totalPrice = price && quantity ? price * quantity : price;
+
 	return (
 		<div className="flex flex-col items-center text-center bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-3 sm:p-4 border border-gray-100 hover:border-indigo-200 group relative overflow-hidden">
 			{/* Popular badge */}
@@ -113,31 +116,41 @@ const ItemCard = ({
 					{/* Price with quantity indicator */}
 					{price !== undefined && (
 						<div className="flex flex-col items-center">
-							<span className="text-sm font-bold text-indigo-600 mt-1">
-								{price.toLocaleString()} ج.م
-							</span>
+							{quantity && quantity > 1 ? (
+								<>
+									<div className="flex items-center gap-1 text-sm mb-1">
+										<span className="text-gray-500">سعر القطعة:</span>
+										<span className="font-medium text-indigo-600">{price.toLocaleString()} ج.م</span>
+									</div>
+									{/* Enhanced quantity display (now showing quantity x price) */}
+									<div className="flex items-center justify-center mb-1 bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-0.5 rounded-full">
+										<span>الكمية: </span>
+										<span className="font-bold mr-1">{quantity}</span>
+										<span className="mr-1">×</span>
+										<span className="font-bold mr-1">{price.toLocaleString()}</span>
+										<span>ج.م</span>
+									</div>
+									<div className="flex items-center gap-1 text-sm font-bold text-emerald-600">
+										<span>الإجمالي:</span>
+										<span>{totalPrice.toLocaleString()} ج.م</span>
+									</div>
+								</>
+							) : (
+								<span className="text-sm font-bold text-indigo-600 mt-1">
+									{price.toLocaleString()} ج.م
+								</span>
+							)}
 							
-							{/* Enhanced quantity display */}
-							{quantity && quantity > 1 && (
-								<div className="flex items-center justify-center mt-1 bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-0.5 rounded-full">
-									<span>الكمية: </span>
-									<span className="font-bold mr-1">{quantity}</span>
-									<span className="mr-1">×</span>
-									<span className="font-bold mr-1">{(price * quantity).toLocaleString()}</span>
-									<span>ج.م</span>
-								</div>
+							{/* Stock indicator */}
+							{stock !== undefined && stock <= 5 && (
+								<span className="text-xs text-red-500 mt-1 flex items-center">
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 ml-1">
+										<path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+									</svg>
+									متبقي {stock} فقط
+								</span>
 							)}
 						</div>
-					)}
-					
-					{/* Stock indicator */}
-					{stock !== undefined && stock <= 5 && (
-						<span className="text-xs text-red-500 mt-1 flex items-center">
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 ml-1">
-								<path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
-							</svg>
-							متبقي {stock} فقط
-						</span>
 					)}
 				</div>
 			</div>
@@ -280,7 +293,7 @@ export default async function InspirationPage({ params }: Props) {
                   </div>
                   <div className="bg-white/90 rounded-full px-2 py-1 text-xs flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 text-indigo-500 ml-1">
-                      <path fillRule="evenodd" d="M4.848 2.771A49.144 49.144 0 0112 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 01-3.476.383.39.39 0 00-.297.17l-2.755 4.133a.75.75 0 01-1.248 0l-2.755-4.133a.39.39 0 00-.297-.17 48.9 48.9 0 01-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97zM6.75 8.25a.75.75 0 01.75-.75h9a.75.75 0 010 1.5h-9a.75.75 0 01-.75-.75zm.75 2.25a.75.75 0 000 1.5H12a.75.75 0 000-1.5H7.5z" clipRule="evenodd" />
+                      <path fillRule="evenodd" d="M4.848 2.771A49.144 49.144 0 0112 2.25c2.43 0 4.817.178 7.152.52 1.978.292 3.348 2.024 3.348 3.97v6.02c0 1.946-1.37 3.678-3.348 3.97a48.901 48.901 0 01-3.476.383.39.39 0 00-.297.17l-2.755 4.133a.75.75 0 00-1.248 0l-2.755-4.133a.39.39 0 00-.297-.17 48.9 48.9 0 01-3.476-.384c-1.978-.29-3.348-2.024-3.348-3.97V6.741c0-1.946 1.37-3.68 3.348-3.97zM6.75 8.25a.75.75 0 01.75-.75h9a.75.75 0 010 1.5h-9a.75.75 0 01-.75-.75zm.75 2.25a.75.75 0 000 1.5H12a.75.75 0 000-1.5H7.5z" clipRule="evenodd" />
                     </svg>
                     {inspiration.reviews || 0}
                   </div>

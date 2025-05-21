@@ -82,6 +82,7 @@ const subcategories = {
     { name: "ساعات اطفال", link: "/category/kids#watches" },
   ],
   هدايا: [
+    { name: "المساعد الذكي للهدايا", link: "/smart-gift-finder" },
     { name: "هدايا جاهزة", link: "/inspirations" },
     { name: "تخصيص هدية", link: "/gift" },
     { name: "هدايا شخصيه", link: "/custom-gifts" },
