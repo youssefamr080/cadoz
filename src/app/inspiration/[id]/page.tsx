@@ -210,13 +210,46 @@ export default async function InspirationPage({ params }: Props) {
   const decorations = decorationsData || [];
   const mainProducts = mainProductsData || [];
 
-  // Calculate total price
-  const totalPrice =
-    products.reduce((sum, p) => sum + (p?.price || 0), 0) +
-    (box?.price || 0) +
-    (bag?.price || 0) +
-    decorations.reduce((sum, d) => sum + (d?.price || 0), 0) +
-    mainProducts.reduce((sum, mp) => sum + (mp?.price || 0), 0);
+  // Calculate total price with proper quantity handling
+  const calculateTotalPrice = () => {
+    // Calculate products total with quantities
+    const productsTotal = products.reduce((sum, p) => {
+      const quantity = p.quantity || 1;
+      const price = p.price || 0;
+      return sum + (price * quantity);
+    }, 0);
+
+    // Calculate main products total with quantities
+    const mainProductsTotal = mainProducts.reduce((sum, p) => {
+      const quantity = p.quantity || 1;
+      const price = p.price || 0;
+      return sum + (price * quantity);
+    }, 0);
+
+    // Calculate box and bag prices
+    const boxPrice = box?.price || 0;
+    const bagPrice = bag?.price || 0;
+
+    // Calculate decorations total
+    const decorationsTotal = decorations.reduce((sum, d) => {
+      const price = d.price || 0;
+      return sum + price;
+    }, 0);
+
+    return productsTotal + mainProductsTotal + boxPrice + bagPrice + decorationsTotal;
+  };
+
+  const totalPrice = calculateTotalPrice();
+
+  // Calculate total items count
+  const calculateTotalItems = () => {
+    const productsCount = products.reduce((sum, p) => sum + (p.quantity || 1), 0);
+    const mainProductsCount = mainProducts.reduce((sum, p) => sum + (p.quantity || 1), 0);
+    const decorationsCount = decorations.length;
+    return productsCount + mainProductsCount + decorationsCount;
+  };
+
+  const totalItems = calculateTotalItems();
 
   return (
     <div className="container mx-auto max-w-6xl py-6 sm:py-10 px-3 sm:px-4">
@@ -260,7 +293,7 @@ export default async function InspirationPage({ params }: Props) {
               <div className="transform hover:-translate-y-1 transition-transform duration-300">
                 <UseInspirationButton inspiration={inspiration} />
               </div>
-              <div className="transform hover:-translate-y-1 transition-transform duration-300">
+              <div className="transform hover:-translate-y-1 transition-transform duration-1000 w-full">
                 <AddToCartButton inspiration={inspiration} />
               </div>
             </div>
@@ -313,7 +346,7 @@ export default async function InspirationPage({ params }: Props) {
               
               <div className="flex items-center space-x-4 space-x-reverse">
                 <div className="text-sm bg-white px-3 py-1 rounded-full border border-gray-200 text-gray-600">
-                  <span className="font-bold">{products.length + mainProducts.length}</span> منتج
+                  <span className="font-bold">{totalItems}</span> قطعة
                 </div>
                 <div className="text-sm bg-white px-3 py-1 rounded-full border border-gray-200 text-gray-600">
                   <span className="font-bold">{decorations.length}</span> ديكور
@@ -360,11 +393,10 @@ export default async function InspirationPage({ params }: Props) {
                 icon={<GiftIcon className="w-5 h-5 mr-2 text-green-600" />}
                 count={mainProducts.length}
               >
-                {/* Mobile-friendly summary */}
                 <div className="mb-3 p-2 bg-green-50 rounded-lg border border-green-100 text-sm text-green-800 hidden sm:block">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold">إجمالي المنتجات الأساسية:</span>
-                    <span className="font-bold">{mainProducts.reduce((sum, p) => sum + (p?.price || 0), 0).toLocaleString()} ج.م</span>
+                    <span className="font-bold">{mainProducts.reduce((sum, p) => sum + ((p.price || 0) * (p.quantity || 1)), 0).toLocaleString()} ج.م</span>
                   </div>
                 </div>
                 
@@ -395,21 +427,20 @@ export default async function InspirationPage({ params }: Props) {
                  icon={<GiftIcon className="w-5 h-5 mr-2 text-indigo-600" />}
                  count={products.length}
                >
-                {/* Products summary with quantities */}
                 <div className="mb-3 p-2 bg-indigo-50 rounded-lg border border-indigo-100 text-sm">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-indigo-600 ml-1">
                         <path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" />
                       </svg>
-                      <span className="text-indigo-800">عدد المنتجات: <span className="font-bold">{products.reduce((sum, p) => sum + (p?.quantity || 1), 0)}</span> قطعة</span>
+                      <span className="text-indigo-800">عدد المنتجات: <span className="font-bold">{products.reduce((sum, p) => sum + (p.quantity || 1), 0)}</span> قطعة</span>
                     </div>
                     <div className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-indigo-600 ml-1">
                         <path d="M10.464 8.746c.227-.18.497-.311.786-.394v2.795a2.252 2.252 0 01-.786-.393c-.394-.313-.546-.681-.546-1.004 0-.323.152-.691.546-1.004zM12.75 15.662v-2.824c.347.085.664.228.921.421.427.32.579.686.579.991 0 .305-.152.671-.579.991a2.534 2.534 0 01-.921.42z" />
                         <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-indigo-800">إجمالي المنتجات: <span className="font-bold">{products.reduce((sum, p) => sum + ((p?.price || 0) * (p?.quantity || 1)), 0).toLocaleString()}</span> ج.م</span>
+                      <span className="text-indigo-800">إجمالي المنتجات: <span className="font-bold">{products.reduce((sum, p) => sum + ((p.price || 0) * (p.quantity || 1)), 0).toLocaleString()}</span> ج.م</span>
                     </div>
                   </div>
                 </div>
@@ -441,11 +472,10 @@ export default async function InspirationPage({ params }: Props) {
                    icon={<SparklesIcon className="w-5 h-5 mr-2 text-purple-500" />}
                    count={decorations.length}
                  >
-                {/* Decorations summary */}
                 <div className="mb-3 p-2 bg-purple-50 rounded-lg border border-purple-100 text-sm hidden sm:block">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-purple-800">إجمالي الديكورات:</span>
-                    <span className="font-bold text-purple-800">{decorations.reduce((sum, d) => sum + (d?.price || 0), 0).toLocaleString()} ج.م</span>
+                    <span className="font-bold text-purple-800">{decorations.reduce((sum, d) => sum + (d.price || 0), 0).toLocaleString()} ج.م</span>
                   </div>
                 </div>
                 

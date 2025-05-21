@@ -27,11 +27,39 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
         return;
       }
       
+      // Extract product IDs from the products array
+      let productIds: string[] = [];
+      let productQuantities: Record<string, number> = {};
+      
+      if (inspiration.products && inspiration.products.length > 0) {
+        // Check if products are objects or just string IDs
+        if (typeof inspiration.products[0] === 'string') {
+          // Old format: array of IDs
+          productIds = inspiration.products as string[];
+          // Use quantities from productQuantities if available
+          productQuantities = inspiration.productQuantities || {};
+        } else {
+          // New format: array of objects with id and quantity
+          const productsWithQuantity = inspiration.products as { id: string; quantity: number | { $numberInt: string } }[];
+          
+          productIds = productsWithQuantity.map(p => {
+            const id = p.id;
+            // Handle quantity whether it's a number or an object
+            const quantity = typeof p.quantity === 'number' 
+              ? p.quantity 
+              : parseInt((p.quantity as { $numberInt: string }).$numberInt || '1', 10);
+              
+            productQuantities[id] = quantity;
+            return id;
+          });
+        }
+      }
+      
       // Fetch all related items by IDs
       const [boxArr, bagArr, productsArr, decorationsArr, mainProductsArr] = await Promise.all([
         inspiration.box ? getBoxesByIds([inspiration.box]) : [],
         inspiration.bag ? getBagsByIds([inspiration.bag]) : [],
-        inspiration.products && inspiration.products.length > 0 ? getGiftProductsByIds(inspiration.products.map(p => p.id)) : [],
+        productIds.length > 0 ? getGiftProductsByIds(productIds) : [],
         inspiration.decorations && inspiration.decorations.length > 0 ? getDecorationsByIds(inspiration.decorations) : [],
         inspiration.Mainproducts && inspiration.Mainproducts.length > 0 ? getMainProductsByIds(inspiration.Mainproducts) : [],
       ]);
@@ -44,14 +72,20 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
       const productsWithQuantities = productsArr.map(product => ({
         ...product,
         price: typeof product.price === 'number' ? product.price : 0,
-        quantity: inspiration.productQuantities?.[product.id] || 1
+        quantity: productQuantities[product.id] || 1
       }));
       
       // Ensure all main products have price and quantity
       const mainProductsWithQuantities = mainProductsArr.map(product => ({
         ...product,
         price: typeof product.price === 'number' ? product.price : 0,
-        quantity: inspiration.productQuantities?.[product.id] || 1 // Use same productQuantities for main products
+        quantity: productQuantities[product.id] || 1
+      }));
+
+      // Process decorations
+      const decorationsWithPrices = decorationsArr.map(decoration => ({
+        ...decoration,
+        price: typeof decoration.price === 'number' ? decoration.price : 0
       }));
       
       // Calculate total price
@@ -69,16 +103,16 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
       const bagPrice = bag && typeof bag.price === 'number' ? bag.price : 0;
       
       // Calculate decorations price
-      let decorationsPrice = 0;
-      for (const decoration of decorationsArr) {
-        decorationsPrice += typeof decoration.price === 'number' ? decoration.price : 0;
-      }
+      const decorationsPrice = decorationsWithPrices.reduce(
+        (sum, decoration) => sum + decoration.price,
+        0
+      );
       
       const totalPrice = productsTotal + mainProductsTotal + boxPrice + bagPrice + decorationsPrice;
       
-      // Create a cart item
+      // Create a cart item with complete gift data
       const cartItem = {
-        id: Date.now(), // Use timestamp as ID
+        id: Date.now(),
         name: inspiration.name || "هدية مخصصة",
         image: inspiration.image || box?.image || "/images/box.png",
         price: totalPrice,
@@ -116,6 +150,13 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
             image: bag.image,
             price: bagPrice
           } : null,
+          decorations: decorationsWithPrices.map(d => ({
+            id: d.id,
+            name: d.name,
+            image: d.image,
+            price: d.price,
+            type: 'decoration'
+          })),
           totalPrice: totalPrice,
           createdAt: new Date().toISOString()
         }
@@ -147,18 +188,19 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
 
   return (
     <Button
-      size="lg"
-      variant="outline"
-      className="text-sm border-purple-300 hover:bg-purple-50 hover:text-purple-700 w-full"
+      size="sm"
+      className="text-xs bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex-1 h-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 group"
       onClick={handleAddToCart}
       disabled={isLoading}
     >
       {isLoading ? (
-        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1"></div>
+        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
       ) : (
-        <ShoppingCart className="w-3 h-3 mr-1" />
+        <>
+          <ShoppingCart className="w-3.5 h-3.5 group-hover:scale-110 transition-transform duration-300" />
+          <span className="font-medium">إضافة للسلة</span>
+        </>
       )}
-      إضافة للسلة
     </Button>
   );
 }

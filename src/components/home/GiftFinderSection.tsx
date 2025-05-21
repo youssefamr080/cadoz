@@ -105,7 +105,7 @@ const GiftFinderSection = () => {
 
   // التوجه إلى صفحة نتائج الهدايا
   const navigateToResults = () => {
-    router.push("/gift-results")
+    router.push("/smart-gift-finder")
   }
 
   // تحديد فئة معينة عند النقر عليها

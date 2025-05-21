@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { 
@@ -17,8 +17,7 @@ import { useOnClickOutside } from "@/lib/hooks/useOnClickOutside";
 // Keyboard navigation hooks imported as needed
 // UI components imported as needed
 // نستخدم مكونات بسيطة بدلا من المكونات غير الموجودة
-import type { Product } from "@/types/product";
-import type { Inspiration } from "@/types/inspiration";
+import type { Product, Inspiration } from "@/lib/types";
 // Utility functions imported as needed
 
 interface SearchBarEnhancedProps {
@@ -50,40 +49,31 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   placeholder = "ابحث عن منتجات أو هدايا جاهزة...",
   preloadSuggestions = true
 }) => {
-  // المراجع للوصول المباشر إلى عناصر DOM
-  const searchRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
-
-  // حالات المكون المحلية
+  const [query, setQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [selectedIndex] = useState(-1);
-  const [showSettings, setShowSettings] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "products" | "inspirations">("all");
-  // Filters state is managed but not currently used in the UI
-  
-  // Filter and sort states (currently not active in UI but kept for future use)
-  
-  // Search settings states (currently not active in UI but kept for future use)
+  const [showSettings, setShowSettings] = useState(false);
+  const [searchResults, setSearchResults] = useState<(Product | Inspiration)[]>([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   // استخراج الحالة والوظائف من مخزن البحث (Zustand)
   const {
-    query,
     suggestions,
-    recentSearches,
-    searchResults,
-    isLoading,
     enableSpellCorrection,
     enableAutocomplete,
     productsCache,
     inspirationsCache,
     setQuery: setStoreQuery,
     search: performStoreSearch,
-    clearSearch,
-    addRecentSearch,
-    clearRecentSearches,
-    toggleSpellCorrection,
-    toggleAutocomplete,
+    clearSearch: clearStoreSearch,
+    addRecentSearch: addStoreRecentSearch,
+    clearRecentSearches: clearStoreRecentSearches,
+    toggleSpellCorrection: toggleStoreSpellCorrection,
+    toggleAutocomplete: toggleStoreAutocomplete,
     updateProductsCache,
     updateInspirationsCache,
   } = useSearchStore();
@@ -103,28 +93,101 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       
       // إضافة إلى البحوث الأخيرة فقط للاستعلامات الهادفة
       if (searchQuery.length >= 3) {
-        addRecentSearch(searchQuery);
+        addStoreRecentSearch(searchQuery);
       }
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    setQuery(value);
     setStoreQuery(value);
     
     if (value.length >= 2) {
+      setIsLoading(true);
       debouncedSearch(value);
     } else if (value.length === 0) {
-      clearSearch();
+      clearStoreSearch();
+      setSearchResults([]);
     }
   };
+
+  // Handle result selection
+  const handleResultSelect = useCallback((result: Product | Inspiration) => {
+    if (result.type === "product" && onProductSelect) {
+      onProductSelect(result);
+    } else if (result.type === "inspiration" && onInspirationSelect) {
+      onInspirationSelect(result);
+    }
+    setIsFocused(false);
+  }, [onProductSelect, onInspirationSelect]);
+
+  // Update search results when store suggestions change
+  useEffect(() => {
+    if (suggestions.length > 0) {
+      // Convert suggestions to search results format
+      const formattedResults = suggestions.map(suggestion => ({
+        _id: suggestion,
+        id: suggestion,
+        name: suggestion,
+        description: '',
+        image: '',
+        category: '',
+        type: 'product' as const,
+        url: `/search?q=${encodeURIComponent(suggestion)}`,
+        occasions: [],
+        tags: [],
+        price: 0, // Required for Product type
+        relevanceScore: 1
+      }));
+      setSearchResults(formattedResults);
+      setIsLoading(false);
+    }
+  }, [suggestions]);
+
+  // Update recent searches when store recent searches change
+  useEffect(() => {
+    setRecentSearches(recentSearches);
+  }, [recentSearches]);
+
+  // Handle keyboard navigation
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => 
+        prev < searchResults.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => prev > 0 ? prev - 1 : prev);
+    } else if (e.key === 'Enter' && selectedIndex >= 0) {
+      e.preventDefault();
+      const selectedResult = searchResults[selectedIndex];
+      if (selectedResult) {
+        handleResultSelect(selectedResult);
+      }
+    } else if (e.key === 'Escape') {
+      setIsFocused(false);
+    }
+  }, [searchResults, selectedIndex, handleResultSelect]);
+
+  // Add keyboard event listener
+  useEffect(() => {
+    const input = inputRef.current;
+    if (input) {
+      input.addEventListener('keydown', handleKeyDown);
+      return () => {
+        input.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [handleKeyDown]);
 
   useOnClickOutside(searchRef, () => {
     setIsFocused(false);
   });
 
   // Fetch products and inspirations for search
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       // Fetch products if cache is empty
       if (productsCache.length === 0) {
@@ -144,21 +207,22 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
         }
       }
       
-      // تحميل مقترحات البحث الشائعة مسبقًا إذا تم تمكين الخيار
-      if (preloadSuggestions) {
-        const suggestionsResponse = await fetch('/api/search?query=ه');
-        const suggestionsData = await suggestionsResponse.json();
-        if (suggestionsData.success && suggestionsData.suggestions) {
-          localStorage.setItem('cadoz-search-suggestions', JSON.stringify(suggestionsData.suggestions));
+      // تحميل مقترحات البحث الشائعة فقط إذا لم تكن موجودة في التخزين المحلي
+      if (preloadSuggestions && !localStorage.getItem('cadoz-search-suggestions')) {
+        const response = await fetch('/api/search/suggestions');
+        const data = await response.json();
+        if (data.suggestions) {
+          localStorage.setItem('cadoz-search-suggestions', JSON.stringify(data.suggestions));
         }
       }
-    } catch (err) {
-      console.error('Error fetching search data:', err);
+    } catch (error) {
+      console.error('Error fetching search data:', error);
     }
-  };
+  }, [preloadSuggestions, productsCache, inspirationsCache, updateProductsCache, updateInspirationsCache]);
 
   useEffect(() => {
-    if (preloadSuggestions) {
+    // تحميل البيانات فقط عند الحاجة
+    if (preloadSuggestions && !localStorage.getItem('cadoz-search-suggestions')) {
       fetchData();
     }
   }, [preloadSuggestions, fetchData]);
@@ -169,20 +233,10 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
 
   // تطبيق اقتراح أو بحث سابق
   const applySearchTerm = (term: string) => {
-    setStoreQuery(term);
+    setQuery(term);
     performSearch(term);
-    addRecentSearch(term);
+    addStoreRecentSearch(term);
     inputRef.current?.focus();
-  };
-
-  // Handle result selection
-  const handleResultSelect = (result: Product | Inspiration | { type: 'product' | 'inspiration' }) => {
-    if ('type' in result && result.type === "product" && onProductSelect) {
-      onProductSelect(result as unknown as Product);
-    } else if ('type' in result && result.type === "inspiration" && onInspirationSelect) {
-      onInspirationSelect(result as unknown as Inspiration);
-    }
-    setIsFocused(false);
   };
 
   const searchMode = (() => {
@@ -277,7 +331,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{ duration: 0.2 }}
               onClick={() => {
-                clearSearch();
+                clearStoreSearch();
                 inputRef.current?.focus();
               }}
               className="absolute inset-y-0 left-0 flex items-center pl-3"
@@ -373,7 +427,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                   <h4 className="text-xs font-medium text-gray-700 mb-2">إعدادات البحث</h4>
                   <div className="flex flex-col gap-2">
                     <button
-                      onClick={toggleAutocomplete}
+                      onClick={toggleStoreAutocomplete}
                       className="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-gray-100"
                     >
                       <span className="flex items-center gap-1">
@@ -389,7 +443,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                       </span>
                     </button>
                     <button
-                      onClick={toggleSpellCorrection}
+                      onClick={toggleStoreSpellCorrection}
                       className="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-gray-100"
                     >
                       <span className="flex items-center gap-1">
@@ -406,7 +460,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                     </button>
                     {recentSearches.length > 0 && (
                       <button
-                        onClick={clearRecentSearches}
+                        onClick={clearStoreRecentSearches}
                         className="text-xs text-red-600 hover:text-red-700 self-end mt-1"
                       >
                         مسح عمليات البحث السابقة
@@ -418,7 +472,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
             </AnimatePresence>
 
             {/* Search content */}
-            <div ref={resultsRef} className="overflow-hidden">
+            <div className="overflow-hidden">
               {/* Loading state */}
               {isLoading && (
                 <div className="p-6 flex flex-col items-center justify-center">
@@ -467,7 +521,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                     </div>
                     {recentSearches.length > 0 && (
                       <button
-                        onClick={clearRecentSearches}
+                        onClick={clearStoreRecentSearches}
                         className="text-xs text-red-600 hover:text-red-700"
                       >
                         مسح
@@ -565,7 +619,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                           href={result.url}
                           data-search-item
                           className={`block p-3 hover:bg-gray-50 transition-all duration-200 border-r-0 border-l-0 border-t-0 border-b border-gray-100 ${
-                            selectedIndex === index ? "bg-indigo-50/50 border-r-4 border-r-indigo-500 pr-2" : ""
+                            index === selectedIndex ? "bg-indigo-50/50 border-r-4 border-r-indigo-500 pr-2" : ""
                           }`}
                           onClick={() => handleResultSelect(result)}
                         >

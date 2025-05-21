@@ -4,17 +4,12 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGift } from "@/context/gift-context"
 import { Button } from "@/components/ui/button"
-import { Star, ChevronLeft, ChevronRight, Eye, ChevronDown, Heart, ShoppingCart, Edit } from "lucide-react"
+import { Star, ChevronLeft, ChevronRight, Eye, ChevronDown, Heart, Edit } from "lucide-react"
 import type { Inspiration } from "@/types/inspiration"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { toast } from "react-toastify"
-import { getBoxesByIds } from "@/lib/actions/box-actions"
-import { getBagsByIds } from "@/lib/actions/bag-actions"
-import { getGiftProductsByIds } from "@/lib/actions/product-actions" 
-import { getDecorationsByIds } from "@/lib/actions/decoration-actions"
-import { getMainProductsByIds } from "@/lib/actions/main-product-actions"
+
 // Import Swiper components and modules
 import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination, FreeMode, Autoplay } from "swiper/modules"
@@ -23,6 +18,7 @@ import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
 import "swiper/css/free-mode"
+import AddToCartButton from "@/app/inspiration/[id]/AddToCartButton"
 
 interface CategoryInspirationGalleryProps {
   category: string
@@ -36,7 +32,6 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
   const [error, setError] = useState<string | null>(null)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
   const [likedItems, setLikedItems] = useState<Record<string, boolean>>({})
-  const [addingToCart, setAddingToCart] = useState<Record<string, boolean>>({})
   // عدد المنتجات التي سيتم جلبها
   const maxInspirationCount = 10 // عرض 10 منتجات
 
@@ -55,173 +50,6 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
       ...prev,
       [giftId]: !prev[giftId]
     }))
-  }
-
-  // Add gift directly to cart
-  const handleAddToCart = async (gift: Inspiration, e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    // Set loading state for this gift
-    setAddingToCart(prev => ({
-      ...prev,
-      [gift.id]: true
-    }));
-    
-    try {
-      // Validate at least one product
-      if (gift.products.length === 0) {
-        toast.error("لا يمكن إضافة هدية بدون منتجات");
-        return;
-      }
-      
-      // Extract product IDs from the products array
-      let productIds: string[] = [];
-      let productQuantities: Record<string, number> = {};
-      
-      if (gift.products && gift.products.length > 0) {
-        // Check if products are objects or just string IDs
-        if (typeof gift.products[0] === 'string') {
-          // Old format: array of IDs
-          productIds = gift.products as string[];
-          // Use quantities from productQuantities if available
-          productQuantities = gift.productQuantities || {};
-        } else {
-          // New format: array of objects with id and quantity
-          const productsWithQuantity = gift.products as { id: string; quantity: number | { $numberInt: string } }[];
-          
-          productIds = productsWithQuantity.map(p => {
-            const id = p.id;
-            // Handle quantity whether it's a number or an object
-            const quantity = typeof p.quantity === 'number' 
-              ? p.quantity 
-              : parseInt((p.quantity as { $numberInt: string }).$numberInt || '1', 10);
-              
-            productQuantities[id] = quantity;
-            return id;
-          });
-        }
-      }
-      
-      // Fetch all related items by IDs
-      const [boxArr, bagArr, productsArr, decorationsArr, mainProductsArr] = await Promise.all([
-        gift.box ? getBoxesByIds([gift.box]) : [],
-        gift.bag ? getBagsByIds([gift.bag]) : [],
-        productIds.length > 0 ? getGiftProductsByIds(productIds) : [],
-        gift.decorations && gift.decorations.length > 0 ? getDecorationsByIds(gift.decorations) : [],
-        gift.Mainproducts && gift.Mainproducts.length > 0 ? getMainProductsByIds(gift.Mainproducts) : [],
-      ]);
-      
-      // Extract the fetched objects
-      const box = boxArr && boxArr.length > 0 ? boxArr[0] : null;
-      const bag = bagArr && bagArr.length > 0 ? bagArr[0] : null;
-      
-      // Ensure all products have price and quantity
-      const productsWithQuantities = productsArr.map(product => ({
-        ...product,
-        price: typeof product.price === 'number' ? product.price : 0,
-        quantity: gift.productQuantities?.[product.id] || 1
-      }));
-      
-      // Ensure all main products have price and quantity
-      const mainProductsWithQuantities = mainProductsArr.map(product => ({
-        ...product,
-        price: typeof product.price === 'number' ? product.price : 0,
-        quantity: gift.productQuantities?.[product.id] || 1 // Use same productQuantities for main products
-      }));
-      
-      // Calculate total price
-      const productsTotal = productsWithQuantities.reduce(
-        (sum, item) => sum + (item.price * (item.quantity || 1)), 
-        0
-      );
-      
-      const mainProductsTotal = mainProductsWithQuantities.reduce(
-        (sum, item) => sum + (item.price * (item.quantity || 1)), 
-        0
-      );
-      
-      const boxPrice = box && typeof box.price === 'number' ? box.price : 0;
-      const bagPrice = bag && typeof bag.price === 'number' ? bag.price : 0;
-      
-      // Calculate decorations price
-      let decorationsPrice = 0;
-      for (const decoration of decorationsArr) {
-        decorationsPrice += typeof decoration.price === 'number' ? decoration.price : 0;
-      }
-      
-      const totalPrice = productsTotal + mainProductsTotal + boxPrice + bagPrice + decorationsPrice;
-      
-      // Create a cart item
-      const cartItem = {
-        id: Date.now(), // Use timestamp as ID
-        name: gift.name || "هدية مخصصة",
-        image: gift.image || box?.image || "/images/box.png",
-        price: totalPrice,
-        quantity: 1,
-        category: "هدايا",
-        variant: "مخصص",
-        stock: 1,
-        giftDetails: gift.description || "هدية مخصصة",
-        giftData: {
-          items: [
-            ...productsWithQuantities.map(p => ({
-              id: p.id,
-              name: p.name,
-              image: p.image,
-              price: p.price,
-              quantity: p.quantity || 1,
-              type: 'gift'
-            })),
-            ...mainProductsWithQuantities.map(p => ({
-              id: p.id,
-              name: p.name,
-              image: p.image,
-              price: p.price,
-              quantity: p.quantity || 1,
-              type: 'main'
-            })),
-          ],
-          box: box ? {
-            name: box.name,
-            image: box.image,
-            price: boxPrice
-          } : null,
-          wrap: bag ? {
-            name: bag.name,
-            image: bag.image,
-            price: bagPrice
-          } : null,
-          totalPrice: totalPrice,
-          createdAt: new Date().toISOString()
-        }
-      };
-      
-      // Get existing cart and add new item
-      const existingCart = localStorage.getItem("cadoz-cart");
-      const cart = existingCart ? JSON.parse(existingCart) : [];
-      cart.push(cartItem);
-      
-      // Update localStorage
-      localStorage.setItem("cadoz-cart", JSON.stringify(cart));
-      
-      // Dispatch a custom event to notify cart context
-      const cartUpdateEvent = new CustomEvent("cartUpdated", { detail: cart });
-      window.dispatchEvent(cartUpdateEvent);
-      
-      toast.success(`تمت إضافة هدية "${gift.name}" إلى السلة بنجاح!`, {
-        position: "top-center",
-        autoClose: 1500
-      });
-    } catch (err) {
-      console.error("خطأ في إضافة الهدية إلى السلة:", err);
-      toast.error("حدث خطأ أثناء إضافة الهدية إلى السلة");
-    } finally {
-      // Clear loading state
-      setAddingToCart(prev => ({
-        ...prev,
-        [gift.id]: false
-      }));
-    }
   }
 
   // Fetch inspiration gifts by category using API endpoint with limit and process for consistent display
@@ -441,19 +269,7 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
                         </Link>
                       </Button>
 
-                      <Button
-                        size="sm"
-                        className="text-xs bg-purple-600 hover:bg-purple-700 flex-1 h-8 rounded-xl"
-                        onClick={(e) => handleAddToCart(gift, e)}
-                        disabled={addingToCart[gift.id]}
-                      >
-                        {addingToCart[gift.id] ? (
-                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
-                        ) : (
-                          <ShoppingCart className="w-3 h-3 mr-1" />
-                        )}
-                        اضافة للسلة
-                      </Button>
+                      <AddToCartButton inspiration={gift} />
                     </div>
                   </div>
                 </motion.div>
