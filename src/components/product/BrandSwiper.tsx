@@ -122,16 +122,16 @@ const BrandSwiper = ({ brand, products }: { brand: string; products: Product[] }
 
                   {/* زر القلب للمفضلة */}
                   <button
-                    className="absolute top-2 right-2 z-10 p-2 bg-white rounded-full shadow-md transition-all hover:scale-110"
+                    className="absolute top-1.5 right-1.5 z-10 p-1 bg-white/90 backdrop-blur-sm rounded-full shadow-sm transition-all hover:scale-110"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleWishlistToggle(product)
                     }}
                   >
                     {wishlist.some((item) => item.id === product.id) ? (
-                      <HeartSolid className="w-6 h-6 text-red-600" />
+                      <HeartSolid className="w-4 h-4 text-red-600" />
                     ) : (
-                      <HeartOutline className="w-6 h-6 text-gray-400 hover:text-red-500 transition" />
+                      <HeartOutline className="w-4 h-4 text-gray-400 hover:text-red-500 transition" />
                     )}
                   </button>
                 </div>

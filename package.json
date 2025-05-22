@@ -11,7 +11,7 @@
   "dependencies": {
     "@ai-sdk/groq": "^1.2.9",
     "@auth/core": "^0.34.2",
-    "@auth/mongodb-adapter": "^3.8.0",
+    "@auth/mongodb-adapter": "^3.9.1",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@googleapis/sheets": "^9.4.0",
     "@headlessui/react": "^2.2.0",

@@ -7,6 +7,9 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import { Navigation, Pagination, Autoplay, FreeMode } from "swiper/modules"
 import { motion } from "framer-motion"
 import { Star } from "lucide-react"
+import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline"
+import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid"
+import { useWishlist } from "../../context/WishlistContext"
 import type { Product } from "@/types/product"
 
 // Import Swiper styles
@@ -17,7 +20,23 @@ import "swiper/css/free-mode"
 
 // Common ProductCard component used by all swipers
 const ProductCard = ({ product }: { product: Product }) => {
+  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist()
 
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (wishlist.some((item) => item.id === product.id)) {
+      removeFromWishlist(product.id)
+    } else {
+      addToWishlist({
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        productId: product.id
+      })
+    }
+  }
   
   // Calculate discount percentage if old price exists
   const discountPercentage = useMemo(() => {
@@ -27,8 +46,6 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
     return 0
   }, [product])
-  
-
   
   // Check if product is new (within last 30 days)
   const isNew = useMemo(() => {
@@ -50,7 +67,6 @@ const ProductCard = ({ product }: { product: Product }) => {
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
       className="group relative h-full"
-
     >
       <Link href={`/product/${product.id}`} className="block h-full">
         <div className="relative h-full overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:shadow-md">
@@ -124,6 +140,18 @@ const ProductCard = ({ product }: { product: Product }) => {
           </div>
         </div>
       </Link>
+
+      {/* زر القلب للمفضلة */}
+      <button
+        className="absolute top-1.5 right-1.5 z-10 p-1 bg-white/90 backdrop-blur-sm rounded-full shadow-sm transition-all hover:scale-110"
+        onClick={handleWishlistToggle}
+      >
+        {wishlist.some((item) => item.id === product.id) ? (
+          <HeartSolid className="w-4 h-4 text-red-600" />
+        ) : (
+          <HeartOutline className="w-4 h-4 text-gray-400 hover:text-red-500 transition" />
+        )}
+      </button>
     </motion.div>
   )
 }

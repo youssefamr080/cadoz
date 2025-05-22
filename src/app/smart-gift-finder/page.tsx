@@ -12,6 +12,7 @@ import type { Message, GiftWithDetails, Product } from "@/lib/types"
 import { motion, AnimatePresence } from "framer-motion"
 import GiftCard from "./gift-card"
 
+
 interface GiftData {
   _id: string;
   name: string;
