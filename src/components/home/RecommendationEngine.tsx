@@ -27,32 +27,57 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
 
         // دمج بيانات التفاعل: المنتجات المشاهدة، عمليات البحث، المفضلة، والسلة
         const viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]");
-
         const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
         const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
-        // دمج كل المنتجات
         const interestedProducts = JSON.parse(localStorage.getItem("interestedProducts") || "[]");
+        
+        // إضافة عمليات البحث السابقة
+        const recentSearches = JSON.parse(localStorage.getItem("cadoz-search-history") || "[]");
+        const searchTerms = recentSearches.map((search: { term?: string }) => search.term || search).filter(Boolean);
 
+        // دمج كل المنتجات والبحث
         const allInteracted = [...viewedProducts, ...wishlist, ...cart, ...interestedProducts];
         const categories = allInteracted.map((p) => p.category).filter(Boolean);
         const tags = allInteracted.flatMap((p) => p.tags || []).filter(Boolean);
         const excludeIds = [...new Set(allInteracted.map((p) => p.id))];
 
+        // تحليل عمليات البحث السابقة
+        const searchCategories = searchTerms.flatMap(term => {
+          const matchingProducts = allInteracted.filter(p => 
+            p.name.toLowerCase().includes(term.toLowerCase()) ||
+            p.description?.toLowerCase().includes(term.toLowerCase())
+          );
+          return matchingProducts.map(p => p.category).filter(Boolean);
+        });
+
+        const searchTags = searchTerms.flatMap(term => {
+          const matchingProducts = allInteracted.filter(p => 
+            p.tags?.some(tag => tag.toLowerCase().includes(term.toLowerCase()))
+          );
+          return matchingProducts.flatMap(p => p.tags || []).filter(Boolean);
+        });
+
+        // دمج الفئات والعلامات من عمليات البحث
+        const allCategories = [...categories, ...searchCategories];
+        const allTags = [...tags, ...searchTags];
+
         // الأكثر تكرارًا
-        const mostCommonCategory = categories.sort((a, b) =>
-          categories.filter(v => v === a).length - categories.filter(v => v === b).length
+        const mostCommonCategory = allCategories.sort((a, b) =>
+          allCategories.filter(v => v === a).length - allCategories.filter(v => v === b).length
         ).pop();
-        const mostCommonTags = [...new Set(tags)].slice(0, 3);
+
+        const mostCommonTags = [...new Set(allTags)].slice(0, 5);
 
         // بناء معلمات الاستعلام
         const params = new URLSearchParams();
         if (mostCommonCategory) params.append("category", mostCommonCategory);
         if (mostCommonTags.length) params.append("tags", mostCommonTags.join(","));
         if (excludeIds.length) params.append("excludeIds", excludeIds.join(","));
-        params.append("limit", "8");
+        if (searchTerms.length) params.append("searchTerms", searchTerms.join(","));
+        params.append("limit", "12");
+        params.append("personalized", "true");
 
-        // كاش للتوصيات (30 دقيقة)
+        // كاش للتوصيات (15 دقيقة)
         const CacheService = (await import("@/lib/services/cache-service")).default;
         const cacheKey = `recommendations_${params.toString()}`;
         const cached = await CacheService.getItem<Product[]>(cacheKey);
@@ -63,18 +88,18 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
         }
 
         // جلب التوصيات
-        const response = await fetch(`/api/products/recommendations?${params.toString()}`);
+        const response = await fetch(`/api/recommendations?${params.toString()}`);
         const data = await response.json();
         if (data.success && data.data.length > 0) {
           setRecommendations(data.data);
-          await CacheService.setItem(cacheKey, data.data, 30);
+          await CacheService.setItem(cacheKey, data.data, 15);
         } else {
           // fallback: منتجات رائجة
-          const fallbackResponse = await fetch("/api/products?rating=4&limit=8&sort=rating_desc");
+          const fallbackResponse = await fetch("/api/products?rating=4&limit=12&sort=rating_desc");
           const fallbackData = await fallbackResponse.json();
           if (fallbackData.success) {
             setRecommendations(fallbackData.data);
-            await CacheService.setItem(cacheKey + "_fallback", fallbackData.data, 30);
+            await CacheService.setItem(cacheKey + "_fallback", fallbackData.data, 15);
           } else {
             setError("لا يمكن تحميل التوصيات");
           }

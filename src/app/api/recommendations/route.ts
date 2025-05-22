@@ -362,13 +362,14 @@ async function getUserPreferences(db: Db, userId: string): Promise<UserPreferenc
   return preferences
 }
 
-// دالة للحصول على المنتجات الموصى بها
+// تحديث دالة getRecommendedProducts
 async function getRecommendedProducts(
   db: Db,
   excludeIds: number[],
   preferences: UserPreference,
   limit: number,
   usePersonalized: boolean,
+  searchTerms?: string[]
 ): Promise<Product[]> {
   // إنشاء استعلام أساسي
   const baseQuery: {
@@ -378,9 +379,24 @@ async function getRecommendedProducts(
     tags?: { $in: string[] };
     brand?: { $in: string[] };
     price?: { $gte: number; $lte: number };
+    $or?: Array<{
+      name?: { $regex: string; $options: string };
+      description?: { $regex: string; $options: string };
+      tags?: { $in: string[] };
+    }>;
   } = {
     id: { $nin: excludeIds },
     stock: { $gt: 0 },
+  }
+
+  // إضافة معايير البحث إذا كانت موجودة
+  if (searchTerms && searchTerms.length > 0) {
+    const searchConditions = searchTerms.flatMap(term => [
+      { name: { $regex: term, $options: 'i' } },
+      { description: { $regex: term, $options: 'i' } },
+      { tags: { $in: [term] } }
+    ]);
+    baseQuery.$or = searchConditions;
   }
 
   // إضافة معايير التصفية بناءً على تفضيلات المستخدم
@@ -413,7 +429,7 @@ async function getRecommendedProducts(
       .limit(50)
       .toArray()
 
-    // حساب درجة لكل منتج بناءً على تفضيلات المستخدم
+    // حساب درجة لكل منتج بناءً على تفضيلات المستخدم وعمليات البحث
     const scoredProducts = allCandidates.map((product) => {
       let score = 0
 
@@ -438,12 +454,12 @@ async function getRecommendedProducts(
 
       // نقاط للتقييم
       if (product.rating) {
-        score += product.rating
+        score += product.rating * 2
       }
 
       // نقاط للخصم
       if (product.discount_percentage) {
-        score += product.discount_percentage / 10
+        score += product.discount_percentage
       }
 
       // نقاط للشعبية
@@ -451,11 +467,32 @@ async function getRecommendedProducts(
         score += Math.min(product.views / 100, 5)
       }
 
+      // نقاط إضافية لمطابقة عمليات البحث
+      if (searchTerms) {
+        searchTerms.forEach(term => {
+          const productName = product.name.toLowerCase();
+          const productDesc = (product as Product & { description?: string }).description?.toLowerCase() || '';
+          const productTags = product.tags || [];
+
+          if (productName.includes(term.toLowerCase())) {
+            score += 5;
+          }
+          if (productDesc.includes(term.toLowerCase())) {
+            score += 3;
+          }
+          if (productTags.some(tag => tag.toLowerCase().includes(term.toLowerCase()))) {
+            score += 4;
+          }
+        });
+      }
+
       return { ...product, score }
     })
 
-    // ترتيب المنتجات حسب الدرجة وإضافة عنصر عشوائي
-    recommendations = scoredProducts.sort((a, b) => b.score - a.score).slice(0, limit)
+    // ترتيب المنتجات حسب الدرجة
+    recommendations = scoredProducts
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
   } else {
     // استخدام استعلام بسيط للتوصيات غير الشخصية
     if (Object.keys(preferences.categories).length > 0) {
@@ -494,7 +531,7 @@ async function getRecommendedProducts(
     const fallbackRecommendations = await db
       .collection<Product>("products")
       .find(fallbackQuery)
-      .sort({ views: -1 })
+      .sort({ views: -1, rating: -1 })
       .limit(remainingLimit)
       .toArray()
 

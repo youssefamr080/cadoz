@@ -65,6 +65,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
     enableAutocomplete,
     productsCache,
     inspirationsCache,
+    recentSearches: storeRecentSearches,
     setQuery: setStoreQuery,
     search: performStoreSearch,
     clearSearch: clearStoreSearch,
@@ -78,7 +79,6 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
 
   // إضافة متغيرات جديدة للاقتراحات الذكية
   const [smartSuggestions, setSmartSuggestions] = useState<string[]>([]);
-  const [showSmartSuggestions, setShowSmartSuggestions] = useState(false);
 
   // تأخير البحث لتحسين الأداء عند الكتابة
   const debouncedSearch = useDebounce((value: string) => {
@@ -90,13 +90,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   // استدعاء API البحث مع تطبيق فلترة المنتجات في واجهة المستخدم بدلاً من تعديل المخزن
   const performSearch = (searchQuery: string) => {
     if (searchQuery.length >= 2) {
-      // نستخدم الدالة الحالية للبحث بدون تمرير المعاملات الإضافية
       performStoreSearch(searchQuery);
-      
-      // إضافة إلى البحوث الأخيرة فقط للاستعلامات الهادفة
-      if (searchQuery.length >= 3) {
-        addStoreRecentSearch(searchQuery);
-      }
     }
   };
 
@@ -112,11 +106,9 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       // توليد اقتراحات ذكية
       const smartSuggestions = generateSmartSuggestions(value);
       setSmartSuggestions(smartSuggestions);
-      setShowSmartSuggestions(true);
     } else {
       clearStoreSearch();
       setSearchResults([]);
-      setShowSmartSuggestions(false);
     }
   };
 
@@ -125,8 +117,8 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
     const suggestions: string[] = [];
     const normalizedQuery = query.toLowerCase();
 
-    // اقتراحات من عمليات البحث السابقة
-    recentSearches.forEach(term => {
+    // اقتراحات من عمليات البحث السابقة (المنتجات المختارة سابقاً)
+    storeRecentSearches.forEach(term => {
       if (term.toLowerCase().includes(normalizedQuery) && !suggestions.includes(term)) {
         suggestions.push(term);
       }
@@ -152,18 +144,22 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       }
     });
 
-    return suggestions.slice(0, 5); // إرجاع أفضل 5 اقتراحات
+    return suggestions.slice(0, 7); // إرجاع أفضل 7 اقتراحات
   };
 
   // Handle result selection
   const handleResultSelect = useCallback((result: Product | Inspiration) => {
     if (result.type === "product" && onProductSelect) {
+      // إضافة اسم المنتج المختار إلى عمليات البحث السابقة
+      addStoreRecentSearch(result.name);
+      // تحديث حالة عمليات البحث السابقة مباشرة
+      setRecentSearches([result.name, ...storeRecentSearches].slice(0, 7));
       onProductSelect(result);
     } else if (result.type === "inspiration" && onInspirationSelect) {
       onInspirationSelect(result);
     }
     setIsFocused(false);
-  }, [onProductSelect, onInspirationSelect]);
+  }, [onProductSelect, onInspirationSelect, addStoreRecentSearch, storeRecentSearches]);
 
   // Update search results when store suggestions change
   useEffect(() => {
@@ -267,8 +263,8 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
 
   // Update recent searches when store recent searches change
   useEffect(() => {
-    setRecentSearches(recentSearches);
-  }, [recentSearches]);
+    setRecentSearches(storeRecentSearches.slice(0, 7)); // عرض آخر 7 عمليات بحث فقط
+  }, [storeRecentSearches]);
 
   // Handle keyboard navigation
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -355,7 +351,6 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   const applySearchTerm = (term: string) => {
     setQuery(term);
     performSearch(term);
-    addStoreRecentSearch(term);
     inputRef.current?.focus();
   };
 
@@ -424,7 +419,6 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
     clearStoreSearch();
     setSearchResults([]);
     setSmartSuggestions([]);
-    setShowSmartSuggestions(false);
     setSelectedIndex(-1);
     inputRef.current?.focus();
   }, [clearStoreSearch, setStoreQuery]);
