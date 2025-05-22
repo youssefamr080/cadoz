@@ -22,6 +22,9 @@ export interface Inspiration {
   Mainproducts?: string[]; // main product IDs only
   likes?: number;
   dislikes?: number;
+  price?: number; // Added price field
+  oldPrice?: number; // Added old price field for discounts
+  discount_percentage?: number; // Added discount percentage field
   comments?: Array<{
     _id: { $oid: string } | string;
     userId: string;

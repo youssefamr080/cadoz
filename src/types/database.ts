@@ -71,6 +71,9 @@ export interface InspirationDocument extends MongoDocument {
   dislikes: number
   likedBy: string[]
   dislikedBy: string[]
+  price: number
+  oldPrice?: number
+  discount_percentage?: number
   ratings: Array<{
     userId: string
     rating: number

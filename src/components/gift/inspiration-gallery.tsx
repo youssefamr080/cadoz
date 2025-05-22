@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGift } from "@/context/gift-context"
 import { Button } from "@/components/ui/button"
-import { Star, ChevronLeft, ChevronRight, Eye, ChevronDown, Heart, Edit } from "lucide-react"
+import { Star, ChevronLeft, ChevronRight, Eye, ChevronDown, Heart } from "lucide-react"
 import { getPopularInspirations } from "@/lib/actions/inspiration-actions"
 import type { Inspiration } from "@/types/inspiration"
 // Import types as needed
@@ -174,27 +174,31 @@ export default function InspirationGallery() {
                         className={`w-3.5 h-3.5 ${likedItems[gift.id] ? 'text-red-500 fill-red-500' : 'text-gray-400'}`} 
                       />
                     </button>
-                    <div className="absolute top-2 left-2 bg-white bg-opacity-90 rounded-full px-2 py-1 flex items-center shadow-sm z-10">
-                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      <span className="text-xs font-medium ml-1">{gift.rating}</span>
-                    </div>
-                    
-                    {/* Quick action button - Changed to "تعديل الهدية" (Edit Gift) */}
-                    <motion.button
-                      initial={{ opacity: 0, y: 20 }}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      onClick={() => loadInspiration(gift)}
-                      className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    >
-                      <Edit className="w-3 h-3" />
-                      تخصيص الهدية
-                    </motion.button>
                   </div>
 
                   <div className="p-3">
+                    {/* Price and Rating Row */}
+                    <div className="flex justify-between items-center mb-2">
+                      {/* Rating Badge */}
+                      <div className="bg-white rounded-full px-2 py-1 flex items-center shadow-sm">
+                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                        <span className="text-xs font-medium ml-1">{gift.rating}</span>
+                      </div>
+
+                      {/* Price Badge */}
+                      {gift.price && (
+                        <div className="bg-white rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
+                          {gift.oldPrice && gift.price < gift.oldPrice && (
+                            <span className="text-xs line-through text-gray-400">{gift.oldPrice} ج.م</span>
+                          )}
+                          <span className="text-xs font-medium text-green-600">{gift.price} ج.م</span>
+                          {gift.discount_percentage && (
+                            <span className="text-xs font-medium text-red-500">-{gift.discount_percentage}%</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     {/* Name with expandable arrow */}
                     <div 
                       className="flex justify-between items-center cursor-pointer py-1"

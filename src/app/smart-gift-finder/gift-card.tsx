@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {Eye, Package, Sparkles, Gift, ShoppingBag } from "lucide-react"
+import {Eye, Package, Sparkles, Gift, ShoppingBag, Star } from "lucide-react"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import type { GiftWithDetails } from "@/lib/types"
 import AddToCartButton from "@/app/inspiration/[id]/AddToCartButton"
@@ -33,55 +33,6 @@ interface Decoration {
 }
 
 export default function GiftCard({ gift }: GiftCardProps) {
-  // Calculate total price from all components
-  const calculateTotalPrice = () => {
-    let total = 0
-
-    // Add main products prices
-    if (gift.mainProducts && gift.mainProducts.length > 0) {
-      gift.mainProducts.forEach((product: Product) => {
-        if (product.price) {
-          total += product.price
-        }
-      })
-    }
-
-    // Add product details prices with quantities
-    if (gift.productDetails && gift.productDetails.length > 0) {
-      gift.productDetails.forEach((product: Product, index: number) => {
-        const quantity =
-          gift.productQuantities && gift.productQuantities[index]?.quantity ? gift.productQuantities[index].quantity : 1
-
-        if (product.price) {
-          total += product.price * quantity
-        }
-      })
-    }
-
-    // Add box price if available
-    if (gift.boxDetails && gift.boxDetails.price) {
-      total += gift.boxDetails.price
-    }
-
-    // Add bag price if available
-    if (gift.bagDetails && gift.bagDetails.price) {
-      total += gift.bagDetails.price
-    }
-
-    // Add decoration prices
-    if (gift.decorationDetails && gift.decorationDetails.length > 0) {
-      gift.decorationDetails.forEach((decoration: Decoration) => {
-        if (decoration.price) {
-          total += decoration.price
-        }
-      })
-    }
-
-    return total
-  }
-
-  const totalPrice = calculateTotalPrice()
-
   // Count total items
   const countTotalItems = () => {
     let count = 0
@@ -140,6 +91,9 @@ export default function GiftCard({ gift }: GiftCardProps) {
     category: gift.category,
     occasions: gift.occasions,
     tags: gift.tags,
+    price: gift.price,
+    oldPrice: gift.oldPrice,
+    discount_percentage: gift.discount_percentage,
     updatedAt: gift.updatedAt ? 
       (typeof gift.updatedAt === 'string' ? 
         gift.updatedAt : 
@@ -162,15 +116,32 @@ export default function GiftCard({ gift }: GiftCardProps) {
           className="object-cover"
         />
         <div className="absolute top-2 right-2 flex flex-col gap-1">
-          <Badge className="bg-pink-500 hover:bg-pink-600">
-            {totalPrice > 0 ? `${totalPrice.toFixed(2)} ج.م` : "سعر متغير"}
-          </Badge>
           <Badge variant="outline" className="bg-white/80 text-gray-800">
             {totalItems} قطعة
           </Badge>
         </div>
       </div>
       <CardContent className="p-4">
+        {/* Price and Rating Row */}
+        <div className="flex justify-between items-center mb-2">
+          {/* Rating Badge */}
+          <div className="bg-white rounded-full px-2 py-1 flex items-center shadow-sm">
+            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+            <span className="text-xs font-medium ml-1">{gift.rating || 0}</span>
+          </div>
+
+          {/* Price Badge */}
+          <div className="bg-white rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
+            {gift.oldPrice && gift.price && gift.price < gift.oldPrice && (
+              <span className="text-xs line-through text-gray-400">{gift.oldPrice} ج.م</span>
+            )}
+            <span className="text-xs font-medium text-green-600">{gift.price || 0} ج.م</span>
+            {gift.discount_percentage && (
+              <span className="text-xs font-medium text-red-500">-{gift.discount_percentage}%</span>
+            )}
+          </div>
+        </div>
+
         <h3 className="font-semibold text-lg mb-2 text-right">{gift.name}</h3>
 
         <div className="flex flex-wrap gap-1 mb-3 justify-end">
@@ -194,27 +165,33 @@ export default function GiftCard({ gift }: GiftCardProps) {
               محتويات الهدية ({totalItems})
             </AccordionTrigger>
             <AccordionContent>
-              <div className="space-y-3 text-right text-sm">
-                {/* Box */}
+              <div className="space-y-3 text-right">
+                {/* Box Details */}
                 {gift.boxDetails && (
-                  <div className="flex items-center justify-end gap-2">
-                    <div>
-                      <p className="font-medium">{gift.boxDetails.name || "صندوق هدية"}</p>
-                      {gift.boxDetails.price && <p className="text-xs text-gray-500">{gift.boxDetails.price} ج.م</p>}
+                  <>
+                    <p className="font-medium text-pink-600">الصندوق:</p>
+                    <div className="flex items-center justify-end gap-2 pr-4">
+                      <div>
+                        <p>{gift.boxDetails.name}</p>
+                        {gift.boxDetails.price && <p className="text-xs text-gray-500">{gift.boxDetails.price} ج.م</p>}
+                      </div>
+                      <Package className="h-4 w-4 text-gray-500" />
                     </div>
-                    <Package className="h-4 w-4 text-gray-500" />
-                  </div>
+                  </>
                 )}
 
-                {/* Bag */}
+                {/* Bag Details */}
                 {gift.bagDetails && (
-                  <div className="flex items-center justify-end gap-2">
-                    <div>
-                      <p className="font-medium">{gift.bagDetails.name || "شنطة هدية"}</p>
-                      {gift.bagDetails.price && <p className="text-xs text-gray-500">{gift.bagDetails.price} ج.م</p>}
+                  <>
+                    <p className="font-medium text-pink-600">الحقيبة:</p>
+                    <div className="flex items-center justify-end gap-2 pr-4">
+                      <div>
+                        <p>{gift.bagDetails.name}</p>
+                        {gift.bagDetails.price && <p className="text-xs text-gray-500">{gift.bagDetails.price} ج.م</p>}
+                      </div>
+                      <ShoppingBag className="h-4 w-4 text-gray-500" />
                     </div>
-                    <ShoppingBag className="h-4 w-4 text-gray-500" />
-                  </div>
+                  </>
                 )}
 
                 {/* Main Products */}
@@ -224,7 +201,7 @@ export default function GiftCard({ gift }: GiftCardProps) {
                     {gift.mainProducts.map((product: Product, index: number) => (
                       <div key={index} className="flex items-center justify-end gap-2 pr-4">
                         <div>
-                          <p>{product.name || "منتج رئيسي"}</p>
+                          <p>{product.name}</p>
                           {product.price && <p className="text-xs text-gray-500">{product.price} ج.م</p>}
                         </div>
                         <Gift className="h-4 w-4 text-gray-500" />
@@ -233,27 +210,17 @@ export default function GiftCard({ gift }: GiftCardProps) {
                   </>
                 )}
 
-                {/* Products */}
+                {/* Product Details */}
                 {gift.productDetails && gift.productDetails.length > 0 && (
                   <>
-                    <p className="font-medium text-pink-600">المنتجات:</p>
+                    <p className="font-medium text-pink-600">المنتجات الإضافية:</p>
                     {gift.productDetails.map((product: Product, index: number) => {
-                      const quantity =
-                        gift.productQuantities && gift.productQuantities[index]?.quantity
-                          ? gift.productQuantities[index].quantity
-                          : 1
-
+                      const quantity = gift.productQuantities?.[index]?.quantity || 1
                       return (
                         <div key={index} className="flex items-center justify-end gap-2 pr-4">
                           <div>
-                            <p>
-                              {product.name || "منتج"} ({quantity})
-                            </p>
-                            {product.price && (
-                              <p className="text-xs text-gray-500">
-                                {product.price} × {quantity} = {product.price * quantity} ج.م
-                              </p>
-                            )}
+                            <p>{product.name} × {quantity}</p>
+                            {product.price && <p className="text-xs text-gray-500">{product.price} ج.م</p>}
                           </div>
                           <Gift className="h-4 w-4 text-gray-500" />
                         </div>
@@ -262,14 +229,14 @@ export default function GiftCard({ gift }: GiftCardProps) {
                   </>
                 )}
 
-                {/* Decorations */}
+                {/* Decoration Details */}
                 {gift.decorationDetails && gift.decorationDetails.length > 0 && (
                   <>
                     <p className="font-medium text-pink-600">الزينة:</p>
                     {gift.decorationDetails.map((decoration: Decoration, index: number) => (
                       <div key={index} className="flex items-center justify-end gap-2 pr-4">
                         <div>
-                          <p>{decoration.name || "زينة"}</p>
+                          <p>{decoration.name}</p>
                           {decoration.price && <p className="text-xs text-gray-500">{decoration.price} ج.م</p>}
                         </div>
                         <Sparkles className="h-4 w-4 text-gray-500" />
@@ -281,7 +248,7 @@ export default function GiftCard({ gift }: GiftCardProps) {
                 {/* Total Price */}
                 <div className="border-t pt-2 mt-2">
                   <div className="flex justify-between font-medium">
-                    <span>{totalPrice.toFixed(2)} ج.م</span>
+                    <span>{gift.price ? `${gift.price.toFixed(2)} ج.م` : "سعر متغير"}</span>
                     <span>السعر الإجمالي:</span>
                   </div>
                 </div>

@@ -99,7 +99,7 @@ export default function SmartGiftFinder() {
       // Update gifts
       if (result.gifts && result.gifts.length > 0) {
         // Transform the gifts to match GiftWithDetails type
-        const transformedGifts = (result.gifts as unknown as Array<Partial<GiftWithDetails>>).map(gift => ({
+        const transformedGifts = result.gifts.map((gift: any) => ({
           _id: gift._id || '',
           name: gift.name || '',
           description: gift.description || '',
@@ -128,20 +128,8 @@ export default function SmartGiftFinder() {
           productDetails: gift.productDetails || [],
           productQuantities: gift.productQuantities || [],
           decorationDetails: gift.decorationDetails || [],
-          boxDetails: gift.boxDetails || {
-            _id: '',
-            name: '',
-            description: '',
-            image: '',
-            price: 0
-          },
-          bagDetails: gift.bagDetails || {
-            _id: '',
-            name: '',
-            description: '',
-            image: '',
-            price: 0
-          }
+          boxDetails: gift.boxDetails || null,
+          bagDetails: gift.bagDetails || null
         }))
         setGifts(transformedGifts)
 

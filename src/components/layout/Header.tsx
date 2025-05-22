@@ -48,7 +48,7 @@ const categories = [
   { name: "رجالي", link: "/category/men", icon: <User className="w-4 h-4" /> },
   { name: "نسائي", link: "/category/women", icon: <User className="w-4 h-4" /> },
   { name: "أطفال", link: "/category/kids", icon: <User className="w-4 h-4" /> },
-  { name: "هدايا", link: "/gift", icon: <Gift className="w-4 h-4" /> },
+  { name: "هدايا", link: "/inspirations", icon: <Gift className="w-4 h-4" /> },
   { name: "عروض", link: "/category/sale", icon: <Bell className="w-4 h-4" /> },
 ]
 

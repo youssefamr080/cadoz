@@ -128,6 +128,37 @@ export default function InspirationsPage() {
   const [searchResults, setSearchResults] = useState<Array<{inspiration: Inspiration, score: number}>>([])
   const [searchTerms, setSearchTerms] = useState<string[]>([])
 
+  // Add URL parameter handling
+  useEffect(() => {
+    // Get URL parameters
+    const searchParams = new URLSearchParams(window.location.search)
+    const priceRangeParam = searchParams.get('priceRange')
+    
+    // Apply price range filter if present
+    if (priceRangeParam) {
+      const [min, max] = priceRangeParam.split('-').map(Number)
+      if (!isNaN(min) && !isNaN(max)) {
+        setPriceRange([min, max])
+      }
+    }
+
+    // Check localStorage for saved filter options
+    const savedFilters = localStorage.getItem("giftFilterOptions")
+    if (savedFilters) {
+      try {
+        const filters = JSON.parse(savedFilters)
+        if (filters.priceRange) {
+          setPriceRange(filters.priceRange)
+        }
+        if (filters.sortBy) {
+          setSortBy(filters.sortBy)
+        }
+      } catch (error) {
+        console.error("Error parsing saved filters:", error)
+      }
+    }
+  }, [])
+
   // Fetch all inspirations
   useEffect(() => {
     const fetchInspirations = async () => {
@@ -278,11 +309,11 @@ export default function InspirationsPage() {
     }
 
     // Filter by price range
-    filtered = filtered.filter(() => {
-      // Calculate total price of the inspiration (simplified)
-      const totalPrice = 300 // Placeholder - in a real app, you'd calculate this from the components
-      return totalPrice >= priceRange[0] && totalPrice <= priceRange[1]
-    })
+    filtered = filtered.filter((item) => {
+      // Calculate total price of the inspiration
+      const totalPrice = item.price || 0; // Use the price field if available
+      return totalPrice >= priceRange[0] && totalPrice <= priceRange[1];
+    });
     
     // Update scored results to match filtered items
     scoredResults = scoredResults.filter(result => 

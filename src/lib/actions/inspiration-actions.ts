@@ -33,21 +33,20 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
     image: doc.image,
     rating: doc.rating,
     reviews: doc.reviews,
-    // Pass the MongoDB _id of the box instead of the nested id field
     box: typeof doc.box === 'string' ? doc.box : doc.box.id.toString(),
-    // حفظ معرفات المنتجات
     products: doc.products.map((p: string | { id: string | ObjectId; name?: string; price?: number; image?: string; quantity?: number; category?: string; stock?: number; popular?: boolean }) => {
       const productId = typeof p === 'string' ? p : (p.id ? (typeof p.id === 'string' ? p.id : p.id.toString()) : '');
       return productId;
     }),
-    // حفظ معلومات الكميات للاستخدام لاحقاً
     productQuantities: productQuantities,
     decorations: doc.decorations.map((d: { id: string } | string) => typeof d === 'string' ? d : d.id),
     bag: typeof doc.bag === 'string' ? doc.bag : doc.bag.id,
-    // إضافة دعم المنتجات الأساسية
     Mainproducts: doc.Mainproducts ? doc.Mainproducts.map((mp: { id: string } | string) => typeof mp === 'string' ? mp : mp.id) : undefined,
     likes: doc.likes ?? 0,
     dislikes: doc.dislikes ?? 0,
+    price: doc.price, // استخدام السعر مباشرة من قاعدة البيانات
+    oldPrice: doc.oldPrice, // استخدام السعر القديم مباشرة من قاعدة البيانات
+    discount_percentage: doc.discount_percentage, // استخدام نسبة الخصم مباشرة من قاعدة البيانات
     comments: (doc.comments ?? []).map((c) => ({
       _id: typeof c._id === "string" ? c._id : c._id?.toString?.() ?? "",
       userId: c.userId,
@@ -58,7 +57,7 @@ function mapInspirationDocument(doc: InspirationDocument): Inspiration {
     likedBy: doc.likedBy ?? [],
     dislikedBy: doc.dislikedBy ?? [],
     ratings: doc.ratings ?? [],
-    category: doc.category || doc["category "] // معالجة مشكلة المسافة في اسم الحقل
+    category: doc.category || doc["category "]
   }
 }
 

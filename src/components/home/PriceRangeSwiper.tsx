@@ -83,13 +83,14 @@ const PriceRangeSwiper: React.FC = () => {
     const filterOptions = {
       gender: "all",
       occasion: "all",
-      priceRange: [minPrice, maxPrice]
+      priceRange: [minPrice, maxPrice],
+      sortBy: "relevance"
     }
     
     localStorage.setItem("giftFilterOptions", JSON.stringify(filterOptions))
     
-    // الانتقال إلى صفحة النتائج
-    router.push("/gift-results")
+    // الانتقال إلى صفحة النتائج مع إضافة معلمات الفلتر
+    router.push(`/inspirations?priceRange=${minPrice}-${maxPrice}`)
   }
 
   // تأثيرات الحركة
