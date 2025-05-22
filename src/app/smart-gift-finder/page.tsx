@@ -98,7 +98,7 @@ export default function SmartGiftFinder() {
 
       // Update gifts
       if (result.gifts && result.gifts.length > 0) {
-        // Transform the gifts to match GiftWithDetails type
+        // The structure of gift items returned from the backend might not exactly match GiftWithDetails,
         const transformedGifts = result.gifts.map((gift: any) => ({
           _id: gift._id || '',
           name: gift.name || '',
@@ -130,7 +130,7 @@ export default function SmartGiftFinder() {
           decorationDetails: gift.decorationDetails || [],
           boxDetails: gift.boxDetails || null,
           bagDetails: gift.bagDetails || null
-        }))
+        } as GiftWithDetails))
         setGifts(transformedGifts)
 
         // Add gift presentation message

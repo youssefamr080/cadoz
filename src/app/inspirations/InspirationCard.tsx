@@ -4,10 +4,8 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Eye, ChevronDown, Heart } from "lucide-react";
+import { Star, Eye, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGift } from "@/context/gift-context";
-import { useRouter } from "next/navigation";
 import type { Inspiration } from "@/types/inspiration";
 
 import { HighlightText } from "@/components/ui/highlight-text";
@@ -29,10 +27,7 @@ export default function InspirationCard({
   relevanceScore = 0,
   showRelevance = false
 }: InspirationCardProps) {
-  const router = useRouter();
-  const { loadInspiration } = useGift();
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-  const [likedItems, setLikedItems] = useState<Record<string, boolean>>({});
 
   // Add debug logging
   console.log('Gift data:', {
@@ -51,15 +46,6 @@ export default function InspirationCard({
   // Toggle description visibility for a gift
   const toggleDescription = (giftId: string) => {
     setExpandedItems(prev => ({
-      ...prev,
-      [giftId]: !prev[giftId]
-    }));
-  };
-
-  // Toggle like state for a gift
-  const toggleLike = (giftId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setLikedItems(prev => ({
       ...prev,
       [giftId]: !prev[giftId]
     }));

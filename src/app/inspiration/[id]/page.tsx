@@ -223,9 +223,6 @@ export default async function InspirationPage({ params }: Props) {
   const decorations = decorationsData || [];
   const mainProducts = mainProductsData || [];
 
-  const totalPrice = inspiration.price || 0;
-  const discount = inspiration.discount_percentage || 0;
-  const discountedPrice = discount > 0 ? Math.floor(totalPrice - (totalPrice * (discount / 100))) : totalPrice;
 
   // Calculate total items count
   const calculateTotalItems = () => {

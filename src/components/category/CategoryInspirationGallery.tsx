@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useGift } from "@/context/gift-context"
 import { Button } from "@/components/ui/button"
-import { Star, ChevronLeft, ChevronRight, Eye, ChevronDown, Heart } from "lucide-react"
+import { Star, ChevronLeft, ChevronRight, Eye, ChevronDown } from "lucide-react"
 import type { Inspiration } from "@/types/inspiration"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 // Import Swiper components and modules
 import { Swiper, SwiperSlide } from "swiper/react"
@@ -25,13 +23,10 @@ interface CategoryInspirationGalleryProps {
 }
 
 export default function CategoryInspirationGallery({ category }: CategoryInspirationGalleryProps) {
-  const router = useRouter();
-  const { loadInspiration } = useGift()
   const [inspirationGifts, setInspirationGifts] = useState<Inspiration[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
-  const [likedItems, setLikedItems] = useState<Record<string, boolean>>({})
   // عدد المنتجات التي سيتم جلبها
   const maxInspirationCount = 10 // عرض 10 منتجات
 
@@ -46,15 +41,6 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
   // Toggle description visibility for a gift
   const toggleDescription = (giftId: string) => {
     setExpandedItems(prev => ({
-      ...prev,
-      [giftId]: !prev[giftId]
-    }))
-  }
-
-  // Toggle like state for a gift
-  const toggleLike = (giftId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setLikedItems(prev => ({
       ...prev,
       [giftId]: !prev[giftId]
     }))
@@ -223,7 +209,6 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
                           {calculateDiscountPercentage(gift.price, gift.oldPrice) > 0 && gift.oldPrice && ( /* Show old price and discount if applicable */
                             <div className="flex items-center gap-1 text-sm mb-0.5">
                                <span className="text-gray-500 line-through text-xs">{Math.floor(gift.oldPrice).toLocaleString()} ج.م</span>
-                               <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">-{calculateDiscountPercentage(gift.price, gift.oldPrice)}%</span>
                             </div>
                           )}
                           {/* Current Price */}
