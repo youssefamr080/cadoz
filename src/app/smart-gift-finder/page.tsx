@@ -7,11 +7,157 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LoadingSpinner } from "./loading-spinner"
-import { processMessage } from "@/lib/actions/chat-actions"
 import { getSessionId, storeConversation, getStoredConversation } from "@/lib/session-utils"
-import type { Message, GiftWithDetails } from "@/lib/types"
+import type { Message, GiftWithDetails, Product } from "@/lib/types"
 import { motion, AnimatePresence } from "framer-motion"
 import GiftCard from "./gift-card"
+
+interface GiftData {
+  _id: string;
+  name: string;
+  description: string;
+  image: string;
+  box: string;
+  bag: string;
+  products: Array<{ id: string; quantity: number }> | string[];
+  decorations: string[];
+  category: "men" | "women" | "kids";
+  Mainproducts: string[];
+  occasions: string[];
+  tags: string[];
+  rating: number;
+  reviews: number;
+  likes: number;
+  dislikes: number;
+  updatedAt: string;
+  likedBy: string[];
+  dislikedBy: string[];
+  comments: Array<{
+    _id: string;
+    userId: string;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  ratings: Array<{
+    _id: string;
+    userId: string;
+    rating: number;
+    createdAt: string;
+  }>;
+  price?: number;
+  oldPrice?: number;
+  discount_percentage?: number;
+  boxDetails: {
+    _id: string;
+    name: string;
+    description: string;
+    image: string;
+    price: number;
+  } | null;
+  bagDetails: {
+    _id: string;
+    name: string;
+    description: string;
+    image: string;
+    price: number;
+  } | null;
+  mainProducts: Array<{
+    _id: string;
+    name: string;
+    description: string;
+    image: string;
+    price: number;
+    category: string;
+  }>;
+  productDetails: Array<{
+    _id: string;
+    name: string;
+    description: string;
+    image: string;
+    price: number;
+    category: string;
+  }>;
+  productQuantities: Array<{ quantity: number }>;
+  decorationDetails: Array<{
+    _id: string;
+    name: string;
+    description: string;
+    image: string;
+    price: number;
+  }>;
+}
+
+// Helper function to convert product data to Product interface
+function convertToProduct(product: {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;
+}): Product {
+  return {
+    _id: product._id || '',
+    name: product.name || '',
+    description: product.description || '',
+    price: product.price || 0,
+    image: product.image || '',
+    category: product.category || '',
+    type: 'product',
+    id: product._id || '',
+    url: `/products/${product._id || ''}`
+  };
+}
+
+// Helper function to convert decoration details
+function convertDecorationDetails(decoration: {
+  _id: string;
+  name: string;
+  description: string;
+  image: string;
+  price: number;
+}) {
+  return {
+    _id: decoration._id || '',
+    name: decoration.name || '',
+    description: decoration.description || '',
+    image: decoration.image || '',
+    price: decoration.price || 0
+  };
+}
+
+// Helper function to convert comments
+function convertComment(comment: {
+  _id: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}) {
+  return {
+    _id: comment._id || '',
+    userId: comment.userId || '',
+    content: comment.content || '',
+    createdAt: new Date(comment.createdAt),
+    updatedAt: new Date(comment.updatedAt)
+  };
+}
+
+// Helper function to convert ratings
+function convertRating(rating: {
+  _id: string;
+  userId: string;
+  rating: number;
+  createdAt: string;
+}) {
+  return {
+    _id: rating._id || '',
+    userId: rating.userId || '',
+    rating: rating.rating || 0,
+    createdAt: new Date(rating.createdAt)
+  };
+}
 
 export default function SmartGiftFinder() {
   const [sessionId, setSessionId] = useState<string>("")
@@ -90,47 +236,63 @@ export default function SmartGiftFinder() {
     setConversation((prev) => [...prev, { role: "user", content: userMessage }])
 
     try {
-      // Process message using server action
-      const result = await processMessage(sessionId, userMessage)
+      // Process message using API endpoint
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId,
+          message: userMessage,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process message');
+      }
+
+      const result = await response.json();
 
       // Add assistant message to conversation
       setConversation((prev) => [...prev, { role: "assistant", content: result.message }])
 
       // Update gifts
       if (result.gifts && result.gifts.length > 0) {
-        // The structure of gift items returned from the backend might not exactly match GiftWithDetails,
-        const transformedGifts = result.gifts.map((gift: any) => ({
-          _id: gift._id || '',
-          name: gift.name || '',
-          description: gift.description || '',
-          image: gift.image || '',
-          box: gift.box || '',
-          bag: gift.bag || '',
-          products: gift.products || [],
-          decorations: gift.decorations || [],
-          category: gift.category || 'men',
-          Mainproducts: gift.Mainproducts || [],
-          occasions: gift.occasions || [],
-          tags: gift.tags || [],
-          rating: gift.rating || 0,
-          reviews: gift.reviews || 0,
-          likes: gift.likes || 0,
-          dislikes: gift.dislikes || 0,
-          updatedAt: gift.updatedAt || new Date(),
-          likedBy: gift.likedBy || [],
-          dislikedBy: gift.dislikedBy || [],
-          comments: gift.comments || [],
-          ratings: gift.ratings || [],
-          price: gift.price || 0,
-          oldPrice: gift.oldPrice || 0,
-          discount_percentage: gift.discount_percentage || 0,
-          mainProducts: gift.mainProducts || [],
-          productDetails: gift.productDetails || [],
-          productQuantities: gift.productQuantities || [],
-          decorationDetails: gift.decorationDetails || [],
-          boxDetails: gift.boxDetails || null,
-          bagDetails: gift.bagDetails || null
-        } as GiftWithDetails))
+        const transformedGifts = result.gifts.map((gift: GiftData) => {
+          return {
+            _id: gift._id || '',
+            name: gift.name || '',
+            description: gift.description || '',
+            image: gift.image || '',
+            box: gift.box || '',
+            bag: gift.bag || '',
+            products: gift.products || [],
+            decorations: gift.decorations || [],
+            category: gift.category || 'men',
+            Mainproducts: gift.Mainproducts || [],
+            occasions: gift.occasions || [],
+            tags: gift.tags || [],
+            rating: gift.rating || 0,
+            reviews: gift.reviews || 0,
+            likes: gift.likes || 0,
+            dislikes: gift.dislikes || 0,
+            updatedAt: new Date(gift.updatedAt),
+            likedBy: gift.likedBy || [],
+            dislikedBy: gift.dislikedBy || [],
+            comments: (gift.comments || []).map(convertComment),
+            ratings: (gift.ratings || []).map(convertRating),
+            price: gift.price || 0,
+            oldPrice: gift.oldPrice || 0,
+            discount_percentage: gift.discount_percentage || 0,
+            mainProducts: (gift.mainProducts || []).map(convertToProduct),
+            productDetails: (gift.productDetails || []).map(convertToProduct),
+            productQuantities: gift.productQuantities || [],
+            decorationDetails: (gift.decorationDetails || []).map(convertDecorationDetails),
+            boxDetails: gift.boxDetails ? convertDecorationDetails(gift.boxDetails) : null,
+            bagDetails: gift.bagDetails ? convertDecorationDetails(gift.bagDetails) : null
+          } as GiftWithDetails;
+        });
         setGifts(transformedGifts)
 
         // Add gift presentation message
