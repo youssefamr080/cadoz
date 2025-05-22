@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { 
@@ -14,9 +14,7 @@ import { HighlightText } from "@/components/ui/highlight-text";
 import { RelevanceIndicator } from "@/components/ui/relevance-indicator";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useOnClickOutside } from "@/lib/hooks/useOnClickOutside";
-// Keyboard navigation hooks imported as needed
-// UI components imported as needed
-// نستخدم مكونات بسيطة بدلا من المكونات غير الموجودة
+
 import type { Product, Inspiration } from "@/lib/types";
 // Utility functions imported as needed
 
@@ -78,6 +76,10 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
     updateInspirationsCache,
   } = useSearchStore();
 
+  // إضافة متغيرات جديدة للاقتراحات الذكية
+  const [smartSuggestions, setSmartSuggestions] = useState<string[]>([]);
+  const [showSmartSuggestions, setShowSmartSuggestions] = useState(false);
+
   // تأخير البحث لتحسين الأداء عند الكتابة
   const debouncedSearch = useDebounce((value: string) => {
     if (value.length >= 2) {
@@ -106,10 +108,51 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
     if (value.length >= 2) {
       setIsLoading(true);
       debouncedSearch(value);
-    } else if (value.length === 0) {
+      
+      // توليد اقتراحات ذكية
+      const smartSuggestions = generateSmartSuggestions(value);
+      setSmartSuggestions(smartSuggestions);
+      setShowSmartSuggestions(true);
+    } else {
       clearStoreSearch();
       setSearchResults([]);
+      setShowSmartSuggestions(false);
     }
+  };
+
+  // دالة جديدة لتوليد اقتراحات ذكية
+  const generateSmartSuggestions = (query: string): string[] => {
+    const suggestions: string[] = [];
+    const normalizedQuery = query.toLowerCase();
+
+    // اقتراحات من عمليات البحث السابقة
+    recentSearches.forEach(term => {
+      if (term.toLowerCase().includes(normalizedQuery) && !suggestions.includes(term)) {
+        suggestions.push(term);
+      }
+    });
+
+    // اقتراحات من المنتجات
+    productsCache.forEach(product => {
+      if (product.name.toLowerCase().includes(normalizedQuery) && !suggestions.includes(product.name)) {
+        suggestions.push(product.name);
+      }
+      if (product.category.toLowerCase().includes(normalizedQuery) && !suggestions.includes(product.category)) {
+        suggestions.push(product.category);
+      }
+    });
+
+    // اقتراحات من الهدايا الجاهزة
+    inspirationsCache.forEach(inspiration => {
+      if (inspiration.name.toLowerCase().includes(normalizedQuery) && !suggestions.includes(inspiration.name)) {
+        suggestions.push(inspiration.name);
+      }
+      if (inspiration.category?.toLowerCase().includes(normalizedQuery) && !suggestions.includes(inspiration.category)) {
+        suggestions.push(inspiration.category);
+      }
+    });
+
+    return suggestions.slice(0, 5); // إرجاع أفضل 5 اقتراحات
   };
 
   // Handle result selection
@@ -125,25 +168,102 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   // Update search results when store suggestions change
   useEffect(() => {
     if (suggestions.length > 0) {
-      // Convert suggestions to search results format
-      const formattedResults = suggestions.map(suggestion => ({
-        _id: suggestion,
-        id: suggestion,
-        name: suggestion,
-        description: '',
-        image: '',
-        category: '',
+      // Filter products and inspirations based on suggestions
+      const filteredProducts = productsCache.filter(product => 
+        suggestions.some(suggestion => 
+          product.name.toLowerCase().includes(suggestion.toLowerCase()) ||
+          product.description.toLowerCase().includes(suggestion.toLowerCase())
+        )
+      ).map(product => ({
+        _id: product._id || product.id.toString(),
+        id: product.id.toString(),
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        image: product.image,
+        category: product.category,
         type: 'product' as const,
-        url: `/search?q=${encodeURIComponent(suggestion)}`,
-        occasions: [],
-        tags: [],
-        price: 0, // Required for Product type
-        relevanceScore: 1
+        url: `/product/${product.id}`,
+        relevanceScore: calculateRelevanceScore(product, query)
       }));
-      setSearchResults(formattedResults);
+
+      const filteredInspirations = inspirationsCache.filter(inspiration => 
+        suggestions.some(suggestion => 
+          inspiration.name.toLowerCase().includes(suggestion.toLowerCase()) ||
+          inspiration.description.toLowerCase().includes(suggestion.toLowerCase())
+        )
+      ).map(inspiration => ({
+        _id: typeof inspiration._id === 'object' ? inspiration._id.$oid : (inspiration._id || inspiration.id),
+        id: inspiration.id,
+        name: inspiration.name,
+        description: inspiration.description,
+        image: inspiration.image,
+        category: inspiration.category || '',
+        occasions: inspiration.occasions || [],
+        tags: inspiration.tags || [],
+        type: 'inspiration' as const,
+        url: `/inspiration/${inspiration.id}`,
+        relevanceScore: calculateRelevanceScore(inspiration, query)
+      }));
+
+      // Combine and sort results by relevance
+      const combinedResults = [
+        ...filteredProducts,
+        ...filteredInspirations
+      ].sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+      setSearchResults(combinedResults);
       setIsLoading(false);
     }
-  }, [suggestions]);
+  }, [suggestions, productsCache, inspirationsCache, query]);
+
+  // Helper function to calculate relevance score
+  const calculateRelevanceScore = (item: { 
+    name: string; 
+    description: string; 
+    category?: string; 
+    tags?: string[];
+    occasions?: string[];
+  }, searchQuery: string) => {
+    const query = searchQuery.toLowerCase();
+    let score = 0;
+
+    // Name match has highest weight
+    if (item.name.toLowerCase().includes(query)) {
+      score += 3;
+    }
+
+    // Description match has medium weight
+    if (item.description.toLowerCase().includes(query)) {
+      score += 2;
+    }
+
+    // Category match has lower weight
+    if (item.category?.toLowerCase().includes(query)) {
+      score += 1;
+    }
+
+    // Tags match has lower weight
+    if (item.tags?.some(tag => tag.toLowerCase().includes(query))) {
+      score += 1;
+    }
+
+    // Occasions match has lower weight
+    if (item.occasions?.some(occasion => occasion.toLowerCase().includes(query))) {
+      score += 1;
+    }
+
+    return score;
+  };
+
+  // Filter results based on active tab
+  const filteredResults = useMemo(() => {
+    if (activeTab === "all") return searchResults;
+    return searchResults.filter(result => 
+      (activeTab === "products" && result.type === "product") ||
+      (activeTab === "inspirations" && result.type === "inspiration")
+    );
+  }, [searchResults, activeTab]);
 
   // Update recent searches when store recent searches change
   useEffect(() => {
@@ -297,6 +417,18 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
     }
   };
 
+  // إضافة دالة مسح البحث
+  const clearSearch = useCallback(() => {
+    setQuery("");
+    setStoreQuery("");
+    clearStoreSearch();
+    setSearchResults([]);
+    setSmartSuggestions([]);
+    setShowSmartSuggestions(false);
+    setSelectedIndex(-1);
+    inputRef.current?.focus();
+  }, [clearStoreSearch, setStoreQuery]);
+
   return (
     <div 
       ref={searchRef} 
@@ -322,6 +454,12 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
           placeholder={placeholder}
           className="w-full py-2.5 pr-10 pl-4 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 placeholder-gray-400 rtl:pr-10 rtl:pl-4 shadow-sm transition-all duration-200"
           dir="rtl"
+          inputMode="search"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
+          style={{ fontSize: '16px' }}
         />
         <AnimatePresence>
           {query && (
@@ -330,11 +468,9 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{ duration: 0.2 }}
-              onClick={() => {
-                clearStoreSearch();
-                inputRef.current?.focus();
-              }}
-              className="absolute inset-y-0 left-0 flex items-center pl-3"
+              onClick={clearSearch}
+              className="absolute inset-y-0 left-0 flex items-center pl-3 hover:bg-gray-100 rounded-l-lg transition-colors"
+              aria-label="مسح البحث"
             >
               <X className="h-4 w-4 text-gray-500 hover:text-red-500 transition-colors" />
             </motion.button>
@@ -484,7 +620,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
               )}
 
               {/* Autocomplete suggestions */}
-              {!isLoading && query.length >= 2 && suggestions.length > 0 && (
+              {!isLoading && query.length >= 2 && (suggestions.length > 0 || smartSuggestions.length > 0) && (
                 <div className="border-b border-gray-100 p-2">
                   <div className="flex items-center text-xs text-gray-500 px-2 py-1">
                     <Lightbulb className="h-3 w-3 ml-1 text-amber-500" />
@@ -492,6 +628,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                   </div>
                   <div className="flex flex-wrap gap-1.5 p-2">
                     <AnimatePresence>
+                      {/* اقتراحات النظام */}
                       {suggestions.map((suggestion, index) => (
                         <motion.button
                           key={`suggestion-${index}`}
@@ -503,6 +640,22 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                           className="text-xs bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-800 px-2.5 py-1.5 rounded-full transition-all shadow-sm border border-indigo-100 flex items-center gap-1"
                         >
                           <Search className="h-2.5 w-2.5 text-indigo-400" />
+                          {suggestion}
+                        </motion.button>
+                      ))}
+                      
+                      {/* اقتراحات ذكية */}
+                      {smartSuggestions.map((suggestion, index) => (
+                        <motion.button
+                          key={`smart-suggestion-${index}`}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          transition={{ delay: (index + suggestions.length) * 0.05 }}
+                          onClick={() => applySearchTerm(suggestion)}
+                          className="text-xs bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 text-emerald-800 px-2.5 py-1.5 rounded-full transition-all shadow-sm border border-green-100 flex items-center gap-1"
+                        >
+                          <Sparkles className="h-2.5 w-2.5 text-emerald-400" />
                           {suggestion}
                         </motion.button>
                       ))}
@@ -522,28 +675,58 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                     {recentSearches.length > 0 && (
                       <button
                         onClick={clearStoreRecentSearches}
-                        className="text-xs text-red-600 hover:text-red-700"
+                        className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1"
                       >
-                        مسح
+                        <X className="h-3 w-3" />
+                        مسح الكل
                       </button>
                     )}
                   </div>
                   {recentSearches.length > 0 ? (
                     <div className="space-y-1 mt-1">
                       {recentSearches.map((term, index) => (
-                        <button
+                        <motion.button
                           key={`recent-${index}`}
                           data-search-item
                           onClick={() => applySearchTerm(term)}
-                          className="w-full text-right text-sm px-3 py-1.5 hover:bg-gray-50 rounded-lg flex items-center justify-between group"
+                          className="w-full text-right text-sm px-3 py-2 hover:bg-gray-50 rounded-lg flex items-center justify-between group transition-all duration-200"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
                         >
-                          <span className="truncate">{term}</span>
-                          <ArrowUpRight className="h-3 w-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </button>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center">
+                              <Clock className="h-4 w-4 text-indigo-500" />
+                            </div>
+                            <div className="flex flex-col items-start">
+                              <span className="text-gray-900 font-medium">{term}</span>
+                              <span className="text-xs text-gray-500">بحث سابق</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-400 group-hover:text-indigo-500 transition-colors">
+                              {new Date().toLocaleDateString('ar-EG')}
+                            </span>
+                            <ArrowUpRight className="h-4 w-4 text-gray-400 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all" />
+                          </div>
+                        </motion.button>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-400 p-4 text-center">لا توجد عمليات بحث سابقة</p>
+                    <motion.div 
+                      className="p-6 text-center"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-50 flex items-center justify-center">
+                        <Clock className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <h3 className="text-gray-700 font-medium text-lg mb-2">لا توجد عمليات بحث سابقة</h3>
+                      <p className="text-sm text-gray-500">
+                        ابدأ بالبحث عن المنتجات والهدايا الجاهزة
+                      </p>
+                    </motion.div>
                   )}
                 </div>
               )}
@@ -586,7 +769,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                   <div className="px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 flex justify-between items-center">
                     <div className="flex items-center">
                       <div className="bg-indigo-100 text-indigo-800 h-6 w-6 rounded-full flex items-center justify-center mr-2">
-                        <span className="text-xs font-bold">{searchResults.length}</span>
+                        <span className="text-xs font-bold">{filteredResults.length}</span>
                       </div>
                       <h3 className="text-sm font-medium text-gray-800">
                         نتائج البحث
@@ -606,7 +789,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
 
                   {/* Results list */}
                   <div className="max-h-[60vh] overflow-y-auto">
-                    {searchResults.map((result, index) => (
+                    {filteredResults.map((result, index) => (
                       <motion.div
                         key={`${result.type}-${result.id}`}
                         custom={index}

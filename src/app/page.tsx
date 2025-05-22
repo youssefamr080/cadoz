@@ -487,7 +487,7 @@ const HomePage = () => {
     // تأخير تحميل الصفحة لإظهار تأثير التحميل
     const timer = setTimeout(() => {
       setIsPageLoaded(true)
-    }, 1000)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [])

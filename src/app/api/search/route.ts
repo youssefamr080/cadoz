@@ -7,19 +7,19 @@ import {
   enhancedLevenshteinForArabic
 } from '@/lib/utils/string-utils';
 
-// كلمات مخزنة مسبقاً من البحوث الشائعة لتحسين الاقتراحات
+// تحديث قائمة البحوث الشائعة لتشمل اللهجة المصرية
 const popularSearches = [
-  'هدية', 'عيد ميلاد', 'زواج', 'خطوبة', 'مناسبة', 'تخرج',
-  'ملابس', 'اكسسوارات', 'مجوهرات', 'عطور', 'مكياج', 'طقم هدايا',
-  'ساعة', 'حقيبة', 'محفظة', 'خاتم', 'سلسلة', 'أساور',
-  'ديكور', 'منزل', 'مطبخ', 'إلكترونيات', 'جوال', 'لابتوب',
-  'أطفال', 'ألعاب', 'كتب', 'ألبوم', 'صور', 'تذكار'
+  'هدية', 'عيد ميلاد', 'جواز', 'خطوبة', 'مناسبة', 'تخرج',
+  'لبس', 'ملابس', 'اكسسوارات', 'مجوهرات', 'عطور', 'ميكب', 'طقم هدايا',
+  'ساعة', 'شنطة', 'محفظة', 'خاتم', 'سلسلة', 'أساور',
+  'بيت', 'ديكور', 'مطبخ', 'إلكترونيات', 'موبايل', 'لابتوب',
+  'عيال', 'ألعاب', 'كتب', 'ألبوم', 'صور', 'تذكار'
 ];
 
-// تصنيفات المنتجات الرئيسية لمساعدة البحث
+// تحديث الفئات الشائعة لتشمل اللهجة المصرية
 const popularCategories = [
-  'ملابس', 'إكسسوارات', 'مجوهرات', 'عطور', 'مكياج', 'إلكترونيات',
-  'منزل', 'ديكور', 'مطبخ', 'أطفال', 'ألعاب', 'هدايا'
+  'لبس', 'ملابس', 'اكسسوارات', 'مجوهرات', 'عطور', 'ميكب', 'إلكترونيات',
+  'بيت', 'ديكور', 'مطبخ', 'عيال', 'ألعاب', 'هدايا'
 ];
 
 export async function GET(request: Request) {
@@ -30,11 +30,10 @@ export async function GET(request: Request) {
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit') || '20') : 20;
     const category = searchParams.get('category') || '';
     const priceRange = searchParams.get('priceRange') || '';
-    const sortBy = searchParams.get('sortBy') || 'relevance'; // relevance, price-asc, price-desc, newest
+    const sortBy = searchParams.get('sortBy') || 'relevance';
     
-    // Skip search if query is too short
+    // تخطي البحث إذا كان الاستعلام قصيرًا جدًا
     if (query.length < 2) {
-      // إذا كان الاستعلام قصيرًا جدًا، عد باقتراحات البحث الشائعة
       return NextResponse.json({
         success: true,
         data: [],
@@ -91,7 +90,6 @@ export async function GET(request: Request) {
     // البحث في المنتجات مع تحسين الترتيب
     const productResults = products.map(product => {
       // تحسين حساب درجة الصلة بناءً على حقول متعددة
-      // استخدام خوارزمية ليفنشتاين المحسنة للعربية
       const nameScores = uniqueTerms.map(term => {
         const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(product.name));
         const similarity = 1 - (distance / Math.max(term.length, product.name.length));
@@ -176,12 +174,13 @@ export async function GET(request: Request) {
         type: 'product' as const,
         relevanceScore,
         tags: product.tags,
-        inStock: product.inStock !== false, // افتراض أنه متوفر ما لم يتم تحديد خلاف ذلك
+        occasions: product.occasion,
+        inStock: product.inStock !== false,
         trending: Boolean(product.trending || product.is_trending),
         exactMatch,
         url: `/product/${product.id}`
       };
-    }).filter(result => result.relevanceScore > 0.15); // خفض الحد الأدنى للمطابقة لتحسين نتائج البحث
+    }).filter(result => result.relevanceScore > 0.15);
     
     // البحث في الإلهامات مع تحسينات مماثلة
     const inspirationResults = inspirations.map(inspiration => {
@@ -268,7 +267,7 @@ export async function GET(request: Request) {
           if (a.type === 'product' && b.type === 'product') {
             return (a.price || 0) - (b.price || 0);
           }
-          return 0; // لا معنى لترتيب الإلهامات حسب السعر
+          return 0;
         });
         break;
       case 'price-desc':
@@ -289,7 +288,6 @@ export async function GET(request: Request) {
         break;
       case 'newest':
         // نفترض وجود createdAt أو تاريخ إنشاء المنتج
-        // نعتمد على ترتيب البيانات الأصلي في هذه الحالة
         break;
       case 'relevance':
       default:

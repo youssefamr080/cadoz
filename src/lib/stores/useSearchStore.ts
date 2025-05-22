@@ -16,7 +16,7 @@ export type FilterType = SearchResultType | 'all';
 
 // Define types for Fuse.js to avoid TypeScript errors
 interface FuseResultMatch {
-  indices: Array<[number, number]>;
+  indices: readonly [number, number][];
   key: string;
   value: string;
 }
@@ -46,11 +46,16 @@ export interface SearchResult {
   description: string;
   image: string;
   price?: number;
+  oldPrice?: number;
+  discountPercentage?: number;
   category?: string;
   type: SearchResultType;
   relevanceScore: number;
   tags?: string[];
   occasions?: string[];
+  inStock?: boolean;
+  trending?: boolean;
+  exactMatch?: boolean;
   url: string;
   matches?: readonly FuseResultMatch[];
 }
@@ -122,41 +127,32 @@ const createFuseInstance = <T>(items: T[], keys: string[] | { name: string; weig
   return new Fuse(items, options as IFuseOptions<T>);
 };
 
-// قائمة موسعة من الكلمات العربية الشائعة لتحسين اقتراحات البحث وتصحيح الإملاء
-const commonArabicWords = [
-  // كلمات أساسية للهدايا والمناسبات
-  'هدية', 'هدايا', 'هدية مميزة', 'هدية فاخرة', 'هدية فريدة', 'هدية شخصية', 'هدية مخصصة',
-  'مناسبة', 'عيد', 'عيد ميلاد', 'زفاف', 'زواج', 'خطوبة', 'تخرج', 'نجاح', 'ترقية', 'مولود جديد',
-  'مولود', 'مولودة', 'احتفال', 'ذكرى', 'ذكرى سنوية', 'مفاجأة', 'تهنئة', 'شكر', 'اعتذار', 'مصالحة',
-  'عيد الأم', 'عيد الأب', 'عيد الحب', 'الفالنتاين', 'رأس السنة', 'يوم المعلم', 'تقاعد',
+// قائمة موسعة من الكلمات المصرية الشائعة
+const commonEgyptianWords = [
+  // كلمات هدايا ومناسبات باللهجة المصرية
+  'هدية', 'هدايا', 'هدية حلوة', 'هدية جامدة', 'هدية جامدة', 'هدية شخصية',
+  'مناسبة', 'عيد', 'عيد ميلاد', 'جواز', 'خطوبة', 'تخرج', 'نجاح', 'ترقية', 'مولود جديد',
+  'مولود', 'مولودة', 'حفلة', 'ذكرى', 'ذكرى سنوية', 'مفاجأة', 'تهنئة', 'شكر', 'عذر', 'مصالحة',
+  'عيد الأم', 'عيد الأب', 'الفالنتاين', 'رأس السنة', 'يوم المدرس', 'معاش',
   
-  // فئات المنتجات الأكثر بحثاً
-  'ملابس', 'أزياء', 'فساتين', 'قمصان', 'بلوزات', 'بناطيل', 'جواكت', 'معاطف', 'أحذية',
-  'إكسسوارات', 'مجوهرات', 'ساعات', 'حقائب', 'شنط', 'نظارات', 'أقلام فاخرة', 'محافظ',
-  'عطور', 'عطر رجالي', 'عطر نسائي', 'مكياج', 'ماكياج', 'تجميل', 'عناية بالبشرة', 'كريمات',
-  'منزل', 'ديكور', 'أثاث', 'إضاءة', 'مصابيح', 'سجاد', 'وسائد', 'شراشف', 'مفارش',
-  'مطبخ', 'أواني', 'أدوات طهي', 'أجهزة مطبخ', 'أطقم تقديم', 'أكواب', 'صحون', 'أطباق',
-  'إلكترونيات', 'موبايل', 'هواتف ذكية', 'لابتوب', 'كمبيوتر', 'سماعات', 'كاميرات', 'تلفزيون',
-  'ألعاب', 'ألعاب أطفال', 'ألعاب فيديو', 'بلايستيشن', 'إكس بوكس', 'نينتندو', 'ألعاب لوحية',
-  'كتب', 'روايات', 'كتب تنمية', 'قرطاسية', 'أدوات مكتبية', 'دفاتر', 'أقلام', 'مذكرات', 'مفكرات',
-  'رياضة', 'ملابس رياضية', 'أدوات رياضية', 'صحة', 'لياقة', 'تمارين', 'معدات رياضية',
+  // فئات المنتجات باللهجة المصرية
+  'لبس', 'ملابس', 'فستان', 'قميص', 'بلوزة', 'بنطلون', 'جاكيت', 'معطف', 'حذاء',
+  'اكسسوارات', 'مجوهرات', 'ساعة', 'شنطة', 'شنتة', 'نظارة', 'قلم فاخر', 'محفظة',
+  'عطر', 'عطر رجالي', 'عطر بناتي', 'ميكب', 'ماكياج', 'تجميل', 'كريمات', 'مستحضرات',
+  'بيت', 'ديكور', 'أثاث', 'لمبات', 'سجادة', 'مخدة', 'شرشف', 'مفرش',
+  'مطبخ', 'أواني', 'أدوات طبخ', 'أجهزة مطبخ', 'طقم تقديم', 'كوباية', 'طبق', 'صحن',
+  'إلكترونيات', 'موبايل', 'موبيل', 'لابتوب', 'كمبيوتر', 'سماعات', 'كاميرا', 'تلفزيون',
+  'ألعاب', 'ألعاب عيال', 'ألعاب فيديو', 'بلايستيشن', 'إكس بوكس', 'نينتندو', 'ألعاب بوردة',
+  'كتب', 'روايات', 'كتب تنمية', 'قرطاسية', 'أدوات مكتب', 'دفتر', 'قلم', 'مفكرة',
+  'رياضة', 'ملابس رياضة', 'أدوات رياضة', 'صحة', 'لياقة', 'تمارين', 'معدات رياضة',
   
-  // منتجات وتصنيفات إضافية
-  'ذهب', 'دهب', 'فضة', 'خاتم', 'خواتم', 'دبلة', 'سلسلة', 'سلاسل', 'كوليه', 'أقراط', 'حلق',
-  'أساور', 'إسورة', 'غويشة', 'سوار', 'توكات شعر', 'دبابيس', 'بروشات', 'خلخال',
-  'حقيبة', 'شنطة', 'شنط', 'باك', 'محفظة', 'جزدان', 'حافظة', 'بوك',
-  'ساعة', 'ساعة يد', 'ساعات رجالية', 'ساعات نسائية', 'ساعات رياضية', 'ساعات ذكية',
-  'عطر', 'برفان', 'بارفان', 'مسك', 'عود', 'بخور', 'معطر', 'معطرات', 'كولونيا', 'توليت',
-  'ميكب', 'ميكاب', 'مكياج', 'مستحضرات تجميل', 'روج', 'أحمر شفاه', 'ظلال عيون', 'ماسكارا',
+  // كلمات وصفية مصرية
+  'حلو', 'جميل', 'فخم', 'فاخر', 'أصلي', 'تقليد', 'ماركة', 'براند',
+  'رخيص', 'غالي', 'سعر مناسب', 'سعر معقول', 'سعر حلو',
+  'جديد', 'قديم', 'مستعمل', 'نضيف', 'نظيف', 'مضمون',
+  'حجم كبير', 'حجم وسط', 'حجم صغير', 'مقاس كبير', 'مقاس وسط', 'مقاس صغير',
   
-  // وصف المنتجات والفئات المستهدفة
-  'رجالي', 'رجالية', 'للرجال', 'شبابي', 'للشباب', 'ذكر', 'ذكور',
-  'نسائي', 'نسائية', 'للنساء', 'للسيدات', 'أنثى', 'إناث', 'بنات',
-  'أطفال', 'طفل', 'طفلة', 'للأطفال', 'بيبي', 'مواليد', 'رضع', 'حديثي الولادة',
-  'جلد', 'جلد طبيعي', 'قطن', 'حرير', 'كتان', 'صوف', 'قماش', 'ساتان',
-  'ماركة', 'ماركات', 'براند', 'أصلي', 'أصلية', 'تقليد', 'هاي كوالتي',
-  
-  // الأخطاء الإملائية والكلمات البديلة الشائعة
+  // أخطاء إملائية شائعة في اللهجة المصرية
   'تيشرت', 'تي شيرت', 'تيشيرت', 'قميص', 'بلوزة', 'بلوزه',
   'بنطلون', 'بنطال', 'جينز', 'جينس', 'سروال', 'بنطلونات',
   'لابتوب', 'لاب توب', 'كمبيوتر', 'كومبيوتر', 'حاسوب', 'بي سي',
@@ -166,18 +162,18 @@ const commonArabicWords = [
   'شوكولاتة', 'شوكولاته', 'شكولاته', 'شكولاتة', 'شيكولاتة', 'تشوكلت'
 ];
 
-// الفئات الشائعة المستخدمة للتصفية والاقتراحات
+// تحديث الفئات الشائعة لتشمل اللهجة المصرية
 const popularCategories = [
-  'ملابس', 'إكسسوارات', 'مجوهرات', 'عطور', 'مكياج', 'إلكترونيات',
-  'منزل', 'ديكور', 'مطبخ', 'أطفال', 'ألعاب', 'كتب',
-  'رياضة', 'صحة', 'هدايا مميزة', 'طقم هدايا', 'هدية شخصية'
+  'لبس', 'ملابس', 'اكسسوارات', 'مجوهرات', 'عطور', 'ميكب',
+  'إلكترونيات', 'بيت', 'ديكور', 'مطبخ', 'عيال', 'ألعاب',
+  'كتب', 'رياضة', 'صحة', 'هدايا حلوة', 'طقم هدايا', 'هدية شخصية'
 ];
 
-// المناسبات الشائعة للبحث
+// تحديث المناسبات لتشمل اللهجة المصرية
 const popularOccasions = [
-  'عيد ميلاد', 'خطوبة', 'زواج', 'تخرج', 'مولود جديد',
-  'ذكرى سنوية', 'عيد الأم', 'عيد الأب', 'عيد الحب', 'رأس السنة',
-  'نجاح', 'ترقية', 'شكر', 'اعتذار', 'مفاجأة'
+  'عيد ميلاد', 'خطوبة', 'جواز', 'تخرج', 'مولود جديد',
+  'ذكرى سنوية', 'عيد الأم', 'عيد الأب', 'الفالنتاين', 'رأس السنة',
+  'نجاح', 'ترقية', 'شكر', 'عذر', 'مفاجأة'
 ];
 
 export const useSearchStore = create<SearchState>()(
@@ -199,7 +195,7 @@ export const useSearchStore = create<SearchState>()(
       enableFuzzySearch: true,
       productsCache: [],
       inspirationsCache: [],
-      commonWords: commonArabicWords,
+      commonWords: commonEgyptianWords,
       popularCategories: popularCategories,
       popularOccasions: popularOccasions,
       
@@ -323,137 +319,100 @@ export const useSearchStore = create<SearchState>()(
         try {
           set({ isLoading: true, error: null });
           
-          // استخراج خيارات التصفية
           const category = options?.category || '';
           const priceRange = options?.priceRange || '';
           const sortBy = options?.sortBy || 'relevance';
           
-          // التحقق من إذا كان الاستعلام في البحوث الأخيرة لتحسين النتائج
-          const isInRecentSearches = get().recentSearches.includes(query);
           const { productsCache, inspirationsCache } = get();
           
-          // تطبيع الاستعلام
+          // تطبيع الاستعلام مع مراعاة اللهجة المصرية
           const normalizedQuery = normalizeArabicText(query);
+          const queryTerms = normalizedQuery.split(/\s+/).filter(term => term.length > 1);
           
-          // If the query is not related to recent searches, don't show results
-          if (!isInRecentSearches && query.length < 4) {
-            set({ searchResults: [], isLoading: false });
-            return;
-          }
+          // توليد بدائل للكلمات المصرية
+          const expandedTerms = queryTerms.flatMap(term => {
+            const alternatives = generateAlternativeSpellings(term);
+            return [term, ...alternatives];
+          });
           
-          // Search in products with precise settings
+          // استخدام مجموعة فريدة من المصطلحات
+          const uniqueTerms = Array.from(new Set(expandedTerms));
+          
+          // تحسين إعدادات البحث للمنتجات
           const productFuse = createFuseInstance(
             productsCache,
             [
-              { name: 'name', weight: 3 },       // Increased weight for name
-              { name: 'category', weight: 2 },     // Increased weight for category
-              { name: 'tags', weight: 2 },         // Increased weight for tags
-              { name: 'description', weight: 1 }   // Lower weight for description
+              { name: 'name', weight: 3 },
+              { name: 'description', weight: 2 },
+              { name: 'category', weight: 2 },
+              { name: 'tags', weight: 2 },
+              { name: 'occasion', weight: 1.5 }
             ]
           );
           
-          // Try different search strategies for products
-          let productSearchResults = [];
-          
-          // 1. First try exact search with original query
-          productSearchResults = productFuse.search(query);
-          
-          // 2. If no results, try with normalized query
-          if (productSearchResults.length === 0) {
-            productSearchResults = productFuse.search(normalizedQuery);
-          }
-          
-          // 3. If still no results, try with alternative spellings
-          if (productSearchResults.length === 0 && query.length >= 3) {
-            // For keywords based search, generate alternatives
-            const queryKeywords = query.split(/\s+/)
-              .flatMap(term => generateAlternativeSpellings(term))
-              .filter((term, index, self) => term.length > 1 && self.indexOf(term) === index);
-            
-            // Try each alternative
-            for (const alt of queryKeywords) {
-              if (alt !== query && alt !== normalizedQuery) {
-                const altResults = productFuse.search(alt);
-                if (altResults.length > 0) {
-                  productSearchResults = altResults;
-                  break; // Stop once we find results
-                }
-              }
-            }
-            
-            // If still no results and it's a recent search, try with more relaxed settings
-            if (productSearchResults.length === 0 && isInRecentSearches) {
-              const relaxedProductFuse = createFuseInstance(
-                productsCache,
-                [
-                  { name: 'name', weight: 3 },
-                  { name: 'category', weight: 2 },
-                  { name: 'tags', weight: 2 },
-                  { name: 'description', weight: 1 }
-                ]
-              );
-              
-              productSearchResults = relaxedProductFuse.search(query);
-            }
-          }
-          
-          // Search in inspirations with similar settings
+          // تحسين إعدادات البحث للإلهامات
           const inspirationFuse = createFuseInstance(
             inspirationsCache,
             [
               { name: 'name', weight: 3 },
+              { name: 'description', weight: 2 },
               { name: 'tags', weight: 2 },
-              { name: 'description', weight: 1 }
+              { name: 'occasions', weight: 2 }
             ]
           );
           
-          // Try different search strategies for inspirations
-          let inspirationSearchResults = [];
+          // البحث في المنتجات
+          let productResults = productFuse.search(query);
           
-          // 1. First try exact search with original query
-          inspirationSearchResults = inspirationFuse.search(query);
-          
-          // 2. If no results, try with normalized query
-          if (inspirationSearchResults.length === 0) {
-            inspirationSearchResults = inspirationFuse.search(normalizedQuery);
-          }
-          
-          // 3. If still no results, try with alternative spellings
-          if (inspirationSearchResults.length === 0 && query.length >= 3) {
-            // For keywords based search, generate alternatives
-            const queryKeywords = query.split(/\s+/)
-              .flatMap(term => generateAlternativeSpellings(term))
-              .filter((term, index, self) => term.length > 1 && self.indexOf(term) === index);
-            
-            // Try each alternative
-            for (const alt of queryKeywords) {
-              if (alt !== query && alt !== normalizedQuery) {
-                const altResults = inspirationFuse.search(alt);
-                if (altResults.length > 0) {
-                  inspirationSearchResults = altResults;
-                  break; // Stop once we find results
-                }
+          // إذا لم توجد نتائج، جرب البحث بالكلمات المصرية
+          if (productResults.length === 0) {
+            for (const term of uniqueTerms) {
+              const results = productFuse.search(term);
+              if (results.length > 0) {
+                productResults = results;
+                break;
               }
             }
           }
           
-          // Convert Fuse.js results to our SearchResult format
-          const productResults: SearchResult[] = productSearchResults.map(result => ({
+          // البحث في الإلهامات
+          let inspirationResults = inspirationFuse.search(query);
+          
+          // إذا لم توجد نتائج، جرب البحث بالكلمات المصرية
+          if (inspirationResults.length === 0) {
+            for (const term of uniqueTerms) {
+              const results = inspirationFuse.search(term);
+              if (results.length > 0) {
+                inspirationResults = results;
+                break;
+              }
+            }
+          }
+          
+          // تحويل النتائج إلى الصيغة المطلوبة
+          const productSearchResults: SearchResult[] = productResults.map(result => ({
             id: result.item.id,
             name: result.item.name,
             description: result.item.description,
             image: result.item.image,
             price: result.item.price,
+            oldPrice: result.item.old_price,
+            discountPercentage: result.item.old_price 
+              ? Math.round((1 - (result.item.price / result.item.old_price)) * 100)
+              : undefined,
             category: result.item.category,
             type: 'product',
-            relevanceScore: result.score ? 1 - result.score : 0.5, // Convert Fuse score to relevance (higher is better)
+            relevanceScore: result.score ? 1 - result.score : 0.5,
             tags: result.item.tags,
-            occasions: result.item.occasions,
-            url: result.item.url || `/product/${result.item.id}`,
-            matches: result.matches
+            occasions: result.item.occasion,
+            inStock: result.item.inStock !== false,
+            trending: Boolean(result.item.trending || result.item.is_trending),
+            exactMatch: normalizeArabicText(result.item.name).includes(normalizedQuery),
+            url: `/product/${result.item.id}`,
+            matches: result.matches as readonly FuseResultMatch[]
           }));
           
-          const inspirationResults: SearchResult[] = inspirationSearchResults.map(result => ({
+          const inspirationSearchResults: SearchResult[] = inspirationResults.map(result => ({
             id: result.item.id,
             name: result.item.name,
             description: result.item.description,
@@ -461,24 +420,25 @@ export const useSearchStore = create<SearchState>()(
             type: 'inspiration',
             relevanceScore: result.score ? 1 - result.score : 0.5,
             tags: result.item.tags,
-            url: result.item.url || `/inspiration/${result.item.id}`,
-            matches: result.matches
+            occasions: result.item.occasions,
+            exactMatch: normalizeArabicText(result.item.name).includes(normalizedQuery),
+            url: `/inspiration/${result.item.id}`,
+            matches: result.matches as readonly FuseResultMatch[]
           }));
           
-          // Combine and filter results
-          let combinedResults = [...productResults, ...inspirationResults];
+          // دمج وفرز النتائج
+          let combinedResults = [...productSearchResults, ...inspirationSearchResults];
           
-          // Apply category filter if specified
+          // تطبيق الفلاتر
           if (category) {
             combinedResults = combinedResults.filter(result => {
               if (result.type === 'product') {
                 return result.category?.toLowerCase() === category.toLowerCase();
               }
-              return true; // Keep inspirations regardless of category
+              return true;
             });
           }
           
-          // Apply price range filter if specified
           if (priceRange && priceRange !== 'all') {
             const [minPrice, maxPrice] = priceRange.split('-').map(Number);
             combinedResults = combinedResults.filter(result => {
@@ -489,17 +449,17 @@ export const useSearchStore = create<SearchState>()(
                   return result.price >= minPrice;
                 }
               }
-              return true; // Keep inspirations regardless of price
+              return true;
             });
           }
           
-          // Apply active filter
+          // تطبيق الفلتر النشط
           const { activeFilter } = get();
           if (activeFilter !== 'all') {
             combinedResults = combinedResults.filter(result => result.type === activeFilter);
           }
           
-          // Sort results
+          // ترتيب النتائج
           if (sortBy === 'price_asc') {
             combinedResults.sort((a, b) => {
               if (a.price === undefined) return 1;
@@ -513,20 +473,20 @@ export const useSearchStore = create<SearchState>()(
               return b.price - a.price;
             });
           } else {
-            // Default: sort by relevance
+            // الترتيب الافتراضي حسب الصلة
             combinedResults.sort((a, b) => b.relevanceScore - a.relevanceScore);
           }
           
-          // Limit results
+          // تحديد عدد النتائج
           combinedResults = combinedResults.slice(0, get().maxResults);
           
-          // Update state with results
+          // تحديث الحالة
           set({ 
             searchResults: combinedResults,
             isLoading: false
           });
           
-          // Add to recent searches if we got results
+          // إضافة إلى البحوث الأخيرة
           if (combinedResults.length > 0) {
             get().addRecentSearch(query);
           }
