@@ -43,6 +43,11 @@ export default function InspirationCard({
     discount_percentage: gift.discount_percentage
   });
 
+  // Calculate discount percentage
+  const discountPercentage = (gift.price && gift.oldPrice && gift.oldPrice > gift.price)
+    ? Math.floor(((gift.oldPrice - gift.price) / gift.oldPrice) * 100)
+    : 0;
+
   // Toggle description visibility for a gift
   const toggleDescription = (giftId: string) => {
     setExpandedItems(prev => ({
@@ -84,16 +89,6 @@ export default function InspirationCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         
-        {/* Like Button */}
-        <button 
-          onClick={(e) => toggleLike(gift.id, e)}
-          className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md z-10 transition-transform duration-300 hover:scale-110"
-        >
-          <Heart 
-            className={`w-3.5 h-3.5 ${likedItems[gift.id] ? 'text-red-500 fill-red-500' : 'text-gray-400'}`} 
-          />
-        </button>
-        
         {/* Category Badge */}
         {gift.category && (
           <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full z-10">
@@ -111,16 +106,19 @@ export default function InspirationCard({
             <span className="text-xs font-medium ml-1">{gift.rating}</span>
           </div>
 
-          {/* Price Badge */}
-          {gift.price && (
-            <div className="bg-white rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
-              {gift.oldPrice && gift.price < gift.oldPrice && (
-                <span className="text-xs line-through text-gray-400">{gift.oldPrice} ج.م</span>
+          {/* Price and Discount Display */}
+          {gift.price && ( /* Only show price section if price is available */
+            <div className="flex flex-col items-end">
+              {discountPercentage > 0 && gift.oldPrice && ( /* Show old price and discount if applicable */
+                <div className="flex items-center gap-1 text-sm mb-0.5">
+                   <span className="text-gray-500 line-through text-xs">{Math.floor(gift.oldPrice).toLocaleString()} ج.م</span>
+                   <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">-{discountPercentage}%</span>
+                </div>
               )}
-              <span className="text-xs font-medium text-green-600">{gift.price} ج.م</span>
-              {gift.discount_percentage && (
-                <span className="text-xs font-medium text-red-500">-{gift.discount_percentage}%</span>
-              )}
+              {/* Current Price */}
+              <div className="text-base font-bold text-green-600">
+                {Math.floor(gift.price).toLocaleString()} ج.م
+              </div>
             </div>
           )}
         </div>

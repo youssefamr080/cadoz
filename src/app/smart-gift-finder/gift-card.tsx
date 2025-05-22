@@ -71,6 +71,11 @@ export default function GiftCard({ gift }: GiftCardProps) {
 
   const totalItems = countTotalItems()
 
+  // Calculate discount percentage dynamically
+  const discountPercentage = (gift.price && gift.oldPrice && gift.oldPrice > gift.price)
+    ? Math.floor(((gift.oldPrice - gift.price) / gift.oldPrice) * 100)
+    : 0;
+
   // Transform GiftWithDetails to Inspiration format
   const inspirationData: Inspiration = {
     id: gift._id,
@@ -108,74 +113,86 @@ export default function GiftCard({ gift }: GiftCardProps) {
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="relative h-48 w-full">
+      <div className="relative h-32 w-full">
         <Image
-          src={gift.image || "/placeholder.svg?height=192&width=384"}
+          src={gift.image || "/placeholder.svg?height=128&width=256"}
           alt={gift.name}
           fill
           className="object-cover"
         />
-        <div className="absolute top-2 right-2 flex flex-col gap-1">
-          <Badge variant="outline" className="bg-white/80 text-gray-800">
+        {/* Discount Badge */}
+        {discountPercentage > 0 && (
+          <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-10">
+            -{discountPercentage}%
+          </div>
+        )}
+        {/* Item Count Badge */}
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
+          <Badge variant="outline" className="bg-white/80 text-gray-800 text-xs">
             {totalItems} قطعة
           </Badge>
         </div>
       </div>
-      <CardContent className="p-4">
+      <CardContent className="p-3">
         {/* Price and Rating Row */}
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center mb-1.5">
           {/* Rating Badge */}
-          <div className="bg-white rounded-full px-2 py-1 flex items-center shadow-sm">
-            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-            <span className="text-xs font-medium ml-1">{gift.rating || 0}</span>
+          <div className="bg-white rounded-full px-1.5 py-0.5 flex items-center shadow-sm">
+            <Star className="w-2.5 h-2.5 text-yellow-400 fill-yellow-400" />
+            <span className="text-xs font-medium ml-0.5">{gift.rating || 0}</span>
           </div>
 
-          {/* Price Badge */}
-          <div className="bg-white rounded-full px-2 py-1 flex items-center gap-1 shadow-sm">
-            {gift.oldPrice && gift.price && gift.price < gift.oldPrice && (
-              <span className="text-xs line-through text-gray-400">{gift.oldPrice} ج.م</span>
-            )}
-            <span className="text-xs font-medium text-green-600">{gift.price || 0} ج.م</span>
-            {gift.discount_percentage && (
-              <span className="text-xs font-medium text-red-500">-{gift.discount_percentage}%</span>
-            )}
-          </div>
+          {/* Price and Discount Display */}
+          {gift.price && ( /* Only show price section if price is available */
+            <div className="flex flex-col items-end">
+              {discountPercentage > 0 && gift.oldPrice && ( /* Show old price and discount if applicable */
+                <div className="flex items-center gap-1 text-sm mb-0.5">
+                   <span className="text-gray-500 line-through text-xs">{Math.floor(gift.oldPrice).toLocaleString()} ج.م</span>
+                   <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">-{discountPercentage}%</span>
+                </div>
+              )}
+              {/* Current Price */}
+              <div className="text-base font-bold text-green-600">
+                {Math.floor(gift.price).toLocaleString()} ج.م
+              </div>
+            </div>
+          )}
         </div>
 
-        <h3 className="font-semibold text-lg mb-2 text-right">{gift.name}</h3>
+        <h3 className="font-semibold text-base mb-1.5 text-right line-clamp-1">{gift.name}</h3>
 
-        <div className="flex flex-wrap gap-1 mb-3 justify-end">
+        <div className="flex flex-wrap gap-1 mb-2 justify-end">
           {gift.occasions?.slice(0, 2).map((occasion: string, index: number) => (
-            <Badge key={index} variant="outline" className="bg-pink-100 text-pink-800 border-pink-200">
+            <Badge key={index} variant="outline" className="bg-pink-100 text-pink-800 border-pink-200 text-xs">
               {occasion}
             </Badge>
           ))}
           {gift.category && (
-            <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
+            <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
               {gift.category === "men" ? "رجالي" : gift.category === "women" ? "نسائي" : "أطفال"}
             </Badge>
           )}
         </div>
 
-        <p className="text-gray-600 text-sm mb-4 line-clamp-2 text-right">{gift.description}</p>
+        <p className="text-gray-600 text-xs mb-2 line-clamp-2 text-right">{gift.description}</p>
 
-        <Accordion type="single" collapsible className="w-full mb-4">
-          <AccordionItem value="contents">
-            <AccordionTrigger className="text-sm font-medium text-right py-2">
+        <Accordion type="single" collapsible className="w-full mb-2">
+          <AccordionItem value="contents" className="border-none">
+            <AccordionTrigger className="text-xs font-medium text-right py-1 hover:no-underline">
               محتويات الهدية ({totalItems})
             </AccordionTrigger>
             <AccordionContent>
-              <div className="space-y-3 text-right">
+              <div className="space-y-2 text-right text-xs">
                 {/* Box Details */}
                 {gift.boxDetails && (
                   <>
                     <p className="font-medium text-pink-600">الصندوق:</p>
-                    <div className="flex items-center justify-end gap-2 pr-4">
+                    <div className="flex items-center justify-end gap-1.5 pr-3">
                       <div>
                         <p>{gift.boxDetails.name}</p>
-                        {gift.boxDetails.price && <p className="text-xs text-gray-500">{gift.boxDetails.price} ج.م</p>}
+                        {gift.boxDetails.price && <p className="text-gray-500">{gift.boxDetails.price} ج.م</p>}
                       </div>
-                      <Package className="h-4 w-4 text-gray-500" />
+                      <Package className="h-3.5 w-3.5 text-gray-500" />
                     </div>
                   </>
                 )}
@@ -184,12 +201,12 @@ export default function GiftCard({ gift }: GiftCardProps) {
                 {gift.bagDetails && (
                   <>
                     <p className="font-medium text-pink-600">الحقيبة:</p>
-                    <div className="flex items-center justify-end gap-2 pr-4">
+                    <div className="flex items-center justify-end gap-1.5 pr-3">
                       <div>
                         <p>{gift.bagDetails.name}</p>
-                        {gift.bagDetails.price && <p className="text-xs text-gray-500">{gift.bagDetails.price} ج.م</p>}
+                        {gift.bagDetails.price && <p className="text-gray-500">{gift.bagDetails.price} ج.م</p>}
                       </div>
-                      <ShoppingBag className="h-4 w-4 text-gray-500" />
+                      <ShoppingBag className="h-3.5 w-3.5 text-gray-500" />
                     </div>
                   </>
                 )}
@@ -199,12 +216,12 @@ export default function GiftCard({ gift }: GiftCardProps) {
                   <>
                     <p className="font-medium text-pink-600">المنتجات الرئيسية:</p>
                     {gift.mainProducts.map((product: Product, index: number) => (
-                      <div key={index} className="flex items-center justify-end gap-2 pr-4">
+                      <div key={index} className="flex items-center justify-end gap-1.5 pr-3">
                         <div>
                           <p>{product.name}</p>
-                          {product.price && <p className="text-xs text-gray-500">{product.price} ج.م</p>}
+                          {product.price && <p className="text-gray-500">{product.price} ج.م</p>}
                         </div>
-                        <Gift className="h-4 w-4 text-gray-500" />
+                        <Gift className="h-3.5 w-3.5 text-gray-500" />
                       </div>
                     ))}
                   </>
@@ -217,12 +234,12 @@ export default function GiftCard({ gift }: GiftCardProps) {
                     {gift.productDetails.map((product: Product, index: number) => {
                       const quantity = gift.productQuantities?.[index]?.quantity || 1
                       return (
-                        <div key={index} className="flex items-center justify-end gap-2 pr-4">
+                        <div key={index} className="flex items-center justify-end gap-1.5 pr-3">
                           <div>
                             <p>{product.name} × {quantity}</p>
-                            {product.price && <p className="text-xs text-gray-500">{product.price} ج.م</p>}
+                            {product.price && <p className="text-gray-500">{product.price} ج.م</p>}
                           </div>
-                          <Gift className="h-4 w-4 text-gray-500" />
+                          <Gift className="h-3.5 w-3.5 text-gray-500" />
                         </div>
                       )
                     })}
@@ -234,21 +251,21 @@ export default function GiftCard({ gift }: GiftCardProps) {
                   <>
                     <p className="font-medium text-pink-600">الزينة:</p>
                     {gift.decorationDetails.map((decoration: Decoration, index: number) => (
-                      <div key={index} className="flex items-center justify-end gap-2 pr-4">
+                      <div key={index} className="flex items-center justify-end gap-1.5 pr-3">
                         <div>
                           <p>{decoration.name}</p>
-                          {decoration.price && <p className="text-xs text-gray-500">{decoration.price} ج.م</p>}
+                          {decoration.price && <p className="text-gray-500">{decoration.price} ج.م</p>}
                         </div>
-                        <Sparkles className="h-4 w-4 text-gray-500" />
+                        <Sparkles className="h-3.5 w-3.5 text-gray-500" />
                       </div>
                     ))}
                   </>
                 )}
 
                 {/* Total Price */}
-                <div className="border-t pt-2 mt-2">
+                <div className="border-t pt-1.5 mt-1.5">
                   <div className="flex justify-between font-medium">
-                    <span>{gift.price ? `${gift.price.toFixed(2)} ج.م` : "سعر متغير"}</span>
+                    <span>{gift.price ? `${Math.floor(gift.price).toLocaleString()} ج.م` : "سعر متغير"}</span>
                     <span>السعر الإجمالي:</span>
                   </div>
                 </div>
@@ -257,10 +274,10 @@ export default function GiftCard({ gift }: GiftCardProps) {
           </AccordionItem>
         </Accordion>
 
-        <div className="flex justify-between items-center mt-4 gap-2">
+        <div className="flex justify-between items-center gap-1.5">
           <Link href={`/inspiration/${gift._id}`}>
-            <Button variant="outline" size="sm" className="gap-1">
-              <Eye className="h-4 w-4" />
+            <Button variant="outline" size="sm" className="gap-1 h-7 text-xs">
+              <Eye className="h-3 w-3" />
               عرض التفاصيل
             </Button>
           </Link>

@@ -223,36 +223,9 @@ export default async function InspirationPage({ params }: Props) {
   const decorations = decorationsData || [];
   const mainProducts = mainProductsData || [];
 
-  // Calculate total price with proper quantity handling
-  const calculateTotalPrice = () => {
-    // Calculate products total with quantities
-    const productsTotal = products.reduce((sum, p) => {
-      const quantity = p.quantity || 1;
-      const price = p.price || 0;
-      return sum + (price * quantity);
-    }, 0);
-
-    // Calculate main products total with quantities
-    const mainProductsTotal = mainProducts.reduce((sum, p) => {
-      const quantity = p.quantity || 1;
-      const price = p.price || 0;
-      return sum + (price * quantity);
-    }, 0);
-
-    // Calculate box and bag prices
-    const boxPrice = box?.price || 0;
-    const bagPrice = bag?.price || 0;
-
-    // Calculate decorations total
-    const decorationsTotal = decorations.reduce((sum, d) => {
-      const price = d.price || 0;
-      return sum + price;
-    }, 0);
-
-    return productsTotal + mainProductsTotal + boxPrice + bagPrice + decorationsTotal;
-  };
-
-  const totalPrice = calculateTotalPrice();
+  const totalPrice = inspiration.price || 0;
+  const discount = inspiration.discount_percentage || 0;
+  const discountedPrice = discount > 0 ? Math.floor(totalPrice - (totalPrice * (discount / 100))) : totalPrice;
 
   // Calculate total items count
   const calculateTotalItems = () => {
@@ -263,6 +236,14 @@ export default async function InspirationPage({ params }: Props) {
   };
 
   const totalItems = calculateTotalItems();
+
+  // Calculate discount percentage dynamically
+  const discountPercentage = (inspiration.price && inspiration.oldPrice && inspiration.oldPrice > inspiration.price)
+    ? Math.floor(((inspiration.oldPrice - inspiration.price) / inspiration.oldPrice) * 100)
+    : 0;
+  
+  const priceToDisplay = inspiration.price || 0;
+  const oldPriceToDisplay = inspiration.oldPrice || 0;
 
   return (
     <div className="container mx-auto max-w-6xl py-6 sm:py-10 px-3 sm:px-4">
@@ -353,16 +334,44 @@ export default async function InspirationPage({ params }: Props) {
             </p>
             
             <div className="flex flex-col md:flex-row justify-between items-center bg-gradient-to-r from-emerald-50 to-emerald-100 p-3 sm:p-4 rounded-lg">
-              <div className="text-3xl font-bold text-emerald-600 mb-2 md:mb-0">
-                الإجمالي: {totalPrice.toLocaleString()} ج.م
+              {/* Price and Discount Section (aligned right) */}
+              <div className="flex flex-col items-center md:items-end">
+                {discountPercentage > 0 && oldPriceToDisplay > 0 ? (
+                  <>
+                    {/* Original Price */}
+                    <div className="text-lg text-gray-600 line-through">
+                      {Math.floor(oldPriceToDisplay).toLocaleString()} ج.م
+                    </div>
+                    <div className="flex items-center gap-2 mb-1">
+                      {/* Discounted Price */}
+                      <div className="text-3xl sm:text-4xl font-bold text-emerald-700">
+                        {Math.floor(priceToDisplay).toLocaleString()} ج.م
+                      </div>
+                      {/* Discount Badge */}
+                      <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-bold px-3 py-1.5 rounded-full shadow-sm">
+                        خصم {discountPercentage}%
+                      </div>
+                    </div>
+                    {/* Savings Amount */}
+                    <div className="text-sm font-medium text-emerald-700">
+                      وفرت {Math.floor(oldPriceToDisplay - priceToDisplay).toLocaleString()} ج.م
+                    </div>
+                  </>
+                ) : (
+                  /* Price when no discount or no old price */
+                  <div className="text-3xl sm:text-4xl font-bold text-emerald-700">
+                    {Math.floor(priceToDisplay).toLocaleString()} ج.م
+                  </div>
+                )}
               </div>
               
-              <div className="flex items-center space-x-4 space-x-reverse">
-                <div className="text-sm bg-white px-3 py-1 rounded-full border border-gray-200 text-gray-600">
-                  <span className="font-bold">{totalItems}</span> قطعة
+              {/* Item and Decoration Counts (aligned left) */}
+              <div className="flex items-center space-x-2 sm:space-x-4 space-x-reverse mt-3 md:mt-0">
+                <div className="text-sm bg-white px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 shadow-sm flex items-center">
+                   <span className="font-bold ml-1">{totalItems}</span> قطعة
                 </div>
-                <div className="text-sm bg-white px-3 py-1 rounded-full border border-gray-200 text-gray-600">
-                  <span className="font-bold">{decorations.length}</span> ديكور
+                <div className="text-sm bg-white px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 shadow-sm flex items-center">
+                  <span className="font-bold ml-1">{decorations.length}</span> ديكور
                 </div>
               </div>
             </div>

@@ -398,6 +398,8 @@ export default function InspirationsPage() {
     setSelectedOccasions([])
     setSelectedTags([])
     setIsFilterOpen(false)
+    // Clear saved filters from localStorage
+    localStorage.removeItem("giftFilterOptions")
   }
 
   // Get category name in Arabic
