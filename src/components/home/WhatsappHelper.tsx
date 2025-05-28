@@ -336,7 +336,7 @@ const WhatsappHelper: React.FC<WhatsappHelperProps> = ({
   // إضافة دالة للانتقال إلى المساعد الذكي
   const goToSmartGiftFinder = () => {
     playSound("click")
-    router.push("/smart-gift-finder")
+    router.push("/chat-bot")
     setIsOpen(false)
   }
 

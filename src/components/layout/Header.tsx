@@ -19,6 +19,7 @@ import {
   Headphones,
   ShoppingCart,
   ChevronLeft,
+  MessageSquare,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCart } from "../../context/CartContext"
@@ -54,6 +55,7 @@ const categories = [
 
 // Secondary links for mega menu
 const secondaryLinks = [
+  { name: "المساعد الذكي", link: "/chat-bot", icon: <MessageSquare className="w-4 h-4" /> },
   { name: "تواصل معنا", link: "/contact", icon: <Headphones className="w-4 h-4" /> },
   { name: "عن كادوز", link: "/about", icon: <HelpCircle className="w-4 h-4" /> },
 ]
@@ -82,12 +84,10 @@ const subcategories = {
     { name: "ساعات اطفال", link: "/category/kids#watches" },
   ],
   هدايا: [
-    { name: "المساعد الذكي للهدايا", link: "/smart-gift-finder" },
+    { name: "المساعد الذكي للهدايا", link: "/chat-bot" },
     { name: "هدايا جاهزة", link: "/inspirations" },
     { name: "تخصيص هدية", link: "/gift" },
     { name: "هدايا شخصيه", link: "/custom-gifts" },
-   
-   
   ],
 }
 

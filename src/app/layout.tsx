@@ -14,7 +14,14 @@ import Header from "../components/layout/Header"
 import Footer from "../components/layout/Footer";
 import NextAuthProvider from "@/providers/session-provider";
 import { AuthProvider as ContextAuthProvider } from "../context/AuthContext";
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: true,
+  fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Arial", "sans-serif"],
+  adjustFontFallback: true
+});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
