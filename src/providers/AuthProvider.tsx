@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // 2. If we have a session, use that data (it takes precedence over localStorage)
       if (session?.user) {
-        const userObj = session.user as Record<string, unknown>;
+        const userObj = session.user as unknown as Record<string, unknown>;
         console.log('[AUTH_PROVIDER] NextAuth session user data:', { 
           id: userObj.id || 'missing', 
           name: userObj.name || 'missing',

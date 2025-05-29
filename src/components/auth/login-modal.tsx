@@ -19,6 +19,7 @@ interface LoginFormData {
   phone: string;
   email: string;
   password: string;
+  rememberMe: boolean;
 }
 
 interface LoginModalProps {
@@ -47,6 +48,7 @@ export default function LoginModal({
     phone: "",
     email: "",
     password: "",
+    rememberMe: false
   })
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -65,15 +67,18 @@ export default function LoginModal({
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value, type, checked } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
   }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!formData.phone || !formData.password) {
-      toast.error("الرجاء إدخال رقم الهاتف وكلمة المرور")
+      toast.error("رقم الهاتف وكلمة المرور مطلوبان")
       return
     }
 
@@ -81,9 +86,6 @@ export default function LoginModal({
     console.log("[LOGIN] Starting login process with phone:", formData.phone)
 
     try {
-      // إعداد لتسجيل الدخول
-
-      // 2. نحاول تسجيل الدخول باستخدام API الخاص بنا
       console.log("[LOGIN] Calling login API")
       const loginResponse = await fetch("/api/auth/login", {
         method: "POST",
@@ -93,6 +95,7 @@ export default function LoginModal({
         body: JSON.stringify({
           phone: formData.phone,
           password: formData.password,
+          rememberMe: formData.rememberMe
         }),
       })
 
@@ -107,7 +110,6 @@ export default function LoginModal({
           phone: loginData.user.phone || formData.phone,
           email: loginData.user.email || "",
           image: loginData.user.image,
-          phoneNumber: loginData.user.phone || formData.phone,
           role: loginData.user.role || "user"
         }
 
@@ -383,6 +385,26 @@ export default function LoginModal({
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                />
+                <label htmlFor="rememberMe" className="mr-2 text-sm text-gray-600">
+                  تذكرني
+                </label>
+              </div>
+
+              <button type="button" onClick={() => setStep("forgot")} className="text-sm text-blue-600 hover:underline">
+                نسيت كلمة المرور؟
+              </button>
             </div>
 
             <div className="flex justify-between items-center">

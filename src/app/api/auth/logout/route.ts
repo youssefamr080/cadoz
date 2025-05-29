@@ -1,19 +1,36 @@
 import { NextResponse } from "next/server"
 import { connectToDatabase } from "@/lib/mongodb"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth.config"
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
-    const body = await request.json()
-    const { userId } = body
-
-    if (!userId) {
-      return NextResponse.json({ success: false, message: "معرف المستخدم مطلوب" }, { status: 400 })
+    // Get the current session
+    const session = await getServerSession(authOptions)
+    
+    if (!session || !session.user || !session.user.id) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "لا توجد جلسة مستخدم نشطة" 
+      }, { status: 401 })
     }
 
-    // يمكن إضافة منطق إضافي هنا مثل تسجيل وقت تسجيل الخروج
-    const { db } = await connectToDatabase()
+    const userId = session.user.id
 
-    await db.collection("customers").updateOne({ id: userId }, { $set: { lastLogoutAt: new Date() } })
+    // Update user's lastLogoutAt in the database
+    const { db } = await connectToDatabase()
+    await db.collection("customers").updateOne(
+      { id: userId },
+      { 
+        $set: { 
+          lastLogoutAt: new Date(),
+          isOnline: false
+        } 
+      }
+    )
+
+    // Clear any persistent tokens or sessions
+    await db.collection("sessions").deleteMany({ userId })
 
     return NextResponse.json({
       success: true,
@@ -21,7 +38,16 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("Logout error:", error)
-    return NextResponse.json({ success: false, message: "حدث خطأ أثناء تسجيل الخروج" }, { status: 500 })
+    
+    const errorMessage = error instanceof Error ? error.message : "حدث خطأ غير معروف"
+    
+    return NextResponse.json({ 
+      success: false, 
+      message: "حدث خطأ أثناء تسجيل الخروج",
+      details: errorMessage
+    }, { 
+      status: 500 
+    })
   }
 }
 

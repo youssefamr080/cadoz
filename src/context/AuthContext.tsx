@@ -22,6 +22,7 @@ export interface UserData {
   image?: string
   role?: UserRole // تغيير النوع من string إلى UserRole
   phoneNumber?: string // إضافة لدعم التوافق مع مكونات أخرى
+  isLoggingOut?: boolean
 }
 
 interface AuthContextType {
@@ -120,21 +121,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  // تسجيل الخروج - now using Redux
+  // تسجيل الخروج - with improved error handling
   const logout = async () => {
     try {
-      // تسجيل الخروج من NextAuth
+      // 1. تنفيذ تسجيل الخروج من NextAuth
       await signOut({ redirect: false })
-      
-      // Use Redux logout action
+
+      // 2. استدعاء API تسجيل الخروج
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'فشل تسجيل الخروج')
+      }
+
+      // 3. مسح بيانات المستخدم من التخزين المحلي
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('userData')
+        localStorage.removeItem('authToken')
+        sessionStorage.clear() // Clear any session storage data
+      }
+
+      // 4. تحديث حالة Redux
       await dispatch(reduxLogout()).unwrap()
-      
-      // حذف بيانات المستخدم من التخزين المحلي
-      localStorage.removeItem("authToken")
-      localStorage.removeItem("userData")
-      toast.info("تم تسجيل الخروج")
+
+      // 5. إظهار رسالة نجاح
+      toast.success('تم تسجيل الخروج بنجاح')
     } catch (error) {
       console.error("Error logging out:", error)
+      toast.error(error instanceof Error ? error.message : 'حدث خطأ أثناء تسجيل الخروج')
+      throw error // Re-throw to handle in the UI
     }
   }
 

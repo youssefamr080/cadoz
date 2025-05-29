@@ -23,12 +23,22 @@ export async function POST(request: Request) {
 
     if (existingUser) {
       return NextResponse.json({ success: false, message: "رقم الهاتف مسجل بالفعل" }, { status: 400 })
+    }    // Validate password strength
+    const { validatePassword } = await import('@/lib/security/password-validator');
+    const validationResult = validatePassword(password);
+    
+    if (!validationResult.isValid) {
+      return NextResponse.json({
+        success: false,
+        message: "Password is too weak",
+        feedback: validationResult.feedback
+      }, { status: 400 });
     }
 
-    // تشفير كلمة المرور
-    const hashedPassword = await bcrypt.hash(password, 10)
+    // Hash password with bcrypt
+    const hashedPassword = await bcrypt.hash(password, 12) // Increased rounds for better security
 
-    // إنشاء معرف فريد للمستخدم
+    // Create unique IDs
     const userId = uuidv4()
     const sessionId = uuidv4()
 
