@@ -12,7 +12,7 @@ import {
 
 const ContactPage = () => {
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen" dir="rtl">
+    <div className="h-full bg-gray-50" dir="rtl">
       <div className="max-w-5xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center mb-12">

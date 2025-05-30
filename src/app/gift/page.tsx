@@ -8,7 +8,9 @@ export default function GiftPage() {
   return (
     <ReduxProvider store={store}>
       <GiftProvider>
-        <GiftBuilder />
+        <div className="h-full bg-gray-50">
+          <GiftBuilder />
+        </div>
       </GiftProvider>
     </ReduxProvider>
   )

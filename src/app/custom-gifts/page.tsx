@@ -1,15 +1,15 @@
 "use client"
 
 import { GiftProvider } from "@/context/gift-context"
-import CustomGiftsPage from "@/components/gift/custom-gifts-page"
+import CustomGiftsPageContent from "@/components/gift/custom-gifts-page"
 import { Provider as ReduxProvider } from "react-redux"
 import { store } from "@/lib/redux/store"
 
-export default function CustomGifts() {
+export default function CustomGiftsPage() {
   return (
     <ReduxProvider store={store}>
       <GiftProvider>
-        <CustomGiftsPage />
+        <CustomGiftsPageContent />
       </GiftProvider>
     </ReduxProvider>
   )

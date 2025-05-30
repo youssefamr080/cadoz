@@ -184,7 +184,7 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="h-full bg-gray-50 flex items-center justify-center">
         <div className="animate-pulse text-purple-600 text-xl">جاري التحميل...</div>
       </div>
     )
@@ -232,7 +232,7 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 rtl">
+    <div className="h-full bg-gray-50 rtl">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="flex items-center mb-6">
           <Button variant="ghost" size="sm" className="mr-2" onClick={() => router.push("/profile/orders")}>

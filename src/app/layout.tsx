@@ -31,10 +31,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <NextAuthProvider>
             <ContextAuthProvider>
               <Providers>
-                <WhatsappHelper phoneNumber="+201026972523" />
-                <Header />
-                <main className="pt-[calc(5rem+1.75rem)]">{children}</main>
-                <Footer />
+                <div className="flex min-h-screen flex-col">
+                  <WhatsappHelper phoneNumber="+201026972523" />
+                  <Header />
+                  <main className="flex-1 pt-[calc(5rem+1.75rem)]">{children}</main>
+                  <Footer />
+                </div>
                 <Analytics />
                 <ToastContainer 
                   position="top-center" 

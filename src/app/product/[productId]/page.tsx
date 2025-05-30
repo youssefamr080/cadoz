@@ -277,7 +277,7 @@ const ProductPage = () => {
   const productColors = product.colors || []
 
   return (
-    <div className="bg-gray-50 min-h-screen font-sans flex flex-col">
+        <div className="h-full bg-gray-50 flex flex-col">
       
       <div className="flex-1">
         <main className="container mx-auto px-4 py-6 md:py-12">

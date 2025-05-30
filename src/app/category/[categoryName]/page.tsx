@@ -113,7 +113,7 @@ const CategoryPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+        <div className="h-full bg-gray-50 flex flex-col">
       <main className="space-y-6">
         {/* بانر القسم */}
         <div className="w-full">

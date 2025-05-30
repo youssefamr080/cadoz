@@ -2,7 +2,7 @@ import React from 'react';
 
 const ServicesPage = () => {
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen" dir="rtl">
+    <div className="bg-gradient-to-b from-gray-50 to-gray-100 h-full" dir="rtl">
       <div className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center mb-16">

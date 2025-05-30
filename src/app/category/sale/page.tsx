@@ -90,9 +90,7 @@ const SalePage = () => {
   const products = productsResponse?.data || []
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      
-
+    <div className="h-full bg-gray-50 flex flex-col">
       <main className="pb-16">
         {/* بانر الصفحة */}
         <div className="relative h-48 md:h-64 lg:h-80 bg-gradient-to-r from-rose-500 to-red-700 overflow-hidden">
@@ -262,10 +260,6 @@ const SalePage = () => {
           )}
         </div>
       </main>
-
-
-
-      
     </div>
   )
 }

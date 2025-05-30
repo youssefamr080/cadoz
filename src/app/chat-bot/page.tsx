@@ -421,7 +421,7 @@ export default function ChatBotPage() {
 
   return (
     <div
-      className={`min-h-screen bg-gray-50 flex flex-col ${
+      className={`h-full bg-gray-50 flex flex-col ${
         isSlowDevice ? "slow-device memory-optimized cpu-light" : ""
       } ${performanceMode === "low" ? "performance-mode-low battery-saver" : ""} ${
         connectionSpeed === "slow" ? "slow-connection" : "fast-connection"

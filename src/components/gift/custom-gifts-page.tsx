@@ -17,7 +17,7 @@ const categories = [
   { id: "art", name: "فن" },
 ]
 
-export default function CustomGiftsPage() {
+const CustomGiftsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [customGifts, setCustomGifts] = useState<CustomGift[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -42,7 +42,7 @@ export default function CustomGiftsPage() {
   }, [selectedCategory])
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 md:px-6 lg:px-8 rtl">
+    <div className="h-full bg-gray-50 py-8 px-4 md:px-6 lg:px-8 rtl">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
@@ -118,3 +118,5 @@ export default function CustomGiftsPage() {
     </div>
   )
 }
+
+export default CustomGiftsPage

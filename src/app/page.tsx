@@ -503,14 +503,14 @@ const HomePage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <LoadingSpinner message="جاري تحميل المتجر..." />
+      <div className="h-full bg-gray-50 flex items-center justify-center">
+        <div className="animate-pulse text-xl text-purple-600">جاري التحميل...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-full bg-white">
       
 
       <main>
