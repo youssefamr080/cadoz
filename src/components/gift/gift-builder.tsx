@@ -12,7 +12,6 @@ import BagSelector from "@/components/gift/steps/bag-selector"
 import GiftSummary from "@/components/gift/steps/gift-summary"
 import SavedItems from "@/components/gift/saved-items"
 import { ChevronLeft, ChevronRight, Gift, Package, ShoppingCart, Sparkles, Palette, ClipboardList, Bookmark, Zap, ArrowUp } from "lucide-react"
-import InspirationGallery from "@/components/gift/inspiration-gallery"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -137,13 +136,7 @@ export default function GiftBuilder() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mb-6"
           >
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-purple-100">
-              <div className="p-3 border-b bg-gradient-to-r from-purple-50 to-purple-100">
-                <h2 className="text-center text-lg font-bold text-purple-700">هدايا جاهزة للإلهام</h2>
-                <p className="text-center text-xs text-gray-600 mt-1">اختر من المجموعات الجاهزة أو خصص هديتك</p>
-              </div>
-              <InspirationGallery />
-            </div>
+
           </motion.div>
         )}
 
@@ -201,9 +194,7 @@ export default function GiftBuilder() {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="mb-8"
               >
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-purple-100 p-4">
-                  <InspirationGallery />
-                </div>
+
               </motion.div>
             )}
 
