@@ -6,15 +6,11 @@ import "../Styles/swiper.css";
 import { Provider as ReduxProvider } from "react-redux";
 import { store } from "@/lib/redux/store";
 import { Providers } from "../providers/Providers";
-import { Analytics } from "@vercel/analytics/react";
-import WhatsappHelper from "../components/home/WhatsappHelper";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import NextAuthProvider from "@/providers/session-provider";
 import { AuthProvider as ContextAuthProvider } from "../context/AuthContext";
-import { Suspense, lazy, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -47,23 +43,14 @@ const inter = Inter({
 });
 
 // تحميل ديناميكي للمكونات الثقيلة - مع منع SSR لتجنب hydration mismatch
-const DynamicWhatsappHelper = dynamic(
-  () => import("../components/home/WhatsappHelper"),
-  { 
-    ssr: false,
-    loading: () => null
-  }
-);
+const DynamicWhatsappHelper = dynamic(() => import("../components/home/WhatsappHelper"), { 
+  ssr: false,
+  loading: () => null
+});
 
-const DynamicAnalytics = dynamic(
-  () => import("@vercel/analytics/react").then(mod => ({ default: mod.Analytics })),
-  { ssr: false }
-);
-
-const DynamicToastContainer = dynamic(
-  () => import("react-toastify").then(mod => ({ default: mod.ToastContainer })),
-  { ssr: false }
-);
+const DynamicToastContainer = dynamic(() => import("react-toastify").then(mod => ({ default: mod.ToastContainer })), {
+  ssr: false 
+});
 
 // مكون للتأكد من client-side mounting
 function ClientOnlyWrapper({ children }: { children: React.ReactNode }) {
@@ -81,7 +68,11 @@ function ClientOnlyWrapper({ children }: { children: React.ReactNode }) {
 }
 
 // مكون Error Fallback
-function ErrorFallback({ error, resetErrorBoundary }: any) {
+interface ErrorFallbackProps {
+  resetErrorBoundary: () => void;
+}
+
+function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="text-center max-w-md mx-auto">
@@ -93,38 +84,6 @@ function ErrorFallback({ error, resetErrorBoundary }: any) {
         >
           إعادة المحاولة
         </button>
-      </div>
-    </div>
-  );
-}
-
-// مكون Loading للصفحة الرئيسية بدون حدود جانبية
-function MainLoading() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="animate-pulse">
-        {/* Header Skeleton */}
-        <div className="bg-white shadow-sm border-b">
-          <div className="h-20 flex items-center justify-between px-0 max-w-full">
-            <div className="h-8 bg-gray-200 rounded w-32 mx-4"></div>
-            <div className="flex gap-4 mx-4">
-              <div className="h-8 bg-gray-200 rounded w-20"></div>
-              <div className="h-8 bg-gray-200 rounded w-20"></div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Main Content Skeleton */}
-        <div className="pt-8 px-0 max-w-full">
-          <div className="space-y-6">
-            <div className="h-64 bg-gray-200 rounded-none"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-48 bg-gray-200 border-r border-b border-gray-300"></div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -266,8 +225,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
                       stacked
                     />
 
-                    {/* Analytics مع تحميل متأخر */}
-                    <DynamicAnalytics />
                   </ClientOnlyWrapper>
                 </Providers>
               </ContextAuthProvider>
