@@ -19,6 +19,7 @@ interface WhatsappHelperProps {
   position?: "bottom-right" | "bottom-left" | "top-right" | "top-left"
   collectUserInfo?: boolean
   enableAnalytics?: boolean
+  className?: string
 }
 
 interface UserInfo {

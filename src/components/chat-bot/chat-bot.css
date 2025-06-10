@@ -207,6 +207,79 @@
   .bot-card-swiper-enhanced .swiper-slide {
     width: 180px !important;
   }
+
+  /* Mobile input optimizations */
+  .mobile-input {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    max-height: 100px;
+    line-height: 1.4;
+  }
+
+  /* Improved mobile layout */
+  @media (max-width: 768px) {
+    .mobile-input {
+      padding: 12px 16px;
+    }
+
+    /* Prevent overscroll bounce */
+    html,
+    body {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Better touch handling */
+    .mobile-scroll {
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      overflow-y: auto;
+    }
+
+    .overscroll-none {
+      overscroll-behavior: none;
+    }
+
+    /* Safe area insets */
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 1rem);
+    }
+    
+    /* Better input handling */
+    input, textarea {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      font-size: 16px !important;
+    }
+    
+    /* Message bubble sizing */
+    .message-bubble {
+      max-width: 85%;
+      word-break: break-word;
+    }
+  }
+
+  /* Landscape mode specific adjustments */
+  @media (max-width: 768px) and (orientation: landscape) {
+    .landscape-mode {
+      max-height: calc(100vh - 160px);
+    }
+  }
+
+  /* Better zooming prevention */
+  @media screen and (max-width: 768px) {
+    input[type="text"],
+    input[type="search"],
+    input[type="email"],
+    input[type="tel"],
+    textarea {
+      font-size: 16px !important;
+    }
+  }
 }
 
 /* Enhanced hover effects */
@@ -269,7 +342,12 @@
   /* Improved scrolling on mobile */
   .mobile-scroll {
     -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
+    overscroll-behavior-y: contain;
+    overflow-y: auto;
+  }
+
+  .overscroll-none {
+    overscroll-behavior: none;
   }
 
   /* Mobile swiper optimizations */

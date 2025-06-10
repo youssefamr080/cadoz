@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import SeasonalBanner from "../components/home/SeasonalBanner"
@@ -12,7 +11,6 @@ import { TrendingProductsSwiper, DiscountedProductsSwiper, NewProductsSwiper } f
 import MainCategorySwiper from "../components/home/MainCategorySwiper"
 import InspirationGallery from "../components/gift/inspiration-gallery"
 import { useGetProductsQuery } from "../lib/redux/api/apiSlice"
-import LoadingSpinner from "../components/ui/LoadingSpinner"
 import type { Product } from "../types/product"
 import {
   ShoppingBag,
@@ -24,7 +22,7 @@ import {
   ChevronLeft,
   Star,
   Eye,
-  Check,
+  Check as CheckIcon,
 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -38,6 +36,7 @@ import { useRouter } from "next/navigation"
 
 // أضف استيراد المكونات الجديدة في بداية الملف
 import SectionDivider from "../components/home/SectionDivider"
+import LoadingScreen from "../components/ui/loading-screen"
 
 // تحديد الموسم الحالي
 const getCurrentSeason = () => {
@@ -385,7 +384,7 @@ const ProductCard = ({ product, accentColor = "blue" }: { product: Product; acce
                 <div className="text-slate-500 line-through text-xs">{product.old_price} ج.م</div>
               ) : product.stock > 0 ? (
                 <div className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 border border-emerald-100">
-                  <Check className="w-3 h-3" />
+                  <CheckIcon className="w-3 h-3" />
                   <span>متوفر</span>
                 </div>
               ) : null}
@@ -402,26 +401,27 @@ const HomePage = () => {
   const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
   const [currentSeason] = useState(getCurrentSeason())
   const [nextSeason] = useState(getNextSeason())
-  const [isPageLoaded, setIsPageLoaded] = useState(false)
+  const [isFirstVisit, setIsFirstVisit] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const initialized = useRef(false)
 
   // مراجع للسويبرات للتحكم بها
-
   const viewedPrevRef = useRef<HTMLButtonElement>(null)
   const viewedNextRef = useRef<HTMLButtonElement>(null)
 
   // استخدام RTK Query لجلب المنتجات
-  const { data: trendingData, isLoading: isTrendingLoading } = useGetProductsQuery({
+  const { data: trendingData } = useGetProductsQuery({
     best_seller: true,
     limit: 12,
   })
 
-  const { data: newArrivalsData, isLoading: isNewArrivalsLoading } = useGetProductsQuery({
+  const { data: newArrivalsData } = useGetProductsQuery({
     new_arrival: true,
     limit: 12,
   })
 
-  const { data: saleData, isLoading: isSaleLoading } = useGetProductsQuery({
+  const { data: saleData } = useGetProductsQuery({
     sale: true,
     discount: true,
     limit: 12,
@@ -439,80 +439,87 @@ const HomePage = () => {
     return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
-  // استرجاع المنتجات المشاهدة من Local Storage
+  // التحقق من الزيارة الأولى وتحميل البيانات المخزنة
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    let isActive = true;
+    if (initialized.current) return
+    initialized.current = true
+
+    const checkFirstVisit = () => {
+      const hasVisited = localStorage.getItem("hasVisitedHome")
+      if (!hasVisited) {
+        localStorage.setItem("hasVisitedHome", "true")
+        if (isActive) {
+          setIsFirstVisit(true)
+        }
+      } else {
+        if (isActive) {
+          setIsFirstVisit(false)
+        }
+      }
+    }
+
+    const loadCachedData = () => {
       try {
-        const viewedProductsData = localStorage.getItem("viewedProducts")
-        if (viewedProductsData) {
-          const parsed = JSON.parse(viewedProductsData)
+        // محاولة تحميل البيانات المخزنة محلياً
+        const cachedViewedProducts = localStorage.getItem("viewedProducts")
+        if (cachedViewedProducts) {
+          const parsed = JSON.parse(cachedViewedProducts)
           setViewedProducts(parsed)
 
-          // استخراج الفئات والعلامات من المنتجات المشاهدة لاقتراح منتجات مشابهة
+          // استخراج الفئات والعلامات من المنتجات المشاهدة
           const viewedCategories = new Set(parsed.map((p: Product) => p.category).filter(Boolean))
           const viewedTags = new Set(parsed.flatMap((p: Product) => p.tags || []).filter(Boolean))
 
           if (viewedCategories.size > 0 || viewedTags.size > 0) {
-            // اختيا فئة عشوائية من الفئات المشاهدة
             const categoriesArray = Array.from(viewedCategories)
             const randomCategory = categoriesArray[Math.floor(Math.random() * categoriesArray.length)]
-
-            // اختيار علامة عشوائية من العلامات المشاهدة
             const tagsArray = Array.from(viewedTags)
             const randomTags = tagsArray
               .sort(() => 0.5 - Math.random())
               .slice(0, 3)
               .join(",")
 
-            // جلب منتجات مقترحة بناءً على سلوك المستخدم
+            // جلب المنتجات المقترحة
             fetch(`/api/products?category=${randomCategory}&tags=${randomTags}&limit=8`)
               .then((res) => res.json())
               .then((data) => {
                 if (data.success && data.data.length > 0) {
-                  // استبعاد المنتجات التي شاهدها المستخدم بالفعل
                   const viewedIds = new Set(parsed.map((p: Product) => p.id))
                   const filteredRecommendations = data.data.filter((p: Product) => !viewedIds.has(p.id))
-
                   setRecommendedProducts(filteredRecommendations.length > 0 ? filteredRecommendations : data.data)
                 }
               })
-              .catch((err) => console.error("Error fetching recommendations:", err))
+              .catch(console.error)
           }
         }
       } catch (error) {
-        console.error("Error parsing viewed products:", error)
+        console.error("Error loading cached data:", error)
       }
     }
 
-    // تأخير تحميل الصفحة لإظهار تأثير التحميل
+    checkFirstVisit()
+    loadCachedData()
+
+    // إيقاف التحميل بعد فترة قصيرة للزيارة الأولى، أو فوراً للزيارات اللاحقة
     const timer = setTimeout(() => {
-      setIsPageLoaded(true)
-    }, 500)
+      setIsLoading(false)
+    }, isFirstVisit ? 2000 : 0)
 
-    return () => clearTimeout(timer)
-  }, [])
+    return () => {
+      isActive = false;
+      clearTimeout(timer);
+    }
+  }, [isFirstVisit])
 
-  // عرض حالة التحميل
-  const isLoading = isTrendingLoading || isNewArrivalsLoading || isSaleLoading || !isPageLoaded
-
-  // تأثيرات الحركة للعناصر
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  // عرض شاشة التحميل فقط في الزيارة الأولى
+  if (isFirstVisit && isLoading) {
+    return <LoadingScreen />
   }
 
-  if (isLoading) {
-    return (
-      <div className="h-full bg-gray-50 flex items-center justify-center">
-        <div className="animate-pulse text-xl text-purple-600">جاري التحميل...</div>
-      </div>
-    )
-  }
-
+  // عرض محتوى الصفحة
   return (
     <div className="h-full bg-white">
-      
-
       <main>
         {/* بانر الموسم الحالي */}
         <SeasonalBanner season={currentSeason} />
@@ -523,7 +530,10 @@ const HomePage = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          variants={fadeInUp}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+          }}
           className="py-12 bg-gradient-to-b from-white to-gray-50"
         >
           <div className="container mx-auto px-4">
@@ -543,7 +553,10 @@ const HomePage = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          variants={fadeInUp}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+          }}
           className="py-6 bg-white"
         >
           <div className="container mx-auto px-4">
@@ -563,7 +576,10 @@ const HomePage = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          variants={fadeInUp}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+          }}
           className="py-12 bg-white"
         >
           <div className="container mx-auto px-4">
@@ -579,7 +595,10 @@ const HomePage = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            variants={fadeInUp}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }}
             className="py-16 bg-gradient-to-b from-white to-gray-50"
           >
             <div className="container mx-auto px-2 sm:px-4">
@@ -615,7 +634,10 @@ const HomePage = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            variants={fadeInUp}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }}
             className="py-16 bg-white"
           >
             <div className="container mx-auto px-2 sm:px-4">
@@ -651,7 +673,10 @@ const HomePage = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            variants={fadeInUp}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }}
             className="py-16 bg-gradient-to-b from-white to-gray-50"
           >
             <div className="container mx-auto px-2 sm:px-4">
@@ -686,7 +711,10 @@ const HomePage = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          variants={fadeInUp}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+          }}
           className="py-16 bg-white"
         >
           <div className="container mx-auto px-2 sm:px-4">
@@ -710,7 +738,10 @@ const HomePage = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            variants={fadeInUp}
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+            }}
             className="py-16 bg-white"
           >
             <div className="container mx-auto px-2 sm:px-4">
@@ -786,7 +817,10 @@ const HomePage = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          variants={fadeInUp}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+          }}
           className="py-16 bg-gradient-to-b from-white to-gray-50"
         >
           <div className="container mx-auto px-2 sm:px-4">
@@ -839,8 +873,6 @@ const HomePage = () => {
           </div>
         </motion.section>
       </main>
-
-      
     </div>
   )
 }

@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Star, ChevronLeft, ChevronRight, Eye, ChevronDown } from "lucide-react"
+import { Star, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 import type { Inspiration } from "@/types/inspiration"
 import Image from "next/image"
 import Link from "next/link"
@@ -104,12 +103,12 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
   // Calculate slides per view based on screen size
   const getSlidesPerView = () => {
     if (typeof window !== "undefined") {
-      if (window.innerWidth < 480) return 1.2
-      if (window.innerWidth < 640) return 1.5
-      if (window.innerWidth < 1024) return 2.5
-      return 3.2
+      if (window.innerWidth < 480) return 2.1  // عرض بطاقتين في الشاشات الصغيرة
+      if (window.innerWidth < 640) return 2.3
+      if (window.innerWidth < 1024) return 3.2
+      return 4.1
     }
-    return 3 // Default fallback
+    return 3
   }
 
   return (
@@ -139,10 +138,9 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
         </div>
       ) : (
         <div className="relative category-inspiration-swiper">
-          {/* استخدام مكتبة Swiper.js بدلاً من التنفيذ اليدوي */}
           <Swiper
             modules={[Navigation, Pagination, FreeMode, Autoplay]}
-            spaceBetween={12}
+            spaceBetween={6}
             slidesPerView={getSlidesPerView()}
             navigation={{
               nextEl: '.swiper-button-next',
@@ -151,8 +149,8 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
             pagination={{
               clickable: true,
               el: '.swiper-pagination',
-              bulletActiveClass: 'swiper-pagination-bullet-active',
-              bulletClass: 'swiper-pagination-bullet',
+              bulletActiveClass: 'swiper-pagination-bullet-active bg-purple-600',
+              bulletClass: 'swiper-pagination-bullet bg-gray-300 opacity-70 mx-1',
             }}
             freeMode={{
               enabled: true,
@@ -160,127 +158,113 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
               momentumBounce: false,
             }}
             autoplay={{
-              delay: 5000,
-              disableOnInteraction: true,
+              delay: 4000,
+              disableOnInteraction: false,
               pauseOnMouseEnter: true,
             }}
             dir="rtl"
-            className="rounded-xl pb-10"
+            className="rounded-xl pb-8"
           >
             {inspirationGifts.map((gift) => (
-              <SwiperSlide key={gift.id} className="pb-4">
+              <SwiperSlide key={gift.id} className="pb-2">
                 <motion.div
-                  whileHover={{ y: -5 }}
+                  whileHover={{ y: -3 }}
                   whileTap={{ scale: 0.98 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white rounded-2xl border border-purple-100 overflow-hidden shadow-md h-full hover:shadow-xl transition-shadow duration-300"
+                  transition={{ duration: 0.2 }}
+                  className="bg-white rounded-xl border border-purple-100/60 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 h-full flex flex-col"
                 >
-                  {/* Image with improved aspect ratio */}
-                  <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden group">
-                    <Image 
-                      src={gift.image || "/placeholder.svg"} 
-                      alt={gift.name} 
-                      fill 
-                      sizes="(max-width: 480px) 100vw, (max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      className="object-cover transition-transform duration-700 hover:scale-110" 
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    {/* Discount Badge */}
-                    {calculateDiscountPercentage(gift.price, gift.oldPrice) > 0 && (
-                      <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-md z-10">
-                        -{calculateDiscountPercentage(gift.price, gift.oldPrice)}%
-                      </div>
-                    )}
-                  </div>
+                  {/* صورة قابلة للضغط */}
+                  <Link href={`/inspiration/${gift.id}`} className="block">
+                    <div className="relative aspect-square bg-gray-50 overflow-hidden group">
+                      <Image 
+                        src={gift.image || "/placeholder.svg"} 
+                        alt={gift.name} 
+                        fill 
+                        sizes="(max-width: 480px) 50vw, (max-width: 640px) 33vw, 25vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      {calculateDiscountPercentage(gift.price, gift.oldPrice) > 0 && (
+                        <div className="absolute top-1.5 right-1.5 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-md">
+                          -{calculateDiscountPercentage(gift.price, gift.oldPrice)}%
+                        </div>
+                      )}
+                    </div>
+                  </Link>
 
-                  <div className="p-3">
-                    {/* Price and Rating Row */}
-                    <div className="flex justify-between items-center mb-2">
-                      {/* Rating Badge */}
-                      <div className="bg-white rounded-full px-2 py-1 flex items-center shadow-sm">
-                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                        <span className="text-xs font-medium ml-1">{gift.rating}</span>
+                  <div className="p-2 flex-1 flex flex-col">
+                    {/* السعر والتقييم */}
+                    <div className="flex justify-between items-center mb-1.5">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-full px-1.5 py-0.5 flex items-center">
+                        <Star className="w-2.5 h-2.5 text-yellow-400 fill-yellow-400" />
+                        <span className="text-[10px] font-medium mr-0.5">{gift.rating}</span>
                       </div>
 
-                      {/* Price and Discount Display */}
-                      {gift.price && ( /* Only show price section if price is available */
+                      {gift.price && (
                         <div className="flex flex-col items-end">
-                          {calculateDiscountPercentage(gift.price, gift.oldPrice) > 0 && gift.oldPrice && ( /* Show old price and discount if applicable */
-                            <div className="flex items-center gap-1 text-sm mb-0.5">
-                               <span className="text-gray-500 line-through text-xs">{Math.floor(gift.oldPrice).toLocaleString()} ج.م</span>
+                          {calculateDiscountPercentage(gift.price, gift.oldPrice) > 0 && gift.oldPrice && (
+                            <div className="flex items-center gap-1 text-[10px]">
+                              <span className="text-gray-500 line-through">{Math.floor(gift.oldPrice).toLocaleString()} ج.م</span>
                             </div>
                           )}
-                          {/* Current Price */}
-                          <div className="text-base font-bold text-green-600">
+                          <div className="text-xs font-bold text-green-600">
                             {Math.floor(gift.price).toLocaleString()} ج.م
                           </div>
                         </div>
                       )}
                     </div>
 
-                    {/* Name with expandable arrow */}
+                    {/* الاسم والوصف */}
                     <div 
-                      className="flex justify-between items-center cursor-pointer py-1"
+                      className="flex justify-between items-center cursor-pointer py-0.5"
                       onClick={() => toggleDescription(gift.id)}
                     >
-                      <h3 className="font-medium text-gray-900 truncate text-sm">{gift.name}</h3>
+                      <h3 className="font-medium text-gray-900 truncate text-xs">{gift.name}</h3>
                       <motion.div
                         animate={{ rotate: expandedItems[gift.id] ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.2 }}
                       >
-                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                        <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
                       </motion.div>
                     </div>
 
-                    {/* Expandable description */}
                     <AnimatePresence>
                       {expandedItems[gift.id] && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
+                          transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <p className="text-xs text-gray-600 my-2 line-clamp-3">{gift.description}</p>
+                          <p className="text-[10px] text-gray-600 my-1 line-clamp-2">{gift.description}</p>
                         </motion.div>
                       )}
                     </AnimatePresence>
 
-                    {/* Action buttons */}
-                    <div className="flex justify-between mt-3 gap-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        asChild
-                        className="text-xs flex-1 h-8 rounded-xl"
-                      >
-                        <Link href={`/inspiration/${gift.id}`}>
-                          <Eye className="w-3 h-3 mr-1" />
-                          عرض
-                        </Link>
-                      </Button>
-
-                      <AddToCartButton inspiration={gift} />
+                    {/* زر إضافة للسلة في الأسفل */}
+                    <div className="mt-auto -mx-2 -mb-2">
+                      <div className="rounded-b-xl overflow-hidden">
+                        <AddToCartButton inspiration={gift} />
+                      </div>
                     </div>
                   </div>
                 </motion.div>
               </SwiperSlide>
             ))}
             
-            {/* Custom navigation buttons */}
-            <button className="swiper-button-next absolute top-1/2 left-1 -translate-y-1/2 z-10 rounded-full bg-white shadow-lg w-8 h-8 sm:w-10 sm:h-10 border border-purple-200 flex items-center justify-center hover:bg-purple-50 cursor-pointer">
-              <ChevronLeft className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600" />
+            {/* أزرار التنقل */}
+            <button className="swiper-button-next !hidden sm:!flex absolute top-1/2 left-0.5 -translate-y-1/2 z-10 rounded-full bg-white/90 backdrop-blur shadow-lg w-7 h-7 sm:w-8 sm:h-8 border border-purple-100 items-center justify-center hover:bg-purple-50">
+              <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-600" />
             </button>
             
-            <button className="swiper-button-prev absolute top-1/2 right-1 -translate-y-1/2 z-10 rounded-full bg-white shadow-lg w-8 h-8 sm:w-10 sm:h-10 border border-purple-200 flex items-center justify-center hover:bg-purple-50 cursor-pointer">
-              <ChevronRight className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600" />
+            <button className="swiper-button-prev !hidden sm:!flex absolute top-1/2 right-0.5 -translate-y-1/2 z-10 rounded-full bg-white/90 backdrop-blur shadow-lg w-7 h-7 sm:w-8 sm:h-8 border border-purple-100 items-center justify-center hover:bg-purple-50">
+              <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-600" />
             </button>
           </Swiper>
           
-          {/* Custom pagination */}
-          <div className="swiper-pagination flex justify-center mt-3"></div>
+          <div className="swiper-pagination flex justify-center mt-1"></div>
         </div>
       )}
     </div>

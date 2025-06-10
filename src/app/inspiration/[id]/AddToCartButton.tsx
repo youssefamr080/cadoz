@@ -189,16 +189,16 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
   return (
     <Button
       size="sm"
-      className="text-xs bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex-1 h-8 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-1.5 group"
+      className="text-[10px] bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white w-full py-1.5 rounded-[1rem] transition-all duration-300 flex items-center justify-center gap-1.5 group hover:scale-[0.98] active:scale-[0.97]"
       onClick={handleAddToCart}
       disabled={isLoading}
     >
       {isLoading ? (
-        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-3 h-3 border-[1.5px] border-white/90 border-t-transparent rounded-full animate-spin"></div>
       ) : (
         <>
-          <ShoppingCart className="w-3.5 h-3.5 group-hover:scale-110 transition-transform duration-300" />
-          <span className="font-medium">إضافة للسلة</span>
+          <ShoppingCart className="w-3 h-3 stroke-[2.5px] group-hover:scale-110 transition-transform duration-300" />
+          <span className="font-medium tracking-wide">إضافة للسلة</span>
         </>
       )}
     </Button>
