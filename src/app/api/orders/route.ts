@@ -5,9 +5,8 @@ import { v4 as uuidv4 } from "uuid"
 import type { Document, UpdateFilter } from "mongodb"
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json()
-    const { items, shipping, totals, promoCode, customerId, customerName, customerPhone } = body
+  try {    const body = await request.json()
+    const { items, shipping, totals, promoCode, customerId, customerName, customerPhone, customerEmail } = body
 
     if (!items || !shipping || !totals) {
       return NextResponse.json({ success: false, message: "بيانات الطلب غير مكتملة" }, { status: 400 })
@@ -17,10 +16,10 @@ export async function POST(request: Request) {
 
     // إنشاء طلب جديد
     const newOrder: Order = {
-      id: uuidv4(),
-      customerId,
+      id: uuidv4(),      customerId,
       customerName,
       customerPhone,
+      customerEmail,
       items: items as OrderItem[],
       shipping,
       payment: {
@@ -51,8 +50,10 @@ export async function POST(request: Request) {
         // Usar tipos correctos para las operaciones de MongoDB
         if (Array.isArray(customer.orders)) {
           // Si ya existe un array de orders, usamos $push
-          await db.collection("customers").updateOne({ id: customerId }, {
-            $set: { lastOrderAt: new Date() },
+          await db.collection("customers").updateOne({ id: customerId }, {            $set: { 
+              lastOrderAt: new Date(),
+              email: customerEmail || customer.email // Keep existing email if no new email provided
+            },
             $inc: { orderCount: 1 },
             $push: { orders: newOrder.id },
           } as unknown as UpdateFilter<Document>)

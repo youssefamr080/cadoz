@@ -115,6 +115,7 @@ const CartPage = () => {
         customerId: user?.id,
         customerName: user?.name,
         customerPhone: user?.phone,
+        customerEmail: user?.email,
       }
 
       const response = await fetch("/api/orders", {
