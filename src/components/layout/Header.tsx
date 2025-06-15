@@ -241,10 +241,10 @@ const Header = () => {
               <Image
                 src="/logo.png"
                 alt="Cadoz Logo"
-                width={120}
-                height={40}
+                width={250}
+                height={90}
                 priority
-                className="h-9 w-auto object-contain transition-transform"
+                className="h-20 w-auto object-contain transition-transform"
               />
               <motion.div
                 className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full"
@@ -503,10 +503,10 @@ const Header = () => {
                 <Image
                   src="/logo.png"
                   alt="Cadoz Logo"
-                  width={90}
-                  height={30}
+                  width={200}
+                  height={70}
                   priority
-                  className="h-7 w-auto object-contain"
+                  className="h-16 w-auto object-contain"
                 />
               </Link>
             </div>
