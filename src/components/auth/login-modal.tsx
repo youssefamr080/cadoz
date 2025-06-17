@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "react-toastify"
-import { signIn } from "next-auth/react"
+import { signIn, getSession } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc"
 import type { UserData } from "@/context/AuthContext"
 
@@ -30,6 +30,15 @@ interface LoginModalProps {
   forSaveForLater?: boolean
   productId?: number
   productName?: string
+}
+
+interface ExtendedSessionUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  image?: string | null;
+  role?: 'user' | 'admin' | null;
 }
 
 // تم استيراد UserData من AuthContext.tsx
@@ -83,87 +92,59 @@ export default function LoginModal({
     }
 
     setIsLoading(true)
-    console.log("[LOGIN] Starting login process with phone:", formData.phone)
+    console.log("[LOGIN] Starting NextAuth signIn with phone:", formData.phone);
 
     try {
-      console.log("[LOGIN] Calling login API")
-      const loginResponse = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          phone: formData.phone,
-          password: formData.password,
-          rememberMe: formData.rememberMe
-        }),
-      })
+      const result = await signIn("credentials", {
+        redirect: false,
+        phone: formData.phone,
+        password: formData.password,
+        rememberMe: formData.rememberMe, // Pass rememberMe
+      });
 
-      const loginData = await loginResponse.json()
-      console.log("[LOGIN] Login API response:", loginData.success ? "success" : "failed", loginData.message || "")
+      console.log("[LOGIN] NextAuth signIn result:", result);
 
-      if (loginData.success) {
-        // 3. إذا نجح تسجيل الدخول عبر API، نقوم بتحديث بيانات المستخدم
-        const userData: UserData = {
-          id: loginData.user.id,
-          name: loginData.user.name,
-          phone: loginData.user.phone || formData.phone,
-          email: loginData.user.email || "",
-          image: loginData.user.image,
-          role: loginData.user.role || "user"
-        }
-
-        // 4. حفظ بيانات المستخدم في localStorage
-        console.log("[LOGIN] Saving user data to localStorage")
-        localStorage.setItem("userData", JSON.stringify(userData))
-
-        // 5. استخدام NextAuth لتسجيل الدخول وإنشاء جلسة
-        try {
-          console.log("[LOGIN] Attempting NextAuth signIn")
-          const result = await signIn("credentials", {
-            redirect: false,
-            phone: formData.phone,
-            password: formData.password,
-          })
-
-          console.log("[LOGIN] NextAuth signIn result:", result?.ok ? "success" : "failed")
+      if (result?.ok) {
+        // Fetch the session to get user data
+        const session = await getSession();
+        if (session && session.user) {
+          const userData: UserData = {
+            id: session.user.id as string,
+            name: session.user.name || "",
+            phone: session.user.phone || formData.phone,
+            email: session.user.email || "",
+            image: (session.user as ExtendedSessionUser).image || "",
+            role: (session.user as ExtendedSessionUser).role || "user",
+          };
           
-          // 6. إذا نجح NextAuth، نقوم بتحديث الجلسة
-          if (result?.ok) {
-            console.log("[LOGIN] NextAuth login successful")
-          } else {
-            // حتى لو فشل NextAuth، نستمر لأن API الخاص بنا نجح
-            console.warn("[LOGIN] NextAuth login failed, but API login was successful")
-          }
-        } catch (nextAuthError) {
-          // 7. إذا فشل NextAuth، نستمر لأن API الخاص بنا نجح
-          console.error("[LOGIN] NextAuth error:", nextAuthError)
-          console.warn("[LOGIN] Continuing with API login only")
+          console.log("[LOGIN] NextAuth login successful, session user:", session.user);
+          toast.success("تم تسجيل الدخول بنجاح");
+          onSuccess(userData); // Call onSuccess with the new UserData
+          
+          // إغلاق النافذة بعد تسجيل الدخول
+          setTimeout(() => {
+              onClose();
+          }, 500);
+
+        } else {
+          console.error("[LOGIN] NextAuth login succeeded but session data is missing.");
+          toast.error("فشل في استرجاع بيانات المستخدم بعد تسجيل الدخول.");
         }
-
-        // 8. إعلام المستخدم بنجاح تسجيل الدخول
-        toast.success("تم تسجيل الدخول بنجاح")
-        
-        // 9. استدعاء دالة النجاح وإرسال بيانات المستخدم
-        console.log("[LOGIN] Calling onSuccess with user data")
-        onSuccess(userData)
-
-        // 10. إغلاق النافذة بعد تسجيل الدخول
-        setTimeout(() => {
-          onClose()
-        }, 500)
       } else {
-        // إذا فشل تسجيل الدخول عبر API، نعرض رسالة الخطأ
-        console.error("[LOGIN] API login failed:", loginData.message)
-        toast.error(loginData.message || "فشل تسجيل الدخول. تأكد من صحة البيانات")
+        console.error("[LOGIN] NextAuth signIn failed:", result?.error);
+        // Attempt to provide a more specific error message if available
+        // NextAuth often returns error messages like "CredentialsSignin"
+        if (result?.error === "CredentialsSignin") {
+           toast.error("رقم الهاتف أو كلمة المرور غير صحيحة.");
+        } else {
+           toast.error(result?.error || "فشل تسجيل الدخول. تأكد من صحة البيانات");
+        }
       }
     } catch (error) {
-      // إذا حدث خطأ غير متوقع، نعرض رسالة الخطأ
-      console.error("[LOGIN] Unexpected error during login:", error)
-      toast.error("حدث خطأ أثناء تسجيل الدخول")
+      console.error("[LOGIN] Unexpected error during NextAuth signIn:", error);
+      toast.error("حدث خطأ غير متوقع أثناء تسجيل الدخول");
     } finally {
-      // إنهاء حالة التحميل
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -219,46 +200,49 @@ export default function LoginModal({
       const data = await response.json()
 
       if (data.success) {
-        // تسجيل الدخول تلقائيًا بعد التسجيل
-        const result = await signIn("credentials", {
+        // (This is inside the 'if (data.success)' block from the /api/auth/register call)
+        console.log("[REGISTER] Registration API successful. Attempting NextAuth signIn for user:", formData.phone);
+        const signInResult = await signIn("credentials", {
           redirect: false,
           phone: formData.phone,
-          password: formData.password,
-        })
+          password: formData.password, // Use the password from the form
+          rememberMe: false, // Or true, depending on desired default for new registration
+        });
 
-        if (result?.ok) {
-          // الحصول على بيانات المستخدم
-          const sessionResponse = await fetch("/api/auth/session")
-          const session = await sessionResponse.json()
+        if (signInResult?.ok) {
+          const currentSession = await getSession(); // getSession is already imported
 
-          if (session?.user) {
-            const userData = {
-              id: session.user.id,
-              name: session.user.name,
-              phone: session.user.phone || formData.phone,
-              email: session.user.email,
+          if (currentSession && currentSession.user) {
+            const userData: UserData = {
+              id: currentSession.user.id as string,
+              name: currentSession.user.name || formData.name,
+              phone: currentSession.user.phone || formData.phone,
+              email: currentSession.user.email || formData.email,
+              image: (currentSession.user as ExtendedSessionUser).image || "",
+              role: (currentSession.user as ExtendedSessionUser).role || "user",
+            };
+
+            // The addNotification call can remain if needed
+            if (forNotification && productId && productName) { 
+              // Using currentSession.user.id, assuming it's promptly available after signIn.
+              // data.user?.id from the registration response could also be used if available and preferred.
+              await addNotification(currentSession.user.id as string, productId, productName);
             }
 
-            // حفظ بيانات المستخدم في localStorage
-            localStorage.setItem("userData", JSON.stringify(userData))
-
-            // إذا كان التسجيل من أجل الإشعار، قم بإضافة الإشعار
-            if (forNotification && productId && productName) {
-              await addNotification(session.user.id, productId, productName)
-            }
-
-            // استدعاء onSuccess مع بيانات المستخدم الكاملة
-            onSuccess(userData)
-
-            toast.success("تم التسجيل وتسجيل الدخول بنجاح")
-
-            // إغلاق النافذة بعد التسجيل
+            toast.success("تم التسجيل وتسجيل الدخول بنجاح");
+            onSuccess(userData);
+            
             setTimeout(() => {
-              onClose()
-            }, 500)
+              onClose();
+            }, 500);
+
+          } else {
+            console.error("[REGISTER] NextAuth signIn succeeded but session data is missing.");
+            toast.error("تم التسجيل بنجاح، ولكن فشل استرجاع بيانات المستخدم.");
           }
         } else {
-          toast.error("تم التسجيل بنجاح ولكن فشل تسجيل الدخول التلقائي")
+          console.error("[REGISTER] NextAuth signIn failed after registration:", signInResult?.error);
+          toast.error("تم التسجيل بنجاح ولكن فشل تسجيل الدخول التلقائي. الرجاء محاولة تسجيل الدخول يدويًا.");
         }
       } else {
         toast.error(data.message || "فشل التسجيل")

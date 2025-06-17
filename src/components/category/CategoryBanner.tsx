@@ -153,7 +153,7 @@ const CategoryBanner = ({ category }: { category: string }) => {
           bulletActiveClass: "!bg-white",
         }}
         effect="fade"
-        loop={true}
+        loop={currentBanners.length > 1}
         speed={800}
         className="h-full relative"
       >

@@ -37,7 +37,7 @@ interface Order {
 }
 
 const OrdersPage = () => {
-  const { user, isLoading } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoadingOrders, setIsLoadingOrders] = useState(false)
@@ -46,11 +46,11 @@ const OrdersPage = () => {
 
   // التحقق من تسجيل الدخول
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!loading && !user) {
       router.push("/")
       toast.error("يرجى تسجيل الدخول للوصول إلى صفحة الطلبات")
     }
-  }, [user, isLoading, router])
+  }, [user, loading, router])
 
   // جلب الطلبات
   useEffect(() => {
@@ -88,7 +88,7 @@ const OrdersPage = () => {
     return matchesStatus && matchesSearch
   })
 
-  if (isLoading || !user) {
+  if (loading || !user) {
     return (
       <div className="h-full bg-gray-50 flex items-center justify-center">
         <div className="animate-pulse text-purple-600 text-xl">جاري التحميل...</div>

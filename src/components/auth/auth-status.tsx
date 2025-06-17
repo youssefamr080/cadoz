@@ -17,7 +17,7 @@ import { User, LogOut, Settings, ShoppingBag } from "lucide-react"
 import { LogoutConfirmationDialog } from "./logout-confirmation-dialog"
 
 export default function AuthStatus() {
-  const { user, logout, isLoading: authLoading } = useAuth()
+  const { user, logout, loading: authLoading } = useAuth()
   const router = useRouter()
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)

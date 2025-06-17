@@ -1,11 +1,11 @@
 "use client"
 
-import { createContext, useContext, type ReactNode } from "react"
+import { createContext, useContext, useState } from 'react';
 import { toast } from "react-toastify"
-import { useSession, signOut } from "next-auth/react"
+import { useSession, signOut } from 'next-auth/react';
 import { useSelector, useDispatch } from "react-redux"
 import { RootState, AppDispatch } from "@/lib/redux/store"
-import { setUser, logout as reduxLogout, updateProfile, checkSession as reduxCheckSession } from "@/lib/redux/slices/authSlice"
+import { setUser, updateProfile, checkSession as reduxCheckSession } from "@/lib/redux/slices/authSlice"
 
 // استيراد نوع UserRole من Redux
 type UserRole = 'user' | 'admin';
@@ -23,13 +23,15 @@ export interface UserData {
   role?: UserRole // تغيير النوع من string إلى UserRole
   phoneNumber?: string // إضافة لدعم التوافق مع مكونات أخرى
   isLoggingOut?: boolean
+  needsPhoneUpdate?: boolean
 }
 
 interface AuthContextType {
   user: UserData | null
-  isLoading: boolean
+  loading: boolean
+  error: string | null
   login: (userData: UserData) => void
-  logout: () => void
+  logout: () => Promise<void>
   checkSession: () => Promise<boolean>
   getToken: () => string | null
   updateUserData: (data: Partial<UserData>) => void
@@ -37,20 +39,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const dispatch = useDispatch<AppDispatch>()
   const reduxUser = useSelector((state: RootState) => state.auth.user)
-  const isLoading = useSelector((state: RootState) => state.auth.isLoading)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { data: session } = useSession()
+  const { status } = useSession()
+  const [error, setError] = useState<string | null>(null)
   
   // Convert Redux user to AuthContext UserData format
   const user: UserData | null = reduxUser ? {
     id: reduxUser.id,
     name: reduxUser.name,
-    phone: reduxUser.phoneNumber || "",
+    phone: reduxUser.phoneNumber || reduxUser.phone || "",
     email: reduxUser.email,
     image: reduxUser.image,
+    role: reduxUser.role,
+    phoneNumber: reduxUser.phoneNumber || reduxUser.phone || "",
   } : null
 
   // الحصول على التوكن
@@ -124,39 +127,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // تسجيل الخروج - with improved error handling
   const logout = async () => {
     try {
-      // 1. تنفيذ تسجيل الخروج من NextAuth
-      await signOut({ redirect: false })
-
-      // 2. استدعاء API تسجيل الخروج
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'فشل تسجيل الخروج')
-      }
-
-      // 3. مسح بيانات المستخدم من التخزين المحلي
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('userData')
-        localStorage.removeItem('authToken')
-        sessionStorage.clear() // Clear any session storage data
-      }
-
-      // 4. تحديث حالة Redux
-      await dispatch(reduxLogout()).unwrap()
-
-      // 5. إظهار رسالة نجاح
-      toast.success('تم تسجيل الخروج بنجاح')
-    } catch (error) {
-      console.error("Error logging out:", error)
-      toast.error(error instanceof Error ? error.message : 'حدث خطأ أثناء تسجيل الخروج')
-      throw error // Re-throw to handle in the UI
+      await signOut({ redirect: true, callbackUrl: '/' })
+    } catch (err) {
+      setError('حدث خطأ أثناء تسجيل الخروج')
+      console.error('Logout error:', err)
     }
   }
 
@@ -175,7 +149,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
-        isLoading,
+        loading: status === 'loading',
+        error,
         login,
         logout,
         checkSession,
@@ -189,7 +164,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 }
 
 // Hook لاستخدام سياق المصادقة
-export const useAuth = (): AuthContextType => {
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext)
   if (!context) {
     throw new Error("useAuth يجب أن يستخدم داخل AuthProvider")

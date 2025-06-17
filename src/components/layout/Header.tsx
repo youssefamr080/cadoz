@@ -94,7 +94,7 @@ const subcategories = {
 const Header = () => {
   const { cart } = useCart()
   const { wishlist } = useWishlist()
-  const { user, logout, isLoading } = useAuth()
+  const { user, logout, loading } = useAuth()
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -377,7 +377,7 @@ const Header = () => {
               </motion.div>
 
               {/* User profile or login button */}
-              {!isLoading &&
+              {!loading &&
                 (user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -553,7 +553,7 @@ const Header = () => {
                 )}
               </Link>
 
-              {!isLoading &&
+              {!loading &&
                 (user ? (
                   <Link
                     href="/profile"
@@ -604,7 +604,7 @@ const Header = () => {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         user={user}
-        isLoading={isLoading}
+        isLoading={loading}
         logout={handleLogout}
         categories={categories}
         secondaryLinks={secondaryLinks}

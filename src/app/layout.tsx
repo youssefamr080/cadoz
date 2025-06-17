@@ -8,38 +8,18 @@ import { store } from "@/lib/redux/store";
 import { Providers } from "../providers/Providers";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
-import NextAuthProvider from "@/providers/session-provider";
 import { AuthProvider as ContextAuthProvider } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { ErrorBoundary } from "react-error-boundary";
+import { SessionProvider } from "next-auth/react";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 // تحسين تحميل الخطوط مع دعم أفضل للعربية
 const inter = Inter({
-  subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  display: "swap",
-  preload: true,
-  variable: "--font-inter",
-  fallback: [
-    "system-ui",
-    "-apple-system", 
-    "BlinkMacSystemFont",
-    "Segoe UI",
-    "Roboto",
-    "Oxygen",
-    "Ubuntu",
-    "Cantarell",
-    "Fira Sans",
-    "Droid Sans",
-    "Helvetica Neue",
-    "Arial",
-    "sans-serif",
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Segoe UI Symbol"
-  ],
-  adjustFontFallback: true,
+  subsets: ['latin', 'latin-ext'],
+  variable: '--font-inter',
+  display: 'swap',
 });
 
 // تحميل ديناميكي للمكونات الثقيلة - مع منع SSR لتجنب hydration mismatch
@@ -146,89 +126,91 @@ export default function RootLayout({ children }: RootLayoutProps) {
       >
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <ReduxProvider store={store}>
-            <NextAuthProvider>
-              <ContextAuthProvider>
-                <Providers>
-                  {/* Skip to main content للوصولية */}
-                  <a 
-                    href="#main-content" 
-                    className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 bg-blue-600 text-white px-3 py-2 rounded-md z-50 text-sm mx-2"
-                  >
-                    الانتقال إلى المحتوى الرئيسي
-                  </a>
+            <SessionProvider>
+              <AuthProvider>
+                <ContextAuthProvider>
+                  <Providers>
+                    {/* Skip to main content للوصولية */}
+                    <a 
+                      href="#main-content" 
+                      className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 bg-blue-600 text-white px-3 py-2 rounded-md z-50 text-sm mx-2"
+                    >
+                      الانتقال إلى المحتوى الرئيسي
+                    </a>
 
-                  {/* Header مع منع hydration mismatch */}
-                  <Header />
+                    {/* Header مع منع hydration mismatch */}
+                    <Header />
 
-                  {/* المحتوى الرئيسي بدون حدود جانبية */}
-                  <main 
-                    id="main-content"
-                    className="
-                      min-h-screen
-                      pt-20
-                      pb-4
-                      px-0
-                      max-w-full
-                      w-full
-                      focus:outline-none
-                    "
-                    tabIndex={-1}
-                  >
-                    <div className="w-full">
-                      {children}
-                    </div>
-                  </main>
-
-                  {/* Footer */}
-                  <Footer />
-
-                  {/* المكونات التفاعلية - client-side only */}
-                  <ClientOnlyWrapper>
-                    {/* WhatsApp Helper مع تحسين للهواتف */}
-                    <DynamicWhatsappHelper 
-                      phoneNumber="+201026972523"
+                    {/* المحتوى الرئيسي بدون حدود جانبية */}
+                    <main 
+                      id="main-content"
                       className="
-                        fixed 
-                        bottom-4 
-                        left-4 
-                        sm:bottom-6 
-                        sm:left-6 
-                        z-40
-                        transition-all 
-                        duration-300 
-                        hover:scale-110
-                        focus:scale-110
+                        min-h-screen
+                        pt-20
+                        pb-4
+                        px-0
+                        max-w-full
+                        w-full
                         focus:outline-none
-                        focus:ring-2
-                        focus:ring-green-500
-                        focus:ring-offset-2
-                        rounded-full
                       "
-                    />
+                      tabIndex={-1}
+                    >
+                      <div className="w-full">
+                        {children}
+                      </div>
+                    </main>
 
-                    {/* Toast Container محسن للهواتف */}
-                    <DynamicToastContainer
-                      position="top-center"
-                      autoClose={4000}
-                      hideProgressBar={false}
-                      newestOnTop
-                      closeOnClick
-                      rtl={true}
-                      pauseOnFocusLoss
-                      draggable
-                      pauseOnHover
-                      theme="light"
-                      className="!top-24 !z-50"
-                      toastClassName="!rounded-lg !shadow-lg !border !text-sm sm:!text-base !p-4 !font-medium"
-                      progressClassName="!bg-blue-500"
-                      limit={3}
-                      stacked
-                    />
+                    {/* Footer */}
+                    <Footer />
 
-                  </ClientOnlyWrapper>
-                </Providers>
-              </ContextAuthProvider>
-            </NextAuthProvider>
+                    {/* المكونات التفاعلية - client-side only */}
+                    <ClientOnlyWrapper>
+                      {/* WhatsApp Helper مع تحسين للهواتف */}
+                      <DynamicWhatsappHelper 
+                        phoneNumber="+201026972523"
+                        className="
+                          fixed 
+                          bottom-4 
+                          left-4 
+                          sm:bottom-6 
+                          sm:left-6 
+                          z-40
+                          transition-all 
+                          duration-300 
+                          hover:scale-110
+                          focus:scale-110
+                          focus:outline-none
+                          focus:ring-2
+                          focus:ring-green-500
+                          focus:ring-offset-2
+                          rounded-full
+                        "
+                      />
+
+                      {/* Toast Container محسن للهواتف */}
+                      <DynamicToastContainer
+                        position="top-center"
+                        autoClose={4000}
+                        hideProgressBar={false}
+                        newestOnTop
+                        closeOnClick
+                        rtl={true}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                        theme="light"
+                        className="!top-24 !z-50"
+                        toastClassName="!rounded-lg !shadow-lg !border !text-sm sm:!text-base !p-4 !font-medium"
+                        progressClassName="!bg-blue-500"
+                        limit={3}
+                        stacked
+                      />
+
+                    </ClientOnlyWrapper>
+                  </Providers>
+                </ContextAuthProvider>
+              </AuthProvider>
+            </SessionProvider>
           </ReduxProvider>
         </ErrorBoundary>
 

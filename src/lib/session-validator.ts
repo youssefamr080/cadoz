@@ -1,42 +1,79 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth.config";
+import { validateSession } from "./security/session-manager";
 
-export async function validateServerSession() {
+export interface SessionValidationResult {
+  isValid: boolean;
+  session?: {
+    user: {
+      id: string;
+      name: string;
+      email?: string;
+      role: 'user' | 'admin';
+    };
+  };
+  error?: string;
+}
+
+export async function validateServerSession(): Promise<SessionValidationResult> {
   try {
     const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return {
+        isValid: false,
+        error: "No active session found"
+      };
+    }
+
+    const isValid = await validateSession(session.user.id);
+    if (!isValid) {
+      return {
+        isValid: false,
+        error: "Session expired or invalid"
+      };
+    }
+
     return {
-      isValid: !!session?.user,
+      isValid: true,
       session
     };
   } catch (error) {
-    console.error("Error validating session:", error);
+    console.error("[VALIDATOR] Error validating session:", error);
     return {
       isValid: false,
-      session: null
+      error: error instanceof Error ? error.message : "Unknown error"
     };
   }
 }
 
-export function validateClientSession() {
+export function validateClientSession(): SessionValidationResult {
   try {
-    const userData = localStorage.getItem("userData");
+    const userData = localStorage.getItem('userData');
     if (!userData) {
       return {
         isValid: false,
-        user: null
+        error: "No user data found"
       };
     }
 
     const user = JSON.parse(userData);
+    if (!user?.id || !user?.name || !user?.role) {
+      return {
+        isValid: false,
+        error: "Invalid user data"
+      };
+    }
+
     return {
-      isValid: !!user?.id,
-      user
+      isValid: true,
+      session: { user }
     };
   } catch (error) {
-    console.error("Error validating client session:", error);
+    console.error("[VALIDATOR] Error validating client session:", error);
     return {
       isValid: false,
-      user: null
+      error: error instanceof Error ? error.message : "Unknown error"
     };
   }
 }

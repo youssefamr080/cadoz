@@ -1,108 +1,93 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '@/lib/redux/store';
-import { updatePhoneNumber } from '@/lib/redux/slices/authSlice';
+import { useState } from 'react';
+import { Dialog } from '@headlessui/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-const PhoneNumberModal = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.auth.user);
-  const phoneNumberRequired = useSelector((state: RootState) => state.auth.phoneNumberRequired);
-  const error = useSelector((state: RootState) => state.auth.error);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+interface PhoneNumberModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (phone: string) => Promise<void>;
+}
 
-  // عرض النافذة عندما يكون المستخدم مسجلاً وبحاجة إلى إدخال رقم هاتف
-  useEffect(() => {
-    if (user && phoneNumberRequired) {
-      setShowModal(true);
-    } else {
-      setShowModal(false);
-    }
-  }, [user, phoneNumberRequired]);
-
-  // عرض الخطأ في حال وجوده
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
+export default function PhoneNumberModal({ isOpen, onClose, onSubmit }: PhoneNumberModalProps) {
+  const [phone, setPhone] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!phoneNumber) {
-      toast.error('يرجى إدخال رقم الهاتف');
-      return;
-    }
-    
-    // التحقق من صحة رقم الهاتف
-    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
-    if (!phoneRegex.test(phoneNumber)) {
-      toast.error('رقم الهاتف غير صالح');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
+    setError(null);
+    setIsLoading(true);
+
     try {
-      if (user?.id) {
-        await dispatch(updatePhoneNumber({
-          userId: user.id,
-          phoneNumber
-        })).unwrap();
-        toast.success('تم تحديث رقم الهاتف بنجاح');
+      // Basic phone number validation
+      if (!phone || phone.length < 10) {
+        throw new Error('الرجاء إدخال رقم هاتف صحيح');
       }
+
+      await onSubmit(phone);
+      onClose();
     } catch (err) {
-      console.error('Error updating phone number:', err);
+      setError(err instanceof Error ? err.message : 'حدث خطأ أثناء تحديث رقم الهاتف');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
-  if (!showModal) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-md p-6 mx-auto bg-white rounded-lg shadow-xl">
-        <h2 className="mb-4 text-xl font-semibold text-gray-800">أكمل بياناتك</h2>
-        <p className="mb-4 text-gray-600">
-          يرجى إدخال رقم هاتفك لإكمال تسجيل حسابك. هذا سيساعدنا في التواصل معك بخصوص طلباتك.
-        </p>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="phoneNumber" className="block mb-1 text-sm font-medium text-gray-700">
-              رقم الهاتف
-            </label>
-            <input
-              id="phoneNumber"
-              type="tel"
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-400 focus:border-transparent"
-              placeholder="+201XXXXXXXXX"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              required
-              dir="ltr"
-            />
-          </div>
-          
-          <div className="flex justify-center mt-6">
-            <button
-              type="submit"
-              className="px-4 py-2 text-white bg-teal-500 rounded-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'جاري الحفظ...' : 'حفظ رقم الهاتف'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      className="relative z-50"
+    >
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+      
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <Dialog.Panel className="mx-auto max-w-sm rounded-lg bg-white p-6 shadow-xl">
+          <Dialog.Title className="text-lg font-medium mb-4">
+            إضافة رقم الهاتف
+          </Dialog.Title>
 
-export default PhoneNumberModal;
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="phone">رقم الهاتف</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="05xxxxxxxx"
+                className="mt-1"
+                dir="ltr"
+              />
+            </div>
+
+            {error && (
+              <p className="text-red-500 text-sm">{error}</p>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isLoading}
+              >
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? 'جاري الحفظ...' : 'حفظ'}
+              </Button>
+            </div>
+          </form>
+        </Dialog.Panel>
+      </div>
+    </Dialog>
+  );
+}

@@ -79,18 +79,18 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
   const unwrappedParams = React.use(params)
   const { orderId } = unwrappedParams
 
-  const { user, isLoading } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
   const [order, setOrder] = useState<Order | null>(null)
   const [isLoadingOrder, setIsLoadingOrder] = useState(false)
 
   // التحقق من تسجيل الدخول
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!loading && !user) {
       router.push("/")
       toast.error("يرجى تسجيل الدخول للوصول إلى صفحة تفاصيل الطلب")
     }
-  }, [user, isLoading, router])
+  }, [user, loading, router])
 
   // جلب تفاصيل الطلب
   useEffect(() => {
@@ -182,7 +182,7 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
     }
   }
 
-  if (isLoading || !user) {
+  if (loading || !user) {
     return (
       <div className="h-full bg-gray-50 flex items-center justify-center">
         <div className="animate-pulse text-purple-600 text-xl">جاري التحميل...</div>

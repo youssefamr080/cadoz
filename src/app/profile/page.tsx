@@ -25,7 +25,7 @@ import {
 } from "../../components/ui/alert-dialog"
 
 const SettingsPage = () => {
-  const { user, isLoading, updateUserData, logout } = useAuth()
+  const { user, loading, updateUserData, logout } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("profile")
   const [showPassword, setShowPassword] = useState(false)
@@ -44,7 +44,7 @@ const SettingsPage = () => {
 
   // تحميل بيانات المستخدم
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!loading && !user) {
       router.push("/")
       toast.error("يرجى تسجيل الدخول للوصول إلى صفحة الإعدادات")
     } else if (user) {
@@ -55,7 +55,7 @@ const SettingsPage = () => {
         email: user.email || "",
       }))
     }
-  }, [user, isLoading, router])
+  }, [user, loading, router])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -144,7 +144,7 @@ const SettingsPage = () => {
     }
   }
 
-  if (isLoading || !user) {
+  if (loading || !user) {
     return (
       <div className="h-full bg-gray-50 flex items-center justify-center">
         <div className="animate-pulse text-purple-600 text-xl">جاري التحميل...</div>
