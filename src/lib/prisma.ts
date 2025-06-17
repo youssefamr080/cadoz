@@ -11,10 +11,13 @@ if (!dbUrl) {
   process.exit(1)
 }
 
+// Ensure the connection string is properly formatted
+const formattedDbUrl = dbUrl.includes('?') ? dbUrl : `${dbUrl}?retryWrites=true&w=majority`
+
 // Create PrismaClient instance with explicit configuration
 const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  datasourceUrl: dbUrl,
-  log: ['error', 'warn']
+  datasourceUrl: formattedDbUrl,
+  log: ['error', 'warn', 'query']
 })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
@@ -26,6 +29,7 @@ prisma.$connect()
   })
   .catch((error) => {
     console.error('Failed to connect to database:', error)
+    console.error('Connection string:', formattedDbUrl.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'))
     process.exit(1)
   })
 
