@@ -12,7 +12,21 @@ if (!dbUrl) {
 }
 
 // Ensure the connection string is properly formatted
-const formattedDbUrl = dbUrl.includes('?') ? dbUrl : `${dbUrl}?retryWrites=true&w=majority`
+const formattedDbUrl = (() => {
+  try {
+    const url = new URL(dbUrl)
+    if (!url.pathname || url.pathname === '/') {
+      url.pathname = '/cadoz'
+    }
+    if (!url.search) {
+      url.search = '?retryWrites=true&w=majority'
+    }
+    return url.toString()
+  } catch (error) {
+    console.error('Invalid connection string format:', error)
+    return dbUrl
+  }
+})()
 
 // Create PrismaClient instance with explicit configuration
 const prisma = globalForPrisma.prisma ?? new PrismaClient({
