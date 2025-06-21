@@ -7,7 +7,7 @@ import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { User, Menu, X, LogOut, Package, Settings, Facebook, Instagram, Twitter, ChevronDown, ChevronRight, AlertCircle } from "lucide-react"
 import { Button } from "../../components/ui/button"
-import UserAvatar from "../user/UserAvatar"
+import UserAvatar from "../ui/user-avatar"
 import { usePathname } from "next/navigation"
 
 // Types

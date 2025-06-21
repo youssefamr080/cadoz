@@ -469,19 +469,36 @@ const HomePage = () => {
           const parsed = JSON.parse(cachedViewedProducts)
           setViewedProducts(parsed)
 
-          // استخراج الفئات والعلامات من المنتجات المشاهدة
-          const viewedCategories = new Set(parsed.map((p: Product) => p.category).filter(Boolean))
-          const viewedTags = new Set(parsed.flatMap((p: Product) => p.tags || []).filter(Boolean))
+          // استخراج الفئات والعلامات من المنتجات المشاهدة مع تحديد الأنواع بدقة
+          const viewedCategories = new Set<string>(
+            parsed
+              .map((p: Product) => p.category)
+              .filter((c): c is string => typeof c === "string" && c.length > 0),
+          )
+          const viewedTags = new Set<string>(
+            parsed
+              .flatMap((p: Product) => p.tags || [])
+              .filter((t): t is string => typeof t === "string" && t.length > 0),
+          )
 
           if (viewedCategories.size > 0 || viewedTags.size > 0) {
             const categoriesArray = Array.from(viewedCategories)
-            const randomCategory = categoriesArray[Math.floor(Math.random() * categoriesArray.length)]
-            const tagsArray = Array.from(viewedTags).filter((tag): tag is string => typeof tag === 'string');
+            const randomCategory =
+              categoriesArray.length > 0
+                ? categoriesArray[Math.floor(Math.random() * categoriesArray.length)]
+                : undefined
+            const tagsArray = Array.from(viewedTags)
+
             const randomTags = tagsArray
               .sort(() => 0.5 - Math.random())
               .slice(0, 3)
               .join(",")
-            setRecommendedQuery({ category: randomCategory, tags: randomTags, limit: 8 })
+
+            setRecommendedQuery({
+              ...(randomCategory ? { category: randomCategory } : {}),
+              tags: randomTags,
+              limit: 8,
+            })
           }
         }
       } catch (error) {

@@ -29,6 +29,7 @@ import {
 } from "@/lib/redux/slices/cartSlice"
 import type { RootState } from "@/lib/redux/store"
 import { useSession } from 'next-auth/react'
+import { useCreateOrderMutation } from '@/lib/redux/api/apiSlice'
 
 // تعريف واجهات البيانات
 interface CartItemType {
@@ -85,69 +86,54 @@ const CartPage = () => {
 
   const [isSending, setIsSending] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const [isCreatingOrder, setIsCreatingOrder] = useState(false)
+
+  const [createOrder, { isLoading: isCreatingOrder }] = useCreateOrderMutation()
 
   // الحد الأدنى للشحن المجاني
   const FREE_SHIPPING_THRESHOLD = 500
 
-  // إنشاء طلب جديد في قاعدة البيانات
-  const createOrder = async () => {
+  // إنشاء طلب جديد في قاعدة البيانات باستخدام RTK Query
+  const handleCreateOrder = async () => {
     if (isCartEmpty) {
       toast.error("السلة فارغة!")
       return null
     }
-
     if (!shipping.governorate) {
       toast.error("الرجاء اختيار المحافظة أولاً")
       return null
     }
-
-    setIsCreatingOrder(true)
+    const orderData = {
+      items: cart,
+      shipping,
+      totals: {
+        subtotal,
+        shippingFees,
+        discount,
+        tax,
+        total,
+      },
+      promoCode: promoCode.isValid
+        ? {
+            code: promoCode.code,
+            discountPercentage: promoCode.discountPercentage,
+          }
+        : undefined,
+      customerId: user?.id,
+      customerName: user?.name,
+      customerPhone: user?.phone,
+      customerEmail: user?.email,
+    }
     try {
-      const orderData = {
-        items: cart,
-        shipping,
-        totals: {
-          subtotal,
-          shippingFees,
-          discount,
-          tax,
-          total,
-        },
-        promoCode: promoCode.isValid
-          ? {
-              code: promoCode.code,
-              discountPercentage: promoCode.discountPercentage,
-            }
-          : undefined,
-        customerId: user?.id,
-        customerName: user?.name,
-        customerPhone: user?.phone,
-        customerEmail: user?.email,
-      }
-
-      const response = await fetch("/api/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        return data.orderId
+      const result = await createOrder(orderData).unwrap()
+      if (result.success) {
+        return result.orderId
       } else {
-        toast.error(data.message || "حدث خطأ أثناء إنشاء الطلب")
+        toast.error(result.message || "حدث خطأ أثناء إنشاء الطلب")
         return null
       }
-    } catch (error) {
-      console.error("Error creating order:", error)
-      toast.error("حدث خطأ أثناء إنشاء الطلب")
+    } catch (error: any) {
+      toast.error(error?.data?.message || "حدث خطأ أثناء إنشاء الطلب")
       return null
-    } finally {
-      setIsCreatingOrder(false)
     }
   }
 
@@ -165,7 +151,7 @@ const CartPage = () => {
     setIsSending(true)
     try {
       // إنشاء الطلب في قاعدة البيانات
-      const orderId = await createOrder()
+      const orderId = await handleCreateOrder()
 
       if (!orderId) {
         return

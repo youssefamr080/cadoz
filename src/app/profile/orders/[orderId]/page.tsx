@@ -1,16 +1,17 @@
 "use client"
 import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../../../../context/AuthContext"
 import { ArrowLeft, Package, Truck, CheckCircle, Clock, XCircle, MapPin, Phone, FileText, Gift } from "lucide-react"
-import { Button } from "../../../../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { format } from "date-fns"
 import { ar } from "date-fns/locale"
 import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import Image from "next/image"
 import { FaWhatsapp } from "react-icons/fa"
+import { useGetOrderByIdQuery } from '@/lib/redux/api/apiSlice'
+import { useAuth } from "@/providers/AuthProvider"
 
 interface OrderItem {
   id: number
@@ -79,46 +80,19 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
   const unwrappedParams = React.use(params)
   const { orderId } = unwrappedParams
 
-  const { user, loading } = useAuth()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
-  const [order, setOrder] = useState<Order | null>(null)
-  const [isLoadingOrder, setIsLoadingOrder] = useState(false)
+  // جلب تفاصيل الطلب باستخدام RTK Query
+  const { data, isLoading: isLoadingOrder } = useGetOrderByIdQuery(orderId, { skip: !user || !orderId })
+  const order: Order | null = data?.order || null
 
   // التحقق من تسجيل الدخول
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       router.push("/")
       toast.error("يرجى تسجيل الدخول للوصول إلى صفحة تفاصيل الطلب")
     }
-  }, [user, loading, router])
-
-  // جلب تفاصيل الطلب
-  useEffect(() => {
-    const fetchOrderDetails = async () => {
-      if (user && orderId) {
-        setIsLoadingOrder(true)
-        try {
-          const response = await fetch(`/api/orders/${orderId}`)
-          const data = await response.json()
-
-          if (data.success) {
-            setOrder(data.order)
-          } else {
-            toast.error(data.message || "حدث خطأ أثناء جلب تفاصيل الطلب")
-            router.push("/profile/orders")
-          }
-        } catch (error) {
-          console.error("Error fetching order details:", error)
-          toast.error("حدث خطأ أثناء جلب تفاصيل الطلب")
-          router.push("/profile/orders")
-        } finally {
-          setIsLoadingOrder(false)
-        }
-      }
-    }
-
-    fetchOrderDetails()
-  }, [user, orderId, router])
+  }, [user, isLoading, router])
 
   // إنشاء رسالة واتساب للاستفسار عن الطلب
   const sendWhatsAppInquiry = () => {
@@ -182,7 +156,7 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
     }
   }
 
-  if (loading || !user) {
+  if (isLoading || !user) {
     return (
       <div className="h-full bg-gray-50 flex items-center justify-center">
         <div className="animate-pulse text-purple-600 text-xl">جاري التحميل...</div>

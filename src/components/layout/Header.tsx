@@ -24,7 +24,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { useSelector, useDispatch } from "react-redux"
 import SearchBarEnhanced from "../search/SearchBarEnhanced"
-import UserAvatar from "../user/UserAvatar"
+import UserAvatar from "../ui/user-avatar"
 import { Button } from "../../components/ui/button"
 import LoginModal from "../auth/login-modal"
 import { toast } from "react-toastify"

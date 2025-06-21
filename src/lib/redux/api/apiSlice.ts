@@ -5,7 +5,7 @@ import type { Box, GiftProduct, Decoration, Bag, Inspiration, CustomGift } from 
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-  tagTypes: ["Products", "Boxes", "GiftProducts", "Decorations", "Bags", "Inspirations", "CustomGifts"],
+  tagTypes: ["Products", "Boxes", "GiftProducts", "Decorations", "Bags", "Inspirations", "CustomGifts", "SearchResults", "SearchSuggestions", "Orders", "GiftInspirations", "GiftBoxes", "ProductReviews", "Customers", "UserPreferences", "Notifications", "Recommendations"],
   endpoints: (builder) => ({
     // Endpoints existentes
     getProducts: builder.query<
@@ -576,6 +576,26 @@ export const apiSlice = createApi({
       providesTags: (result, error, id) => [{ type: "Inspirations", id }],
     }),
 
+    getInspirationsBatch: builder.mutation<any, { ids: string[] }>({
+      async queryFn(body) {
+        try {
+          const response = await fetch('/api/inspiration/batch', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      invalidatesTags: [{ type: 'Inspirations', id: 'LIST' }],
+    }),
+
     // Custom Gifts
     getCustomGifts: builder.query<CustomGift[], void>({
       async queryFn() {
@@ -633,6 +653,527 @@ export const apiSlice = createApi({
       },
       providesTags: (result, error, id) => [{ type: "CustomGifts", id }],
     }),
+
+    search: builder.query<
+      any,
+      {
+        query: string;
+        type?: string;
+        limit?: number;
+        category?: string;
+        priceRange?: string;
+        sortBy?: string;
+      }
+    >({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              queryParams.append(key, value.toString());
+            }
+          });
+          const response = await fetch(`/api/search?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result) =>
+        result && result.data && Array.isArray(result.data.data)
+          ? [
+              ...result.data.data.map((item: any) => ({ type: "SearchResults" as const, id: item.id })),
+              { type: "SearchResults", id: "LIST" },
+            ]
+          : [{ type: "SearchResults", id: "LIST" }],
+    }),
+
+    searchSuggestions: builder.query<
+      any,
+      { q: string }
+    >({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              queryParams.append(key, value.toString());
+            }
+          });
+          const response = await fetch(`/api/search/suggestions?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data.suggestions) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result) =>
+        result && result.data && result.data.suggestions
+          ? [{ type: "SearchSuggestions", id: "LIST" }]
+          : [{ type: "SearchSuggestions", id: "LIST" }],
+    }),
+
+    getCategories: builder.query<any, { query?: string; parentId?: string; includeChildren?: boolean }>({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              if (typeof value === 'boolean') {
+                queryParams.append(key, value ? 'true' : 'false');
+              } else {
+                queryParams.append(key, value.toString());
+              }
+            }
+          });
+          const response = await fetch(`/api/categories?${queryParams.toString()}`);
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result) =>
+        result && Array.isArray(result.data)
+          ? [
+              ...result.data.map((cat: any) => ({ type: "Categories" as const, id: cat.id })),
+              { type: "Categories", id: "LIST" },
+            ]
+          : [{ type: "Categories", id: "LIST" }],
+    }),
+
+    createOrder: builder.mutation<any, any>({
+      async queryFn(body) {
+        try {
+          const response = await fetch('/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      invalidatesTags: [{ type: 'Orders', id: 'LIST' }],
+    }),
+
+    getOrders: builder.query<any, { customerId: string; limit?: number }>({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              queryParams.append(key, value.toString());
+            }
+          });
+          const response = await fetch(`/api/orders?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result) =>
+        result && result.data && Array.isArray(result.data.orders)
+          ? [
+              ...result.data.orders.map((order: any) => ({ type: "Orders" as const, id: order.id })),
+              { type: "Orders", id: "LIST" },
+            ]
+          : [{ type: "Orders", id: "LIST" }],
+    }),
+
+    getOrderById: builder.query<any, string>({
+      async queryFn(orderId) {
+        try {
+          const response = await fetch(`/api/orders/${orderId}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result, error, id) => [{ type: 'Orders', id }],
+    }),
+
+    updateOrderStatus: builder.mutation<any, { orderId: string; status: string }>({
+      async queryFn({ orderId, status }) {
+        try {
+          const response = await fetch(`/api/orders/${orderId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status }),
+          });
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      invalidatesTags: (result, error, { orderId }) => [
+        { type: 'Orders', id: orderId },
+        { type: 'Orders', id: 'LIST' },
+      ],
+    }),
+
+    getGiftInspirations: builder.query<any, {
+      category?: string;
+      query?: string;
+      rating?: number;
+      minPrice?: number;
+      maxPrice?: number;
+      limit?: number;
+      sort?: string;
+      all?: boolean;
+    }>({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              if (typeof value === 'boolean') {
+                queryParams.append(key, value ? 'true' : 'false');
+              } else {
+                queryParams.append(key, value.toString());
+              }
+            }
+          });
+          const response = await fetch(`/api/gift/inspirations?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result) =>
+        result && result.data && Array.isArray(result.data.data)
+          ? [
+              ...result.data.data.map((item: any) => ({ type: "GiftInspirations" as const, id: item.id })),
+              { type: "GiftInspirations", id: "LIST" },
+            ]
+          : [{ type: "GiftInspirations", id: "LIST" }],
+    }),
+
+    getGiftBoxes: builder.query<any, { category?: string; id?: string }>({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              queryParams.append(key, value.toString());
+            }
+          });
+          const response = await fetch(`/api/gift/boxes?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result) =>
+        result && result.data && Array.isArray(result.data.data)
+          ? [
+              ...result.data.data.map((item: any) => ({ type: "GiftBoxes" as const, id: item.id })),
+              { type: "GiftBoxes", id: "LIST" },
+            ]
+          : [{ type: "GiftBoxes", id: "LIST" }],
+    }),
+
+    getGiftBoxById: builder.query<any, string>({
+      async queryFn(id) {
+        try {
+          const response = await fetch(`/api/gift/boxes/${id}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result, error, id) => [{ type: 'GiftBoxes', id }],
+    }),
+
+    getGiftInspirationById: builder.query<any, string>({
+      async queryFn(id) {
+        try {
+          const response = await fetch(`/api/gift/inspirations/${id}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result, error, id) => [{ type: 'GiftInspirations', id }],
+    }),
+
+    validatePromoCode: builder.mutation<any, { code: string; userId: string }>({
+      async queryFn(body) {
+        try {
+          const response = await fetch('/api/promo-codes/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      invalidatesTags: [],
+    }),
+
+    getProductReviews: builder.query<any, { productId: number; userId?: string }>({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              queryParams.append(key, value.toString());
+            }
+          });
+          const response = await fetch(`/api/reviews?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result) =>
+        result && result.data && result.data.data && Array.isArray(result.data.data.reviews)
+          ? [
+              ...result.data.data.reviews.map((review: any) => ({ type: "ProductReviews" as const, id: review._id })),
+              { type: "ProductReviews", id: "LIST" },
+            ]
+          : [{ type: "ProductReviews", id: "LIST" }],
+    }),
+
+    addOrUpdateReview: builder.mutation<any, { productId: number; userId: string; userName?: string; rating: number; comment?: string }>({
+      async queryFn(body) {
+        try {
+          const response = await fetch('/api/reviews', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      invalidatesTags: [{ type: 'ProductReviews', id: 'LIST' }],
+    }),
+
+    getCustomer: builder.query<any, { phone?: string; email?: string; id?: string }>({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              queryParams.append(key, value.toString());
+            }
+          });
+          const response = await fetch(`/api/customers?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result, error, params) => [{ type: 'Customers', id: params?.id || params?.phone || params?.email || 'LIST' }],
+    }),
+
+    updateCustomer: builder.mutation<any, { id: string; name?: string; phone?: string; email?: string; password?: string; image?: string }>({
+      async queryFn(body) {
+        try {
+          const response = await fetch('/api/customers/update', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      invalidatesTags: (result, error, body) => [{ type: 'Customers', id: body.id }],
+    }),
+
+    getUserPreferences: builder.query<any, { userId: string }>({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              queryParams.append(key, value.toString());
+            }
+          });
+          const response = await fetch(`/api/user-preferences?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result, error, params) => [{ type: 'UserPreferences', id: params.userId }],
+    }),
+
+    updateUserPreferences: builder.mutation<any, { userId: string; preferences: any }>({
+      async queryFn(body) {
+        try {
+          const response = await fetch('/api/user-preferences', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      invalidatesTags: (result, error, body) => [{ type: 'UserPreferences', id: body.userId }],
+    }),
+
+    getNotifications: builder.query<any, { userId?: string; productId?: number; status?: string }>({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              queryParams.append(key, value.toString());
+            }
+          });
+          const response = await fetch(`/api/notifications?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: (result) =>
+        result && result.data && Array.isArray(result.data.data)
+          ? [
+              ...result.data.data.map((item: any) => ({ type: "Notifications" as const, id: item._id })),
+              { type: "Notifications", id: "LIST" },
+            ]
+          : [{ type: "Notifications", id: "LIST" }],
+    }),
+
+    createOrUpdateNotification: builder.mutation<any, any>({
+      async queryFn(body) {
+        try {
+          const response = await fetch('/api/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const data = await response.json();
+          if (data.success) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      invalidatesTags: [{ type: 'Notifications', id: 'LIST' }],
+    }),
+
+    getRecommendations: builder.query<any, {
+      excludeIds?: number[];
+      category?: string;
+      tags?: string[];
+      userId?: string;
+      limit?: number;
+      personalized?: boolean;
+      priceRange?: string;
+      sessionId?: string;
+    }>({
+      async queryFn(params) {
+        try {
+          const queryParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined) {
+              if (Array.isArray(value)) {
+                queryParams.append(key, value.join(","));
+              } else {
+                queryParams.append(key, value.toString());
+              }
+            }
+          });
+          const response = await fetch(`/api/recommendations?${queryParams.toString()}`);
+          const data = await response.json();
+          if (data) {
+            return { data };
+          }
+          return { error: { status: response.status, data } };
+        } catch (error) {
+          return { error: { status: 500, data: error } };
+        }
+      },
+      providesTags: [{ type: 'Recommendations', id: 'LIST' }],
+    }),
   }),
 })
 
@@ -672,4 +1213,42 @@ export const {
   useGetCustomGiftsQuery,
   useGetCustomGiftsByCategoryQuery,
   useGetCustomGiftByIdQuery,
+
+  // Orders
+  useGetOrdersQuery,
+  useGetOrderByIdQuery,
+  useCreateOrderMutation,
+  useUpdateOrderStatusMutation,
+
+  // New Gift Inspirations
+  useGetGiftInspirationsQuery,
+
+  // New Gift Boxes
+  useGetGiftBoxesQuery,
+  useGetGiftBoxByIdQuery,
+
+  // New Gift Inspiration
+  useGetGiftInspirationByIdQuery,
+
+  // New Promo Code
+  useValidatePromoCodeMutation,
+
+  // New Product Reviews
+  useGetProductReviewsQuery,
+  useAddOrUpdateReviewMutation,
+
+  // New Customer
+  useGetCustomerQuery,
+  useUpdateCustomerMutation,
+
+  // New User Preferences
+  useGetUserPreferencesQuery,
+  useUpdateUserPreferencesMutation,
+
+  // New Notifications
+  useGetNotificationsQuery,
+  useCreateOrUpdateNotificationMutation,
+
+  // New Recommendations
+  useGetRecommendationsQuery,
 } = apiSlice

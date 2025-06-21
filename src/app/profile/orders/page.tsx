@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "../../../context/AuthContext"
+import { useGetOrdersQuery } from '@/lib/redux/api/apiSlice'
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 
 import { Package, Search, Filter, ArrowLeft, Calendar, MapPin } from "lucide-react"
 import { Button } from "../../../components/ui/button"
@@ -39,10 +41,12 @@ interface Order {
 const OrdersPage = () => {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [orders, setOrders] = useState<Order[]>([])
-  const [isLoadingOrders, setIsLoadingOrders] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+
+  // جلب الطلبات باستخدام RTK Query
+  const { data, isLoading: isLoadingOrders } = useGetOrdersQuery(user ? { customerId: user.id } : skipToken, { skip: !user })
+  const orders: Order[] = data?.orders || []
 
   // التحقق من تسجيل الدخول
   useEffect(() => {
@@ -51,30 +55,6 @@ const OrdersPage = () => {
       toast.error("يرجى تسجيل الدخول للوصول إلى صفحة الطلبات")
     }
   }, [user, loading, router])
-
-  // جلب الطلبات
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (user) {
-        setIsLoadingOrders(true)
-        try {
-          const response = await fetch(`/api/orders?customerId=${user.id}`)
-          const data = await response.json()
-
-          if (data.success) {
-            setOrders(data.orders)
-          }
-        } catch (error) {
-          console.error("Error fetching orders:", error)
-          toast.error("حدث خطأ أثناء جلب الطلبات")
-        } finally {
-          setIsLoadingOrders(false)
-        }
-      }
-    }
-
-    fetchOrders()
-  }, [user])
 
   // تصفية الطلبات حسب الحالة والبحث
   const filteredOrders = orders.filter((order) => {
