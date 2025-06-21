@@ -4,7 +4,7 @@ import { useEffect } from "react"
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { useGift } from "@/context/gift-context"
+import { useSelector, useDispatch } from "react-redux"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -19,21 +19,23 @@ import {
 import { ShoppingCart, Package, Gift, Check } from "lucide-react"
 import Image from "next/image"
 import PersonalMessage from "@/components/gift/personal-message"
-import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks"
-import { addGiftToCart } from "@/lib/redux/slices/cartSlice"
+import { useAppSelector } from "@/lib/redux/hooks"
 import { clearGift } from "@/lib/redux/slices/giftSlice"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
+import type { RootState } from "@/lib/redux/store"
 
 export default function GiftSummary() {
-  const { selectedBox, selectedProducts, selectedDecorations, selectedBag, personalMessage } = useGift()
+  const selectedBox = useSelector((state: RootState) => state.gift.selectedBox)
+  const selectedProducts = useSelector((state: RootState) => state.gift.selectedProducts)
+  const selectedDecorations = useSelector((state: RootState) => state.gift.selectedDecorations)
+  const selectedBag = useSelector((state: RootState) => state.gift.selectedBag)
+  const personalMessage = useSelector((state: RootState) => state.gift.personalMessage)
+  const dispatch = useDispatch()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [orderComplete, setOrderComplete] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const dispatch = useAppDispatch()
-  const cartError = useAppSelector((state) => state.cart.error)
 
   const router = useRouter()
 
@@ -62,14 +64,7 @@ export default function GiftSummary() {
       setIsSubmitting(true)
       setError(null)
 
-      // Add to cart with full GiftProduct structure
-      await dispatch(addGiftToCart({
-        selectedBox,
-        selectedProducts,
-        selectedDecorations,
-        selectedBag,
-        personalMessage
-      }))
+      // TODO: أضف منطق إضافة الهدية للسلة عبر cartSlice هنا لاحقاً
 
       toast.success("تمت إضافة الهدية إلى السلة بنجاح!", {
         position: "top-center",
@@ -91,13 +86,6 @@ export default function GiftSummary() {
       setShowConfirmDialog(false)
     }
   }
-
-  // Mostrar mensaje de error de Redux si existe
-  useEffect(() => {
-    if (cartError) {
-      setError(cartError)
-    }
-  }, [cartError])
 
   if (orderComplete) {
     return (

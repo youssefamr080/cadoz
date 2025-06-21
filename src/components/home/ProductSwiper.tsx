@@ -9,7 +9,8 @@ import { motion } from "framer-motion"
 import { Star } from "lucide-react"
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline"
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid"
-import { useWishlist } from "../../context/WishlistContext"
+import { useSelector, useDispatch } from "react-redux"
+import { selectWishlist, addToWishlist, removeFromWishlist } from "@/lib/redux/slices/wishlistSlice"
 import type { Product } from "@/types/product"
 
 // Import Swiper styles
@@ -20,21 +21,22 @@ import "swiper/css/free-mode"
 
 // Common ProductCard component used by all swipers
 const ProductCard = ({ product }: { product: Product }) => {
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist()
+  const wishlist = useSelector(selectWishlist)
+  const dispatch = useDispatch()
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (wishlist.some((item) => item.id === product.id)) {
-      removeFromWishlist(product.id)
+      dispatch(removeFromWishlist(product.id))
     } else {
-      addToWishlist({
+      dispatch(addToWishlist({
         id: product.id,
         name: product.name,
         image: product.image,
         price: product.price,
         productId: product.id
-      })
+      }))
     }
   }
   

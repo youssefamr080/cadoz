@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useGift } from "@/context/gift-context"
+import { useSelector, useDispatch } from "react-redux"
 import { Star, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 import { getPopularInspirations } from "@/lib/actions/inspiration-actions"
 import type { Inspiration } from "@/types/inspiration"
@@ -20,7 +20,8 @@ import "swiper/css/free-mode"
 import AddToCartButton from "@/app/inspiration/[id]/AddToCartButton"
 
 export default function InspirationGallery() {
-  const { } = useGift()
+  const { } = useSelector((state: any) => state.gift)
+  const dispatch = useDispatch()
   const [inspirationGifts, setInspirationGifts] = useState<Inspiration[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

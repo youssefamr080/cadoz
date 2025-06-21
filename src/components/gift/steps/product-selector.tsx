@@ -2,10 +2,11 @@
 
 import type React from "react"
 import type { Product } from "@/types/database"
+import type { RootState } from "@/lib/redux/store"
 
 import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useGift } from "@/context/gift-context"
+import { useSelector, useDispatch } from "react-redux"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -18,6 +19,7 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import { FreeMode, Navigation } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/free-mode"
+import { addProduct, removeProduct, updateProductQuantity } from "@/lib/redux/slices/giftSlice"
 
 const categories = ["الكل", "شوكولاتة", "حلويات", "شيبسي"]
 
@@ -39,20 +41,14 @@ const occasionOptions = [
 ]
 
 export default function ProductSelector() {
-  const { 
-    selectedProducts, 
-    addProduct, 
-    updateProductQuantity, 
-    cartItems, 
-    addCartItemToGift, 
-    saveForLater 
-  } = useGift()
+  const selectedProducts = useSelector((state: RootState) => state.gift.selectedProducts)
+  const dispatch = useDispatch()
   
   // Render cart items section at the start of the component
   const renderCartItems = () => {
     return (
       <div className="mb-6">
-        {cartItems.length > 0 ? (
+        {selectedProducts.length > 0 ? (
           <>
             <h3 className="font-medium text-lg mb-4 text-purple-800 flex items-center gap-2">
               <ShoppingCart className="w-5 h-5" />
@@ -66,7 +62,7 @@ export default function ProductSelector() {
               className="cart-items-swiper"
               dir="rtl"
             >
-              {cartItems.map((item) => (
+              {selectedProducts.map((item) => (
                 <SwiperSlide key={item.id} className="!w-[160px] sm:!w-[180px]">
                   <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all border border-purple-100 h-full">
                     <div className="relative aspect-square bg-gray-50 rounded-t-lg">
@@ -82,7 +78,7 @@ export default function ProductSelector() {
                       <div className="flex items-center justify-between">
                         <span className="text-purple-600 font-medium text-sm">{item.price} ج.م</span>
                         <button
-                          onClick={() => addCartItemToGift(item)}
+                          onClick={() => dispatch(addProduct(item))}
                           className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs hover:bg-purple-200 transition-colors"
                         >
                           إضافة
@@ -253,7 +249,7 @@ export default function ProductSelector() {
 
     const existingProductIndex = selectedProducts.findIndex((p) => p.id === productId)
     if (existingProductIndex >= 0) {
-      updateProductQuantity(productId, newQuantity)
+      dispatch(updateProductQuantity({ id: productId, quantity: newQuantity }))
     }
   }
 
@@ -262,7 +258,7 @@ export default function ProductSelector() {
 
     setTimeout(() => {
       const quantity = quantities[product.id] || 1
-      addProduct({
+      dispatch(addProduct({
         id: product.id,
         name: product.name,
         price: product.price,
@@ -271,20 +267,14 @@ export default function ProductSelector() {
         stock: product.stock,
         popular: product.popular,
         quantity,
-      })
+      }))
       setIsLoading((prev) => ({ ...prev, [product.id]: false }))
     }, 300)
   }
 
   const handleSaveForLater = (product: Product, e: React.MouseEvent) => {
     e.stopPropagation()
-    saveForLater({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      type: "product",
-    })
+    dispatch(removeProduct(product.id))
   }
 
   const isProductSelected = (productId: string) => {

@@ -1,7 +1,6 @@
 "use client"
 import React, { useState } from "react"
-import { useCart } from "../../context/CartContext"
-import { useAuth } from "../../context/AuthContext"
+import { useSelector, useDispatch } from "react-redux"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
@@ -12,6 +11,23 @@ import Image from "next/image"
 import ShippingProgress from "../../components/cart/shipping-progress"
 import CouponInput from "../../components/cart/coupon-input"
 import LoginModal from "../../components/auth/login-modal"
+import {
+  selectCart,
+  selectItemCount,
+  selectIsCartEmpty,
+  selectShipping,
+  selectAvailableGovernorates,
+  selectPromoCode,
+  selectCartTotals,
+  removeItem,
+  incrementQuantity,
+  decrementQuantity,
+  clearCart,
+  updateShipping,
+  setPromoCode,
+  clearPromoCode,
+  saveCart,
+} from "@/lib/redux/slices/cartSlice"
 
 // تعريف واجهات البيانات
 interface CartItemType {
@@ -55,29 +71,19 @@ interface CartItemType {
 
 const CartPage = () => {
   const router = useRouter()
-  const { user } = useAuth()
-  const {
-    cart,
-    removeFromCart,
-    incrementQuantity,
-    decrementQuantity,
-    clearCart,
-    shipping,
-    updateShipping,
-    availableGovernorates,
-    promoCode,
-    setPromoCode,
-    applyPromoCode,
-    clearPromoCode,
-    getCartTotals,
-    isCartEmpty,
-    itemCount,
-  } = useCart()
+  const cart = useSelector(selectCart)
+  const itemCount = useSelector(selectItemCount)
+  const isCartEmpty = useSelector(selectIsCartEmpty)
+  const shipping = useSelector(selectShipping)
+  const availableGovernorates = useSelector(selectAvailableGovernorates)
+  const promoCode = useSelector(selectPromoCode)
+  const { subtotal, shippingFees, discount, tax, total } = useSelector(selectCartTotals)
+  const dispatch = useDispatch()
+  const user = useSelector((state: any) => state.auth.user)
 
   const [isSending, setIsSending] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isCreatingOrder, setIsCreatingOrder] = useState(false)
-  const { subtotal, shippingFees, discount, tax, total } = getCartTotals()
 
   // الحد الأدنى للشحن المجاني
   const FREE_SHIPPING_THRESHOLD = 500
@@ -169,7 +175,7 @@ const CartPage = () => {
       window.open(whatsappUrl, "_blank")
 
       setTimeout(() => {
-        clearCart()
+        dispatch(clearCart())
         toast.success("تم إرسال الطلب بنجاح!")
 
         // إذا كان المستخدم مسجل دخوله، انتقل إلى صفحة تفاصيل الطلب
@@ -268,22 +274,17 @@ const CartPage = () => {
       toast.error("الرجاء إدخال كود الخصم")
       return false
     }
-
-    setPromoCode(code)
-    try {
-      const success = await applyPromoCode()
-      return success
-    } catch (error) {
-      console.error("Error applying promo code:", error)
-      return false
-    }
+    dispatch(setPromoCode(code))
+    // TODO: أضف منطق التحقق من الكوبون عبر thunk لاحقاً
+    toast.success("تم تطبيق كود الخصم (تحقق فعلي سيتم لاحقاً)")
+    return true
   }
 
   const handleQuantityChange = (id: number, change: number) => {
     if (change > 0) {
-      incrementQuantity(id)
+      dispatch(incrementQuantity({ id }))
     } else {
-      decrementQuantity(id)
+      dispatch(decrementQuantity({ id }))
     }
   }
 
@@ -371,10 +372,10 @@ const CartPage = () => {
                             <GiftCartItem
                               item={item}
                               onQuantityChange={handleQuantityChange}
-                              onRemove={removeFromCart}
+                              onRemove={() => dispatch(removeItem({ id: item.id }))}
                             />
                           ) : (
-                            <CartItem item={item} onQuantityChange={handleQuantityChange} onRemove={removeFromCart} />
+                            <CartItem item={item} onQuantityChange={handleQuantityChange} onRemove={() => dispatch(removeItem({ id: item.id }))} />
                           )}
                         </motion.div>
                       ))}
@@ -422,7 +423,7 @@ const CartPage = () => {
                       </h3>
                       <CouponInput
                         onApply={handleApplyPromoCode}
-                        onClear={clearPromoCode}
+                        onClear={() => dispatch(clearPromoCode())}
                         currentCode={promoCode.code}
                         isValid={promoCode.isValid}
                         discountPercentage={promoCode.discountPercentage}
@@ -434,7 +435,7 @@ const CartPage = () => {
                       <h3 className="text-sm font-medium mb-2">المحافظة</h3>
                       <select
                         value={shipping.governorate}
-                        onChange={(e) => updateShipping({ governorate: e.target.value })}
+                        onChange={(e) => dispatch(updateShipping({ governorate: e.target.value }))}
                         className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
                         required
                       >
@@ -496,7 +497,7 @@ const CartPage = () => {
                       </button>
 
                       <button
-                        onClick={clearCart}
+                        onClick={() => dispatch(clearCart())}
                         className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2"
                       >
                         <FiTrash2 className="w-4 h-4" />

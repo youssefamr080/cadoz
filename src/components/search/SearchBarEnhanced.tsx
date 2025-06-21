@@ -9,11 +9,13 @@ import {
   Lightbulb, Gift, ShoppingBag, Filter
 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { useSearchStore } from "@/lib/stores/useSearchStore";
+import { useSelector, useDispatch } from "react-redux";
+import { setQuery, setSuggestions, addRecentSearch, clearRecentSearches, setActiveFilter, setProductsCache, setInspirationsCache, clearSearch, searchAsync } from "@/lib/redux/slices/searchSlice";
 import { HighlightText } from "@/components/ui/highlight-text";
 import { RelevanceIndicator } from "@/components/ui/relevance-indicator";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useOnClickOutside } from "@/lib/hooks/useOnClickOutside";
+import type { RootState } from "@/lib/redux/store"
 
 import type { Product, Inspiration } from "@/lib/types";
 // Utility functions imported as needed
@@ -47,7 +49,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   placeholder = "ابحث عن منتجات أو هدايا جاهزة...",
   preloadSuggestions = true
 }) => {
-  const [query, setQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [activeTab, setActiveTab] = useState<"all" | "products" | "inspirations">("all");
@@ -59,23 +61,9 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   const searchRef = useRef<HTMLDivElement>(null);
 
   // استخراج الحالة والوظائف من مخزن البحث (Zustand)
-  const {
-    suggestions,
-    enableSpellCorrection,
-    enableAutocomplete,
-    productsCache,
-    inspirationsCache,
-    recentSearches: storeRecentSearches,
-    setQuery: setStoreQuery,
-    search: performStoreSearch,
-    clearSearch: clearStoreSearch,
-    addRecentSearch: addStoreRecentSearch,
-    clearRecentSearches: clearStoreRecentSearches,
-    toggleSpellCorrection: toggleStoreSpellCorrection,
-    toggleAutocomplete: toggleStoreAutocomplete,
-    updateProductsCache,
-    updateInspirationsCache,
-  } = useSearchStore();
+  const searchState = useSelector((state: any) => state.search);
+  const { suggestions, enableSpellCorrection, enableAutocomplete, productsCache, inspirationsCache, recentSearches: storeRecentSearches } = searchState;
+  const dispatch = useDispatch();
 
   // إضافة متغيرات جديدة للاقتراحات الذكية
   const [smartSuggestions, setSmartSuggestions] = useState<string[]>([]);
@@ -90,14 +78,14 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   // استدعاء API البحث مع تطبيق فلترة المنتجات في واجهة المستخدم بدلاً من تعديل المخزن
   const performSearch = (searchQuery: string) => {
     if (searchQuery.length >= 2) {
-      performStoreSearch(searchQuery);
+      dispatch(searchAsync(searchQuery) as any);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setQuery(value);
-    setStoreQuery(value);
+    setInputValue(value);
+    dispatch(setQuery(value));
     
     if (value.length >= 2) {
       setIsLoading(true);
@@ -107,7 +95,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       const smartSuggestions = generateSmartSuggestions(value);
       setSmartSuggestions(smartSuggestions);
     } else {
-      clearStoreSearch();
+      dispatch(clearSearch() as any);
       setSearchResults([]);
     }
   };
@@ -151,7 +139,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   const handleResultSelect = useCallback((result: Product | Inspiration) => {
     if (result.type === "product" && onProductSelect) {
       // إضافة اسم المنتج المختار إلى عمليات البحث السابقة
-      addStoreRecentSearch(result.name);
+      dispatch(addRecentSearch(result.name));
       // تحديث حالة عمليات البحث السابقة مباشرة
       setRecentSearches([result.name, ...storeRecentSearches].slice(0, 7));
       onProductSelect(result);
@@ -159,7 +147,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       onInspirationSelect(result);
     }
     setIsFocused(false);
-  }, [onProductSelect, onInspirationSelect, addStoreRecentSearch, storeRecentSearches]);
+  }, [onProductSelect, onInspirationSelect, dispatch, storeRecentSearches]);
 
   // Update search results when store suggestions change
   useEffect(() => {
@@ -180,7 +168,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
         category: product.category,
         type: 'product' as const,
         url: `/product/${product.id}`,
-        relevanceScore: calculateRelevanceScore(product, query)
+        relevanceScore: calculateRelevanceScore(product, inputValue)
       }));
 
       const filteredInspirations = inspirationsCache.filter(inspiration => 
@@ -199,7 +187,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
         tags: inspiration.tags || [],
         type: 'inspiration' as const,
         url: `/inspiration/${inspiration.id}`,
-        relevanceScore: calculateRelevanceScore(inspiration, query)
+        relevanceScore: calculateRelevanceScore(inspiration, inputValue)
       }));
 
       // Combine and sort results by relevance
@@ -211,7 +199,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       setSearchResults(combinedResults);
       setIsLoading(false);
     }
-  }, [suggestions, productsCache, inspirationsCache, query]);
+  }, [suggestions, productsCache, inspirationsCache, inputValue]);
 
   // Helper function to calculate relevance score
   const calculateRelevanceScore = (item: { 
@@ -310,7 +298,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
         const productsResponse = await fetch('/api/products');
         const productsData = await productsResponse.json();
         if (productsData.success && Array.isArray(productsData.data)) {
-          updateProductsCache(productsData.data);
+          dispatch(setProductsCache(productsData.data));
         }
       }
       
@@ -319,7 +307,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
         const inspirationsResponse = await fetch('/api/gift/inspirations');
         const inspirationsData = await inspirationsResponse.json();
         if (inspirationsData.success && Array.isArray(inspirationsData.data)) {
-          updateInspirationsCache(inspirationsData.data);
+          dispatch(setInspirationsCache(inspirationsData.data));
         }
       }
       
@@ -334,7 +322,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
     } catch (error) {
       console.error('Error fetching search data:', error);
     }
-  }, [preloadSuggestions, productsCache, inspirationsCache, updateProductsCache, updateInspirationsCache]);
+  }, [preloadSuggestions, productsCache, inspirationsCache, dispatch]);
 
   useEffect(() => {
     // تحميل البيانات فقط عند الحاجة
@@ -349,14 +337,14 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
 
   // تطبيق اقتراح أو بحث سابق
   const applySearchTerm = (term: string) => {
-    setQuery(term);
+    setInputValue(term);
     performSearch(term);
     inputRef.current?.focus();
   };
 
   const searchMode = (() => {
     if (isLoading) return "loading";
-    if (query.length < 2) return recentSearches.length > 0 ? "recent" : "empty";
+    if (inputValue.length < 2) return recentSearches.length > 0 ? "recent" : "empty";
     return searchResults.length > 0 ? "results" : "no-results";
   })();
 
@@ -413,15 +401,15 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   };
 
   // إضافة دالة مسح البحث
-  const clearSearch = useCallback(() => {
-    setQuery("");
-    setStoreQuery("");
-    clearStoreSearch();
+  const clearSearchHandler = useCallback(() => {
+    setInputValue("");
+    dispatch(setQuery(""));
+    dispatch(clearSearch() as any);
     setSearchResults([]);
     setSmartSuggestions([]);
     setSelectedIndex(-1);
     inputRef.current?.focus();
-  }, [clearStoreSearch, setStoreQuery]);
+  }, [dispatch]);
 
   return (
     <div 
@@ -442,7 +430,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
         <input
           ref={inputRef}
           type="text"
-          value={query}
+          value={inputValue}
           onChange={handleInputChange}
           onFocus={() => setIsFocused(true)}
           placeholder={placeholder}
@@ -456,13 +444,13 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
           style={{ fontSize: '16px' }}
         />
         <AnimatePresence>
-          {query && (
+          {inputValue && (
             <motion.button
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
               transition={{ duration: 0.2 }}
-              onClick={clearSearch}
+              onClick={clearSearchHandler}
               className="absolute inset-y-0 left-0 flex items-center pl-3 hover:bg-gray-100 rounded-l-lg transition-colors"
               aria-label="مسح البحث"
             >
@@ -557,7 +545,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                   <h4 className="text-xs font-medium text-gray-700 mb-2">إعدادات البحث</h4>
                   <div className="flex flex-col gap-2">
                     <button
-                      onClick={toggleStoreAutocomplete}
+                      onClick={() => {}}
                       className="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-gray-100"
                     >
                       <span className="flex items-center gap-1">
@@ -573,7 +561,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                       </span>
                     </button>
                     <button
-                      onClick={toggleStoreSpellCorrection}
+                      onClick={() => {}}
                       className="flex items-center justify-between text-xs py-1 px-2 rounded hover:bg-gray-100"
                     >
                       <span className="flex items-center gap-1">
@@ -590,7 +578,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                     </button>
                     {recentSearches.length > 0 && (
                       <button
-                        onClick={clearStoreRecentSearches}
+                        onClick={() => {}}
                         className="text-xs text-red-600 hover:text-red-700 self-end mt-1"
                       >
                         مسح عمليات البحث السابقة
@@ -614,7 +602,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
               )}
 
               {/* Autocomplete suggestions */}
-              {!isLoading && query.length >= 2 && (suggestions.length > 0 || smartSuggestions.length > 0) && (
+              {!isLoading && inputValue.length >= 2 && (suggestions.length > 0 || smartSuggestions.length > 0) && (
                 <div className="border-b border-gray-100 p-2">
                   <div className="flex items-center text-xs text-gray-500 px-2 py-1">
                     <Lightbulb className="h-3 w-3 ml-1 text-amber-500" />
@@ -668,7 +656,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                     </div>
                     {recentSearches.length > 0 && (
                       <button
-                        onClick={clearStoreRecentSearches}
+                        onClick={() => {}}
                         className="text-xs text-red-600 hover:text-red-700 flex items-center gap-1"
                       >
                         <X className="h-3 w-3" />
@@ -726,7 +714,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
               )}
 
               {/* Empty state */}
-              {searchMode === "empty" && query.length >= 2 && (
+              {searchMode === "empty" && inputValue.length >= 2 && (
                 <motion.div 
                   className="p-8 text-center"
                   initial={{ opacity: 0 }}
@@ -742,7 +730,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                   </motion.div>
                   <h3 className="text-gray-700 font-medium text-lg mb-2">لم يتم العثور على نتائج</h3>
                   <p className="text-sm text-gray-500 mb-4">
-                    لم نتمكن من العثور على نتائج مطابقة لـ <span className="font-bold text-indigo-600 px-1 bg-indigo-50 rounded">{query}</span>
+                    لم نتمكن من العثور على نتائج مطابقة لـ <span className="font-bold text-indigo-600 px-1 bg-indigo-50 rounded">{inputValue}</span>
                   </p>
                   <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg border border-gray-100 inline-block">
                     <p className="font-medium mb-2">اقتراحات للبحث:</p>
@@ -827,7 +815,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                               <h4 className="text-sm font-medium text-gray-900 mb-0.5 line-clamp-1">
                                 <HighlightText 
                                   text={result.name} 
-                                  searchTerms={query.split(/\s+/)} 
+                                  searchTerms={inputValue.split(/\s+/)} 
                                   matches={result.matches?.filter(match => match.key === 'name' || !match.key)}
                                   useFuse={Boolean(result.matches?.length)}
                                   highlightClassName="bg-indigo-100 text-indigo-800 px-0.5 rounded"
@@ -842,7 +830,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
                             <p className="text-xs text-gray-600 line-clamp-2 mb-1">
                               <HighlightText 
                                 text={result.description} 
-                                searchTerms={query.split(/\s+/)} 
+                                searchTerms={inputValue.split(/\s+/)} 
                                 matches={result.matches?.filter(match => match.key === 'description' || !match.key)}
                                 useFuse={Boolean(result.matches?.length)}
                                 highlightClassName="bg-indigo-100 text-indigo-800 px-0.5 rounded"

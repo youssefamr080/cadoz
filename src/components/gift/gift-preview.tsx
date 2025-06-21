@@ -4,13 +4,19 @@ import type React from "react"
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, useDragControls } from "framer-motion"
-import { useGift } from "@/context/gift-context"
+import { useSelector, useDispatch } from "react-redux"
 import { X, RefreshCw, ZoomIn, ZoomOut, Move, Gift } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
 import Image from "next/image"
+import { removeProduct, removeDecoration } from "@/lib/redux/slices/giftSlice"
+import type { RootState } from "@/lib/redux/store"
 
 export default function GiftPreview() {
-  const { selectedBox, selectedProducts, selectedDecorations, selectedBag, removeProduct, removeDecoration } = useGift()
+  const selectedBox = useSelector((state: RootState) => state.gift.selectedBox)
+  const selectedProducts = useSelector((state: RootState) => state.gift.selectedProducts)
+  const selectedDecorations = useSelector((state: RootState) => state.gift.selectedDecorations)
+  const selectedBag = useSelector((state: RootState) => state.gift.selectedBag)
+  const dispatch = useDispatch()
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isLoading, setIsLoading] = useState(false)
@@ -366,7 +372,7 @@ export default function GiftPreview() {
                             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200"></div>
                           </div>
                           <button
-                            onClick={() => removeProduct(product.id)}
+                            onClick={() => dispatch(removeProduct(product.id))}
                             className="absolute -top-2 -right-2 w-4 h-4 sm:w-5 sm:h-5 bg-purple-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 active:opacity-100 transition-opacity shadow-md"
                             aria-label={`إزالة ${product.name}`}
                           >
@@ -398,7 +404,7 @@ export default function GiftPreview() {
                             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200"></div>
                           </div>
                           <button
-                            onClick={() => removeDecoration(decoration.id)}
+                            onClick={() => dispatch(removeDecoration(decoration.id))}
                             className="absolute -top-2 -right-2 w-4 h-4 sm:w-5 sm:h-5 bg-purple-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 active:opacity-100 transition-opacity shadow-md"
                             aria-label={`إزالة ${decoration.name}`}
                           >

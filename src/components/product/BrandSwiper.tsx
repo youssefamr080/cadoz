@@ -8,23 +8,25 @@ import Link from "next/link"
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline"
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid"
 import { Star } from "lucide-react"
-import { useWishlist } from "../../context/WishlistContext"
+import { useSelector, useDispatch } from "react-redux"
+import { selectWishlist, addToWishlist, removeFromWishlist } from "@/lib/redux/slices/wishlistSlice"
 import type { Product } from "../../types/product"
 
 const BrandSwiper = ({ brand, products }: { brand: string; products: Product[] }) => {
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist()
+  const wishlist = useSelector(selectWishlist)
+  const dispatch = useDispatch()
 
   const handleWishlistToggle = (product: Product) => {
     if (wishlist.some((item) => item.id === product.id)) {
-      removeFromWishlist(product.id)
+      dispatch(removeFromWishlist(product.id))
     } else {
-      addToWishlist({
+      dispatch(addToWishlist({
         id: product.id,
         name: product.name,
         image: product.image,
         price: product.price,
         productId: product.id
-      })
+      }))
     }
   }
 

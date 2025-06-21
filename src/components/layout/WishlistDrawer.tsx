@@ -5,12 +5,13 @@ import { Dialog, Transition } from "@headlessui/react"
 import { X, ShoppingBag, Trash2, Heart, ChevronLeft } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useWishlist, type WishlistItem } from "../../context/WishlistContext"
-import { useCart } from "../../context/CartContext"
+import { useSelector, useDispatch } from "react-redux"
+import { selectWishlist, removeFromWishlist, clearWishlist, WishlistItem } from "@/lib/redux/slices/wishlistSlice"
 import { Button } from "../../components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "react-toastify"
 import { cn } from "../../lib/utils"
+import { addItem } from "@/lib/redux/slices/cartSlice"
 
 interface WishlistDrawerProps {
   isOpen: boolean
@@ -18,11 +19,12 @@ interface WishlistDrawerProps {
 }
 
 const WishlistDrawer = ({ isOpen, onClose }: WishlistDrawerProps) => {
-  const { wishlist, removeFromWishlist, clearWishlist } = useWishlist()
-  const { addToCart } = useCart()
   const closeButtonRef = useRef(null)
   const [isLoading, setIsLoading] = useState<number | null>(null)
   const [isMobile, setIsMobile] = useState(false)
+
+  const wishlist = useSelector(selectWishlist)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const checkMobile = () => {
@@ -36,12 +38,14 @@ const WishlistDrawer = ({ isOpen, onClose }: WishlistDrawerProps) => {
   const handleAddToCart = async (item: WishlistItem) => {
     try {
       setIsLoading(item.id)
-      await addToCart({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        image: item.image,
-        quantity: 1
+      await addItem({
+        item: {
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          quantity: 1
+        }
       })
       toast.success("تمت الإضافة إلى السلة بنجاح")
     } catch {
@@ -52,12 +56,12 @@ const WishlistDrawer = ({ isOpen, onClose }: WishlistDrawerProps) => {
   }
 
   const handleRemoveItem = (id: number) => {
-    removeFromWishlist(id)
+    dispatch(removeFromWishlist(id))
     toast.info("تمت الإزالة من المفضلة")
   }
 
   const handleClearWishlist = () => {
-    clearWishlist()
+    dispatch(clearWishlist())
     toast.info("تم مسح المفضلة")
   }
 
@@ -250,4 +254,3 @@ const WishlistDrawer = ({ isOpen, onClose }: WishlistDrawerProps) => {
   )
 }
 
-export default WishlistDrawer

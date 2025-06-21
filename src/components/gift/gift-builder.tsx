@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useGift } from "@/context/gift-context"
+import { useSelector, useDispatch } from "react-redux"
+import { addProduct, removeProduct, addDecoration, removeDecoration, setSelectedBox, setSelectedBag, clearGift, loadSavedItemsFromLocalStorage } from "@/lib/redux/slices/giftSlice"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import GiftPreview from "@/components/gift/gift-preview"
 import BoxSelector from "@/components/gift/steps/box-selector"
@@ -15,6 +16,7 @@ import { ChevronLeft, ChevronRight, Gift, Package, ShoppingCart, Sparkles, Palet
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import type { RootState } from "@/lib/redux/store"
 
 const steps = [
   { id: "box", title: "اختيار الصندوق", icon: Package },
@@ -44,7 +46,8 @@ function useMediaQuery(query: string): boolean {
 export default function GiftBuilder() {
   const [currentStep, setCurrentStep] = useState("box")
   const [showSaved, setShowSaved] = useState(false)
-  const { savedItems } = useGift()
+  const savedItems = useSelector((state: RootState) => state.gift.savedItems)
+  const dispatch = useDispatch()
   const [isLoading, setIsLoading] = useState(false)
   const isMobile = useMediaQuery("(max-width: 768px)")
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
