@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit"
 import type { Product } from '@/types/product';
 import type { Inspiration } from '@/types/inspiration';
-import { normalizeArabicText, correctSpelling } from '@/lib/utils/arabic-text-utils';
+import { normalizeArabicText } from '@/lib/utils/arabic-text-utils';
 
 export type SearchResultType = 'product' | 'inspiration';
 export type FilterType = SearchResultType | 'all';

@@ -35,14 +35,13 @@ import ProductNotification from "../../../components/product/product-notificatio
 
 import useProductInterestTracker from "@/hooks/useProductInterestTracker";
 import { addItem } from "@/lib/redux/slices/cartSlice"
+import type { RootState } from "@/lib/redux/store"
 
 const ProductPage = () => {
   const { productId } = useParams()
   const router = useRouter()
   const [, setMainImage] = useState("")
-  const cart = useSelector((state: any) => state.cart.cart)
-  const wishlist = useSelector((state: any) => state.wishlist.wishlist)
-  const user = useSelector((state: any) => state.auth.user)
+  const wishlist = useSelector((state: RootState) => state.wishlist.wishlist)
   const dispatch = useDispatch()
   const [isFavorite, setIsFavorite] = useState(false)
   const [quantity, setQuantity] = useState(1)
@@ -176,7 +175,7 @@ const ProductPage = () => {
         { position: "bottom-right", autoClose: 3000 },
       )
     }, 600)
-  }, [product, quantity, isProductOutOfStock, selectedColor])
+  }, [product, quantity, isProductOutOfStock, selectedColor, dispatch])
 
   // معالجة إضافة/إزالة المنتج من المفضلة
   const handleToggleWishlist = useCallback(() => {
@@ -214,7 +213,7 @@ const ProductPage = () => {
       toast.success("تمت الإضافة إلى المفضلة!", { position: "bottom-right" })
     }
     setIsFavorite(!isFavorite)
-  }, [product, isFavorite, userId])
+  }, [product, isFavorite, userId, dispatch])
 
   // عرض شاشة التحميل
   if (isLoading) {

@@ -7,27 +7,24 @@ import InspirationReactions from "@/components/gift/InspirationReactions";
 import InspirationStars from "@/components/gift/InspirationStars";       
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/redux/store";
-import { checkSession } from "@/lib/redux/slices/authSlice";
-import type { Inspiration } from "@/types/inspiration";
-import { normalizeComments } from "@/types/comment";
 import { Badge } from "@/components/ui/badge"; 
 import { Card } from "@/components/ui/card";   
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; 
 import { Button } from "@/components/ui/button"; 
+import { useSession } from "next-auth/react";
+import type { Inspiration } from "@/types/inspiration";
+import { normalizeComments } from "@/types/comment";
 
 interface Props {
 	inspiration: Inspiration;
 }
 
 export default function InspirationClient({ inspiration }: Props) {
-	const dispatch = useDispatch<AppDispatch>();
-	const user = useSelector((state: RootState) => state.auth.user);
+	// const dispatch = useDispatch<AppDispatch>();
+	const { data: session } = useSession();
+	const user = session?.user;
 	const userId = user?.id || null;
 	const userName = user?.name || null;
-
-	useEffect(() => {
-		dispatch(checkSession());
-	}, [dispatch]);
 
 	// --- Local State for Interactivity ---
 	const [likes, setLikes] = useState(inspiration.likes ?? 0);

@@ -6,6 +6,7 @@ import type { Product } from "../../types/product"
 import { motion } from "framer-motion"
 import LoadingSpinner from "../ui/LoadingSpinner"
 import ProductSwiper from "./ProductSwiper"
+import { useGetProductsQuery } from '@/lib/redux/api/apiSlice';
 
 interface RecommendationEngineProps {
   title?: string
@@ -16,59 +17,47 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
   title = "مقترحة لك",
   subtitle = "منتجات قد تعجبك بناءً على اهتماماتك",
 }) => {
-  const [recommendations, setRecommendations] = useState<Product[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [recommendations, setRecommendations] = useState<Product[] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const { data: fallbackProductsData, isLoading: isFallbackLoading, error: fallbackError } = useGetProductsQuery({ sort: 'rating_desc', limit: 12 });
 
   useEffect(() => {
+    let isMounted = true;
     const fetchRecommendations = async () => {
       try {
-        setIsLoading(true)
-
-        // دمج بيانات التفاعل: المنتجات المشاهدة، عمليات البحث، المفضلة، والسلة
+        setIsLoading(true);
+        // دمج بيانات التفاعل
         const viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]");
         const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
         const cart = JSON.parse(localStorage.getItem("cart") || "[]");
         const interestedProducts = JSON.parse(localStorage.getItem("interestedProducts") || "[]");
-        
-        // إضافة عمليات البحث السابقة
         const recentSearches = JSON.parse(localStorage.getItem("cadoz-search-history") || "[]");
         const searchTerms = recentSearches.map((search: { term?: string }) => search.term || search).filter(Boolean);
-
-        // دمج كل المنتجات والبحث
         const allInteracted = [...viewedProducts, ...wishlist, ...cart, ...interestedProducts];
         const categories = allInteracted.map((p) => p.category).filter(Boolean);
         const tags = allInteracted.flatMap((p) => p.tags || []).filter(Boolean);
         const excludeIds = [...new Set(allInteracted.map((p) => p.id))];
-
-        // تحليل عمليات البحث السابقة
         const searchCategories = searchTerms.flatMap(term => {
-          const matchingProducts = allInteracted.filter(p => 
+          const matchingProducts = allInteracted.filter(p =>
             p.name.toLowerCase().includes(term.toLowerCase()) ||
             p.description?.toLowerCase().includes(term.toLowerCase())
           );
           return matchingProducts.map(p => p.category).filter(Boolean);
         });
-
         const searchTags = searchTerms.flatMap(term => {
-          const matchingProducts = allInteracted.filter(p => 
+          const matchingProducts = allInteracted.filter(p =>
             p.tags?.some(tag => tag.toLowerCase().includes(term.toLowerCase()))
           );
           return matchingProducts.flatMap(p => p.tags || []).filter(Boolean);
         });
-
-        // دمج الفئات والعلامات من عمليات البحث
         const allCategories = [...categories, ...searchCategories];
         const allTags = [...tags, ...searchTags];
-
-        // الأكثر تكرارًا
         const mostCommonCategory = allCategories.sort((a, b) =>
           allCategories.filter(v => v === a).length - allCategories.filter(v => v === b).length
         ).pop();
-
         const mostCommonTags = [...new Set(allTags)].slice(0, 5);
-
-        // بناء معلمات الاستعلام
         const params = new URLSearchParams();
         if (mostCommonCategory) params.append("category", mostCommonCategory);
         if (mostCommonTags.length) params.append("tags", mostCommonTags.join(","));
@@ -76,65 +65,51 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
         if (searchTerms.length) params.append("searchTerms", searchTerms.join(","));
         params.append("limit", "12");
         params.append("personalized", "true");
-
         // كاش للتوصيات (15 دقيقة)
         const CacheService = (await import("@/lib/services/cache-service")).default;
         const cacheKey = `recommendations_${params.toString()}`;
         const cached = await CacheService.getItem<Product[]>(cacheKey);
-        if (cached && Array.isArray(cached) && cached.length > 0) {
+        if (isMounted && cached && Array.isArray(cached) && cached.length > 0) {
           setRecommendations(cached);
           setIsLoading(false);
           return;
         }
-
-        // جلب التوصيات
-        const response = await fetch(`/api/recommendations?${params.toString()}`);
-        const data = await response.json();
-        if (data.success && data.data.length > 0) {
-          setRecommendations(data.data);
-          await CacheService.setItem(cacheKey, data.data, 15);
-        } else {
-          // fallback: منتجات رائجة
-          const fallbackResponse = await fetch("/api/products?rating=4&limit=12&sort=rating_desc");
-          const fallbackData = await fallbackResponse.json();
-          if (fallbackData.success) {
-            setRecommendations(fallbackData.data);
-            await CacheService.setItem(cacheKey + "_fallback", fallbackData.data, 15);
-          } else {
-            setError("لا يمكن تحميل التوصيات");
-          }
+        // إذا لم توجد توصيات مخصصة، استخدم fallback
+        if (isMounted) {
+          setRecommendations(null);
+          setIsLoading(false);
         }
       } catch (err) {
-        console.error("Error fetching recommendations:", err)
-        setError("حدث خطأ أثناء تحميل التوصيات")
-      } finally {
-        setIsLoading(false)
+        if (isMounted) {
+          setError("حدث خطأ أثناء تحميل التوصيات");
+          setIsLoading(false);
+        }
       }
-    }
+    };
+    fetchRecommendations();
+    return () => { isMounted = false; };
+  }, []);
 
-    fetchRecommendations()
-  }, [])
-
-  // التأثير الحركي للعناصر عند ظهورها
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  // عرض التحميل
+  if (isLoading || isFallbackLoading) {
+    return <LoadingSpinner message="جاري تحميل التوصيات..." />;
   }
-
-  if (isLoading) {
-    return <LoadingSpinner message="جاري تحميل التوصيات..." />
+  // عرض الخطأ
+  if (error || fallbackError) {
+    return <div className="text-center text-red-500 py-8">حدث خطأ أثناء تحميل التوصيات</div>;
   }
-
-  if (error || recommendations.length === 0) {
-    return null // لا نعرض أي شيء إذا كان هناك خطأ أو لا توجد توصيات
+  // عرض التوصيات المخصصة إذا وجدت، وإلا fallback
+  const products = recommendations && recommendations.length > 0
+    ? recommendations
+    : (fallbackProductsData?.data || []);
+  if (!products.length) {
+    return null;
   }
-
   return (
     <motion.section
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      variants={fadeInUp}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
       className="py-16 bg-gradient-to-b from-white to-gray-50"
     >
       <div className="container mx-auto px-4">
@@ -146,12 +121,10 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
           <div className="w-20 h-1 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full mb-3"></div>
           <p className="text-center text-gray-600 max-w-2xl">{subtitle}</p>
         </div>
-
-        <ProductSwiper products={recommendations} />
+        <ProductSwiper products={products} />
       </div>
     </motion.section>
-  )
-}
+  );
+};
 
-export default RecommendationEngine
-
+export default RecommendationEngine;

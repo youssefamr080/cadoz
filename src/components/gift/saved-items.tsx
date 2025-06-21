@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useGift } from "@/context/gift-context"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -15,19 +14,18 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Trash2, ShoppingCart } from "lucide-react"
-import { getSavedItems, clearSavedItems, removeSavedItem } from "@/lib/actions/saved-item-actions"
-import type { SavedItem } from "@/types/database"
 import Image from "next/image"
+import { useDispatch, useSelector } from "react-redux"
+import { removeSavedItemThunk, clearSavedItemsThunk } from "@/lib/redux/slices/giftSlice"
+import type { AppDispatch, RootState } from "@/lib/redux/store"
+import type { SavedItem } from "@/types/database"
 
 export default function SavedItems() {
-  const {
-    savedItems: contextSavedItems,
-    removeSavedItem: contextRemoveSavedItem,
-    clearSavedItems: contextClearSavedItems,
-  } = useGift()
+  const dispatch = useDispatch<AppDispatch>()
+  const savedItems = useSelector((state: RootState) => state.gift.savedItems)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [localSavedItems, setLocalSavedItems] = useState<SavedItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // Sync with the server on initial load
@@ -35,13 +33,11 @@ export default function SavedItems() {
     const fetchSavedItems = async () => {
       try {
         setIsLoading(true)
-        const items = await getSavedItems()
-        setLocalSavedItems(items)
+        setLocalSavedItems(savedItems)
         setError(null)
       } catch (err) {
         console.error("Error loading saved items:", err)
-        // Fall back to context items if server fetch fails
-        setLocalSavedItems(contextSavedItems)
+        setLocalSavedItems(savedItems)
         setError("Could not load saved items from server, using local data")
       } finally {
         setIsLoading(false)
@@ -49,15 +45,11 @@ export default function SavedItems() {
     }
 
     fetchSavedItems()
-  }, [contextSavedItems])
+  }, [savedItems])
 
   const handleRemoveSavedItem = async (itemId: string) => {
     try {
-      // Update UI immediately
-      contextRemoveSavedItem(itemId)
-
-      // Then update server
-      await removeSavedItem(itemId)
+      dispatch(removeSavedItemThunk(itemId))
     } catch (err) {
       console.error("Error removing saved item:", err)
       setError("حدث خطأ أثناء حذف العنصر. يرجى المحاولة مرة أخرى.")
@@ -66,11 +58,7 @@ export default function SavedItems() {
 
   const handleClearSavedItems = async () => {
     try {
-      // Update UI immediately
-      contextClearSavedItems()
-
-      // Then update server
-      await clearSavedItems()
+      dispatch(clearSavedItemsThunk())
       setShowConfirmDialog(false)
     } catch (err) {
       console.error("Error clearing saved items:", err)
@@ -99,7 +87,7 @@ export default function SavedItems() {
       ) : (
         <div className="space-y-3">
           <AnimatePresence>
-            {displayedItems.map((item) => (
+            {displayedItems.map((item: SavedItem) => (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, height: 0 }}

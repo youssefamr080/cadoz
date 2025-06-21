@@ -5,7 +5,6 @@ import giftReducer from "./slices/giftSlice"
 import cartReducer from "./slices/cartSlice"
 import inspirationReducer from "./slices/inspirationSlice"
 import customGiftReducer from "./slices/customGiftSlice"
-import authReducer from "./slices/authSlice"
 import wishlistReducer from "./slices/wishlistSlice"
 import searchReducer from "./slices/searchSlice"
 
@@ -16,7 +15,6 @@ export const store = configureStore({
     cart: cartReducer,
     inspiration: inspirationReducer,
     customGift: customGiftReducer,
-    auth: authReducer,
     wishlist: wishlistReducer,
     search: searchReducer,
   },

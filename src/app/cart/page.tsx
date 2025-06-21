@@ -12,7 +12,6 @@ import ShippingProgress from "../../components/cart/shipping-progress"
 import CouponInput from "../../components/cart/coupon-input"
 import LoginModal from "../../components/auth/login-modal"
 import {
-  selectCart,
   selectItemCount,
   selectIsCartEmpty,
   selectShipping,
@@ -26,8 +25,10 @@ import {
   updateShipping,
   setPromoCode,
   clearPromoCode,
-  saveCart,
+  selectCartTotalItems,
 } from "@/lib/redux/slices/cartSlice"
+import type { RootState } from "@/lib/redux/store"
+import { useSession } from 'next-auth/react'
 
 // تعريف واجهات البيانات
 interface CartItemType {
@@ -71,15 +72,16 @@ interface CartItemType {
 
 const CartPage = () => {
   const router = useRouter()
-  const cart = useSelector(selectCart)
-  const itemCount = useSelector(selectItemCount)
+  const cart = useSelector((state: RootState) => state.cart.cart)
+  const itemCount = useSelector(selectCartTotalItems)
   const isCartEmpty = useSelector(selectIsCartEmpty)
   const shipping = useSelector(selectShipping)
   const availableGovernorates = useSelector(selectAvailableGovernorates)
   const promoCode = useSelector(selectPromoCode)
   const { subtotal, shippingFees, discount, tax, total } = useSelector(selectCartTotals)
   const dispatch = useDispatch()
-  const user = useSelector((state: any) => state.auth.user)
+  const { data: session } = useSession()
+  const user = session?.user
 
   const [isSending, setIsSending] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)

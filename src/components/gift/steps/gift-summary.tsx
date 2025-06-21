@@ -1,7 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
-
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { useSelector, useDispatch } from "react-redux"
@@ -18,19 +16,16 @@ import {
 } from "@/components/ui/alert-dialog"
 import { ShoppingCart, Package, Gift, Check } from "lucide-react"
 import Image from "next/image"
-import PersonalMessage from "@/components/gift/personal-message"
-import { useAppSelector } from "@/lib/redux/hooks"
-import { clearGift } from "@/lib/redux/slices/giftSlice"
 import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
 import type { RootState } from "@/lib/redux/store"
+import { clearGift } from "@/lib/redux/slices/giftSlice"
 
 export default function GiftSummary() {
   const selectedBox = useSelector((state: RootState) => state.gift.selectedBox)
   const selectedProducts = useSelector((state: RootState) => state.gift.selectedProducts)
   const selectedDecorations = useSelector((state: RootState) => state.gift.selectedDecorations)
   const selectedBag = useSelector((state: RootState) => state.gift.selectedBag)
-  const personalMessage = useSelector((state: RootState) => state.gift.personalMessage)
   const dispatch = useDispatch()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [orderComplete, setOrderComplete] = useState(false)
@@ -106,9 +101,6 @@ export default function GiftSummary() {
         <p className="text-gray-600">مراجعة محتويات هديتك المميزة قبل إضافتها للسلة</p>
       </div>
 
-      {/* Personal Message Component */}
-      <PersonalMessage />
-      
       <div className="space-y-6">
         {/* Box Summary */}
         {selectedBox && (

@@ -6,20 +6,23 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useGift } from "@/context/gift-context"
+import { useDispatch, useSelector } from "react-redux"
+import { setPersonalMessage } from "@/lib/redux/slices/giftSlice"
+import type { AppDispatch, RootState } from "@/lib/redux/store"
 
 export default function PersonalMessage() {
-  const { personalMessage, setPersonalMessage } = useGift()
+  const dispatch = useDispatch<AppDispatch>()
+  const personalMessage = useSelector((state: RootState) => state.gift.personalMessage)
   const [message, setMessage] = useState(personalMessage?.message || "")
   const [recipient, setRecipient] = useState(personalMessage?.recipient || "")
   const [sender, setSender] = useState(personalMessage?.sender || "")
 
   const handleSave = () => {
-    setPersonalMessage({
+    dispatch(setPersonalMessage({
       message,
       recipient,
       sender,
-    })
+    }))
   }
 
   return (

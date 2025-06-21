@@ -10,12 +10,13 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
-import { setQuery, setSuggestions, addRecentSearch, clearRecentSearches, setActiveFilter, setProductsCache, setInspirationsCache, clearSearch, searchAsync } from "@/lib/redux/slices/searchSlice";
+import { setQuery, addRecentSearch, setProductsCache, setInspirationsCache, clearSearch, searchAsync } from "@/lib/redux/slices/searchSlice";
 import { HighlightText } from "@/components/ui/highlight-text";
 import { RelevanceIndicator } from "@/components/ui/relevance-indicator";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useOnClickOutside } from "@/lib/hooks/useOnClickOutside";
-import type { RootState } from "@/lib/redux/store"
+import type { RootState, AppDispatch } from "@/lib/redux/store"
+import { useGetProductsQuery } from '@/lib/redux/api/apiSlice';
 
 import type { Product, Inspiration } from "@/lib/types";
 // Utility functions imported as needed
@@ -61,9 +62,9 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   const searchRef = useRef<HTMLDivElement>(null);
 
   // استخراج الحالة والوظائف من مخزن البحث (Zustand)
-  const searchState = useSelector((state: any) => state.search);
+  const searchState = useSelector((state: RootState) => state.search);
   const { suggestions, enableSpellCorrection, enableAutocomplete, productsCache, inspirationsCache, recentSearches: storeRecentSearches } = searchState;
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   // إضافة متغيرات جديدة للاقتراحات الذكية
   const [smartSuggestions, setSmartSuggestions] = useState<string[]>([]);
@@ -78,7 +79,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   // استدعاء API البحث مع تطبيق فلترة المنتجات في واجهة المستخدم بدلاً من تعديل المخزن
   const performSearch = (searchQuery: string) => {
     if (searchQuery.length >= 2) {
-      dispatch(searchAsync(searchQuery) as any);
+      dispatch(searchAsync(searchQuery));
     }
   };
 
@@ -95,7 +96,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
       const smartSuggestions = generateSmartSuggestions(value);
       setSmartSuggestions(smartSuggestions);
     } else {
-      dispatch(clearSearch() as any);
+      dispatch(clearSearch());
       setSearchResults([]);
     }
   };
@@ -291,45 +292,14 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   });
 
   // Fetch products and inspirations for search
-  const fetchData = useCallback(async () => {
-    try {
-      // Fetch products if cache is empty
-      if (productsCache.length === 0) {
-        const productsResponse = await fetch('/api/products');
-        const productsData = await productsResponse.json();
-        if (productsData.success && Array.isArray(productsData.data)) {
-          dispatch(setProductsCache(productsData.data));
-        }
-      }
-      
-      // Fetch inspirations if cache is empty
-      if (inspirationsCache.length === 0) {
-        const inspirationsResponse = await fetch('/api/gift/inspirations');
-        const inspirationsData = await inspirationsResponse.json();
-        if (inspirationsData.success && Array.isArray(inspirationsData.data)) {
-          dispatch(setInspirationsCache(inspirationsData.data));
-        }
-      }
-      
-      // تحميل مقترحات البحث الشائعة فقط إذا لم تكن موجودة في التخزين المحلي
-      if (preloadSuggestions && !localStorage.getItem('cadoz-search-suggestions')) {
-        const response = await fetch('/api/search/suggestions');
-        const data = await response.json();
-        if (data.suggestions) {
-          localStorage.setItem('cadoz-search-suggestions', JSON.stringify(data.suggestions));
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching search data:', error);
-    }
-  }, [preloadSuggestions, productsCache, inspirationsCache, dispatch]);
+  const { data: productsData, isLoading: isProductsLoading, error: productsError } = useGetProductsQuery({});
 
   useEffect(() => {
-    // تحميل البيانات فقط عند الحاجة
+    // تحميل البيانات فقط عند الحاجة (الآن فقط للاقتراحات وليس المنتجات)
     if (preloadSuggestions && !localStorage.getItem('cadoz-search-suggestions')) {
-      fetchData();
+      // يمكنك هنا جلب اقتراحات البحث فقط إذا أردت
     }
-  }, [preloadSuggestions, fetchData]);
+  }, [preloadSuggestions]);
 
   const handleTabChange = (tab: "all" | "products" | "inspirations") => {
     setActiveTab(tab);
@@ -404,7 +374,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   const clearSearchHandler = useCallback(() => {
     setInputValue("");
     dispatch(setQuery(""));
-    dispatch(clearSearch() as any);
+    dispatch(clearSearch());
     setSearchResults([]);
     setSmartSuggestions([]);
     setSelectedIndex(-1);

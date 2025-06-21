@@ -4,7 +4,10 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { useGift } from "@/context/gift-context"
+import { useDispatch, useSelector } from "react-redux"
+import type { AppDispatch, RootState } from "@/lib/redux/store"
+import { setSelectedBox } from "@/lib/redux/slices/giftSlice"
+import { addSavedItemThunk } from "@/lib/redux/slices/giftSlice"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/RadioGroup"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -21,7 +24,8 @@ const boxCategories = [
 ]
 
 export default function BoxSelector() {
-  const { selectedBox, setSelectedBox, saveForLater } = useGift()
+  const dispatch = useDispatch<AppDispatch>()
+  const selectedBox = useSelector((state: RootState) => state.gift.selectedBox)
   const [category, setCategory] = useState("basic")
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
   const [boxes, setBoxes] = useState<Box[]>([])
@@ -47,23 +51,22 @@ export default function BoxSelector() {
   }, [category])
 
   const handleBoxSelect = (box: Box) => {
-    setIsLoading((prev) => ({ ...prev, [box.id]: true }))
-
+    setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [box.id]: true }))
     setTimeout(() => {
-      setSelectedBox(box)
-      setIsLoading((prev) => ({ ...prev, [box.id]: false }))
+      dispatch(setSelectedBox(box))
+      setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [box.id]: false }))
     }, 500)
   }
 
   const handleSaveForLater = (box: Box, e: React.MouseEvent) => {
     e.stopPropagation()
-    saveForLater({
+    dispatch(addSavedItemThunk({
       id: box.id,
       name: box.name,
       price: box.price,
       image: box.image,
       type: "box",
-    })
+    }))
   }
 
   return (
@@ -105,7 +108,7 @@ export default function BoxSelector() {
           }}
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {boxes.map((box, boxIndex) => (
+            {boxes.map((box: Box, boxIndex) => (
               <motion.div
                 key={box.id}
                 initial={{ opacity: 0, y: 10 }}

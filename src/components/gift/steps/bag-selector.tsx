@@ -4,7 +4,9 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useGift } from "@/context/gift-context"
+import { useDispatch, useSelector } from "react-redux"
+import { setSelectedBag, addSavedItemThunk } from "@/lib/redux/slices/giftSlice"
+import type { AppDispatch, RootState } from "@/lib/redux/store"
 import { Button } from "@/components/ui/button"
 import { Heart, AlertTriangle } from "lucide-react"
 import { getAllBags } from "@/lib/actions/bag-actions"
@@ -12,7 +14,8 @@ import type { Bag } from "@/types/database"
 import Image from "next/image"
 
 export default function BagSelector() {
-  const { selectedBag, setSelectedBag, saveForLater } = useGift()
+  const dispatch = useDispatch<AppDispatch>()
+  const selectedBag = useSelector((state: RootState) => state.gift.selectedBag)
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
   const [bags, setBags] = useState<Bag[]>([])
   const [isPageLoading, setIsPageLoading] = useState(true)
@@ -37,23 +40,22 @@ export default function BagSelector() {
   }, [])
 
   const handleSelectBag = (bag: Bag) => {
-    setIsLoading((prev) => ({ ...prev, [bag.id]: true }))
-
+    setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [bag.id]: true }))
     setTimeout(() => {
-      setSelectedBag(bag)
-      setIsLoading((prev) => ({ ...prev, [bag.id]: false }))
+      dispatch(setSelectedBag(bag))
+      setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [bag.id]: false }))
     }, 300)
   }
 
   const handleSaveForLater = (bag: Bag, e: React.MouseEvent) => {
     e.stopPropagation()
-    saveForLater({
+    dispatch(addSavedItemThunk({
       id: bag.id,
       name: bag.name,
       price: bag.price,
       image: bag.image,
       type: "bag",
-    })
+    }))
   }
 
   return (
@@ -72,7 +74,7 @@ export default function BagSelector() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence>
-            {bags.map((bag, bagIndex) => (
+            {bags.map((bag: Bag, bagIndex) => (
               <motion.div
                 key={bag.id}
                 initial={{ opacity: 0, y: 10 }}

@@ -4,7 +4,10 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useGift } from "@/context/gift-context"
+import { useDispatch, useSelector } from "react-redux"
+import { addDecoration, removeDecoration } from "@/lib/redux/slices/giftSlice"
+import { addSavedItemThunk } from "@/lib/redux/slices/giftSlice"
+import type { AppDispatch, RootState } from "@/lib/redux/store"
 import { Button } from "@/components/ui/button"
 import { Heart, AlertTriangle } from "lucide-react"
 import { getAllDecorations } from "@/lib/actions/decoration-actions"
@@ -12,7 +15,8 @@ import type { Decoration } from "@/types/database"
 import Image from "next/image"
 
 export default function DecorationSelector() {
-  const { selectedDecorations, addDecoration, removeDecoration, saveForLater } = useGift()
+  const dispatch = useDispatch<AppDispatch>()
+  const selectedDecorations = useSelector((state: RootState) => state.gift.selectedDecorations) as Decoration[]
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
   const [decorations, setDecorations] = useState<Decoration[]>([])
   const [isPageLoading, setIsPageLoading] = useState(true)
@@ -37,33 +41,32 @@ export default function DecorationSelector() {
   }, [])
 
   const handleAddDecoration = (decoration: Decoration) => {
-    setIsLoading((prev) => ({ ...prev, [decoration.id]: true }))
-
-       setTimeout(() => {
-      addDecoration({
+    setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [decoration.id]: true }))
+    setTimeout(() => {
+      dispatch(addDecoration({
         id: decoration.id,
         name: decoration.name,
         price: decoration.price,
         image: decoration.image,
-        stock: decoration.stock, // Added stock property
-      })
-      setIsLoading((prev) => ({ ...prev, [decoration.id]: false }))
+        stock: decoration.stock,
+      }))
+      setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [decoration.id]: false }))
     }, 300)
   }
 
   const handleSaveForLater = (decoration: Decoration, e: React.MouseEvent) => {
     e.stopPropagation()
-    saveForLater({
+    dispatch(addSavedItemThunk({
       id: decoration.id,
       name: decoration.name,
       price: decoration.price,
       image: decoration.image,
       type: "decoration",
-    })
+    }))
   }
 
   const isDecorationSelected = (decorationId: string) => {
-    return selectedDecorations.some((d) => d.id === decorationId)
+    return selectedDecorations.some((d: Decoration) => d.id === decorationId)
   }
 
   return (
@@ -82,7 +85,7 @@ export default function DecorationSelector() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence>
-            {decorations.map((decoration) => (
+            {decorations.map((decoration: Decoration) => (
               <motion.div
                 key={decoration.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -145,7 +148,7 @@ export default function DecorationSelector() {
                           type="button"
                           variant="destructive"
                           size="sm"
-                          onClick={() => removeDecoration(decoration.id)}
+                          onClick={() => dispatch(removeDecoration(decoration.id))}
                           className="text-xs"
                         >
                           إزالة

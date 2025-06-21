@@ -428,6 +428,8 @@ const HomePage = () => {
     sort: "discount",
   })
 
+  const [recommendedQuery, setRecommendedQuery] = useState<{ category?: string; tags?: string; limit: number } | null>(null);
+
   // التحقق من حجم الشاشة
   useEffect(() => {
     const checkMobile = () => {
@@ -474,23 +476,12 @@ const HomePage = () => {
           if (viewedCategories.size > 0 || viewedTags.size > 0) {
             const categoriesArray = Array.from(viewedCategories)
             const randomCategory = categoriesArray[Math.floor(Math.random() * categoriesArray.length)]
-            const tagsArray = Array.from(viewedTags)
+            const tagsArray = Array.from(viewedTags).filter((tag): tag is string => typeof tag === 'string');
             const randomTags = tagsArray
               .sort(() => 0.5 - Math.random())
               .slice(0, 3)
               .join(",")
-
-            // جلب المنتجات المقترحة
-            fetch(`/api/products?category=${randomCategory}&tags=${randomTags}&limit=8`)
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.success && data.data.length > 0) {
-                  const viewedIds = new Set(parsed.map((p: Product) => p.id))
-                  const filteredRecommendations = data.data.filter((p: Product) => !viewedIds.has(p.id))
-                  setRecommendedProducts(filteredRecommendations.length > 0 ? filteredRecommendations : data.data)
-                }
-              })
-              .catch(console.error)
+            setRecommendedQuery({ category: randomCategory, tags: randomTags, limit: 8 })
           }
         }
       } catch (error) {
@@ -511,6 +502,9 @@ const HomePage = () => {
       clearTimeout(timer);
     }
   }, [isFirstVisit])
+
+  const { data: recommendedProductsData, isLoading: isRecommendedLoading, error: recommendedError } =
+    useGetProductsQuery(recommendedQuery ?? { limit: 8 });
 
   // عرض شاشة التحميل فقط في الزيارة الأولى
   if (isFirstVisit && isLoading) {

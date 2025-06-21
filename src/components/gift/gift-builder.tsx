@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useSelector, useDispatch } from "react-redux"
-import { addProduct, removeProduct, addDecoration, removeDecoration, setSelectedBox, setSelectedBag, clearGift, loadSavedItemsFromLocalStorage } from "@/lib/redux/slices/giftSlice"
+import { useSelector } from "react-redux"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import GiftPreview from "@/components/gift/gift-preview"
 import BoxSelector from "@/components/gift/steps/box-selector"
@@ -47,19 +46,13 @@ export default function GiftBuilder() {
   const [currentStep, setCurrentStep] = useState("box")
   const [showSaved, setShowSaved] = useState(false)
   const savedItems = useSelector((state: RootState) => state.gift.savedItems)
-  const dispatch = useDispatch()
-  const [isLoading, setIsLoading] = useState(false)
   const isMobile = useMediaQuery("(max-width: 768px)")
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
 
   const handleStepChange = (step: string) => {
-    setIsLoading(true)
-    setTimeout(() => {
-      setCurrentStep(step)
-      setIsLoading(false)
-    }, 300)
+    setCurrentStep(step)
   }
 
   const currentIndex = steps.findIndex((step) => step.id === currentStep)
@@ -255,33 +248,16 @@ export default function GiftBuilder() {
 
               <div className="p-4 md:p-6">
                 <AnimatePresence mode="wait">
-                  {isLoading ? (
-                    <motion.div
-                      key="loading"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className={`min-h-[${isMobile ? '300px' : '400px'}] flex items-center justify-center`}
-                    >
-                      <div className="relative">
-                        <div className="w-12 h-12 md:w-16 md:h-16 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin"></div>
-                        <div className="absolute inset-0 flex items-center justify-center text-purple-600 text-sm font-medium">
-                          جاري...
-                        </div>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key={currentStep}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.4 }}
-                      className={`min-h-[${isMobile ? '300px' : '400px'}]`}
-                    >
-                      {renderStepContent()}
-                    </motion.div>
-                  )}
+                  <motion.div
+                    key={currentStep}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.4 }}
+                    className={`min-h-[${isMobile ? '300px' : '400px'}]`}
+                  >
+                    {renderStepContent()}
+                  </motion.div>
                 </AnimatePresence>
               </div>
 

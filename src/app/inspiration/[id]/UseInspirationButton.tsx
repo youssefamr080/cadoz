@@ -2,20 +2,14 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
-import { useGift } from "@/context/gift-context";
 import { useRouter } from "next/navigation";
-import type { Inspiration } from "@/types/inspiration";
 
-interface UseInspirationButtonProps {
-  inspiration: Inspiration;
-}
-
-export default function UseInspirationButton({ inspiration }: UseInspirationButtonProps) {
-  const { loadInspiration } = useGift();
+export default function UseInspirationButton() {
+  // const { loadInspiration } = useGift();
   const router = useRouter();
 
   const handleUse = () => {
-    loadInspiration(inspiration);
+    // TODO: dispatch(loadInspiration(inspiration))
     router.push("/gift");
   };
 

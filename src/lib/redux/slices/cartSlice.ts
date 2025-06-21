@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit"
-import { createGiftCartItem } from "@/lib/actions/cart-integration"
-import type { Box, GiftProduct, Decoration, Bag } from "@/types/database"
+import { createSlice, PayloadAction } from "@reduxjs/toolkit"
+import { createSelector } from '@reduxjs/toolkit';
+import type { RootState } from '../store';
 
 // =====================
 // تعريف الواجهات (Interfaces)
@@ -75,12 +75,6 @@ export interface CartTotals {
 // =====================
 // ثوابت التطبيق
 // =====================
-const STORAGE_KEYS = {
-  CART: "cadoz-cart",
-  SHIPPING: "cadoz-shipping",
-  PROMO: "cadoz-promo",
-}
-
 const TAX_RATE = 0.0
 const VALID_PROMO_CODES: Record<string, { discountPercentage: number; message: string; freeShipping?: boolean }> = {
   CADOZ10: { discountPercentage: 0.1, message: "خصم 10%" },
@@ -205,7 +199,7 @@ const cartSlice = createSlice({
     setPromoCodeState: (state, action: PayloadAction<PromoCodeDetails>) => {
       state.promoCode = action.payload
     },
-    saveCart: (state) => {
+    saveCart: () => {
       // احذف أي localStorage هنا
     },
   },
@@ -234,8 +228,9 @@ export const selectCartTotals = (state: { cart: CartState }): CartTotals => {
   const promoFreeShipping =
     promoCode.isValid && promoDetails && ("freeShipping" in promoDetails ? promoDetails.freeShipping : false)
   const FREE_SHIPPING_THRESHOLD = 500
+  let shippingFees: number
   if (subtotal >= FREE_SHIPPING_THRESHOLD || promoFreeShipping) {
-    var shippingFees = 0
+    shippingFees = 0
   } else {
     const fees: Record<string, number> = {
       القاهرة: 50,
@@ -261,6 +256,19 @@ export const selectCartTotals = (state: { cart: CartState }): CartTotals => {
     itemCount: cart.reduce((count, item) => count + item.quantity, 0),
   }
 }
+
+// Memoized Selectors
+const selectCartItems = (state: RootState) => state.cart.cart;
+
+export const selectCartTotalAmount = createSelector(
+  [selectCartItems],
+  (items) => items.reduce((total, item) => total + item.price * item.quantity, 0)
+);
+
+export const selectCartTotalItems = createSelector(
+  [selectCartItems],
+  (items) => items.reduce((count, item) => count + item.quantity, 0)
+);
 
 export const {
   addItem,

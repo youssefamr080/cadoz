@@ -40,6 +40,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu"
+import type { RootState } from "@/lib/redux/store"
+import { selectCartTotalItems } from '@/lib/redux/slices/cartSlice'
+import { useSession } from 'next-auth/react'
 
 // Main navigation categories with icon support
 const categories = [
@@ -90,10 +93,8 @@ const subcategories = {
 }
 
 const Header = () => {
-  const cart = useSelector((state: any) => state.cart.cart)
-  const wishlist = useSelector((state: any) => state.wishlist.wishlist)
-  const user = useSelector((state: any) => state.auth.user)
-  const loading = useSelector((state: any) => state.auth.loading)
+  const cart = useSelector((state: RootState) => state.cart.cart)
+  const wishlist = useSelector((state: RootState) => state.wishlist.wishlist)
   const dispatch = useDispatch()
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
@@ -103,6 +104,9 @@ const Header = () => {
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null)
   const pathname = usePathname()
   const headerRef = useRef<HTMLDivElement>(null)
+  const { data: session, status } = useSession()
+  const user = session?.user
+  const loading = status === 'loading'
 
   // Handle scroll effect
   useEffect(() => {
@@ -130,7 +134,7 @@ const Header = () => {
     toast.success("تم تسجيل الدخول بنجاح")
   }
 
-  const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0)
+  const cartItemCount = useSelector(selectCartTotalItems)
 
   // Animation variants
   const badgeVariants = {
