@@ -7,7 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import { FreeMode, Navigation } from "swiper/modules"
 import { Skeleton } from "../ui/skeleton"
 import ProductRating from "./product-rating"
-import { useAuth } from "../../context/AuthContext"
+import { useAuth } from "../../providers/AuthProvider"
 import { Sparkles } from "lucide-react"
 
 interface Product {

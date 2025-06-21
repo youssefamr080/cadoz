@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { ShoppingCart, AlertCircle, Heart } from "lucide-react"
 import { toast } from "react-toastify"
 import ProductColorSelector from "./product-color-selector"
-import { useAuth } from "../../context/AuthContext"
+import { useAuth } from "../../providers/AuthProvider"
 
 interface ProductActionsProps {
   productId: number

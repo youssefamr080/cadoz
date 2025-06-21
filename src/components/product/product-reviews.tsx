@@ -7,7 +7,7 @@ import { Textarea } from "../../components/ui/textarea"
 import { Skeleton } from "../../components/ui/skeleton"
 import { useToast } from "../../components/gift/hooks/use-toast"
 import { Avatar, AvatarFallback } from "../../components/ui/avatar"
-import { useAuth } from "../../context/AuthContext"
+import { useAuth } from "../../providers/AuthProvider"
 import LoginModal from "../auth/login-modal"
 
 interface Review {

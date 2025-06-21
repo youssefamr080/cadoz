@@ -5,7 +5,7 @@ import { Bell, BellOff } from "lucide-react"
 import { Button } from "../ui/button"
 import LoginModal from "../auth/login-modal"
 import { toast } from "react-toastify"
-import { useAuth } from "../../context/AuthContext"
+import { useAuth } from "../../providers/AuthProvider"
 
 interface ProductNotificationProps {
   productId: number

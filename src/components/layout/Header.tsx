@@ -22,9 +22,7 @@ import {
   MessageSquare,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useCart } from "../../context/CartContext"
-import { useWishlist } from "../../context/WishlistContext"
-import { useAuth } from "../../context/AuthContext"
+import { useSelector, useDispatch } from "react-redux"
 import SearchBarEnhanced from "../search/SearchBarEnhanced"
 import UserAvatar from "../user/UserAvatar"
 import { Button } from "../../components/ui/button"
@@ -92,9 +90,11 @@ const subcategories = {
 }
 
 const Header = () => {
-  const { cart } = useCart()
-  const { wishlist } = useWishlist()
-  const { user, logout, loading } = useAuth()
+  const cart = useSelector((state: any) => state.cart.cart)
+  const wishlist = useSelector((state: any) => state.wishlist.wishlist)
+  const user = useSelector((state: any) => state.auth.user)
+  const loading = useSelector((state: any) => state.auth.loading)
+  const dispatch = useDispatch()
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -121,7 +121,7 @@ const Header = () => {
   }, [pathname])
 
   const handleLogout = () => {
-    logout()
+    dispatch({ type: "auth/logout" })
     toast.info("تم تسجيل الخروج بنجاح")
   }
 

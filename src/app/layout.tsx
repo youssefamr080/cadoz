@@ -8,7 +8,6 @@ import { store } from "@/lib/redux/store";
 import { Providers } from "../providers/Providers";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
-import { AuthProvider as ContextAuthProvider } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { ErrorBoundary } from "react-error-boundary";
@@ -128,10 +127,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <ReduxProvider store={store}>
             <SessionProvider>
               <AuthProvider>
-                <ContextAuthProvider>
-                  <Providers>
-                    {/* Skip to main content للوصولية */}
-                    <a 
+                <Providers>
+                  {/* Skip to main content للوصولية */}
+                  <a 
                       href="#main-content" 
                       className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 bg-blue-600 text-white px-3 py-2 rounded-md z-50 text-sm mx-2"
                     >
@@ -208,7 +206,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
                     </ClientOnlyWrapper>
                   </Providers>
-                </ContextAuthProvider>
               </AuthProvider>
             </SessionProvider>
           </ReduxProvider>

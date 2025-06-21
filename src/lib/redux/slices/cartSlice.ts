@@ -127,15 +127,9 @@ interface CartState {
 }
 
 const initialState: CartState = {
-  cart: typeof window !== "undefined" && localStorage.getItem(STORAGE_KEYS.CART)
-    ? JSON.parse(localStorage.getItem(STORAGE_KEYS.CART) as string)
-    : [],
-  shipping: typeof window !== "undefined" && localStorage.getItem(STORAGE_KEYS.SHIPPING)
-    ? JSON.parse(localStorage.getItem(STORAGE_KEYS.SHIPPING) as string)
-    : { governorate: "" },
-  promoCode: typeof window !== "undefined" && localStorage.getItem(STORAGE_KEYS.PROMO)
-    ? JSON.parse(localStorage.getItem(STORAGE_KEYS.PROMO) as string)
-    : { code: "", isValid: false, discountPercentage: 0 },
+  cart: [],
+  shipping: { governorate: "" },
+  promoCode: { code: "", isValid: false, discountPercentage: 0 },
 }
 
 // =====================
@@ -145,6 +139,11 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
+    hydrateCart: (state, action: PayloadAction<CartState>) => {
+      state.cart = action.payload.cart
+      state.shipping = action.payload.shipping
+      state.promoCode = action.payload.promoCode
+    },
     addItem: (state, action: PayloadAction<{ item: CartItem; quantity?: number }>) => {
       const { item, quantity = 1 } = action.payload
       const existingItemIndex = state.cart.findIndex(
@@ -158,11 +157,9 @@ const cartSlice = createSlice({
         const stockLimit = item.stock || Number.POSITIVE_INFINITY
         state.cart.push({ ...item, quantity: Math.min(quantity, stockLimit) })
       }
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cart))
     },
     removeItem: (state, action: PayloadAction<{ id: number }>) => {
       state.cart = state.cart.filter((item) => item.id !== action.payload.id)
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cart))
     },
     updateItemQuantity: (state, action: PayloadAction<{ id: number; quantity: number }>) => {
       const { id, quantity } = action.payload
@@ -173,7 +170,6 @@ const cartSlice = createSlice({
           item.id === id ? { ...item, quantity: Math.min(quantity, item.stock || Number.POSITIVE_INFINITY) } : item,
         )
       }
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cart))
     },
     incrementQuantity: (state, action: PayloadAction<{ id: number }>) => {
       state.cart = state.cart.map((item) =>
@@ -181,22 +177,18 @@ const cartSlice = createSlice({
           ? { ...item, quantity: Math.min(item.quantity + 1, item.stock || Number.POSITIVE_INFINITY) }
           : item,
       )
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cart))
     },
     decrementQuantity: (state, action: PayloadAction<{ id: number }>) => {
       state.cart = state.cart.map((item) =>
         item.id === action.payload.id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item,
       )
       state.cart = state.cart.filter((item) => item.quantity > 0)
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cart))
     },
     clearCart: (state) => {
       state.cart = []
-      localStorage.removeItem(STORAGE_KEYS.CART)
     },
     updateShipping: (state, action: PayloadAction<Partial<ShippingDetails>>) => {
       state.shipping = { ...state.shipping, ...action.payload }
-      localStorage.setItem(STORAGE_KEYS.SHIPPING, JSON.stringify(state.shipping))
     },
     setPromoCode: (state, action: PayloadAction<string>) => {
       state.promoCode = {
@@ -206,18 +198,15 @@ const cartSlice = createSlice({
         discountPercentage: 0,
         errorMessage: undefined,
       }
-      localStorage.setItem(STORAGE_KEYS.PROMO, JSON.stringify(state.promoCode))
     },
     clearPromoCode: (state) => {
       state.promoCode = { code: "", isValid: false, discountPercentage: 0 }
-      localStorage.removeItem(STORAGE_KEYS.PROMO)
     },
     setPromoCodeState: (state, action: PayloadAction<PromoCodeDetails>) => {
       state.promoCode = action.payload
-      localStorage.setItem(STORAGE_KEYS.PROMO, JSON.stringify(state.promoCode))
     },
     saveCart: (state) => {
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cart))
+      // احذف أي localStorage هنا
     },
   },
 })
@@ -285,6 +274,7 @@ export const {
   clearPromoCode,
   setPromoCodeState,
   saveCart,
+  hydrateCart,
 } = cartSlice.actions
 
 export default cartSlice.reducer

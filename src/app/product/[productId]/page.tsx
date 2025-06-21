@@ -20,8 +20,7 @@ import "swiper/css/thumbs"
 
 import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
-import { useCart } from "../../../context/CartContext"
-import { useWishlist } from "../../../context/WishlistContext"
+import { useSelector, useDispatch } from "react-redux"
 import { useGetProductByIdQuery } from "../../../lib/redux/api/apiSlice"
 import LoadingSpinner from "../../../components/ui/LoadingSpinner"
 import ProductRating from "../../../components/product/product-rating"
@@ -35,13 +34,16 @@ import ProductNotification from "../../../components/product/product-notificatio
 
 
 import useProductInterestTracker from "@/hooks/useProductInterestTracker";
+import { addItem } from "@/lib/redux/slices/cartSlice"
 
 const ProductPage = () => {
   const { productId } = useParams()
   const router = useRouter()
   const [, setMainImage] = useState("")
-  const { addToCart } = useCart()
-  const { wishlist, addToWishlist, removeFromWishlist } = useWishlist()
+  const cart = useSelector((state: any) => state.cart.cart)
+  const wishlist = useSelector((state: any) => state.wishlist.wishlist)
+  const user = useSelector((state: any) => state.auth.user)
+  const dispatch = useDispatch()
   const [isFavorite, setIsFavorite] = useState(false)
   const [quantity, setQuantity] = useState(1)
   const [selectedColor, setSelectedColor] = useState<string>("")
@@ -145,14 +147,17 @@ const ProductPage = () => {
 
     // محاكاة تأخير الإضافة للسلة
     setTimeout(() => {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        image: product.image,
-        price: product.price,
+      dispatch(addItem({
+        item: {
+          id: product.id,
+          name: product.name,
+          image: product.image,
+          price: product.price,
+          quantity,
+          variant: selectedColor ? `اللون: ${selectedColor}` : undefined,
+        },
         quantity,
-        variant: selectedColor ? `اللون: ${selectedColor}` : undefined,
-      })
+      }))
 
       setIsAddingToCart(false)
       setShowAddedAnimation(true)
@@ -171,23 +176,23 @@ const ProductPage = () => {
         { position: "bottom-right", autoClose: 3000 },
       )
     }, 600)
-  }, [product, addToCart, quantity, isProductOutOfStock, selectedColor])
+  }, [product, quantity, isProductOutOfStock, selectedColor])
 
   // معالجة إضافة/إزالة المنتج من المفضلة
   const handleToggleWishlist = useCallback(() => {
     if (!product) return
 
     if (isFavorite) {
-      removeFromWishlist(product.id)
+      dispatch({ type: "wishlist/removeFromWishlist", payload: product.id })
       toast.info("تمت الإزالة من المفضلة!", { position: "bottom-right" })
     } else {
-      addToWishlist({
+      dispatch({ type: "wishlist/addToWishlist", payload: {
         id: product.id,
         name: product.name,
         image: product.image,
         price: product.price,
         productId: product.id,
-      })
+      }})
 
       // تسجيل إضافة المنتج للمفضلة
       if (userId) {
@@ -209,7 +214,7 @@ const ProductPage = () => {
       toast.success("تمت الإضافة إلى المفضلة!", { position: "bottom-right" })
     }
     setIsFavorite(!isFavorite)
-  }, [product, isFavorite, addToWishlist, removeFromWishlist, userId])
+  }, [product, isFavorite, userId])
 
   // عرض شاشة التحميل
   if (isLoading) {

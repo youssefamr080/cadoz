@@ -254,3 +254,5 @@ const WishlistDrawer = ({ isOpen, onClose }: WishlistDrawerProps) => {
   )
 }
 
+export default WishlistDrawer
+
