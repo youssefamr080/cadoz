@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useDispatch, useSelector } from "react-redux"
-import type { AppDispatch, RootState } from "@/lib/redux/store"
+import type { RootState } from "@/lib/redux/store"
 import { setSelectedBox } from "@/lib/redux/slices/giftSlice"
 import { addSavedItemThunk } from "@/lib/redux/slices/giftSlice"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/RadioGroup"
@@ -60,7 +60,7 @@ export default function BoxSelector() {
 
   const handleSaveForLater = (box: Box, e: React.MouseEvent) => {
     e.stopPropagation()
-    // @ts-ignore
+    // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
     dispatch(addSavedItemThunk({
       id: box.id,
       name: box.name,

@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useDispatch, useSelector } from "react-redux"
 import { setSelectedBag, addSavedItemThunk } from "@/lib/redux/slices/giftSlice"
-import type { AppDispatch, RootState } from "@/lib/redux/store"
+import type { RootState } from "@/lib/redux/store"
 import { Button } from "@/components/ui/button"
 import { Heart, AlertTriangle } from "lucide-react"
 import { getAllBags } from "@/lib/actions/bag-actions"
@@ -49,7 +49,7 @@ export default function BagSelector() {
 
   const handleSaveForLater = (bag: Bag, e: React.MouseEvent) => {
     e.stopPropagation()
-    // @ts-ignore
+    // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
     dispatch(addSavedItemThunk({
       id: bag.id,
       name: bag.name,

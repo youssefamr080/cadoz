@@ -17,7 +17,7 @@ import { Trash2, ShoppingCart } from "lucide-react"
 import Image from "next/image"
 import { useDispatch, useSelector } from "react-redux"
 import { removeSavedItemThunk, clearSavedItemsThunk } from "@/lib/redux/slices/giftSlice"
-import type { AppDispatch, RootState } from "@/lib/redux/store"
+import type { RootState } from "@/lib/redux/store"
 import type { SavedItem } from "@/types/database"
 
 export default function SavedItems() {
@@ -49,7 +49,7 @@ export default function SavedItems() {
 
   const handleRemoveSavedItem = async (itemId: string) => {
     try {
-      // @ts-ignore
+      // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
       dispatch(removeSavedItemThunk(itemId))
     } catch (err) {
       console.error("Error removing saved item:", err)
@@ -59,7 +59,7 @@ export default function SavedItems() {
 
   const handleClearSavedItems = async () => {
     try {
-      // @ts-ignore
+      // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
       dispatch(clearSavedItemsThunk())
       setShowConfirmDialog(false)
     } catch (err) {

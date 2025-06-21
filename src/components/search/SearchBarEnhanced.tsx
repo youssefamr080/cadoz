@@ -15,7 +15,7 @@ import { HighlightText } from "@/components/ui/highlight-text";
 import { RelevanceIndicator } from "@/components/ui/relevance-indicator";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useOnClickOutside } from "@/lib/hooks/useOnClickOutside";
-import type { RootState, AppDispatch } from "@/lib/redux/store"
+import type { RootState } from "@/lib/redux/store"
 
 import type { Product, Inspiration } from "@/lib/types";
 // Utility functions imported as needed
@@ -78,7 +78,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   // استدعاء API البحث مع تطبيق فلترة المنتجات في واجهة المستخدم بدلاً من تعديل المخزن
   const performSearch = (searchQuery: string) => {
     if (searchQuery.length >= 2) {
-      // @ts-ignore
+      // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
       dispatch(searchAsync(searchQuery));
     }
   };

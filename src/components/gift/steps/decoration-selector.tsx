@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useDispatch, useSelector } from "react-redux"
 import { addDecoration, removeDecoration } from "@/lib/redux/slices/giftSlice"
 import { addSavedItemThunk } from "@/lib/redux/slices/giftSlice"
-import type { AppDispatch, RootState } from "@/lib/redux/store"
+import type { RootState } from "@/lib/redux/store"
 import { Button } from "@/components/ui/button"
 import { Heart, AlertTriangle } from "lucide-react"
 import { getAllDecorations } from "@/lib/actions/decoration-actions"
@@ -56,7 +56,7 @@ export default function DecorationSelector() {
 
   const handleSaveForLater = (decoration: Decoration, e: React.MouseEvent) => {
     e.stopPropagation()
-    // @ts-ignore
+    // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
     dispatch(addSavedItemThunk({
       id: decoration.id,
       name: decoration.name,
