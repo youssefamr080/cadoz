@@ -93,7 +93,6 @@ const subcategories = {
 }
 
 const Header = () => {
-  const cart = useSelector((state: RootState) => state.cart.cart)
   const wishlist = useSelector((state: RootState) => state.wishlist.wishlist)
   const dispatch = useDispatch()
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)

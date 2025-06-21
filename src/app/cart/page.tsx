@@ -12,7 +12,6 @@ import ShippingProgress from "../../components/cart/shipping-progress"
 import CouponInput from "../../components/cart/coupon-input"
 import LoginModal from "../../components/auth/login-modal"
 import {
-  selectItemCount,
   selectIsCartEmpty,
   selectShipping,
   selectAvailableGovernorates,
@@ -30,6 +29,7 @@ import {
 import type { RootState } from "@/lib/redux/store"
 import { useSession } from 'next-auth/react'
 import { useCreateOrderMutation } from '@/lib/redux/api/apiSlice'
+import type { CreateOrderResponse } from '@/lib/redux/api/apiSlice'
 
 // تعريف واجهات البيانات
 interface CartItemType {
@@ -124,15 +124,16 @@ const CartPage = () => {
       customerEmail: user?.email,
     }
     try {
-      const result = await createOrder(orderData).unwrap()
+      const result: CreateOrderResponse = await createOrder(orderData).unwrap()
       if (result.success) {
         return result.orderId
       } else {
         toast.error(result.message || "حدث خطأ أثناء إنشاء الطلب")
         return null
       }
-    } catch (error: any) {
-      toast.error(error?.data?.message || "حدث خطأ أثناء إنشاء الطلب")
+    } catch (error: unknown) {
+      const err = error as { data?: { message?: string } }
+      toast.error(err?.data?.message || "حدث خطأ أثناء إنشاء الطلب")
       return null
     }
   }

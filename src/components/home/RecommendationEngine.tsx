@@ -19,9 +19,8 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
 }) => {
   const [recommendations, setRecommendations] = useState<Product[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const { data: fallbackProductsData, isLoading: isFallbackLoading, error: fallbackError } = useGetProductsQuery({ sort: 'rating_desc', limit: 12 });
+  const { data: fallbackProductsData, isLoading: isFallbackLoading } = useGetProductsQuery({ sort: 'rating_desc', limit: 12 });
 
   useEffect(() => {
     let isMounted = true;
@@ -79,9 +78,8 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
           setRecommendations(null);
           setIsLoading(false);
         }
-      } catch (err) {
+      } catch {
         if (isMounted) {
-          setError("حدث خطأ أثناء تحميل التوصيات");
           setIsLoading(false);
         }
       }
@@ -93,10 +91,6 @@ const RecommendationEngine: React.FC<RecommendationEngineProps> = ({
   // عرض التحميل
   if (isLoading || isFallbackLoading) {
     return <LoadingSpinner message="جاري تحميل التوصيات..." />;
-  }
-  // عرض الخطأ
-  if (error || fallbackError) {
-    return <div className="text-center text-red-500 py-8">حدث خطأ أثناء تحميل التوصيات</div>;
   }
   // عرض التوصيات المخصصة إذا وجدت، وإلا fallback
   const products = recommendations && recommendations.length > 0

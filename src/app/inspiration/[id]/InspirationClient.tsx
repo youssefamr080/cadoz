@@ -5,8 +5,6 @@ import { ThumbsUp, ThumbsDown, MessageCircle, Share2, Star } from "lucide-react"
 import InspirationComments from "@/components/gift/InspirationComments"; 
 import InspirationReactions from "@/components/gift/InspirationReactions"; 
 import InspirationStars from "@/components/gift/InspirationStars";       
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "@/lib/redux/store";
 import { Badge } from "@/components/ui/badge"; 
 import { Card } from "@/components/ui/card";   
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; 

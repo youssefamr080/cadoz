@@ -280,15 +280,74 @@ export interface CartItem {
 
 export interface Order {
   id: string
-  userId: string | undefined
-  box: { id: string; name: string; price: number }
-  products: Array<{ id: string; name: string; price: number; quantity: number }>
-  decorations: Array<{ id: string; name: string; price: number }>
-  bag?: { id: string; name: string; price: number }
-  personalMessage?: PersonalMessage
-  totalPrice: number
-  status: string
+  customerId?: string
+  customerName?: string
+  customerPhone?: string
+  customerEmail?: string
+  items: OrderItem[]
+  shipping: {
+    governorate: string
+    address?: string
+    phone?: string
+    notes?: string
+  }
+  payment: {
+    method: "cash_on_delivery" | "credit_card" | "bank_transfer"
+    status: "pending" | "paid" | "failed" | "refunded"
+    transactionId?: string
+  }
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled"
+  totals: {
+    subtotal: number
+    shippingFees: number
+    discount: number
+    tax: number
+    total: number
+  }
+  promoCode?: {
+    code: string
+    discountPercentage: number
+  }
   createdAt: Date
+  updatedAt: Date
+  shippedAt?: Date
+  deliveredAt?: Date
+  cancelledAt?: Date
+  trackingNumber?: string
+  notes?: string
+  source: "website" | "whatsapp" | "phone" | "instagram"
+}
+
+export interface OrderItem {
+  id: number
+  name: string
+  image: string
+  price: number
+  quantity: number
+  variant?: string
+  discount?: number
+  originalPrice?: number
+  giftDetails?: string
+  giftData?: {
+    items: Array<{
+      name: string
+      quantity: number
+      image: string
+      price: number
+    }>
+    box: {
+      name: string
+      image: string
+      price: number
+    } | null
+    wrap: {
+      name: string
+      image: string
+      price: number
+    } | null
+    message?: string
+    recipient?: string
+  }
 }
 
 export interface OrderDocument {
@@ -335,4 +394,53 @@ export interface GiftState {
   message?: string;
   items?: GiftItem[];
   // أضف أي خصائص أخرى مطلوبة
+}
+
+// تعريف نوع Category بناءً على API
+export interface Category {
+  id: string;
+  name: string;
+  nameAr: string;
+  icon?: string;
+  image?: string;
+  description?: string;
+  slug: string;
+  parentId?: string;
+  children?: Category[];
+  productCount?: number;
+}
+
+// تعريف نوع Notification بناءً على API
+export interface Notification {
+  _id?: string;
+  userId: string;
+  productId: number;
+  productName: string;
+  phone: string;
+  name: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  status: string;
+  ip?: string;
+  userAgent?: string;
+  requestCount?: number;
+  source?: string;
+  requestedProducts?: Array<{
+    productId: number;
+    productName: string;
+    requestedAt: string | Date;
+  }>;
+}
+
+// تعريف نوع Customer بناءً على API
+export interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  email: string;
+  createdAt?: string | Date;
+  lastLoginAt?: string | Date;
+  isActive?: boolean;
+  orderCount?: number;
+  image?: string;
 }

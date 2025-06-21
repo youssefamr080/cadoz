@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react"
+import React, { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Package, Truck, CheckCircle, Clock, XCircle, MapPin, Phone, FileText, Gift } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,63 +12,6 @@ import Image from "next/image"
 import { FaWhatsapp } from "react-icons/fa"
 import { useGetOrderByIdQuery } from '@/lib/redux/api/apiSlice'
 import { useAuth } from "@/providers/AuthProvider"
-
-interface OrderItem {
-  id: number
-  name: string
-  image: string
-  price: number
-  quantity: number
-  variant?: string
-  giftData?: {
-    box?: {
-      name: string
-      price: number
-    }
-    wrap?: {
-      name: string
-      price: number
-    }
-    recipient?: string
-    message?: string
-    items?: {
-      name: string
-      image: string
-      price: number
-      quantity: number
-    }[]
-  }
-}
-
-interface OrderShipping {
-  governorate: string
-  address?: string
-  phone?: string
-  notes?: string
-}
-
-interface OrderTotals {
-  subtotal: number
-  shippingFees: number
-  discount: number
-  tax: number
-  total: number
-}
-
-interface PromoCode {
-  code: string
-  discountPercentage: number
-}
-
-interface Order {
-  id: string
-  status: string
-  createdAt: string
-  items: OrderItem[]
-  shipping: OrderShipping
-  totals: OrderTotals
-  promoCode?: PromoCode
-}
 
 interface OrderDetailsProps {
   params: Promise<{
@@ -83,8 +26,7 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
   const { user, isLoading } = useAuth()
   const router = useRouter()
   // جلب تفاصيل الطلب باستخدام RTK Query
-  const { data, isLoading: isLoadingOrder } = useGetOrderByIdQuery(orderId, { skip: !user || !orderId })
-  const order: Order | null = data?.order || null
+  const { data: order, isLoading: isLoadingOrder } = useGetOrderByIdQuery(orderId, { skip: !user || !orderId })
 
   // التحقق من تسجيل الدخول
   useEffect(() => {

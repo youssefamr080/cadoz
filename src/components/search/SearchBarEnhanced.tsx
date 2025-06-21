@@ -10,13 +10,12 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
-import { setQuery, addRecentSearch, setProductsCache, setInspirationsCache, clearSearch, searchAsync } from "@/lib/redux/slices/searchSlice";
+import { setQuery, addRecentSearch, /*setProductsCache,*/ /*setInspirationsCache,*/ clearSearch, searchAsync } from "@/lib/redux/slices/searchSlice";
 import { HighlightText } from "@/components/ui/highlight-text";
 import { RelevanceIndicator } from "@/components/ui/relevance-indicator";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useOnClickOutside } from "@/lib/hooks/useOnClickOutside";
 import type { RootState, AppDispatch } from "@/lib/redux/store"
-import { useGetProductsQuery } from '@/lib/redux/api/apiSlice';
 
 import type { Product, Inspiration } from "@/lib/types";
 // Utility functions imported as needed
@@ -292,7 +291,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   });
 
   // Fetch products and inspirations for search
-  const { data: productsData, isLoading: isProductsLoading, error: productsError } = useGetProductsQuery({});
+  // const { data: productsData, isLoading: isProductsLoading, error: productsError } = useGetProductsQuery({});
 
   useEffect(() => {
     // تحميل البيانات فقط عند الحاجة (الآن فقط للاقتراحات وليس المنتجات)

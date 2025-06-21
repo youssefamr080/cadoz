@@ -1,11 +1,18 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import type { Product } from "../../../types/product"
-import type { Box, GiftProduct, Decoration, Bag, Inspiration, CustomGift } from "@/types/database"
+import type { Box, GiftProduct, Decoration, Bag, Inspiration, CustomGift, Category, Notification, Order } from "@/types/database"
+
+// نوع الاستجابة لإنشاء الطلب
+export interface CreateOrderResponse {
+  success: boolean;
+  orderId?: string;
+  message?: string;
+}
 
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-  tagTypes: ["Products", "Boxes", "GiftProducts", "Decorations", "Bags", "Inspirations", "CustomGifts", "SearchResults", "SearchSuggestions", "Orders", "GiftInspirations", "GiftBoxes", "ProductReviews", "Customers", "UserPreferences", "Notifications", "Recommendations"],
+  tagTypes: ["Products", "Boxes", "GiftProducts", "Decorations", "Bags", "Inspirations", "CustomGifts", "SearchResults", "SearchSuggestions", "Orders", "GiftInspirations", "GiftBoxes", "ProductReviews", "Customers", "UserPreferences", "Notifications", "Recommendations", "Categories"],
   endpoints: (builder) => ({
     // Endpoints existentes
     getProducts: builder.query<
@@ -576,7 +583,7 @@ export const apiSlice = createApi({
       providesTags: (result, error, id) => [{ type: "Inspirations", id }],
     }),
 
-    getInspirationsBatch: builder.mutation<any, { ids: string[] }>({
+    getInspirationsBatch: builder.mutation<unknown, { ids: string[] }>({
       async queryFn(body) {
         try {
           const response = await fetch('/api/inspiration/batch', {
@@ -654,17 +661,14 @@ export const apiSlice = createApi({
       providesTags: (result, error, id) => [{ type: "CustomGifts", id }],
     }),
 
-    search: builder.query<
-      any,
-      {
-        query: string;
-        type?: string;
-        limit?: number;
-        category?: string;
-        priceRange?: string;
-        sortBy?: string;
-      }
-    >({
+    search: builder.query<{ data: unknown[] }, {
+      query: string;
+      type?: string;
+      limit?: number;
+      category?: string;
+      priceRange?: string;
+      sortBy?: string;
+    }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -675,8 +679,8 @@ export const apiSlice = createApi({
           });
           const response = await fetch(`/api/search?${queryParams.toString()}`);
           const data = await response.json();
-          if (data.success) {
-            return { data };
+          if (data.success && Array.isArray(data.data)) {
+            return { data: { data: data.data } };
           }
           return { error: { status: response.status, data } };
         } catch (error) {
@@ -684,18 +688,15 @@ export const apiSlice = createApi({
         }
       },
       providesTags: (result) =>
-        result && result.data && Array.isArray(result.data.data)
+        result && Array.isArray(result.data)
           ? [
-              ...result.data.data.map((item: any) => ({ type: "SearchResults" as const, id: item.id })),
+              ...result.data.map((item: unknown) => ({ type: "SearchResults" as const, id: (item as { id: string }).id })),
               { type: "SearchResults", id: "LIST" },
             ]
           : [{ type: "SearchResults", id: "LIST" }],
     }),
 
-    searchSuggestions: builder.query<
-      any,
-      { q: string }
-    >({
+    searchSuggestions: builder.query<{ suggestions: string[] }, { q: string }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -706,8 +707,8 @@ export const apiSlice = createApi({
           });
           const response = await fetch(`/api/search/suggestions?${queryParams.toString()}`);
           const data = await response.json();
-          if (data.suggestions) {
-            return { data };
+          if (data.suggestions && Array.isArray(data.suggestions)) {
+            return { data: { suggestions: data.suggestions } };
           }
           return { error: { status: response.status, data } };
         } catch (error) {
@@ -715,12 +716,12 @@ export const apiSlice = createApi({
         }
       },
       providesTags: (result) =>
-        result && result.data && result.data.suggestions
+        result && Array.isArray(result.suggestions)
           ? [{ type: "SearchSuggestions", id: "LIST" }]
           : [{ type: "SearchSuggestions", id: "LIST" }],
     }),
 
-    getCategories: builder.query<any, { query?: string; parentId?: string; includeChildren?: boolean }>({
+    getCategories: builder.query<Category[], { query?: string; parentId?: string; includeChildren?: boolean }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -735,8 +736,8 @@ export const apiSlice = createApi({
           });
           const response = await fetch(`/api/categories?${queryParams.toString()}`);
           const data = await response.json();
-          if (Array.isArray(data)) {
-            return { data };
+          if (data.success && Array.isArray(data.data)) {
+            return { data: data.data };
           }
           return { error: { status: response.status, data } };
         } catch (error) {
@@ -744,15 +745,15 @@ export const apiSlice = createApi({
         }
       },
       providesTags: (result) =>
-        result && Array.isArray(result.data)
+        result && Array.isArray(result)
           ? [
-              ...result.data.map((cat: any) => ({ type: "Categories" as const, id: cat.id })),
+              ...result.map((cat) => ({ type: "Categories" as const, id: cat.id })),
               { type: "Categories", id: "LIST" },
             ]
           : [{ type: "Categories", id: "LIST" }],
     }),
 
-    createOrder: builder.mutation<any, any>({
+    createOrder: builder.mutation<CreateOrderResponse, Record<string, unknown>>({
       async queryFn(body) {
         try {
           const response = await fetch('/api/orders', {
@@ -772,7 +773,7 @@ export const apiSlice = createApi({
       invalidatesTags: [{ type: 'Orders', id: 'LIST' }],
     }),
 
-    getOrders: builder.query<any, { customerId: string; limit?: number }>({
+    getOrders: builder.query<Order[], { customerId: string; limit?: number }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -783,8 +784,8 @@ export const apiSlice = createApi({
           });
           const response = await fetch(`/api/orders?${queryParams.toString()}`);
           const data = await response.json();
-          if (data.success) {
-            return { data };
+          if (data.success && Array.isArray(data.orders)) {
+            return { data: data.orders };
           }
           return { error: { status: response.status, data } };
         } catch (error) {
@@ -792,21 +793,21 @@ export const apiSlice = createApi({
         }
       },
       providesTags: (result) =>
-        result && result.data && Array.isArray(result.data.orders)
+        result && Array.isArray(result)
           ? [
-              ...result.data.orders.map((order: any) => ({ type: "Orders" as const, id: order.id })),
+              ...result.map((order) => ({ type: "Orders" as const, id: order.id })),
               { type: "Orders", id: "LIST" },
             ]
           : [{ type: "Orders", id: "LIST" }],
     }),
 
-    getOrderById: builder.query<any, string>({
+    getOrderById: builder.query<Order, string>({
       async queryFn(orderId) {
         try {
           const response = await fetch(`/api/orders/${orderId}`);
           const data = await response.json();
-          if (data.success) {
-            return { data };
+          if (data.success && data.order) {
+            return { data: data.order };
           }
           return { error: { status: response.status, data } };
         } catch (error) {
@@ -816,7 +817,7 @@ export const apiSlice = createApi({
       providesTags: (result, error, id) => [{ type: 'Orders', id }],
     }),
 
-    updateOrderStatus: builder.mutation<any, { orderId: string; status: string }>({
+    updateOrderStatus: builder.mutation<unknown, { orderId: string; status: string }>({
       async queryFn({ orderId, status }) {
         try {
           const response = await fetch(`/api/orders/${orderId}`, {
@@ -839,7 +840,7 @@ export const apiSlice = createApi({
       ],
     }),
 
-    getGiftInspirations: builder.query<any, {
+    getGiftInspirations: builder.query<{ data: Inspiration[] }, {
       category?: string;
       query?: string;
       rating?: number;
@@ -863,8 +864,8 @@ export const apiSlice = createApi({
           });
           const response = await fetch(`/api/gift/inspirations?${queryParams.toString()}`);
           const data = await response.json();
-          if (data.success) {
-            return { data };
+          if (data.success && Array.isArray(data.data)) {
+            return { data: { data: data.data } };
           }
           return { error: { status: response.status, data } };
         } catch (error) {
@@ -872,15 +873,15 @@ export const apiSlice = createApi({
         }
       },
       providesTags: (result) =>
-        result && result.data && Array.isArray(result.data.data)
+        result && Array.isArray(result.data)
           ? [
-              ...result.data.data.map((item: any) => ({ type: "GiftInspirations" as const, id: item.id })),
+              ...result.data.map((item) => ({ type: "GiftInspirations" as const, id: item.id })),
               { type: "GiftInspirations", id: "LIST" },
             ]
           : [{ type: "GiftInspirations", id: "LIST" }],
     }),
 
-    getGiftBoxes: builder.query<any, { category?: string; id?: string }>({
+    getGiftBoxes: builder.query<{ data: Box[] }, { category?: string; id?: string }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -891,8 +892,8 @@ export const apiSlice = createApi({
           });
           const response = await fetch(`/api/gift/boxes?${queryParams.toString()}`);
           const data = await response.json();
-          if (data.success) {
-            return { data };
+          if (data.success && Array.isArray(data.data)) {
+            return { data: { data: data.data } };
           }
           return { error: { status: response.status, data } };
         } catch (error) {
@@ -900,15 +901,15 @@ export const apiSlice = createApi({
         }
       },
       providesTags: (result) =>
-        result && result.data && Array.isArray(result.data.data)
+        result && Array.isArray(result.data)
           ? [
-              ...result.data.data.map((item: any) => ({ type: "GiftBoxes" as const, id: item.id })),
+              ...result.data.map((item) => ({ type: "GiftBoxes" as const, id: item.id })),
               { type: "GiftBoxes", id: "LIST" },
             ]
           : [{ type: "GiftBoxes", id: "LIST" }],
     }),
 
-    getGiftBoxById: builder.query<any, string>({
+    getGiftBoxById: builder.query<unknown, string>({
       async queryFn(id) {
         try {
           const response = await fetch(`/api/gift/boxes/${id}`);
@@ -924,7 +925,7 @@ export const apiSlice = createApi({
       providesTags: (result, error, id) => [{ type: 'GiftBoxes', id }],
     }),
 
-    getGiftInspirationById: builder.query<any, string>({
+    getGiftInspirationById: builder.query<unknown, string>({
       async queryFn(id) {
         try {
           const response = await fetch(`/api/gift/inspirations/${id}`);
@@ -940,7 +941,7 @@ export const apiSlice = createApi({
       providesTags: (result, error, id) => [{ type: 'GiftInspirations', id }],
     }),
 
-    validatePromoCode: builder.mutation<any, { code: string; userId: string }>({
+    validatePromoCode: builder.mutation<unknown, { code: string; userId: string }>({
       async queryFn(body) {
         try {
           const response = await fetch('/api/promo-codes/validate', {
@@ -960,7 +961,7 @@ export const apiSlice = createApi({
       invalidatesTags: [],
     }),
 
-    getProductReviews: builder.query<any, { productId: number; userId?: string }>({
+    getProductReviews: builder.query<{ data: { reviews: unknown[] } }, { productId: number; userId?: string }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -971,8 +972,8 @@ export const apiSlice = createApi({
           });
           const response = await fetch(`/api/reviews?${queryParams.toString()}`);
           const data = await response.json();
-          if (data.success) {
-            return { data };
+          if (data.success && data.data && Array.isArray(data.data.reviews)) {
+            return { data: { data: { reviews: data.data.reviews } } };
           }
           return { error: { status: response.status, data } };
         } catch (error) {
@@ -980,15 +981,15 @@ export const apiSlice = createApi({
         }
       },
       providesTags: (result) =>
-        result && result.data && result.data.data && Array.isArray(result.data.data.reviews)
+        result && result.data && Array.isArray(result.data.reviews)
           ? [
-              ...result.data.data.reviews.map((review: any) => ({ type: "ProductReviews" as const, id: review._id })),
+              ...result.data.reviews.map((review: unknown) => ({ type: "ProductReviews" as const, id: (review as { _id: string })._id })),
               { type: "ProductReviews", id: "LIST" },
             ]
           : [{ type: "ProductReviews", id: "LIST" }],
     }),
 
-    addOrUpdateReview: builder.mutation<any, { productId: number; userId: string; userName?: string; rating: number; comment?: string }>({
+    addOrUpdateReview: builder.mutation<unknown, { productId: number; userId: string; userName?: string; rating: number; comment?: string }>({
       async queryFn(body) {
         try {
           const response = await fetch('/api/reviews', {
@@ -1008,7 +1009,7 @@ export const apiSlice = createApi({
       invalidatesTags: [{ type: 'ProductReviews', id: 'LIST' }],
     }),
 
-    getCustomer: builder.query<any, { phone?: string; email?: string; id?: string }>({
+    getCustomer: builder.query<unknown, { phone?: string; email?: string; id?: string }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -1030,7 +1031,7 @@ export const apiSlice = createApi({
       providesTags: (result, error, params) => [{ type: 'Customers', id: params?.id || params?.phone || params?.email || 'LIST' }],
     }),
 
-    updateCustomer: builder.mutation<any, { id: string; name?: string; phone?: string; email?: string; password?: string; image?: string }>({
+    updateCustomer: builder.mutation<unknown, { id: string; name?: string; phone?: string; email?: string; password?: string; image?: string }>({
       async queryFn(body) {
         try {
           const response = await fetch('/api/customers/update', {
@@ -1050,7 +1051,7 @@ export const apiSlice = createApi({
       invalidatesTags: (result, error, body) => [{ type: 'Customers', id: body.id }],
     }),
 
-    getUserPreferences: builder.query<any, { userId: string }>({
+    getUserPreferences: builder.query<unknown, { userId: string }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -1072,7 +1073,7 @@ export const apiSlice = createApi({
       providesTags: (result, error, params) => [{ type: 'UserPreferences', id: params.userId }],
     }),
 
-    updateUserPreferences: builder.mutation<any, { userId: string; preferences: any }>({
+    updateUserPreferences: builder.mutation<unknown, { userId: string; preferences: unknown }>({
       async queryFn(body) {
         try {
           const response = await fetch('/api/user-preferences', {
@@ -1092,7 +1093,7 @@ export const apiSlice = createApi({
       invalidatesTags: (result, error, body) => [{ type: 'UserPreferences', id: body.userId }],
     }),
 
-    getNotifications: builder.query<any, { userId?: string; productId?: number; status?: string }>({
+    getNotifications: builder.query<{ data: Notification[] }, { userId?: string; productId?: number; status?: string }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -1103,8 +1104,8 @@ export const apiSlice = createApi({
           });
           const response = await fetch(`/api/notifications?${queryParams.toString()}`);
           const data = await response.json();
-          if (data.success) {
-            return { data };
+          if (data.success && Array.isArray(data.data)) {
+            return { data: { data: data.data } };
           }
           return { error: { status: response.status, data } };
         } catch (error) {
@@ -1112,15 +1113,15 @@ export const apiSlice = createApi({
         }
       },
       providesTags: (result) =>
-        result && result.data && Array.isArray(result.data.data)
+        result && Array.isArray(result.data)
           ? [
-              ...result.data.data.map((item: any) => ({ type: "Notifications" as const, id: item._id })),
+              ...result.data.map((item) => ({ type: "Notifications" as const, id: item._id })),
               { type: "Notifications", id: "LIST" },
             ]
           : [{ type: "Notifications", id: "LIST" }],
     }),
 
-    createOrUpdateNotification: builder.mutation<any, any>({
+    createOrUpdateNotification: builder.mutation<unknown, unknown>({
       async queryFn(body) {
         try {
           const response = await fetch('/api/notifications', {
@@ -1140,7 +1141,7 @@ export const apiSlice = createApi({
       invalidatesTags: [{ type: 'Notifications', id: 'LIST' }],
     }),
 
-    getRecommendations: builder.query<any, {
+    getRecommendations: builder.query<unknown, {
       excludeIds?: number[];
       category?: string;
       tags?: string[];

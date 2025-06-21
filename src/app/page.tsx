@@ -398,7 +398,6 @@ const ProductCard = ({ product, accentColor = "blue" }: { product: Product; acce
 
 const HomePage = () => {
   const [viewedProducts, setViewedProducts] = useState<Product[]>([])
-  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([])
   const [currentSeason] = useState(getCurrentSeason())
   const [nextSeason] = useState(getNextSeason())
   const [isFirstVisit, setIsFirstVisit] = useState(true)
@@ -519,9 +518,6 @@ const HomePage = () => {
       clearTimeout(timer);
     }
   }, [isFirstVisit])
-
-  const { data: recommendedProductsData, isLoading: isRecommendedLoading, error: recommendedError } =
-    useGetProductsQuery(recommendedQuery ?? { limit: 8 });
 
   // عرض شاشة التحميل فقط في الزيارة الأولى
   if (isFirstVisit && isLoading) {
@@ -842,14 +838,14 @@ const HomePage = () => {
               accentColor="from-violet-500 to-purple-600"
             />
 
-            {recommendedProducts && recommendedProducts.length > 0 ? (
+            {recommendedQuery && recommendedQuery.limit > 0 ? (
               <div className="relative">
                 <Swiper
                   modules={[Navigation, Pagination, Autoplay]}
                   spaceBetween={12}
                   slidesPerView={1.5}
                   centeredSlides={isMobile}
-                  loop={recommendedProducts.length > 5}
+                  loop={recommendedQuery.limit > 5}
                   autoplay={{
                     delay: 5000,
                     disableOnInteraction: false,
@@ -869,11 +865,20 @@ const HomePage = () => {
                   }}
                   className="py-8 px-2"
                 >
-                  {recommendedProducts.map((product) => (
-                    <SwiperSlide key={`recommended-${product.id}`}>
-                      <ProductCard product={product} accentColor="violet" />
+                  {recommendedQuery.tags && (
+                    <SwiperSlide key={`recommended-tags-${recommendedQuery.tags}`}>
+                      <div className="text-center py-10 text-gray-500">
+                        <p>تصفح المنتجات بناءً على العلامات: {recommendedQuery.tags}</p>
+                      </div>
                     </SwiperSlide>
-                  ))}
+                  )}
+                  {recommendedQuery.category && (
+                    <SwiperSlide key={`recommended-category-${recommendedQuery.category}`}>
+                      <div className="text-center py-10 text-gray-500">
+                        <p>تصفح المنتجات بناءً على الفئة: {recommendedQuery.category}</p>
+                      </div>
+                    </SwiperSlide>
+                  )}
                 </Swiper>
               </div>
             ) : (
