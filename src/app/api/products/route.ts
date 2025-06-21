@@ -1,20 +1,13 @@
 import { NextResponse } from "next/server"
-import type { Filter, Document, Sort } from "mongodb"
-import { connectToDatabase } from "../../../lib/mongodb"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request: Request) {
   try {
     console.log("🔍 تم استلام طلب API للمنتجات")
 
-    // Connect to database
-    const { db } = await connectToDatabase()
-
     // استخراج معلمات الاستعلام من URL
     const { searchParams } = new URL(request.url)
     console.log("📝 معلمات الاستعلام:", Object.fromEntries(searchParams.entries()))
-
-    // إنشاء كائن استعلام فارغ
-    const query: Filter<Document> = {}
 
     // تعريف دوال مساعدة للتحقق من صحة القيم
     const safeParseInt = (value: string | null): number | null => {
@@ -29,11 +22,14 @@ export async function GET(request: Request) {
       return isNaN(parsed) ? null : parsed
     }
 
-    // إضافة جميع المعلمات المتاحة إلى الاستعلام
+    // بناء استعلام Prisma
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = {}
+
     // البيانات الأساسية
     if (searchParams.has("id")) {
       const id = safeParseInt(searchParams.get("id"))
-      if (id !== null) query.id = id
+      if (id !== null) where.id = id.toString()
     }
 
     // Support for multiple IDs
@@ -45,136 +41,160 @@ export async function GET(request: Request) {
           .map((id) => Number.parseInt(id))
           .filter((id) => !isNaN(id))
         if (ids.length > 0) {
-          query.id = { $in: ids }
+          where.id = { in: ids.map(id => id.toString()) }
         }
       }
     }
 
-    if (searchParams.has("name")) query.name = { $regex: searchParams.get("name"), $options: "i" }
-    if (searchParams.has("brand")) query.brand = searchParams.get("brand")
-    if (searchParams.has("category")) query.category = searchParams.get("category")
-    if (searchParams.has("subCategory")) query.subCategory = searchParams.get("subCategory")
+    if (searchParams.has("name")) {
+      where.name = { contains: searchParams.get("name")!, mode: 'insensitive' }
+    }
+    if (searchParams.has("brand")) where.brand = searchParams.get("brand")!
+    if (searchParams.has("category")) where.category = searchParams.get("category")!
+    if (searchParams.has("subCategory")) where.subCategory = searchParams.get("subCategory")!
 
     // البحث في الوصف
-    if (searchParams.has("description")) query.description = { $regex: searchParams.get("description"), $options: "i" }
+    if (searchParams.has("description")) {
+      where.description = { contains: searchParams.get("description")!, mode: 'insensitive' }
+    }
 
     // Search in name, description, and tags
     if (searchParams.has("search")) {
-      const searchTerm = searchParams.get("search")
-      query.$or = [
-        { name: { $regex: searchTerm, $options: "i" } },
-        { description: { $regex: searchTerm, $options: "i" } },
-        { tags: { $in: [new RegExp(searchTerm as string, "i")] } },
+      const searchTerm = searchParams.get("search")!
+      where.OR = [
+        { name: { contains: searchTerm, mode: 'insensitive' } },
+        { description: { contains: searchTerm, mode: 'insensitive' } },
+        { tags: { has: searchTerm } },
       ]
     }
 
     // نطاق السعر
     if (searchParams.has("minPrice")) {
       const minPrice = safeParseFloat(searchParams.get("minPrice"))
-      if (minPrice !== null) query.price = { ...query.price, $gte: minPrice }
+      if (minPrice !== null) {
+        if (!where.price) where.price = {}
+        where.price.gte = minPrice
+      }
     }
     if (searchParams.has("maxPrice")) {
       const maxPrice = safeParseFloat(searchParams.get("maxPrice"))
-      if (maxPrice !== null) query.price = { ...query.price, $lte: maxPrice }
+      if (maxPrice !== null) {
+        if (!where.price) where.price = {}
+        where.price.lte = maxPrice
+      }
     }
 
     // نطاق السعر القديم
     if (searchParams.has("minOldPrice")) {
       const minOldPrice = safeParseFloat(searchParams.get("minOldPrice"))
-      if (minOldPrice !== null) query.old_price = { ...query.old_price, $gte: minOldPrice }
+      if (minOldPrice !== null) {
+        if (!where.oldPrice) where.oldPrice = {}
+        where.oldPrice.gte = minOldPrice
+      }
     }
     if (searchParams.has("maxOldPrice")) {
       const maxOldPrice = safeParseFloat(searchParams.get("maxOldPrice"))
-      if (maxOldPrice !== null) query.old_price = { ...query.old_price, $lte: maxOldPrice }
+      if (maxOldPrice !== null) {
+        if (!where.oldPrice) where.oldPrice = {}
+        where.oldPrice.lte = maxOldPrice
+      }
     }
 
-    // فلترة الخصومات
+    // فلترة الخصومات - تبسيط المنطق
     if (searchParams.has("discount") && searchParams.get("discount") === "true") {
-      query.$expr = { $gt: ["$old_price", "$price"] }
-      query.old_price = { $ne: null }
+      where.oldPrice = { not: null }
     }
 
     // المخزون
-    if (searchParams.has("inStock")) query.stock = { $gt: 0 }
+    if (searchParams.has("inStock")) where.stock = { gt: 0 }
     if (searchParams.has("minStock")) {
       const minStock = safeParseInt(searchParams.get("minStock"))
-      if (minStock !== null) query.stock = { ...query.stock, $gte: minStock }
+      if (minStock !== null) {
+        if (!where.stock) where.stock = {}
+        where.stock.gte = minStock
+      }
     }
 
     // العلامات الخاصة
-    if (searchParams.has("trending") && searchParams.get("trending") === "true") query.trending = true
-    if (searchParams.has("sale") && searchParams.get("sale") === "true") query.sale = true
-    if (searchParams.has("best_seller") && searchParams.get("best_seller") === "true") query.best_seller = true
-    if (searchParams.has("new_arrival") && searchParams.get("new_arrival") === "true") query.new_arrival = true
-    if (searchParams.has("isGift") && searchParams.get("isGift") === "true") query.isGift = true
+    if (searchParams.has("trending") && searchParams.get("trending") === "true") where.trending = true
+    if (searchParams.has("sale") && searchParams.get("sale") === "true") where.sale = true
+    if (searchParams.has("best_seller") && searchParams.get("best_seller") === "true") where.bestSeller = true
+    if (searchParams.has("new_arrival") && searchParams.get("new_arrival") === "true") where.newArrival = true
+    if (searchParams.has("isGift") && searchParams.get("isGift") === "true") where.isGift = true
 
     // استبعاد القيم الخالية
     if (searchParams.has("excludeNullRating") && searchParams.get("excludeNullRating") === "true") {
-      query.rating = { ...query.rating, $ne: null }
+      where.rating = { not: null }
     }
 
     // البحث في الوسوم
     if (searchParams.has("tag")) {
-      query.tags = { $in: [searchParams.get("tag")] }
+      where.tags = { has: searchParams.get("tag")! }
     }
 
     // البحث المتعدد في الوسوم
     if (searchParams.has("tags")) {
       const tagsArray = searchParams.get("tags")!.split(",")
-      query.tags = { $all: tagsArray }
+      where.tags = { hasEvery: tagsArray }
     }
 
     // البحث في الألوان
     if (searchParams.has("color")) {
-      query.colors = { $in: [searchParams.get("color")] }
+      where.colors = { has: searchParams.get("color")! }
     }
 
     // البحث المتعدد في الألوان
     if (searchParams.has("colors")) {
       const colorsArray = searchParams.get("colors")!.split(",")
-      query.colors = { $in: colorsArray }
+      where.colors = { hasSome: colorsArray }
     }
 
     // البحث في المناسبات
     if (searchParams.has("occasion")) {
-      query.occasion = { $in: [searchParams.get("occasion")] }
+      where.occasion = { has: searchParams.get("occasion")! }
     }
 
     // البحث المتعدد في المناسبات
     if (searchParams.has("occasions")) {
       const occasionsArray = searchParams.get("occasions")!.split(",")
-      query.occasion = { $in: occasionsArray }
+      where.occasion = { hasSome: occasionsArray }
     }
 
     // البحث في المواسم
     if (searchParams.has("season")) {
-      query.season = { $in: [searchParams.get("season")] }
+      where.season = { has: searchParams.get("season")! }
     }
 
     // البحث المتعدد في المواسم
     if (searchParams.has("seasons")) {
       const seasonsArray = searchParams.get("seasons")!.split(",")
-      query.season = { $in: seasonsArray }
+      where.season = { hasSome: seasonsArray }
     }
 
     // التقييم
     if (searchParams.has("minRating")) {
       const minRating = safeParseFloat(searchParams.get("minRating"))
-      if (minRating !== null) query.rating = { ...query.rating, $gte: minRating }
+      if (minRating !== null) {
+        if (!where.rating) where.rating = {}
+        where.rating.gte = minRating
+      }
     }
 
     // البحث عن الصور المتعددة
     if (searchParams.has("hasMultipleImages") && searchParams.get("hasMultipleImages") === "true") {
-      query.images = { $exists: true, $not: { $size: 0 } }
+      where.images = { isEmpty: false }
     }
 
     // البحث في المفضلات (إذا كان مطلوبًا)
     if (searchParams.has("favorites") && searchParams.has("userId") && searchParams.get("favorites") === "true") {
-      const userId = searchParams.get("userId")
-      const favorites = await db.collection("favorites").find({ userId: userId }).toArray()
-      const favoriteProductIds = favorites.map((f) => f.productId)
+      const userId = searchParams.get("userId")!
+      const favorites = await prisma.customerPreferences.findMany({
+        where: { customerId: userId },
+        select: { favoriteProducts: true }
+      })
+      const favoriteProductIds = favorites.flatMap(f => f.favoriteProducts).map(id => id.toString())
       if (favoriteProductIds.length > 0) {
-        query.id = { $in: favoriteProductIds }
+        where.id = { in: favoriteProductIds }
       } else {
         // إذا لم تكن هناك منتجات مفضلة، إرجاع مصفوفة فارغة
         return NextResponse.json({
@@ -196,66 +216,72 @@ export async function GET(request: Request) {
     const skip = (page - 1) * limit
 
     // تحديد طريقة الترتيب
-    let sort: Sort = { _id: -1 } // الافتراضي: الأحدث أولاً
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let orderBy: any = { createdAt: 'desc' } // الافتراضي: الأحدث أولاً
     if (searchParams.has("sort")) {
       const sortParam = searchParams.get("sort")
       switch (sortParam) {
         case "price_asc":
-          sort = { price: 1 }
+          orderBy = { price: 'asc' }
           break
         case "price_desc":
-          sort = { price: -1 }
+          orderBy = { price: 'desc' }
           break
         case "name_asc":
-          sort = { name: 1 }
+          orderBy = { name: 'asc' }
           break
         case "name_desc":
-          sort = { name: -1 }
+          orderBy = { name: 'desc' }
           break
         case "rating_desc":
-          sort = { rating: -1 }
+          orderBy = { rating: 'desc' }
           break
         case "popularity":
-          sort = { views: -1 }
+          orderBy = { views: 'desc' }
           break
         case "discount":
-          sort = { discount_percentage: -1 }
+          orderBy = { discountPercentage: 'desc' }
           break
       }
     }
 
-    // إعداد خيارات التقييد والتوسعة (إذا لزم الأمر)
-    const projection: Partial<Document> = {}
+    // تحديد الحقول المطلوبة
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let select: any = undefined
     if (searchParams.has("fields")) {
       const fields = searchParams.get("fields")!.split(",")
+      select = {}
       fields.forEach((field) => {
-        projection[field] = 1
+        select[field] = true
       })
     }
 
     try {
       // جلب المنتجات من قاعدة البيانات
-      console.log("🔍 استعلام المنتجات مع:", JSON.stringify(query))
-      const products = await db
-        .collection("products")
-        .find(query)
-        .project(Object.keys(projection).length > 0 ? projection : {})
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .toArray()
+      console.log("🔍 استعلام المنتجات مع:", JSON.stringify(where))
+      
+      const [products, total] = await Promise.all([
+        prisma.product.findMany({
+          where,
+          select: select || undefined,
+          orderBy,
+          skip,
+          take: limit,
+        }),
+        prisma.product.count({ where })
+      ])
 
       console.log(`✅ تم العثور على ${products.length} منتج`)
 
       // الحصول على إجمالي عدد المنتجات للتصفح
-      const total = await db.collection("products").countDocuments(query)
       console.log(`📊 إجمالي المنتجات المطابقة للاستعلام: ${total}`)
 
       // حساب خصائص إضافية للعرض (إذا لزم الأمر)
       const enhancedProducts = products.map((product) => {
         // إضافة نسبة الخصم إذا كان هناك سعر قديم
-        if (product.old_price && product.price) {
-          product.discount_percentage = Math.round(((product.old_price - product.price) / product.old_price) * 100)
+        if (product.oldPrice && product.price) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (product as any).discountPercentage = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
         }
         return product
       })

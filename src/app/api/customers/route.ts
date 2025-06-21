@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/mongodb"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request: Request) {
   try {
@@ -15,37 +15,33 @@ export async function GET(request: Request) {
       )
     }
 
-    const { db } = await connectToDatabase()
-
     // بناء استعلام البحث
-    interface SearchQuery {
-      phone?: string;
-      email?: string;
-      id?: string;
-    }
-    const query: SearchQuery = {}
-    if (phone) query.phone = phone
-    if (email) query.email = email
-    if (id) query.id = id
+    const where: { phone?: string; email?: string; id?: string } = {}
+    if (phone) where.phone = phone
+    if (email) where.email = email
+    if (id) where.id = id
 
     // البحث عن المستخدم
-    const user = await db.collection("customers").findOne(query)
+    const user = await prisma.customer.findFirst({
+      where,
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        email: true,
+        createdAt: true,
+        lastLoginAt: true,
+        isActive: true,
+        orderCount: true,
+      }
+    })
 
     if (user) {
       // إعادة معلومات محددة فقط للأمان
       return NextResponse.json({
         success: true,
         exists: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          phone: user.phone,
-          email: user.email,
-          createdAt: user.createdAt,
-          lastLoginAt: user.lastLoginAt,
-          isActive: user.isActive,
-          orderCount: user.orderCount,
-        },
+        user,
       })
     } else {
       return NextResponse.json({

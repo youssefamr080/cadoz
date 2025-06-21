@@ -1,13 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { connectToDatabase } from "../../../../lib/mongodb"
-
-interface UpdateData {
-  status: string
-  updatedAt: Date
-  shippedAt?: Date
-  deliveredAt?: Date
-  cancelledAt?: Date
-}
+import { prisma } from "@/lib/prisma"
 
 // Fix: Use the async params pattern introduced in Next.js 15
 export async function GET(request: NextRequest, { params }: { params: Promise<{ orderId: string }> }) {
@@ -19,10 +11,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ success: false, message: "معرف الطلب مطلوب" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
-
     // البحث عن الطلب
-    const order = await db.collection("orders").findOne({ id: orderId })
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: true,
+        shipping: true,
+        payment: true,
+        totals: true,
+        promoCode: true,
+        customer: true,
+      }
+    })
 
     if (!order) {
       return NextResponse.json({ success: false, message: "الطلب غير موجود" }, { status: 404 })
@@ -50,11 +50,26 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       return NextResponse.json({ success: false, message: "معرف الطلب مطلوب" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
+    // Map status to proper enum value
+    const statusMap: Record<string, "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED"> = {
+      pending: "PENDING",
+      processing: "PROCESSING",
+      shipped: "SHIPPED",
+      delivered: "DELIVERED",
+      cancelled: "CANCELLED",
+    }
+
+    const mappedStatus = statusMap[status.toLowerCase()] || "PENDING"
 
     // تحديث حالة الطلب
-    const updateData: UpdateData = {
-      status,
+    const updateData: {
+      status: "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
+      updatedAt: Date;
+      shippedAt?: Date;
+      deliveredAt?: Date;
+      cancelledAt?: Date;
+    } = {
+      status: mappedStatus,
       updatedAt: new Date(),
     }
 
@@ -67,9 +82,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       updateData.cancelledAt = new Date()
     }
 
-    const result = await db.collection("orders").updateOne({ id: orderId }, { $set: updateData })
+    const result = await prisma.order.update({
+      where: { id: orderId },
+      data: updateData
+    })
 
-    if (result.matchedCount === 0) {
+    if (!result) {
       return NextResponse.json({ success: false, message: "الطلب غير موجود" }, { status: 404 })
     }
 

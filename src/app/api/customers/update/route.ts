@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "@/lib/mongodb"
+import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
 export async function PATCH(request: Request) {
@@ -11,25 +11,24 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ success: false, message: "معرف المستخدم مطلوب" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
-
     // التحقق من وجود المستخدم
-    const existingUser = await db.collection("customers").findOne({ id })
+    const existingUser = await prisma.customer.findUnique({
+      where: { id }
+    })
 
     if (!existingUser) {
       return NextResponse.json({ success: false, message: "المستخدم غير موجود" }, { status: 404 })
     }
 
     // إعداد البيانات للتحديث
-    interface UpdateData {
+    const updateData: {
       updatedAt: Date;
       name?: string;
       phone?: string;
       email?: string;
       image?: string;
       password?: string;
-    }
-    const updateData: UpdateData = {
+    } = {
       updatedAt: new Date(),
     }
 
@@ -44,7 +43,10 @@ export async function PATCH(request: Request) {
     }
 
     // تحديث بيانات المستخدم
-    await db.collection("customers").updateOne({ id }, { $set: updateData })
+    await prisma.customer.update({
+      where: { id },
+      data: updateData
+    })
 
     return NextResponse.json({
       success: true,

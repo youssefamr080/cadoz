@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "../../../lib/mongodb"
-import { ObjectId } from "mongodb"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { userId, productId, productName, phone, name, createdAt } = body
-    const userAgent = request.headers.get("user-agent") || ""
-    const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "0.0.0.0"
+    const { userId, productId, productName, phone, name } = body
 
     // التحقق من البيانات المطلوبة
     if (!userId || !productId || !productName || !phone || !name) {
@@ -24,126 +21,62 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
-
     // التحقق من وجود إشعار مسبق لنفس المستخدم والمنتج
-    const existingNotification = await db.collection("notifications").findOne({
-      userId: String(userId), // تحويل إلى نص للتأكد من التطابق
-      productId: Number(productId),
+    const existingNotification = await prisma.notification.findFirst({
+      where: {
+        userId: String(userId), // تحويل إلى نص للتأكد من التطابق
+        title: { contains: productName }, // استخدام العنوان للبحث عن المنتج
+      }
     })
 
     if (existingNotification) {
       // تحديث الإشعار الموجود
-      const updateResult = await db.collection("notifications").updateOne(
-        { _id: existingNotification._id },
-        {
-          $set: {
-            updatedAt: new Date(),
-            lastRequestIp: ip,
-            lastUserAgent: userAgent,
-            requestCount: (existingNotification.requestCount || 1) + 1,
-            name: String(name), // تحويل إلى نص للتأكد من التخزين الصحيح
-          },
-          $addToSet: {
-            requestedProducts: {
-              productId: Number(productId),
-              productName: String(productName),
-              requestedAt: new Date(),
-            }
-          }
-        },
-      )
-
-      if (!updateResult.modifiedCount) {
-        throw new Error("Failed to update existing notification")
-      }
-
-      // تسجيل حدث تحديث الإشعار
-      await db.collection("customerEvents").insertOne({
-        userId: String(userId),
-        eventType: "notification_update",
-        timestamp: new Date(),
-        context: {
-          productId: Number(productId),
-          notificationId: existingNotification._id,
-          productName: String(productName),
-        },
+      const updatedNotification = await prisma.notification.update({
+        where: { id: existingNotification.id },
+        data: {
+          message: `تم تحديث طلب الإشعار للمنتج: ${productName}`,
+          type: "CUSTOM",
+          isRead: false,
+        }
       })
 
       return NextResponse.json({
         success: true,
         message: "تم تحديث الإشعار",
-        notification: existingNotification,
+        notification: updatedNotification,
       })
     }
 
     // إنشاء إشعار جديد
-    const notification = {
-      userId: String(userId),
-      productId: Number(productId),
-      productName: String(productName),
-      phone: String(phone),
-      name: String(name),
-      createdAt: createdAt || new Date(),
-      updatedAt: new Date(),
-      status: "pending",
-      ip,
-      userAgent,
-      requestCount: 1,
-      source: "product_page",
-      requestedProducts: [{
-        productId: Number(productId),
-        productName: String(productName),
-        requestedAt: new Date(),
-      }]
-    }
-
-    const result = await db.collection("notifications").insertOne(notification)
-
-    if (!result.insertedId) {
-      throw new Error("Failed to create new notification")
-    }
+    const notification = await prisma.notification.create({
+      data: {
+        title: `إشعار جديد للمنتج: ${productName}`,
+        message: `تم تسجيل طلب إشعار للمنتج: ${productName}`,
+        type: "CUSTOM",
+        userId: String(userId),
+        isRead: false,
+      }
+    })
 
     // تحديث بيانات العميل
-    await db.collection("customers").updateOne(
-      { id: String(userId) },
-      {
-        $inc: { notificationCount: 1 },
-        $set: { 
-          lastNotificationAt: new Date(),
-          name: String(name)
-        },
-        $addToSet: { interestedProducts: Number(productId) },
+    await prisma.customer.upsert({
+      where: { id: String(userId) },
+      update: {
+        name: String(name),
       },
-      { upsert: true } // إنشاء وثيقة جديدة إذا لم تكن موجودة
-    )
-
-    // تحديث بيانات المنتج
-    await db.collection("products").updateOne(
-      { id: Number(productId) }, 
-      { $inc: { notificationRequests: 1 } },
-      { upsert: true } // إنشاء وثيقة جديدة إذا لم تكن موجودة
-    )
-
-    // تسجيل حدث إنشاء الإشعار
-    await db.collection("customerEvents").insertOne({
-      userId: String(userId),
-      eventType: "notification_create",
-      timestamp: new Date(),
-      context: {
-        productId: Number(productId),
-        notificationId: result.insertedId,
-        productName: String(productName),
-      },
+      create: {
+        id: String(userId),
+        name: String(name),
+        phone: String(phone),
+        email: "",
+        password: "", // سيتم تحديثه لاحقاً
+      }
     })
 
     return NextResponse.json({
       success: true,
       message: "تم تسجيل الإشعار بنجاح",
-      notification: {
-        ...notification,
-        _id: result.insertedId,
-      },
+      notification,
     })
   } catch (error) {
     console.error("Error creating notification:", error)
@@ -159,39 +92,24 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get("userId")
-    const productId = searchParams.get("productId")
     const status = searchParams.get("status")
 
-    const { db } = await connectToDatabase()
-
-    let query = {}
+    const where: { userId?: string; isRead?: boolean } = {}
 
     if (userId) {
-      query = { ...query, userId }
+      where.userId = userId
     }
 
-    if (productId) {
-      query = { ...query, productId: Number(productId) }
+    if (status === "read") {
+      where.isRead = true
+    } else if (status === "unread") {
+      where.isRead = false
     }
 
-    if (status) {
-      query = { ...query, status }
-    }
-
-    const notifications = await db.collection("notifications").find(query).toArray()
-
-    // تسجيل حدث استعلام عن الإشعارات إذا كان المستخدم محددًا
-    if (userId && userId !== "guest-user") {
-      await db.collection("customerEvents").insertOne({
-        userId,
-        eventType: "notifications_view",
-        timestamp: new Date(),
-        context: {
-          count: notifications.length,
-          filters: { productId, status },
-        },
-      })
-    }
+    const notifications = await prisma.notification.findMany({
+      where,
+      orderBy: { createdAt: 'desc' }
+    })
 
     return NextResponse.json({
       success: true,
@@ -199,63 +117,11 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error("Error fetching notifications:", error)
-    return NextResponse.json({ success: false, message: "حدث خطأ أثناء جلب الإشعارات" }, { status: 500 })
-  }
-}
-
-// إضافة وظيفة لتحديث حالة الإشعار
-export async function PATCH(request: Request) {
-  try {
-    const body = await request.json()
-    const { notificationId, status, userId } = body
-
-    if (!notificationId || !status) {
-      return NextResponse.json({ success: false, message: "بيانات غير مكتملة" }, { status: 400 })
-    }
-
-    const { db } = await connectToDatabase()
-
-    // التحقق من وجود الإشعار
-    const notification = await db.collection("notifications").findOne({ _id: new ObjectId(notificationId) })
-
-    if (!notification) {
-      return NextResponse.json({ success: false, message: "الإشعار غير موجود" }, { status: 404 })
-    }
-
-    // تحديث حالة الإشعار
-    await db.collection("notifications").updateOne(
-      { _id: new ObjectId(notificationId) },
-      {
-        $set: {
-          status,
-          statusUpdatedAt: new Date(),
-          statusUpdatedBy: userId || "system",
-        },
-      },
-    )
-
-    // تسجيل حدث تحديث حالة الإشعار
-    if (userId && userId !== "guest-user") {
-      await db.collection("customerEvents").insertOne({
-        userId,
-        eventType: "notification_status_update",
-        timestamp: new Date(),
-        context: {
-          notificationId,
-          productId: notification.productId,
-          oldStatus: notification.status,
-          newStatus: status,
-        },
-      })
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "تم تحديث حالة الإشعار بنجاح",
-    })
-  } catch (error) {
-    console.error("Error updating notification status:", error)
-    return NextResponse.json({ success: false, message: "حدث خطأ أثناء تحديث حالة الإشعار" }, { status: 500 })
+    return NextResponse.json({ 
+      success: false, 
+      message: "حدث خطأ أثناء جلب الإشعارات",
+      error: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
   }
 }
 

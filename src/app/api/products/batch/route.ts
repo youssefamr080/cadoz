@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,43 +12,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { db } = await connectToDatabase();
+    // Convert all IDs to strings for Prisma
+    const stringIds = ids.map(id => id.toString());
     
-    // Separate IDs into valid ObjectIds and strings
-    const validObjectIds: ObjectId[] = [];
-    const stringIds: string[] = [];
-    
-    ids.forEach((_id: string) => {
-      try {
-        validObjectIds.push(new ObjectId(_id));
-      } catch {
-        stringIds.push(_id); // Keep as string if not a valid ObjectId
+    const products = await prisma.product.findMany({
+      where: {
+        id: { in: stringIds }
       }
     });
-
-    // Query products by _id only (using $or to handle both ObjectId and string types)
-    const query: Record<string, unknown> = {};
-    
-    if (validObjectIds.length > 0 && stringIds.length > 0) {
-      query.$or = [
-        { _id: { $in: validObjectIds } },
-        { id: { $in: stringIds } }
-      ];
-    } else if (validObjectIds.length > 0) {
-      query._id = { $in: validObjectIds };
-    } else if (stringIds.length > 0) {
-      query.id = { $in: stringIds };
-    } else {
-      // No valid IDs, return empty array
-      return NextResponse.json([]);
-    }
-    
-    const products = await db.collection('products').find(query).toArray();
 
     // Map the products to ensure consistent ID format
     const formattedProducts = products.map(product => ({
       ...product,
-     _id: product._id.toString()
+      _id: product.id
     }));
 
     return NextResponse.json(formattedProducts);

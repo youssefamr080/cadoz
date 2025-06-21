@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { connectToDatabase } from "../../../../lib/mongodb"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(
   request: NextRequest,
@@ -14,17 +14,20 @@ export async function GET(
       return NextResponse.json({ success: false, message: "Invalid product ID" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
-
     // Get product
-    const product = await db.collection("products").findOne({ id: productIdNum })
+    const product = await prisma.product.findUnique({
+      where: { id: productIdNum.toString() }
+    })
 
     if (!product) {
       return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
     }
 
     // Update view count if needed
-    await db.collection("products").updateOne({ id: productIdNum }, { $inc: { views: 1 } })
+    await prisma.product.update({
+      where: { id: productIdNum.toString() },
+      data: { views: { increment: 1 } }
+    })
 
     return NextResponse.json({
       success: true,
