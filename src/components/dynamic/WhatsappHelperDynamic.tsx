@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
-import LoadingSpinner from '@/components/ui/LoadingSpinner'
 
 // Dynamic import for WhatsappHelper with loading fallback
 const WhatsappHelper = dynamic(
@@ -19,7 +18,12 @@ const WhatsappHelper = dynamic(
   }
 )
 
-export default function WhatsappHelperDynamic(props: any) {
+interface WhatsappHelperProps {
+  phoneNumber: string
+  className?: string
+}
+
+export default function WhatsappHelperDynamic(props: WhatsappHelperProps) {
   return (
     <Suspense fallback={
       <div className="fixed bottom-6 right-6 z-50">
