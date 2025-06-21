@@ -3,13 +3,20 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { Inspiration } from "@/types/inspiration";
 
-export default function UseInspirationButton() {
+interface UseInspirationButtonProps {
+  inspiration: Inspiration;
+}
+
+export default function UseInspirationButton({ inspiration }: UseInspirationButtonProps) {
   // const { loadInspiration } = useGift();
   const router = useRouter();
 
   const handleUse = () => {
     // TODO: dispatch(loadInspiration(inspiration))
+    // TODO: Use inspiration data to pre-populate gift builder
+    console.log('Using inspiration:', inspiration.id);
     router.push("/gift");
   };
 

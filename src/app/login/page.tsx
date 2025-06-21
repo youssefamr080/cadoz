@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "react-toastify"
-import { useAuth } from "@/context/AuthContext"
+import { useAuth } from "@/providers/AuthProvider"
 
 const LoginContent = () => {
   const router = useRouter()
@@ -79,6 +79,7 @@ const LoginContent = () => {
             name: session.user.name,
             phone: session.user.phone || formData.phone,
             email: session.user.email,
+            role: 'user' as const,
           }
 
           // حفظ بيانات المستخدم في localStorage
@@ -150,6 +151,7 @@ const LoginContent = () => {
               name: session.user.name,
               phone: session.user.phone || formData.phone,
               email: session.user.email,
+              role: 'user' as const,
             }
 
             // حفظ بيانات المستخدم في localStorage

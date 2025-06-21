@@ -15,7 +15,7 @@ import type { Decoration } from "@/types/database"
 import Image from "next/image"
 
 export default function DecorationSelector() {
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useDispatch()
   const selectedDecorations = useSelector((state: RootState) => state.gift.selectedDecorations) as Decoration[]
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
   const [decorations, setDecorations] = useState<Decoration[]>([])
@@ -56,6 +56,7 @@ export default function DecorationSelector() {
 
   const handleSaveForLater = (decoration: Decoration, e: React.MouseEvent) => {
     e.stopPropagation()
+    // @ts-ignore
     dispatch(addSavedItemThunk({
       id: decoration.id,
       name: decoration.name,

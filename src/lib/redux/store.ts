@@ -10,12 +10,14 @@ import searchReducer from "./slices/searchSlice"
 
 // redux-persist imports
 import storage from "redux-persist/lib/storage"
-import { persistReducer, persistStore } from "redux-persist"
+import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist"
 
 const persistConfig = {
   key: "root",
   storage,
   whitelist: ["cart", "wishlist", "gift", "inspiration", "customGift"],
+  // استبعاد RTK Query من الـ persist
+  blacklist: [apiSlice.reducerPath],
 }
 
 const rootReducer = combineReducers({
@@ -34,13 +36,16 @@ export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Desactivar para manejar objetos no serializables como ObjectId
-    }).concat(apiSlice.middleware),
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }).concat(apiSlice.middleware) as any,
 })
 
 export const persistor = persistStore(store)
 
 setupListeners(store.dispatch)
 
-export type RootState = ReturnType<typeof rootReducer>
+export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

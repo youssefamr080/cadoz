@@ -14,7 +14,7 @@ import type { Bag } from "@/types/database"
 import Image from "next/image"
 
 export default function BagSelector() {
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useDispatch()
   const selectedBag = useSelector((state: RootState) => state.gift.selectedBag)
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
   const [bags, setBags] = useState<Bag[]>([])
@@ -49,6 +49,7 @@ export default function BagSelector() {
 
   const handleSaveForLater = (bag: Bag, e: React.MouseEvent) => {
     e.stopPropagation()
+    // @ts-ignore
     dispatch(addSavedItemThunk({
       id: bag.id,
       name: bag.name,

@@ -14,14 +14,13 @@ import { useGetOrderByIdQuery } from '@/lib/redux/api/apiSlice'
 import { useAuth } from "@/providers/AuthProvider"
 
 interface OrderDetailsProps {
-  params: Promise<{
+  params: {
     orderId: string
-  }>
+  }
 }
 
 const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
-  const unwrappedParams = React.use(params)
-  const { orderId } = unwrappedParams
+  const { orderId } = params
 
   const { user, isLoading } = useAuth()
   const router = useRouter()

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import PhoneNumberModal from '@/components/auth/PhoneNumberModal';
 
 type UserRole = 'user' | 'admin';
 
-interface User {
+export interface User {
   id: string;
   name: string;
   email?: string;
@@ -20,6 +20,9 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  loading: boolean;
+  login: (userData: User) => void;
+  logout: () => Promise<void>;
   updatePhoneNumber: (phone: string) => Promise<void>;
 }
 
@@ -97,8 +100,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const login = (userData: User) => {
+    setUser(userData);
+  };
+
+  const logout = async () => {
+    await signOut();
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, updatePhoneNumber }}>
+    <AuthContext.Provider value={{ user, isLoading, loading: isLoading, login, logout, updatePhoneNumber }}>
       {children}
       {showPhoneModal && (
         <PhoneNumberModal

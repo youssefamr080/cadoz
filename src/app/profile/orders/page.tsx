@@ -2,59 +2,37 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../../../context/AuthContext"
+import { useAuth } from "@/providers/AuthProvider"
 import { useGetOrdersQuery } from '@/lib/redux/api/apiSlice'
-import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { skipToken } from '@reduxjs/toolkit/query'
+import type { Order } from "@/types/database"
 
 import { Package, Search, Filter, ArrowLeft, Calendar, MapPin } from "lucide-react"
-import { Button } from "../../../components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Input } from "../../../components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { format } from "date-fns"
 import { ar } from "date-fns/locale"
 import { toast } from "react-toastify"
 
-interface OrderItem {
-  id: number
-  name: string
-  image: string
-  price: number
-  quantity: number
-  variant?: string
-}
-
-interface Order {
-  id: string
-  status: string
-  createdAt: string
-  items: OrderItem[]
-  shipping: {
-    governorate: string
-    address?: string
-  }
-  totals: {
-    total: number
-  }
-}
-
 const OrdersPage = () => {
-  const { user, loading } = useAuth()
+  const { user, isLoading } = useAuth()
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
 
   // جلب الطلبات باستخدام RTK Query
   const { data, isLoading: isLoadingOrders } = useGetOrdersQuery(user ? { customerId: user.id } : skipToken, { skip: !user })
-  const orders: Order[] = data?.orders || []
+  const orders: Order[] = data || []
 
   // التحقق من تسجيل الدخول
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !user) {
       router.push("/")
       toast.error("يرجى تسجيل الدخول للوصول إلى صفحة الطلبات")
     }
-  }, [user, loading, router])
+  }, [user, isLoading, router])
 
   // تصفية الطلبات حسب الحالة والبحث
   const filteredOrders = orders.filter((order) => {
@@ -68,7 +46,7 @@ const OrdersPage = () => {
     return matchesStatus && matchesSearch
   })
 
-  if (loading || !user) {
+  if (isLoading || !user) {
     return (
       <div className="h-full bg-gray-50 flex items-center justify-center">
         <div className="animate-pulse text-purple-600 text-xl">جاري التحميل...</div>
@@ -167,7 +145,7 @@ const OrdersPage = () => {
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          <span>{format(new Date(order.createdAt), "PPP", { locale: ar })}</span>
+                          <span>{format(order.createdAt instanceof Date ? order.createdAt : new Date(order.createdAt), "PPP", { locale: ar })}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <MapPin className="h-4 w-4" />

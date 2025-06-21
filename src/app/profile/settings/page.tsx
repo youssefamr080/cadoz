@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../../../context/AuthContext"
+import { useAuth } from "@/providers/AuthProvider"
 import { ArrowLeft, User, Phone, Mail, Lock, Eye, EyeOff, Save, Trash } from "lucide-react"
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card"
@@ -25,7 +25,7 @@ import {
 } from "../../../components/ui/alert-dialog"
 
 const SettingsPage = () => {
-  const { user, loading, updateUserData, logout } = useAuth()
+  const { user, loading, login, logout } = useAuth()
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("profile")
   const [showPassword, setShowPassword] = useState(false)
@@ -77,7 +77,8 @@ const SettingsPage = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // تحديث بيانات المستخدم في السياق
-      updateUserData({
+      login({
+        ...user,
         name: formData.name,
         phone: formData.phone,
         email: formData.email,

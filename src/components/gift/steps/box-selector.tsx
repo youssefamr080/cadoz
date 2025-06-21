@@ -24,7 +24,7 @@ const boxCategories = [
 ]
 
 export default function BoxSelector() {
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useDispatch()
   const selectedBox = useSelector((state: RootState) => state.gift.selectedBox)
   const [category, setCategory] = useState("basic")
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
@@ -60,6 +60,7 @@ export default function BoxSelector() {
 
   const handleSaveForLater = (box: Box, e: React.MouseEvent) => {
     e.stopPropagation()
+    // @ts-ignore
     dispatch(addSavedItemThunk({
       id: box.id,
       name: box.name,

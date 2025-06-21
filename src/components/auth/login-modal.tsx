@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { X, User, Phone, Lock, Eye, EyeOff } from "lucide-react"
+import { X, User as UserIcon, Lock, Eye, EyeOff } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { toast } from "react-toastify"
 import { signIn, getSession } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc"
-import type { UserData } from "@/context/AuthContext"
+import type { User } from "@/providers/AuthProvider"
 
 // واجهة خاصة بنموذج تسجيل الدخول
 interface LoginFormData {
@@ -25,7 +25,7 @@ interface LoginFormData {
 interface LoginModalProps {
   isOpen: boolean
   onClose: () => void
-  onSuccess: (userData: UserData) => void
+  onSuccess: (userData: User) => void
   forNotification?: boolean
   forSaveForLater?: boolean
   productId?: number
@@ -108,7 +108,7 @@ export default function LoginModal({
         // Fetch the session to get user data
         const session = await getSession();
         if (session && session.user) {
-          const userData: UserData = {
+          const userData: User = {
             id: session.user.id as string,
             name: session.user.name || "",
             phone: session.user.phone || formData.phone,
@@ -213,7 +213,7 @@ export default function LoginModal({
           const currentSession = await getSession(); // getSession is already imported
 
           if (currentSession && currentSession.user) {
-            const userData: UserData = {
+            const userData: User = {
               id: currentSession.user.id as string,
               name: currentSession.user.name || formData.name,
               phone: currentSession.user.phone || formData.phone,
@@ -334,7 +334,7 @@ export default function LoginModal({
             <div className="space-y-2">
               <Label htmlFor="phone">رقم الهاتف</Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <UserIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="phone"
                   name="phone"
@@ -415,7 +415,7 @@ export default function LoginModal({
             <div className="space-y-2">
               <Label htmlFor="name">الاسم</Label>
               <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <UserIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="name"
                   name="name"
@@ -431,7 +431,7 @@ export default function LoginModal({
             <div className="space-y-2">
               <Label htmlFor="phone">رقم الهاتف (واتساب)</Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <UserIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="phone"
                   name="phone"
@@ -504,7 +504,7 @@ export default function LoginModal({
             <div className="space-y-2">
               <Label htmlFor="phone">رقم الهاتف</Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <UserIcon className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   id="phone"
                   name="phone"

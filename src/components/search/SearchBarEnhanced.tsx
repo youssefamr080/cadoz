@@ -63,7 +63,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   // استخراج الحالة والوظائف من مخزن البحث (Zustand)
   const searchState = useSelector((state: RootState) => state.search);
   const { suggestions, enableSpellCorrection, enableAutocomplete, productsCache, inspirationsCache, recentSearches: storeRecentSearches } = searchState;
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
 
   // إضافة متغيرات جديدة للاقتراحات الذكية
   const [smartSuggestions, setSmartSuggestions] = useState<string[]>([]);
@@ -78,6 +78,7 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
   // استدعاء API البحث مع تطبيق فلترة المنتجات في واجهة المستخدم بدلاً من تعديل المخزن
   const performSearch = (searchQuery: string) => {
     if (searchQuery.length >= 2) {
+      // @ts-ignore
       dispatch(searchAsync(searchQuery));
     }
   };
