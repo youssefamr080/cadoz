@@ -9,6 +9,9 @@ import { getGiftProductsByIds } from "@/lib/actions/product-actions";
 import { getDecorationsByIds } from "@/lib/actions/decoration-actions";
 import { getMainProductsByIds } from "@/lib/actions/main-product-actions";
 import type { Inspiration } from "@/types/inspiration";
+import { useDispatch } from "react-redux";
+import { addItem } from "@/lib/redux/slices/cartSlice";
+import type { CartItem } from "@/lib/redux/slices/cartSlice";
 
 interface AddToCartButtonProps {
   inspiration: Inspiration;
@@ -16,6 +19,7 @@ interface AddToCartButtonProps {
 
 export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const handleAddToCart = async () => {
     setIsLoading(true);
@@ -111,7 +115,7 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
       const totalPrice = productsTotal + mainProductsTotal + boxPrice + bagPrice + decorationsPrice;
       
       // Create a cart item with complete gift data
-      const cartItem = {
+      const cartItem: CartItem = {
         id: Date.now(),
         name: inspiration.name || "هدية مخصصة",
         image: inspiration.image || box?.image || "/images/box.png",
@@ -124,20 +128,16 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
         giftData: {
           items: [
             ...productsWithQuantities.map(p => ({
-              id: p.id,
               name: p.name,
-              image: p.image,
-              price: p.price,
               quantity: p.quantity || 1,
-              type: 'gift'
+              image: p.image,
+              price: p.price
             })),
             ...mainProductsWithQuantities.map(p => ({
-              id: p.id,
               name: p.name,
-              image: p.image,
-              price: p.price,
               quantity: p.quantity || 1,
-              type: 'main'
+              image: p.image,
+              price: p.price
             })),
           ],
           box: box ? {
@@ -151,28 +151,17 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
             price: bagPrice
           } : null,
           decorations: decorationsWithPrices.map(d => ({
-            id: d.id,
             name: d.name,
             image: d.image,
-            price: d.price,
-            type: 'decoration'
+            price: d.price
           })),
           totalPrice: totalPrice,
           createdAt: new Date().toISOString()
         }
       };
       
-      // Get existing cart and add new item
-      const existingCart = localStorage.getItem("cadoz-cart");
-      const cart = existingCart ? JSON.parse(existingCart) : [];
-      cart.push(cartItem);
-      
-      // Update localStorage
-      localStorage.setItem("cadoz-cart", JSON.stringify(cart));
-      
-      // Dispatch a custom event to notify cart context
-      const cartUpdateEvent = new CustomEvent("cartUpdated", { detail: cart });
-      window.dispatchEvent(cartUpdateEvent);
+      // Add item to Redux store instead of localStorage
+      dispatch(addItem({ item: cartItem, quantity: 1 }));
       
       toast.success(`تمت إضافة هدية "${inspiration.name}" إلى السلة بنجاح!`, {
         position: "top-center",
