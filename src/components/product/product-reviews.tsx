@@ -5,7 +5,7 @@ import { Star, ThumbsUp, ThumbsDown, MessageSquare, StarHalf, AlertCircle } from
 import { Button } from "../../components/ui/button"
 import { Textarea } from "../../components/ui/textarea"
 import { Skeleton } from "../../components/ui/skeleton"
-import { useToast } from "../../components/gift/hooks/use-toast"
+import { useToast } from "../../hooks/use-toast"
 import { Avatar, AvatarFallback } from "../../components/ui/avatar"
 import { useAuth } from "../../providers/AuthProvider"
 import LoginModal from "../auth/login-modal"
@@ -78,7 +78,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       toast({
         title: "خطأ",
         description: "يرجى تحديد تقييم",
-        variant: "destructive",
+        variant: "error",
       })
       return
     }
@@ -125,7 +125,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         toast({
           title: "خطأ",
           description: data.message || "حدث خطأ أثناء إضافة التقييم",
-          variant: "destructive",
+          variant: "error",
         })
       }
     } catch (error) {
@@ -133,7 +133,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       toast({
         title: "خطأ",
         description: "حدث خطأ أثناء إضافة التقييم",
-        variant: "destructive",
+        variant: "error",
       })
     } finally {
       setSubmitting(false)
@@ -179,7 +179,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         toast({
           title: "خطأ",
           description: data.message || "حدث خطأ أثناء تقييم المراجعة",
-          variant: "destructive",
+          variant: "error",
         })
       }
     } catch (error) {
@@ -187,7 +187,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
       toast({
         title: "خطأ",
         description: "حدث خطأ أثناء تقييم المراجعة",
-        variant: "destructive",
+        variant: "error",
       })
     }
   }

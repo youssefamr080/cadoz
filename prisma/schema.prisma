@@ -18,11 +18,25 @@ model Product {
   price       Float
   oldPrice    Float?
   image       String?
+  images      String[]
   category    String?
+  subCategory String?
+  brand       String?
   tags        String[]
   stock       Int      @default(0)
   inStock     Boolean  @default(true)
   rating      Float?
+  views       Int      @default(0)
+  bestSeller  Boolean  @default(false)
+  newArrival  Boolean  @default(false)
+  trending    Boolean  @default(false)
+  sale        Boolean  @default(false)
+  isGift      Boolean  @default(false)
+  occasion    String[]
+  season      String[] @default(["الكل"])
+  colors      String[]
+  video       String?
+  discountPercentage Float?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -30,8 +44,380 @@ model Product {
 model Category {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
+  nameAr      String?
   description String?
   image       String?
+  icon        String?
+  slug        String   @unique
+  parentId    String?  @db.ObjectId
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children    Category[] @relation("CategoryHierarchy")
+  productCount Int     @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Customer {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  phone           String   @unique
+  email           String?  @unique
+  password        String
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastLoginAt     DateTime?
+  lastIp          String?
+  lastUserAgent   String?
+  currentSessionId String?
+  loginCount      Int      @default(0)
+  lastProductViewed Int?
+  lastActiveAt    DateTime?
+  totalProductViews Int    @default(0)
+  totalViewDuration Int    @default(0)
+  viewCount       Int      @default(0)
+  averageViewDuration Float @default(0)
+  orderCount      Int      @default(0)
+  lastOrderAt     DateTime?
+  
+  // Relations
+  orders          Order[]
+  devices         Device[]
+  addresses       Address[]
+  preferences     CustomerPreferences?
+  notifications   NotificationPreferences?
+}
+
+model Device {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId  String   @db.ObjectId
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  deviceId    String
+  userAgent   String
+  ip          String
+  lastUsedAt  DateTime @default(now())
+}
+
+model Address {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId  String   @db.ObjectId
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  title       String
+  governorate String
+  city        String
+  street      String
+  building    String
+  apartment   String?
+  landmark    String?
+  isDefault   Boolean  @default(false)
+}
+
+model CustomerPreferences {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId        String   @unique @db.ObjectId
+  customer          Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  categories        String[]
+  favoriteColors    String[]
+  favoriteProducts  Int[]
+  recentlyViewed    Int[]
+  priceRange        PriceRange?
+}
+
+model PriceRange {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerPreferencesId String   @unique @db.ObjectId
+  customerPreferences   CustomerPreferences @relation(fields: [customerPreferencesId], references: [id], onDelete: Cascade)
+  min                   Float
+  max                   Float
+}
+
+model NotificationPreferences {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String   @unique @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  email      Boolean  @default(true)
+  sms        Boolean  @default(true)
+  whatsapp   Boolean  @default(true)
+  push       Boolean  @default(true)
+}
+
+model Order {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId    String?  @db.ObjectId
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  customerName  String?
+  customerPhone String?
+  customerEmail String?
+  
+  // Order details
+  items         OrderItem[]
+  status        OrderStatus @default(PENDING)
+  source        OrderSource @default(WEBSITE)
+  
+  // Shipping information
+  shippingId    String?  @unique @db.ObjectId
+  shipping      ShippingInfo?  @relation(fields: [shippingId], references: [id], onDelete: Cascade)
+  
+  // Payment information
+  paymentId     String?  @unique @db.ObjectId
+  payment       PaymentInfo?   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  
+  // Totals
+  totalsId      String?  @unique @db.ObjectId
+  totals        OrderTotals?   @relation(fields: [totalsId], references: [id], onDelete: Cascade)
+  
+  // Promo code
+  promoCode     PromoCode?
+  
+  // Timestamps
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  shippedAt     DateTime?
+  deliveredAt   DateTime?
+  cancelledAt   DateTime?
+  
+  // Additional info
+  trackingNumber String?
+  notes         String?
+}
+
+model OrderItem {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId      String   @db.ObjectId
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  name         String
+  image        String
+  price        Float
+  quantity     Int
+  variant      String?
+  discount     Float?
+  originalPrice Float?
+  giftDetails  String?
+  giftData     GiftData?
+}
+
+model GiftData {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderItemId  String   @unique @db.ObjectId
+  orderItem    OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  items        GiftItem[]
+  box          GiftBox?
+  wrap         GiftWrap?
+  message      String?
+  recipient    String?
+}
+
+model GiftItem {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  giftDataId   String   @db.ObjectId
+  giftData     GiftData @relation(fields: [giftDataId], references: [id], onDelete: Cascade)
+  name         String
+  quantity     Int
+  image        String
+  price        Float
+}
+
+model GiftBox {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  giftDataId   String   @unique @db.ObjectId
+  giftData     GiftData @relation(fields: [giftDataId], references: [id], onDelete: Cascade)
+  name         String
+  image        String
+  price        Float
+}
+
+model GiftWrap {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  giftDataId   String   @unique @db.ObjectId
+  giftData     GiftData @relation(fields: [giftDataId], references: [id], onDelete: Cascade)
+  name         String
+  image        String
+  price        Float
+}
+
+model ShippingInfo {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  order        Order?
+  governorate  String
+  address      String?
+  phone        String?
+  notes        String?
+}
+
+model PaymentInfo {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  order         Order?
+  method        PaymentMethod @default(CASH_ON_DELIVERY)
+  status        PaymentStatus @default(PENDING)
+  transactionId String?
+}
+
+model OrderTotals {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  order        Order?
+  subtotal     Float
+  shippingFees Float
+  discount     Float
+  tax          Float
+  total        Float
+}
+
+model PromoCode {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId      String   @unique @db.ObjectId
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  code         String
+  discountPercentage Float
+}
+
+model Inspiration {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  image       String
+  rating      Float
+  reviews     Int      @default(0)
+  likes       Int      @default(0)
+  dislikes    Int      @default(0)
+  likedBy     String[]
+  dislikedBy  String[]
+  price       Float
+  oldPrice    Float?
+  discountPercentage Float?
+  category    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  ratings     InspirationRating[]
+  comments    InspirationComment[]
+  box         InspirationBox?
+  mainProducts InspirationMainProduct[]
+  products    InspirationProduct[]
+  decorations InspirationDecoration[]
+  bag         InspirationBag?
+}
+
+model InspirationRating {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String  @db.ObjectId
+  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
+  userId       String
+  rating       Float
+}
+
+model InspirationComment {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String  @db.ObjectId
+  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
+  userId       String
+  userName     String
+  comment      String
+  createdAt    DateTime @default(now())
+}
+
+model InspirationBox {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String  @unique @db.ObjectId
+  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
+  name         String
+  price        Float
+  dimensions   String
+  description  String
+  image        String
+  category     String
+  stock        Int
+}
+
+model InspirationMainProduct {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String  @db.ObjectId
+  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
+  name         String
+  price        Float
+  image        String
+  category     String
+  stock        Int
+  popular      Boolean  @default(false)
+}
+
+model InspirationProduct {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String  @db.ObjectId
+  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
+  name         String
+  price        Float
+  image        String
+  quantity     Int?
+  category     String
+  stock        Int
+  popular      Boolean  @default(false)
+}
+
+model InspirationDecoration {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String  @db.ObjectId
+  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
+  name         String
+  price        Float
+  image        String
+  stock        Int
+}
+
+model InspirationBag {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String  @unique @db.ObjectId
+  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
+  name         String
+  price        Float
+  image        String
+  description  String
+  color        String
+  stock        Int
+}
+
+model Notification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  message     String
+  type        NotificationType
+  userId      String?  @db.ObjectId
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+// Enums
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum OrderSource {
+  WEBSITE
+  WHATSAPP
+  PHONE
+  INSTAGRAM
+}
+
+enum PaymentMethod {
+  CASH_ON_DELIVERY
+  CREDIT_CARD
+  BANK_TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum NotificationType {
+  ORDER_UPDATE
+  PROMOTION
+  SYSTEM
+  CUSTOM
 } 
