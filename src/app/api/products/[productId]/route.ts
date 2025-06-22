@@ -8,27 +8,21 @@ export async function GET(
   try {
     // Await the params promise to get the actual values
     const { productId } = await context.params
-    const productIdNum = Number.parseInt(productId)
-
-    if (isNaN(productIdNum)) {
-      return NextResponse.json({ success: false, message: "Invalid product ID" }, { status: 400 })
+    if (!productId) {
+      return NextResponse.json({ success: false, message: "Product ID is required" }, { status: 400 })
     }
-
     // Get product
     const product = await prisma.product.findUnique({
-      where: { id: productIdNum.toString() }
+      where: { id: productId }
     })
-
     if (!product) {
       return NextResponse.json({ success: false, message: "Product not found" }, { status: 404 })
     }
-
     // Update view count if needed
     await prisma.product.update({
-      where: { id: productIdNum.toString() },
+      where: { id: productId },
       data: { views: { increment: 1 } }
     })
-
     return NextResponse.json({
       success: true,
       data: product,

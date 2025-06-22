@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "../../../lib/mongodb"
-import { ObjectId } from "mongodb"
+import { prisma } from "@/lib/prisma"
 
 // Get reviews for a specific product
 export async function GET(request: Request) {
@@ -13,57 +12,66 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, message: "Product ID is required" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
-
     // Get reviews for this product
-    const reviews = await db
-      .collection("productReviews")
-      .find({ productId: Number(productId) })
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .toArray()
+    const reviews = await prisma.review.findMany({
+      where: { productId },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: {
+        customer: {
+          select: {
+            id: true,
+            name: true,
+          }
+        }
+      }
+    })
 
-    // Get average rating
-    const aggregation = await db
-      .collection("productReviews")
-      .aggregate([
-        { $match: { productId: Number(productId) } },
-        { $group: { _id: null, averageRating: { $avg: "$rating" }, count: { $sum: 1 } } },
-      ])
-      .toArray()
+    // Get average rating and count
+    const stats = await prisma.review.aggregate({
+      where: { productId },
+      _avg: { rating: true },
+      _count: true,
+    })
 
-    const stats =
-      aggregation.length > 0
-        ? { averageRating: aggregation[0].averageRating, count: aggregation[0].count }
-        : { averageRating: 0, count: 0 }
+    const reviewStats = {
+      averageRating: stats._avg.rating || 0,
+      count: stats._count
+    }
 
     // إذا كان المستخدم مسجل الدخول، قم بتسجيل مشاهدة التقييمات
     if (userId && userId !== "guest-user") {
       // تحديث سجل مشاهدة المنتج لتسجيل قراءة التقييمات
-      await db.collection("productViews").updateOne(
-        {
+      await prisma.productView.updateMany({
+        where: {
           userId,
-          productId: Number(productId),
-          viewedAt: { $gte: new Date(Date.now() - 3600000) }, // آخر ساعة
+          productId,
+          viewedAt: { gte: new Date(Date.now() - 3600000) }, // آخر ساعة
         },
-        { $set: { "interactions.readReviews": true } },
-      )
+        data: {
+          interactions: {
+            readReviews: true
+          }
+        }
+      })
 
       // تسجيل حدث قراءة التقييمات
-      await db.collection("customerEvents").insertOne({
-        userId,
-        eventType: "read_reviews",
-        timestamp: new Date(),
-        context: {
-          productId: Number(productId),
-          reviewCount: reviews.length,
-        },
+      await prisma.customerEvent.create({
+        data: {
+          userId,
+          eventType: "read_reviews",
+          timestamp: new Date(),
+          context: {
+            productId,
+            reviewCount: reviews.length,
+          },
+        }
       })
     }
 
     return NextResponse.json({
       success: true,
-      data: { reviews, stats },
+      data: { reviews, stats: reviewStats },
     })
   } catch (error) {
     console.error("Error fetching reviews:", error)
@@ -94,96 +102,99 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
+    const now = new Date()
 
     // Check if user already reviewed this product
-    const existingReview = await db.collection("productReviews").findOne({ productId: Number(productId), userId })
-
-    const now = new Date()
+    const existingReview = await prisma.review.findFirst({
+      where: { productId, userId }
+    })
 
     if (existingReview) {
       // Update existing review
-      await db.collection("productReviews").updateOne(
-        { _id: existingReview._id },
-        {
-          $set: {
-            rating,
-            comment,
-            updatedAt: now,
-            lastIp: ip,
-            lastUserAgent: userAgent,
-          },
+      const updatedReview = await prisma.review.update({
+        where: { id: existingReview.id },
+        data: {
+          rating,
+          comment,
+          updatedAt: now,
+          ip,
+          userAgent,
         },
-      )
+      })
 
       // تسجيل حدث تحديث التقييم
-      await db.collection("customerEvents").insertOne({
-        userId,
-        eventType: "update_review",
-        timestamp: now,
-        context: {
-          productId: Number(productId),
-          reviewId: existingReview._id,
-          oldRating: existingReview.rating,
-          newRating: rating,
-        },
+      await prisma.customerEvent.create({
+        data: {
+          userId,
+          eventType: "update_review",
+          timestamp: now,
+          context: {
+            productId,
+            reviewId: existingReview.id,
+            oldRating: existingReview.rating,
+            newRating: rating,
+          },
+        }
       })
 
       return NextResponse.json({
         success: true,
         message: "Review updated successfully",
-        data: { reviewId: existingReview._id },
+        data: { reviewId: existingReview.id },
       })
     }
 
     // Obtener el nombre real del usuario desde la base de datos
-    const userInfo = await db.collection("customers").findOne({ id: userId })
+    const userInfo = await prisma.customer.findUnique({
+      where: { id: userId },
+      select: { name: true }
+    })
     const displayName = userInfo ? userInfo.name : userName || "مستخدم"
 
     // Create new review
-    const result = await db.collection("productReviews").insertOne({
-      productId: Number(productId),
-      userId,
-      userName: displayName, // Usar el nombre real del usuario
-      rating,
-      comment,
-      createdAt: now,
-      updatedAt: now,
-      helpful: 0,
-      notHelpful: 0,
-      ip,
-      userAgent,
-      verified: true, // Siempre es verificado porque requiere autenticación
+    const newReview = await prisma.review.create({
+      data: {
+        productId,
+        userId,
+        userName: displayName, // Usar el nombre real del usuario
+        rating,
+        comment,
+        ip,
+        userAgent,
+        verified: true, // Siempre es verificado porque requiere autenticación
+      }
     })
 
     // تحديث متوسط تقييم المنتج
-    await updateProductRating(db, Number(productId))
+    await updateProductRating(productId)
 
-    // تحديث عدد التقييمات للعميل
-    await db.collection("customers").updateOne(
-      { id: userId },
-      {
-        $inc: { reviewCount: 1 },
-        $set: { lastReviewAt: now },
+    // تحديث عدد التقييمات للعميل (استخدام viewCount كبديل مؤقت)
+    await prisma.customer.update({
+      where: { id: userId },
+      data: {
+        viewCount: { increment: 1 }, // استخدام viewCount كبديل مؤقت
+        lastReviewAt: now,
       },
-    )
+    })
 
     // تسجيل حدث إضافة تقييم
-    await db.collection("customerEvents").insertOne({
-      userId,
-      eventType: "add_review",
-      timestamp: now,
-      context: {
-        productId: Number(productId),
-        reviewId: result.insertedId,
-        rating,
-      },
+    await prisma.customerEvent.create({
+      data: {
+        userId,
+        eventType: "add_review",
+        timestamp: now,
+        context: {
+          productId,
+          reviewId: newReview.id,
+          rating,
+        },
+      }
     })
 
     return NextResponse.json({
       success: true,
       message: "Review added successfully",
-      data: { reviewId: result.insertedId },
+      data: { reviewId: newReview.id },
     })
   } catch (error) {
     console.error("Error adding review:", error)
@@ -192,26 +203,21 @@ export async function POST(request: Request) {
 }
 
 // تحديث متوسط تقييم المنتج
-async function updateProductRating(db, productId) {
+async function updateProductRating(productId: string) {
   try {
-    const aggregation = await db
-      .collection("productReviews")
-      .aggregate([
-        { $match: { productId: Number(productId) } },
-        { $group: { _id: null, averageRating: { $avg: "$rating" }, count: { $sum: 1 } } },
-      ])
-      .toArray()
+    const stats = await prisma.review.aggregate({
+      where: { productId },
+      _avg: { rating: true },
+      _count: true,
+    })
 
-    if (aggregation.length > 0) {
-      await db.collection("products").updateOne(
-        { id: Number(productId) },
-        {
-          $set: {
-            rating: aggregation[0].averageRating,
-            reviewCount: aggregation[0].count,
-          },
+    if (stats._count > 0) {
+      await prisma.product.update({
+        where: { id: productId },
+        data: {
+          rating: stats._avg.rating || 0,
         },
-      )
+      })
     }
   } catch (error) {
     console.error("Error updating product rating:", error)
@@ -243,62 +249,86 @@ export async function PUT(request: Request) {
       return NextResponse.json({ success: false, message: "Invalid action" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
-
     // التحقق من وجود التقييم
-    const review = await db.collection("productReviews").findOne({ _id: new ObjectId(reviewId) })
+    const review = await prisma.review.findUnique({
+      where: { id: reviewId }
+    })
 
     if (!review) {
       return NextResponse.json({ success: false, message: "Review not found" }, { status: 404 })
     }
 
     // التحقق مما إذا كان المستخدم قد قام بتقييم هذا التقييم من قبل
-    const existingVote = await db.collection("reviewVotes").findOne({ reviewId, userId })
+    const existingVote = await prisma.reviewVote.findUnique({
+      where: {
+        reviewId_userId: {
+          reviewId,
+          userId
+        }
+      }
+    })
 
     if (existingVote) {
       // إذا كان التصويت الجديد مختلفًا عن السابق، قم بتحديثه
       if (existingVote.action !== action) {
         // تحديث التصويت
-        await db
-          .collection("reviewVotes")
-          .updateOne({ _id: existingVote._id }, { $set: { action: action, updatedAt: new Date() } })
+        await prisma.reviewVote.update({
+          where: { id: existingVote.id },
+          data: { 
+            action: action === "helpful" ? "HELPFUL" : "NOT_HELPFUL",
+            updatedAt: new Date() 
+          }
+        })
 
         // تحديث عدد التصويتات على التقييم
-        if (existingVote.action === "helpful" && action === "notHelpful") {
-          await db
-            .collection("productReviews")
-            .updateOne({ _id: new ObjectId(reviewId) }, { $inc: { helpful: -1, notHelpful: 1 } })
-        } else if (existingVote.action === "notHelpful" && action === "helpful") {
-          await db
-            .collection("productReviews")
-            .updateOne({ _id: new ObjectId(reviewId) }, { $inc: { helpful: 1, notHelpful: -1 } })
+        if (existingVote.action === "HELPFUL" && action === "notHelpful") {
+          await prisma.review.update({
+            where: { id: reviewId },
+            data: { 
+              helpful: { decrement: 1 },
+              notHelpful: { increment: 1 }
+            }
+          })
+        } else if (existingVote.action === "NOT_HELPFUL" && action === "helpful") {
+          await prisma.review.update({
+            where: { id: reviewId },
+            data: { 
+              helpful: { increment: 1 },
+              notHelpful: { decrement: 1 }
+            }
+          })
         }
       }
     } else {
       // إضافة تصويت جديد
-      await db.collection("reviewVotes").insertOne({
-        reviewId,
-        userId,
-        action,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+      await prisma.reviewVote.create({
+        data: {
+          reviewId,
+          userId,
+          action: action === "helpful" ? "HELPFUL" : "NOT_HELPFUL",
+        }
       })
 
       // تحديث عدد التصويتات على التقييم
       const updateField = action === "helpful" ? "helpful" : "notHelpful"
-      await db.collection("productReviews").updateOne({ _id: new ObjectId(reviewId) }, { $inc: { [updateField]: 1 } })
+      await prisma.review.update({
+        where: { id: reviewId },
+        data: { [updateField]: { increment: 1 } }
+      })
     }
 
     // تسجيل حدث التصويت
-    await db.collection("customerEvents").insertOne({
-      userId,
-      eventType: "review_vote",
-      timestamp: new Date(),
-      context: {
-        reviewId,
-        productId: review.productId,
-        action,
-      },
+    await prisma.customerEvent.create({
+      data: {
+        userId,
+        eventType: "review_vote",
+        timestamp: new Date(),
+        context: {
+          reviewId,
+          productId: review.productId,
+          action,
+        },
+      }
     })
 
     return NextResponse.json({

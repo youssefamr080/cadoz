@@ -28,8 +28,13 @@ export async function GET(request: Request) {
 
     // البيانات الأساسية
     if (searchParams.has("id")) {
-      const id = safeParseInt(searchParams.get("id"))
-      if (id !== null) where.id = id.toString()
+      const id = searchParams.get("id")
+      // تحقق أن id موجود وصحيح الطول (24 حرف hex)
+      if (id && /^[a-fA-F0-9]{24}$/.test(id)) {
+        where.id = id
+      } else if (id) {
+        return NextResponse.json({ success: false, message: "Invalid product id" }, { status: 400 })
+      }
     }
 
     // Support for multiple IDs
@@ -38,10 +43,10 @@ export async function GET(request: Request) {
       if (idsString) {
         const ids = idsString
           .split(",")
-          .map((id) => Number.parseInt(id))
-          .filter((id) => !isNaN(id))
+          .map((id) => id.trim())
+          .filter((id) => /^[a-fA-F0-9]{24}$/.test(id))
         if (ids.length > 0) {
-          where.id = { in: ids.map(id => id.toString()) }
+          where.id = { in: ids }
         }
       }
     }
@@ -88,21 +93,21 @@ export async function GET(request: Request) {
     if (searchParams.has("minOldPrice")) {
       const minOldPrice = safeParseFloat(searchParams.get("minOldPrice"))
       if (minOldPrice !== null) {
-        if (!where.oldPrice) where.oldPrice = {}
-        where.oldPrice.gte = minOldPrice
+        if (!where.old_price) where.old_price = {}
+        where.old_price.gte = minOldPrice
       }
     }
     if (searchParams.has("maxOldPrice")) {
       const maxOldPrice = safeParseFloat(searchParams.get("maxOldPrice"))
       if (maxOldPrice !== null) {
-        if (!where.oldPrice) where.oldPrice = {}
-        where.oldPrice.lte = maxOldPrice
+        if (!where.old_price) where.old_price = {}
+        where.old_price.lte = maxOldPrice
       }
     }
 
     // فلترة الخصومات - تبسيط المنطق
     if (searchParams.has("discount") && searchParams.get("discount") === "true") {
-      where.oldPrice = { not: null }
+      where.old_price = { not: null }
     }
 
     // المخزون
@@ -118,8 +123,8 @@ export async function GET(request: Request) {
     // العلامات الخاصة
     if (searchParams.has("trending") && searchParams.get("trending") === "true") where.trending = true
     if (searchParams.has("sale") && searchParams.get("sale") === "true") where.sale = true
-    if (searchParams.has("best_seller") && searchParams.get("best_seller") === "true") where.bestSeller = true
-    if (searchParams.has("new_arrival") && searchParams.get("new_arrival") === "true") where.newArrival = true
+    if (searchParams.has("best_seller") && searchParams.get("best_seller") === "true") where.best_seller = true
+    if (searchParams.has("new_arrival") && searchParams.get("new_arrival") === "true") where.new_arrival = true
     if (searchParams.has("isGift") && searchParams.get("isGift") === "true") where.isGift = true
 
     // استبعاد القيم الخالية
@@ -279,12 +284,23 @@ export async function GET(request: Request) {
       // حساب خصائص إضافية للعرض (إذا لزم الأمر)
       const enhancedProducts = products.map((product) => {
         // إضافة نسبة الخصم إذا كان هناك سعر قديم
-        if (product.oldPrice && product.price) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (product as any).discountPercentage = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
+        if (
+          typeof product.old_price === 'number' &&
+          typeof product.price === 'number' &&
+          product.old_price > 0
+        ) {
+          (product as any).discountPercentage = Math.round(
+            ((product.old_price - product.price) / product.old_price) * 100
+          )
         }
         return product
       })
+
+      // Debug logs
+      console.log('🔎 where:', JSON.stringify(where))
+      console.log('🔎 orderBy:', JSON.stringify(orderBy))
+      console.log('🔎 select:', JSON.stringify(select))
+      console.log('🔎 products:', JSON.stringify(products))
 
       // إرجاع المنتجات مع معلومات التصفح
       return NextResponse.json({

@@ -12,11 +12,11 @@ datasource db {
 }
 
 model Product {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  id                 String   @id @map("_id") @db.ObjectId
   name               String
   description        String?
   price              Float
-  oldPrice           Float?
+  old_price          Float?
   image              String?
   images             String[]
   category           String?
@@ -27,8 +27,8 @@ model Product {
   inStock            Boolean  @default(true)
   rating             Float?
   views              Int      @default(0)
-  bestSeller         Boolean  @default(false)
-  newArrival         Boolean  @default(false)
+  best_seller        Boolean  @default(false)
+  new_arrival        Boolean  @default(false)
   trending           Boolean  @default(false)
   sale               Boolean  @default(false)
   isGift             Boolean  @default(false)
@@ -39,6 +39,10 @@ model Product {
   discountPercentage Float?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+
+  // Relations
+  reviews      Review[]
+  productViews ProductView[]
 }
 
 model Category {
@@ -79,6 +83,8 @@ model Customer {
   averageViewDuration Float     @default(0)
   orderCount          Int       @default(0)
   lastOrderAt         DateTime?
+  reviewCount         Int       @default(0)
+  lastReviewAt        DateTime?
 
   // Relations
   orders        Order[]
@@ -86,6 +92,10 @@ model Customer {
   addresses     Address[]
   preferences   CustomerPreferences?
   notifications NotificationPreferences?
+  reviews       Review[]
+  reviewVotes   ReviewVote[]
+  productViews  ProductView[]
+  events        CustomerEvent[]
 }
 
 model Device {
@@ -376,6 +386,64 @@ model InspirationBag {
   stock         Int
 }
 
+model ProductView {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId    String   @db.ObjectId
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId       String   @db.ObjectId
+  customer     Customer @relation(fields: [userId], references: [id], onDelete: Cascade)
+  viewedAt     DateTime @default(now())
+  sessionId    String?
+  duration     Int      @default(0)
+  source       String
+  device       Json?
+  interactions Json?
+}
+
+model CustomerEvent {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  customer  Customer @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventType String
+  timestamp DateTime @default(now())
+  context   Json?
+  data      Json?
+}
+
+model Review {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId  String   @db.ObjectId
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String   @db.ObjectId
+  customer   Customer @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userName   String
+  rating     Float
+  comment    String?
+  helpful    Int      @default(0)
+  notHelpful Int      @default(0)
+  verified   Boolean  @default(false)
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  votes ReviewVote[]
+}
+
+model ReviewVote {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  reviewId  String     @db.ObjectId
+  review    Review     @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId    String     @db.ObjectId
+  customer  Customer   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    VoteAction
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([reviewId, userId])
+}
+
 model Notification {
   id        String           @id @default(auto()) @map("_id") @db.ObjectId
   title     String
@@ -420,4 +488,9 @@ enum NotificationType {
   PROMOTION
   SYSTEM
   CUSTOM
+}
+
+enum VoteAction {
+  HELPFUL
+  NOT_HELPFUL
 }

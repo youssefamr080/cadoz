@@ -118,7 +118,7 @@ exports.Prisma.ProductScalarFieldEnum = {
   name: 'name',
   description: 'description',
   price: 'price',
-  oldPrice: 'oldPrice',
+  old_price: 'old_price',
   image: 'image',
   images: 'images',
   category: 'category',
@@ -129,8 +129,8 @@ exports.Prisma.ProductScalarFieldEnum = {
   inStock: 'inStock',
   rating: 'rating',
   views: 'views',
-  bestSeller: 'bestSeller',
-  newArrival: 'newArrival',
+  best_seller: 'best_seller',
+  new_arrival: 'new_arrival',
   trending: 'trending',
   sale: 'sale',
   isGift: 'isGift',
@@ -178,7 +178,9 @@ exports.Prisma.CustomerScalarFieldEnum = {
   viewCount: 'viewCount',
   averageViewDuration: 'averageViewDuration',
   orderCount: 'orderCount',
-  lastOrderAt: 'lastOrderAt'
+  lastOrderAt: 'lastOrderAt',
+  reviewCount: 'reviewCount',
+  lastReviewAt: 'lastReviewAt'
 };
 
 exports.Prisma.DeviceScalarFieldEnum = {
@@ -414,6 +416,52 @@ exports.Prisma.InspirationBagScalarFieldEnum = {
   stock: 'stock'
 };
 
+exports.Prisma.ProductViewScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  userId: 'userId',
+  viewedAt: 'viewedAt',
+  sessionId: 'sessionId',
+  duration: 'duration',
+  source: 'source',
+  device: 'device',
+  interactions: 'interactions'
+};
+
+exports.Prisma.CustomerEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  eventType: 'eventType',
+  timestamp: 'timestamp',
+  context: 'context',
+  data: 'data'
+};
+
+exports.Prisma.ReviewScalarFieldEnum = {
+  id: 'id',
+  productId: 'productId',
+  userId: 'userId',
+  userName: 'userName',
+  rating: 'rating',
+  comment: 'comment',
+  helpful: 'helpful',
+  notHelpful: 'notHelpful',
+  verified: 'verified',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReviewVoteScalarFieldEnum = {
+  id: 'id',
+  reviewId: 'reviewId',
+  userId: 'userId',
+  action: 'action',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.NotificationScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -461,6 +509,11 @@ exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   REFUNDED: 'REFUNDED'
 };
 
+exports.VoteAction = exports.$Enums.VoteAction = {
+  HELPFUL: 'HELPFUL',
+  NOT_HELPFUL: 'NOT_HELPFUL'
+};
+
 exports.NotificationType = exports.$Enums.NotificationType = {
   ORDER_UPDATE: 'ORDER_UPDATE',
   PROMOTION: 'PROMOTION',
@@ -495,6 +548,10 @@ exports.Prisma.ModelName = {
   InspirationProduct: 'InspirationProduct',
   InspirationDecoration: 'InspirationDecoration',
   InspirationBag: 'InspirationBag',
+  ProductView: 'ProductView',
+  CustomerEvent: 'CustomerEvent',
+  Review: 'Review',
+  ReviewVote: 'ReviewVote',
   Notification: 'Notification'
 };
 
