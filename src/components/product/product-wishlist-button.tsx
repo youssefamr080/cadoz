@@ -6,18 +6,18 @@ import { Button } from "../ui/button"
 import { toast } from "react-toastify"
 
 interface ProductWishlistButtonProps {
-  productId: number
+  productId: string
   productName: string
   productImage: string
   productPrice: number
   initialIsFavorite?: boolean
   onAddToWishlist?: (product: WishlistProduct) => void
-  onRemoveFromWishlist?: (productId: number) => void
+  onRemoveFromWishlist?: (productId: string) => void
 }
 
 // تعريف نوع محدد للمنتج في المفضلة
 interface WishlistProduct {
-  id: number
+  id: string
   name: string
   image: string
   price: number

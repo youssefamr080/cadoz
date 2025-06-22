@@ -5,7 +5,7 @@ import { Star, StarHalf } from "lucide-react"
 import { Skeleton } from "../ui/skeleton"
 
 interface ProductRatingProps {
-  productId: number
+  productId: string
   showCount?: boolean
   size?: "sm" | "md" | "lg"
   className?: string

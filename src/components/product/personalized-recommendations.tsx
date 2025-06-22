@@ -11,7 +11,7 @@ import { useAuth } from "../../providers/AuthProvider"
 import { Sparkles } from "lucide-react"
 
 interface Product {
-  id: number
+  id: string
   name: string
   image: string
   price: number
@@ -106,7 +106,7 @@ export default function PersonalizedRecommendations({
   }, [user, limit])
 
   // تسجيل مشاهدة المنتج
-  const recordProductView = async (productId: number) => {
+  const recordProductView = async (productId: string) => {
     try {
       await fetch("/api/recommendations", {
         method: "POST",

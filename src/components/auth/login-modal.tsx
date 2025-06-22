@@ -28,7 +28,7 @@ interface LoginModalProps {
   onSuccess: (userData: User) => void
   forNotification?: boolean
   forSaveForLater?: boolean
-  productId?: number
+  productId?: string
   productName?: string
 }
 
@@ -255,7 +255,7 @@ export default function LoginModal({
     }
   }
 
-  const addNotification = async (userId: string, productId: number, productName: string) => {
+  const addNotification = async (userId: string, productId: string, productName: string) => {
     try {
       await fetch("/api/notifications", {
         method: "POST",

@@ -42,7 +42,7 @@ export interface GiftData {
 }
 
 export interface CartItem {
-  id: number
+  id: string
   name: string
   image: string
   price: number
@@ -161,10 +161,10 @@ const cartSlice = createSlice({
         state.cart.push({ ...item, quantity: Math.min(quantity, stockLimit) })
       }
     },
-    removeItem: (state, action: PayloadAction<{ id: number }>) => {
+    removeItem: (state, action: PayloadAction<{ id: string }>) => {
       state.cart = state.cart.filter((item) => item.id !== action.payload.id)
     },
-    updateItemQuantity: (state, action: PayloadAction<{ id: number; quantity: number }>) => {
+    updateItemQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
       const { id, quantity } = action.payload
       if (quantity <= 0) {
         state.cart = state.cart.filter((item) => item.id !== id)
@@ -174,14 +174,14 @@ const cartSlice = createSlice({
         )
       }
     },
-    incrementQuantity: (state, action: PayloadAction<{ id: number }>) => {
+    incrementQuantity: (state, action: PayloadAction<{ id: string }>) => {
       state.cart = state.cart.map((item) =>
         item.id === action.payload.id
           ? { ...item, quantity: Math.min(item.quantity + 1, item.stock || Number.POSITIVE_INFINITY) }
           : item,
       )
     },
-    decrementQuantity: (state, action: PayloadAction<{ id: number }>) => {
+    decrementQuantity: (state, action: PayloadAction<{ id: string }>) => {
       state.cart = state.cart.map((item) =>
         item.id === action.payload.id && item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : item,
       )

@@ -96,7 +96,7 @@ export const apiSlice = createApi({
           : [{ type: "Products", id: "LIST" }],
     }),
 
-    getProductById: builder.query<Product, number>({
+    getProductById: builder.query<Product, string>({
       async queryFn(id) {
         try {
           const CacheService = (await import('@/lib/services/cache-service')).default;

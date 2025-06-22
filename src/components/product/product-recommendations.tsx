@@ -10,7 +10,7 @@ import ProductRating from "./product-rating"
 import { useAuth } from "../../providers/AuthProvider"
 
 interface Product {
-  id: number
+  id: string
   name: string
   image: string
   price: number
@@ -22,7 +22,7 @@ interface Product {
 }
 
 interface ProductRecommendationsProps {
-  productId: number
+  productId: string
   category?: string
   tags?: string[]
 }

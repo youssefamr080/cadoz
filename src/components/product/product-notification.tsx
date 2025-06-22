@@ -8,7 +8,7 @@ import { toast } from "react-toastify"
 import { useAuth } from "../../providers/AuthProvider"
 
 interface ProductNotificationProps {
-  productId: number
+  productId: string
   productName: string
   isOutOfStock: boolean
 }
@@ -60,7 +60,7 @@ export default function ProductNotification({ productId, productName, isOutOfSto
   }, [productId, checkExistingNotification, user, sessionId])
 
   // إضافة إشعار جديد
-  const addNotification = async (userId: string, productId: number, productName: string) => {
+  const addNotification = async (userId: string, productId: string, productName: string) => {
     if (!user || !user.id || !user.phone || !user.name) {
       setIsLoginModalOpen(true)
       return

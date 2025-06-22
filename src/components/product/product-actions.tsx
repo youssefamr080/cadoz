@@ -7,7 +7,7 @@ import ProductColorSelector from "./product-color-selector"
 import { useAuth } from "../../providers/AuthProvider"
 
 interface ProductActionsProps {
-  productId: number
+  productId: string
   productName: string
   productImage: string
   productPrice: number
@@ -16,11 +16,11 @@ interface ProductActionsProps {
   isInWishlist?: boolean
   onAddToCart: (quantity: number, color?: string) => void
   onAddToWishlist: (product: WishlistProduct) => void
-  onRemoveFromWishlist: (productId: number) => void
+  onRemoveFromWishlist: (productId: string) => void
 }
 
 interface WishlistProduct {
-  id: number
+  id: string
   name: string
   image: string
   price: number

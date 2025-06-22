@@ -20,7 +20,7 @@ interface WishlistDrawerProps {
 
 const WishlistDrawer = ({ isOpen, onClose }: WishlistDrawerProps) => {
   const closeButtonRef = useRef(null)
-  const [isLoading, setIsLoading] = useState<number | null>(null)
+  const [isLoading, setIsLoading] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
 
   const wishlist = useSelector(selectWishlist)
@@ -55,7 +55,7 @@ const WishlistDrawer = ({ isOpen, onClose }: WishlistDrawerProps) => {
     }
   }
 
-  const handleRemoveItem = (id: number) => {
+  const handleRemoveItem = (id: string) => {
     dispatch(removeFromWishlist(id))
     toast.info("تمت الإزالة من المفضلة")
   }

@@ -116,7 +116,7 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
       
       // Create a cart item with complete gift data
       const cartItem: CartItem = {
-        id: Date.now(),
+        id: inspiration.id,
         name: inspiration.name || "هدية مخصصة",
         image: inspiration.image || box?.image || "/images/box.png",
         price: totalPrice,

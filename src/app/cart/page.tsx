@@ -33,7 +33,7 @@ import type { CreateOrderResponse } from '@/lib/redux/api/apiSlice'
 
 // تعريف واجهات البيانات
 interface CartItemType {
-  id: number
+  id: string
   name: string
   image: string
   price: number
@@ -269,7 +269,7 @@ const CartPage = () => {
     return true
   }
 
-  const handleQuantityChange = (id: number, change: number) => {
+  const handleQuantityChange = (id: string, change: number) => {
     if (change > 0) {
       dispatch(incrementQuantity({ id }))
     } else {
@@ -584,8 +584,8 @@ const EmptyCart = () => (
 
 interface CartItemProps {
   item: CartItemType
-  onQuantityChange: (id: number, change: number) => void
-  onRemove: (id: number) => void
+  onQuantityChange: (id: string, change: number) => void
+  onRemove: (id: string) => void
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove }) => {
@@ -649,8 +649,8 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
 // مكون عناصر الهدايا
 interface GiftCartItemProps {
   item: CartItemType
-  onQuantityChange: (id: number, change: number) => void
-  onRemove: (id: number) => void
+  onQuantityChange: (id: string, change: number) => void
+  onRemove: (id: string) => void
 }
 
 const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onRemove }) => {

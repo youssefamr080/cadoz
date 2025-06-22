@@ -38,7 +38,8 @@ import { addItem } from "@/lib/redux/slices/cartSlice"
 import type { RootState } from "@/lib/redux/store"
 
 const ProductPage = () => {
-  const { productId } = useParams()
+  const { productId: rawProductId } = useParams()
+  const productId = Array.isArray(rawProductId) ? rawProductId[0] : rawProductId
   const router = useRouter()
   const [, setMainImage] = useState("")
   const wishlist = useSelector((state: RootState) => state.wishlist.wishlist)
@@ -54,7 +55,7 @@ const ProductPage = () => {
 
 
   // Fetch product data using RTK Query
-  const { data: product, isLoading, error } = useGetProductByIdQuery(Number(productId))
+  const { data: product, isLoading, error } = useGetProductByIdQuery(productId)
 
   // تتبع اهتمام المستخدم بالمنتج (مدة التصفح)
   // سيتم تسجيل المنتج في localStorage ضمن interestedProducts إذا ظل المستخدم عليه أكثر من 10 ثوانٍ
@@ -77,7 +78,7 @@ const ProductPage = () => {
       const viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]")
 
       // منع تكرار نفس المنتج
-      const updatedViewed = [product, ...viewedProducts.filter((p: { id: number }) => p.id !== product.id)].slice(0, 10) // حفظ آخر 10 منتجات فقط
+      const updatedViewed = [product, ...viewedProducts.filter((p: { id: string }) => p.id !== product.id)].slice(0, 10) // حفظ آخر 10 منتجات فقط
 
       localStorage.setItem("viewedProducts", JSON.stringify(updatedViewed))
 

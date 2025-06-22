@@ -12,7 +12,7 @@ import LoginModal from "../auth/login-modal"
 
 interface Review {
   _id: string
-  productId: number
+  productId: string
   userId: string
   userName: string
   rating: number
@@ -24,7 +24,7 @@ interface Review {
 }
 
 interface ProductReviewsProps {
-  productId: number
+  productId: string
 }
 
 export default function ProductReviews({ productId }: ProductReviewsProps) {
