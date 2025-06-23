@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Star, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 import { getPopularInspirations } from "@/lib/actions/inspiration-actions"
-import type { Inspiration } from "@/types/inspiration"
+import type { Inspiration, LegacyInspiration } from "@/types/inspiration"
 // Import types as needed
 import Image from "next/image"
 import Link from "next/link"
@@ -17,6 +17,20 @@ import "swiper/css/navigation"
 import "swiper/css/pagination"
 import "swiper/css/free-mode"
 import AddToCartButton from "@/app/inspiration/[id]/AddToCartButton"
+
+// Helper function to convert Inspiration to LegacyInspiration format
+const convertToLegacyInspiration = (inspiration: Inspiration): LegacyInspiration => {
+  return {
+    ...inspiration,
+    box: "",
+    products: [],
+    decorations: [],
+    bag: "",
+    updatedAt: inspiration.updatedAt?.toISOString?.() || 
+                (inspiration.updatedAt instanceof Date ? inspiration.updatedAt.toISOString() : 
+                 new Date().toISOString())
+  };
+};
 
 export default function InspirationGallery() {
   const [inspirationGifts, setInspirationGifts] = useState<Inspiration[]>([])
@@ -49,9 +63,8 @@ export default function InspirationGallery() {
         setIsLoading(true)
         // جلب المنتجات مع تحديد العدد الأقصى 10
         console.log(`جلب المنتجات بحد أقصى: ${maxInspirationCount}`)
-        
-        // جلب البيانات من الخادم
-        const data = await getPopularInspirations(maxInspirationCount)
+          // جلب البيانات من الخادم
+        const data = await getPopularInspirations()
         console.log(`تم استلام عدد المنتجات: ${data.length}`, data)
         
         // تكرار البيانات إذا كان عددها أقل من 10 لضمان وجود ما يكفي للعرض
@@ -222,7 +235,7 @@ export default function InspirationGallery() {
                     {/* زر إضافة للسلة في الأسفل */}
                     <div className="mt-auto -mx-2 -mb-2">
                       <div className="rounded-b-xl overflow-hidden">
-                        <AddToCartButton inspiration={gift} />
+                        <AddToCartButton inspiration={convertToLegacyInspiration(gift)} />
                       </div>
                     </div>
                   </div>

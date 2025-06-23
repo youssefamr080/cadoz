@@ -3,7 +3,23 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import type { GiftDecoration, GiftWrapOption } from "@/types/database"
+
+// تعريف الأنواع محلياً
+interface GiftDecoration {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  stock?: number;
+}
+
+interface GiftWrapOption {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  stock?: number;
+}
 import Image from "next/image"
 
 // Datos de ejemplo

@@ -267,7 +267,7 @@ export const selectCartTotals = (state: { cart: CartState }): CartTotals => {
 }
 
 // Memoized Selectors
-const selectCartItems = (state: RootState) => state.cart.cart;
+const selectCartItems = (state: RootState) => state.cart?.cart || [];
 
 export const selectCartTotalAmount = createSelector(
   [selectCartItems],

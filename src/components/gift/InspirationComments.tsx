@@ -36,7 +36,15 @@ export default function InspirationComments({ inspirationId, comments, userId, u
     setError(null);
     try {
       const newComment = await addInspirationComment(inspirationId, userId, comment, userName || undefined);
-      onCommentAdded(newComment);
+      // تحويل من نوع Prisma إلى النوع المتوقع
+      const convertedComment: Comment = {
+        _id: newComment.id,
+        userId: newComment.userId,
+        userName: newComment.userName,
+        comment: newComment.comment,
+        createdAt: newComment.createdAt.toISOString()
+      };
+      onCommentAdded(convertedComment);
       setComment("");
     } catch {
       setError("حدث خطأ أثناء إضافة التعليق.");

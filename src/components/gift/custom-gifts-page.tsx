@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
 import { getCustomGiftsByCategory } from "@/lib/actions/custom-gift-actions"
-import type { CustomGift } from "@/types/database"
+import type { CustomGift } from "../../../prisma/generated/client"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -104,7 +104,7 @@ const CustomGiftsPage = () => {
                     <CardDescription>{item.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-grow">
-                    <p className="font-bold text-purple-600">{item.price} جنيه</p>
+                    <p className="font-bold text-purple-600">{item.basePrice} جنيه</p>
                   </CardContent>
                   <CardFooter className="flex justify-end">
                     <Button className="bg-purple-600 hover:bg-purple-700">طلب تخصيص</Button>

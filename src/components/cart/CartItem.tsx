@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { updateItemQuantity, removeItem } from "@/lib/redux/slices/cartSlice";
 
 interface CartItemProps {
-  id: number;
+  id: string;
   name: string;
   image: string;
   price: number;

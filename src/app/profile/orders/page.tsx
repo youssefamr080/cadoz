@@ -5,7 +5,13 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/providers/AuthProvider"
 import { useGetOrdersQuery } from '@/lib/redux/api/apiSlice'
 import { skipToken } from '@reduxjs/toolkit/query'
-import type { Order } from "@/types/database"
+import type { Order, OrderItem } from "../../../../prisma/generated/client"
+import { OrderStatus } from "../../../../prisma/generated/client"
+
+// نوع موسع للطلب يتضمن العناصر
+type OrderWithItems = Order & {
+  items: OrderItem[];
+};
 
 import { Package, Search, Filter, ArrowLeft, Calendar, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -24,7 +30,7 @@ const OrdersPage = () => {
 
   // جلب الطلبات باستخدام RTK Query
   const { data, isLoading: isLoadingOrders } = useGetOrdersQuery(user ? { customerId: user.id } : skipToken, { skip: !user })
-  const orders: Order[] = data || []
+  const orders: OrderWithItems[] = data || []
 
   // التحقق من تسجيل الدخول
   useEffect(() => {
@@ -40,8 +46,8 @@ const OrdersPage = () => {
     const matchesSearch =
       searchTerm === "" ||
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.shipping.governorate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.shipping.address && order.shipping.address.toLowerCase().includes(searchTerm.toLowerCase()))
+      order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customerPhone?.toLowerCase().includes(searchTerm.toLowerCase())
 
     return matchesStatus && matchesSearch
   })
@@ -89,11 +95,11 @@ const OrdersPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">جميع الحالات</SelectItem>
-                    <SelectItem value="pending">قيد الانتظار</SelectItem>
-                    <SelectItem value="processing">قيد المعالجة</SelectItem>
-                    <SelectItem value="shipped">تم الشحن</SelectItem>
-                    <SelectItem value="delivered">تم التوصيل</SelectItem>
-                    <SelectItem value="cancelled">ملغي</SelectItem>
+                    <SelectItem value={OrderStatus.PENDING}>قيد الانتظار</SelectItem>
+                    <SelectItem value={OrderStatus.PROCESSING}>قيد المعالجة</SelectItem>
+                    <SelectItem value={OrderStatus.SHIPPED}>تم الشحن</SelectItem>
+                    <SelectItem value={OrderStatus.DELIVERED}>تم التوصيل</SelectItem>
+                    <SelectItem value={OrderStatus.CANCELLED}>ملغي</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -120,24 +126,24 @@ const OrdersPage = () => {
                         <h3 className="font-bold text-lg">طلب #{order.id.substring(0, 8)}</h3>
                         <span
                           className={`text-xs px-2 py-1 rounded-full ${
-                            order.status === "delivered"
+                            order.status === OrderStatus.DELIVERED
                               ? "bg-green-100 text-green-700"
-                              : order.status === "shipped"
+                              : order.status === OrderStatus.SHIPPED
                                 ? "bg-blue-100 text-blue-700"
-                                : order.status === "processing"
+                                : order.status === OrderStatus.PROCESSING
                                   ? "bg-amber-100 text-amber-700"
-                                  : order.status === "cancelled"
+                                  : order.status === OrderStatus.CANCELLED
                                     ? "bg-red-100 text-red-700"
                                     : "bg-purple-100 text-purple-700"
                           }`}
                         >
-                          {order.status === "delivered"
+                          {order.status === OrderStatus.DELIVERED
                             ? "تم التوصيل"
-                            : order.status === "shipped"
+                            : order.status === OrderStatus.SHIPPED
                               ? "تم الشحن"
-                              : order.status === "processing"
+                              : order.status === OrderStatus.PROCESSING
                                 ? "قيد المعالجة"
-                                : order.status === "cancelled"
+                                : order.status === OrderStatus.CANCELLED
                                   ? "ملغي"
                                   : "قيد الانتظار"}
                         </span>
@@ -149,24 +155,24 @@ const OrdersPage = () => {
                         </div>
                         <div className="flex items-center gap-1">
                           <MapPin className="h-4 w-4" />
-                          <span>{order.shipping.governorate}</span>
+                          <span>{order.shippingId ? "عنوان الشحن محدد" : "لم يحدد العنوان"}</span>
                         </div>
                       </div>
                     </div>
                     <div className="mt-3 md:mt-0 text-right">
-                      <div className="text-sm text-gray-500 mb-1">{order.items.length} منتج</div>
-                      <div className="font-bold text-lg text-purple-600">{order.totals.total.toFixed(2)} ج.م</div>
+                      <div className="text-sm text-gray-500 mb-1">{order.items?.length || 0} منتج</div>
+                      <div className="font-bold text-lg text-purple-600">سعر غير محدد</div>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-2 mt-3">
-                    {order.items.slice(0, 3).map((item, index) => (
+                    {order.items?.slice(0, 3).map((item, index) => (
                       <div key={index} className="bg-gray-50 px-3 py-1 rounded-full text-sm">
-                        {item.name.length > 20 ? `${item.name.substring(0, 20)}...` : item.name}
+                        {item.name?.length > 20 ? `${item.name.substring(0, 20)}...` : item.name || 'منتج'}
                       </div>
                     ))}
-                    {order.items.length > 3 && (
-                      <div className="bg-gray-50 px-3 py-1 rounded-full text-sm">+{order.items.length - 3} أخرى</div>
+                    {(order.items?.length || 0) > 3 && (
+                      <div className="bg-gray-50 px-3 py-1 rounded-full text-sm">+{(order.items?.length || 0) - 3} أخرى</div>
                     )}
                   </div>
                 </CardContent>

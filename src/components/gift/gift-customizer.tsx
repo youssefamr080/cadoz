@@ -8,7 +8,25 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { GiftAction, GiftState, GiftItem } from "@/types/database"
+
+// تعريف الأنواع محلياً
+interface GiftItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface GiftState {
+  color: string;
+  message: string;
+  items: GiftItem[];
+}
+
+interface GiftAction {
+  type: 'UPDATE_GIFT_COLOR' | 'UPDATE_GIFT_MESSAGE' | 'ADD_ITEM' | 'REMOVE_ITEM';
+  payload?: string | GiftItem | number;
+}
 
 // Definir el estado inicial
 const initialState: GiftState = {
@@ -18,7 +36,7 @@ const initialState: GiftState = {
 }
 
 // Reducer para manejar las acciones
-function giftReducer(state: GiftState, action: { type: GiftAction; payload: string | GiftItem | number }): GiftState {
+function giftReducer(state: GiftState, action: GiftAction): GiftState {
   switch (action.type) {
     case "UPDATE_GIFT_COLOR":
       return { ...state, color: action.payload as string }

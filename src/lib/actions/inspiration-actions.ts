@@ -49,7 +49,7 @@ export async function getInspirationById(id: string) {
 // إضافة تعليق على إلهام
 export async function addInspirationComment(inspirationId: string, userId: string, comment: string, userName?: string) {
   try {
-    await prisma.inspirationComment.create({
+    const newComment = await prisma.inspirationComment.create({
       data: {
         inspirationId,
         userId,
@@ -57,6 +57,7 @@ export async function addInspirationComment(inspirationId: string, userId: strin
         comment
       }
     })
+    return newComment
   } catch (error) {
     console.error("Error adding inspiration comment:", error)
     throw new Error("فشل في إضافة التعليق")
@@ -86,6 +87,28 @@ export async function addInspirationRating(inspirationId: string, userId: string
           rating
         }
       })
+    }
+
+    // حساب التقييم المتوسط الجديد وعدد التقييمات
+    const ratings = await prisma.inspirationRating.findMany({
+      where: { inspirationId }
+    })
+
+    const avgRating = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
+    const reviewsCount = ratings.length
+
+    // تحديث الإلهام بالتقييم الجديد
+    await prisma.inspiration.update({
+      where: { id: inspirationId },
+      data: {
+        rating: avgRating,
+        reviews: reviewsCount
+      }
+    })
+
+    return {
+      rating: avgRating,
+      reviews: reviewsCount
     }
   } catch (error) {
     console.error("Error adding inspiration rating:", error)

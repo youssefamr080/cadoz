@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Star, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
-import type { Inspiration } from "@/types/inspiration"
+import type { Inspiration, LegacyInspiration } from "@/types/inspiration"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -16,6 +16,20 @@ import "swiper/css/navigation"
 import "swiper/css/pagination"
 import "swiper/css/free-mode"
 import AddToCartButton from "@/app/inspiration/[id]/AddToCartButton"
+
+// Helper function to convert Inspiration to LegacyInspiration format
+const convertToLegacyInspiration = (inspiration: Inspiration): LegacyInspiration => {
+  return {
+    ...inspiration,
+    box: "",
+    products: [],
+    decorations: [],
+    bag: "",
+    updatedAt: inspiration.updatedAt?.toISOString?.() || 
+                (inspiration.updatedAt instanceof Date ? inspiration.updatedAt.toISOString() : 
+                 new Date().toISOString())
+  };
+};
 
 interface CategoryInspirationGalleryProps {
   category: string
@@ -241,12 +255,10 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
                           <p className="text-[10px] text-gray-600 my-1 line-clamp-2">{gift.description}</p>
                         </motion.div>
                       )}
-                    </AnimatePresence>
-
-                    {/* زر إضافة للسلة في الأسفل */}
+                    </AnimatePresence>                    {/* زر إضافة للسلة في الأسفل */}
                     <div className="mt-auto -mx-2 -mb-2">
                       <div className="rounded-b-xl overflow-hidden">
-                        <AddToCartButton inspiration={gift} />
+                        <AddToCartButton inspiration={convertToLegacyInspiration(gift)} />
                       </div>
                     </div>
                   </div>
