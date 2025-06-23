@@ -1,6 +1,5 @@
 import { NextResponse, NextRequest } from "next/server"
-import { getBoxesCollection } from "@/lib/gift-db-helpers"
-import { ObjectId } from "mongodb"
+import { prisma } from "@/lib/prisma"
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,11 +7,19 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category")
     const id = searchParams.get("id")
 
-    const collection = await getBoxesCollection()
-
-    // Si se proporciona un ID, devolver un solo box
+    // إذا تم تقديم ID، إرجاع صندوق واحد
     if (id) {
-      const box = await collection.findOne({ _id: new ObjectId(id) })
+      // التحقق من صحة تنسيق ObjectId
+      if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+        return NextResponse.json({ success: false, message: "Invalid box ID format" }, { status: 400 })
+      }
+
+      const box = await prisma.inspirationBox.findUnique({
+        where: { id },
+        include: {
+          inspiration: true
+        }
+      })
 
       if (!box) {
         return NextResponse.json({ success: false, message: "Box not found" }, { status: 404 })
@@ -20,27 +27,26 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({
         success: true,
-        data: {
-          ...box,
-          id: box._id.toString(),
-        },
+        data: box,
       })
     }
 
-    // Si se proporciona una categoría, filtrar por categoría
-    let query = {}
+    // إذا تم تقديم فئة، التصفية حسب الفئة
+    const where: Record<string, unknown> = {}
     if (category) {
-      query = { category }
+      where.category = category
     }
 
-    const boxes = await collection.find(query).toArray()
+    const boxes = await prisma.inspirationBox.findMany({
+      where,
+      include: {
+        inspiration: true
+      }
+    })
 
     return NextResponse.json({
       success: true,
-      data: boxes.map((box) => ({
-        ...box,
-        id: box._id.toString(),
-      })),
+      data: boxes,
     })
   } catch (error) {
     console.error("Error fetching boxes:", error)

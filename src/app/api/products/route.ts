@@ -288,8 +288,7 @@ export async function GET(request: Request) {
           typeof product.old_price === 'number' &&
           typeof product.price === 'number' &&
           product.old_price > 0
-        ) {
-          (product as any).discountPercentage = Math.round(
+        ) {          (product as Record<string, unknown>).discountPercentage = Math.round(
             ((product.old_price - product.price) / product.old_price) * 100
           )
         }

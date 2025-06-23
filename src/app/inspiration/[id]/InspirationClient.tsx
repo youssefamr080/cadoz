@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThumbsUp, ThumbsDown, MessageCircle, Share2, Star } from "lucide-react"; 
 import InspirationComments from "@/components/gift/InspirationComments"; 
@@ -32,17 +32,33 @@ export default function InspirationClient({ inspiration }: Props) {
 		inspiration.dislikedBy ?? []
 	);
 	const [comments, setComments] = useState(() => {
-		// Normalize comments from MongoDB format to application format
-		return inspiration.comments ? normalizeComments(inspiration.comments) : [];
+		// Initialize empty comments array - comments will be loaded separately
+		return [];
 	});
 	const [rating, setRating] = useState(inspiration.rating ?? 0);
 	const [reviews, setReviews] = useState(inspiration.reviews ?? 0);
 
 	// --- Animation State ---
 	const [isVisible, setIsVisible] = useState(false);
+	
+	// Load comments from API
+	const loadComments = useCallback(async () => {
+		try {
+			const response = await fetch(`/api/gift/inspirations/${inspiration.id}/comments`);
+			if (response.ok) {
+				const commentsData = await response.json();
+				setComments(normalizeComments(commentsData));
+			}
+		} catch (error) {
+			console.error("Error loading comments:", error);
+		}
+	}, [inspiration.id]);
+	
 	useEffect(() => {
 		setIsVisible(true);
-	}, []);
+		// Load comments for this inspiration
+		loadComments();
+	}, [loadComments]);
 
 	// --- Handlers ---
 	const handleReact = async (type: "like" | "dislike") => {

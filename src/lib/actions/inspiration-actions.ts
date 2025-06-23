@@ -1,72 +1,23 @@
 "use server"
 
-// Reemplazar la importación de clientPromise
-import { getInspirationsCollection } from "@/lib/gift-db-helpers"
-import type { Inspiration } from "@/types/inspiration"
-import type { InspirationDocument } from "@/types/database"
-import { ObjectId } from "mongodb"
-
-// تحويل كائن المستند من MongoDB إلى النوع المستخدم في الواجهة
-function mapInspirationDocument(doc: InspirationDocument): Inspiration {
-  // حفظ معلومات الكميات من المنتجات
-  const productQuantities: Record<string, number> = {};
-  
-  // استخراج معلومات الكميات من مصفوفة المنتجات
-  if (doc.products && Array.isArray(doc.products)) {
-    doc.products.forEach((p: { id: string | ObjectId; quantity?: number | { $numberInt?: string } }) => {
-      if (typeof p === 'object' && p !== null) {
-        const productId = typeof p.id === 'string' ? p.id : p.id?.toString();
-        if (productId && p.quantity) {
-          productQuantities[productId] = typeof p.quantity === 'number' ? 
-            p.quantity : 
-            (typeof p.quantity === 'object' && p.quantity.$numberInt ? 
-              parseInt(p.quantity.$numberInt) : 1);
-        }
-      }
-    });
-  }
-  
-  return {
-    id: doc._id.toString(),
-    name: doc.name,
-    description: doc.description,
-    image: doc.image,
-    rating: doc.rating,
-    reviews: doc.reviews,
-    box: typeof doc.box === 'string' ? doc.box : doc.box.id.toString(),
-    products: doc.products.map((p: string | { id: string | ObjectId; name?: string; price?: number; image?: string; quantity?: number; category?: string; stock?: number; popular?: boolean }) => {
-      const productId = typeof p === 'string' ? p : (p.id ? (typeof p.id === 'string' ? p.id : p.id.toString()) : '');
-      return productId;
-    }),
-    productQuantities: productQuantities,
-    decorations: doc.decorations.map((d: { id: string } | string) => typeof d === 'string' ? d : d.id),
-    bag: typeof doc.bag === 'string' ? doc.bag : doc.bag.id,
-    Mainproducts: doc.Mainproducts ? doc.Mainproducts.map((mp: { id: string } | string) => typeof mp === 'string' ? mp : mp.id) : undefined,
-    likes: doc.likes ?? 0,
-    dislikes: doc.dislikes ?? 0,
-    price: doc.price, // استخدام السعر مباشرة من قاعدة البيانات
-    oldPrice: doc.oldPrice, // استخدام السعر القديم مباشرة من قاعدة البيانات
-    discount_percentage: doc.discount_percentage, // استخدام نسبة الخصم مباشرة من قاعدة البيانات
-    comments: (doc.comments ?? []).map((c) => ({
-      _id: typeof c._id === "string" ? c._id : c._id?.toString?.() ?? "",
-      userId: c.userId,
-      userName: c.userName,
-      comment: c.comment,
-      createdAt: typeof c.createdAt === "string" ? c.createdAt : (c.createdAt instanceof Date ? c.createdAt.toISOString() : "")
-    })),
-    likedBy: doc.likedBy ?? [],
-    dislikedBy: doc.dislikedBy ?? [],
-    ratings: doc.ratings ?? [],
-    category: doc.category || doc["category "]
-  }
-}
+import { prisma } from "@/lib/prisma"
+import type { Inspiration } from "../../../prisma/generated/client"
 
 // جلب جميع هدايا الإلهام
 export async function getAllInspirations(): Promise<Inspiration[]> {
   try {
-    const collection = await getInspirationsCollection()
-    const inspirations = await collection.find({}).toArray()
-    return inspirations.map(mapInspirationDocument)
+    const inspirations = await prisma.inspiration.findMany({
+      include: {
+        ratings: true,
+        comments: true,
+        box: true,
+        mainProducts: true,
+        products: true,
+        decorations: true,
+        bag: true
+      }
+    })
+    return inspirations
   } catch (error) {
     console.error("Error fetching inspirations:", error)
     throw new Error("فشل في جلب هدايا الإلهام")
@@ -76,9 +27,19 @@ export async function getAllInspirations(): Promise<Inspiration[]> {
 // جلب هدية إلهام واحدة حسب المعرف
 export async function getInspirationById(id: string): Promise<Inspiration | null> {
   try {
-    const collection = await getInspirationsCollection()
-    const inspiration = await collection.findOne({ _id: new ObjectId(id) })
-    return inspiration ? mapInspirationDocument(inspiration) : null
+    const inspiration = await prisma.inspiration.findUnique({
+      where: { id },
+      include: {
+        ratings: true,
+        comments: true,
+        box: true,
+        mainProducts: true,
+        products: true,
+        decorations: true,
+        bag: true
+      }
+    })
+    return inspiration
   } catch (error) {
     console.error("Error fetching inspiration by id:", error)
     throw new Error("فشل في جلب هدية الإلهام")
@@ -87,159 +48,222 @@ export async function getInspirationById(id: string): Promise<Inspiration | null
 
 // إضافة تعليق على إلهام
 export async function addInspirationComment(inspirationId: string, userId: string, comment: string, userName?: string) {
-  const collection = await getInspirationsCollection();
-  const commentObj = {
-    _id: new ObjectId(),
-    userId,
-    userName: userName || "مستخدم مجهول",
-    comment,
-    createdAt: new Date(),
-  };
-  await collection.updateOne(
-    { _id: new ObjectId(inspirationId) },
-    { $push: { comments: commentObj } }
-  );
-  // Return with string _id and createdAt for client compatibility
-  return {
-    ...commentObj,
-    _id: commentObj._id.toString(),
-    createdAt: commentObj.createdAt.toISOString(),
-  };
-}
-
-// لايك للإلهام
-export async function likeInspiration(inspirationId: string, userId: string) {
-  const collection = await getInspirationsCollection();
-  const inspiration = await collection.findOne({ _id: new ObjectId(inspirationId) });
-  
-  // التحقق مما إذا كان المستخدم قد قام بالإعجاب بالفعل
-  const alreadyLiked = inspiration?.likedBy?.includes(userId);
-  
-  if (alreadyLiked) {
-    // إذا كان المستخدم قد قام بالإعجاب بالفعل، قم بإزالة الإعجاب
-    await collection.updateOne(
-      { _id: new ObjectId(inspirationId) },
-      {
-        $pull: { likedBy: userId },
-        $inc: { likes: -1 },
-        $set: { updatedAt: new Date() },
-      }
-    );
-  } else {
-    // إذا لم يكن المستخدم قد قام بالإعجاب، أضف الإعجاب وأزل عدم الإعجاب إذا وجد
-    await collection.updateOne(
-      { _id: new ObjectId(inspirationId) },
-      {
-        $addToSet: { likedBy: userId },
-        $pull: { dislikedBy: userId },
-        $inc: { likes: 1, dislikes: inspiration?.dislikedBy?.includes(userId) ? -1 : 0 },
-        $set: { updatedAt: new Date() },
-      }
-    );
-  }
-  
-  // إرجاع الحالة المحدثة
-  const updatedInspiration = await collection.findOne({ _id: new ObjectId(inspirationId) });
-  return {
-    likes: updatedInspiration?.likes || 0,
-    dislikes: updatedInspiration?.dislikes || 0,
-    likedBy: updatedInspiration?.likedBy || [],
-    dislikedBy: updatedInspiration?.dislikedBy || []
-  };
-}
-
-// ديسلايك للإلهام
-export async function dislikeInspiration(inspirationId: string, userId: string) {
-  const collection = await getInspirationsCollection();
-  const inspiration = await collection.findOne({ _id: new ObjectId(inspirationId) });
-  
-  // التحقق مما إذا كان المستخدم قد قام بعدم الإعجاب بالفعل
-  const alreadyDisliked = inspiration?.dislikedBy?.includes(userId);
-  
-  if (alreadyDisliked) {
-    // إذا كان المستخدم قد قام بعدم الإعجاب بالفعل، قم بإزالة عدم الإعجاب
-    await collection.updateOne(
-      { _id: new ObjectId(inspirationId) },
-      {
-        $pull: { dislikedBy: userId },
-        $inc: { dislikes: -1 },
-        $set: { updatedAt: new Date() },
-      }
-    );
-  } else {
-    // إذا لم يكن المستخدم قد قام بعدم الإعجاب، أضف عدم الإعجاب وأزل الإعجاب إذا وجد
-    await collection.updateOne(
-      { _id: new ObjectId(inspirationId) },
-      {
-        $addToSet: { dislikedBy: userId },
-        $pull: { likedBy: userId },
-        $inc: { dislikes: 1, likes: inspiration?.likedBy?.includes(userId) ? -1 : 0 },
-        $set: { updatedAt: new Date() },
-      }
-    );
-  }
-  
-  // إرجاع الحالة المحدثة
-  const updatedInspiration = await collection.findOne({ _id: new ObjectId(inspirationId) });
-  return {
-    likes: updatedInspiration?.likes || 0,
-    dislikes: updatedInspiration?.dislikes || 0,
-    likedBy: updatedInspiration?.likedBy || [],
-    dislikedBy: updatedInspiration?.dislikedBy || []
-  };
-}
-
-// تقييم إلهام
-export async function rateInspiration(inspirationId: string, userId: string, rating: number) {
-  const collection = await getInspirationsCollection();
-  // كل مستخدم يمكنه تقييم مرة واحدة فقط (يمكنك تحسين المنطق لاحقًا)
-  const doc = await collection.findOne({ _id: new ObjectId(inspirationId) });
-  if (!doc) throw new Error("إلهام غير موجود");
-  let ratings: { userId: string; rating: number }[] = doc.ratings || [];
-  const existing = ratings.find(r => r.userId === userId);
-  if (existing) {
-    // إذا كان المستخدم قد قيّم من قبل، حدث تقييمه
-    ratings = ratings.map(r => r.userId === userId ? { ...r, rating } : r);
-  } else {
-    ratings.push({ userId, rating });
-  }
-  // احسب المتوسط وعدد التقييمات
-  const avg = ratings.length > 0 ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length : 0;
-  await collection.updateOne(
-    { _id: new ObjectId(inspirationId) },
-    {
-      $set: {
-        ratings,
-        rating: avg,
-        reviews: ratings.length,
-        updatedAt: new Date(),
-      },
-    }
-  );
-  return { rating: avg, reviews: ratings.length };
-}
-
-// جلب الهدايا الأكثر شعبية
-export async function getPopularInspirations(limit = 4): Promise<Inspiration[]> {
   try {
-    const collection = await getInspirationsCollection()
-    const inspirations = await collection.find({}).sort({ rating: -1, reviews: -1 }).limit(limit).toArray()
-    return inspirations.map(mapInspirationDocument)
+    await prisma.inspirationComment.create({
+      data: {
+        inspirationId,
+        userId,
+        userName: userName || "مستخدم مجهول",
+        comment
+      }
+    })
+  } catch (error) {
+    console.error("Error adding inspiration comment:", error)
+    throw new Error("فشل في إضافة التعليق")
+  }
+}
+
+// إضافة تقييم لإلهام
+export async function addInspirationRating(inspirationId: string, userId: string, rating: number) {
+  try {
+    // تحقق من وجود تقييم سابق
+    const existingRating = await prisma.inspirationRating.findFirst({
+      where: { inspirationId, userId }
+    })
+
+    if (existingRating) {
+      // تحديث التقييم الموجود
+      await prisma.inspirationRating.update({
+        where: { id: existingRating.id },
+        data: { rating }
+      })
+    } else {
+      // إنشاء تقييم جديد
+      await prisma.inspirationRating.create({
+        data: {
+          inspirationId,
+          userId,
+          rating
+        }
+      })
+    }
+  } catch (error) {
+    console.error("Error adding inspiration rating:", error)
+    throw new Error("فشل في إضافة التقييم")
+  }
+}
+
+// جلب الإلهامات حسب الفئة
+export async function getInspirationsByCategory(category: string): Promise<Inspiration[]> {
+  try {
+    const inspirations = await prisma.inspiration.findMany({
+      where: { category },
+      include: {
+        ratings: true,
+        comments: true,
+        box: true,
+        mainProducts: true,
+        products: true,
+        decorations: true,
+        bag: true
+      }
+    })
+    return inspirations
+  } catch (error) {
+    console.error("Error fetching inspirations by category:", error)
+    throw new Error("فشل في جلب الإلهامات حسب الفئة")
+  }
+}
+
+// البحث في الإلهامات
+export async function searchInspirations(searchTerm: string): Promise<Inspiration[]> {
+  try {
+    const inspirations = await prisma.inspiration.findMany({
+      where: {
+        OR: [
+          { name: { contains: searchTerm, mode: 'insensitive' } },
+          { description: { contains: searchTerm, mode: 'insensitive' } }
+        ]
+      },
+      include: {
+        ratings: true,
+        comments: true,
+        box: true,
+        mainProducts: true,
+        products: true,
+        decorations: true,
+        bag: true
+      }
+    })
+    return inspirations
+  } catch (error) {
+    console.error("Error searching inspirations:", error)
+    throw new Error("فشل في البحث عن الإلهامات")
+  }
+}
+
+// إضافة أو إزالة لايك للإلهام
+export async function toggleInspirationLike(inspirationId: string, userId: string) {
+  try {
+    const inspiration = await prisma.inspiration.findUnique({
+      where: { id: inspirationId }
+    })
+
+    if (!inspiration) {
+      throw new Error("الإلهام غير موجود")
+    }
+
+    const likedBy = inspiration.likedBy || []
+    const dislikedBy = inspiration.dislikedBy || []
+    const isLiked = likedBy.includes(userId)
+
+    if (isLiked) {
+      // إزالة اللايك
+      await prisma.inspiration.update({
+        where: { id: inspirationId },
+        data: {
+          likedBy: likedBy.filter(id => id !== userId),
+          likes: Math.max(0, inspiration.likes - 1)
+        }
+      })
+    } else {
+      // إضافة لايك وإزالة ديسلايك إذا كان موجوداً
+      const newLikedBy = [...likedBy, userId]
+      const newDislikedBy = dislikedBy.filter(id => id !== userId)
+      const wasDisliked = dislikedBy.includes(userId)
+
+      await prisma.inspiration.update({
+        where: { id: inspirationId },
+        data: {
+          likedBy: newLikedBy,
+          dislikedBy: newDislikedBy,
+          likes: inspiration.likes + 1,
+          dislikes: wasDisliked ? Math.max(0, inspiration.dislikes - 1) : inspiration.dislikes
+        }
+      })
+    }
+  } catch (error) {
+    console.error("Error toggling inspiration like:", error)
+    throw new Error("فشل في تبديل الإعجاب")
+  }
+}
+
+// إضافة أو إزالة ديسلايك للإلهام
+export async function toggleInspirationDislike(inspirationId: string, userId: string) {
+  try {
+    const inspiration = await prisma.inspiration.findUnique({
+      where: { id: inspirationId }
+    })
+
+    if (!inspiration) {
+      throw new Error("الإلهام غير موجود")
+    }
+
+    const likedBy = inspiration.likedBy || []
+    const dislikedBy = inspiration.dislikedBy || []
+    const isDisliked = dislikedBy.includes(userId)
+
+    if (isDisliked) {
+      // إزالة الديسلايك
+      await prisma.inspiration.update({
+        where: { id: inspirationId },
+        data: {
+          dislikedBy: dislikedBy.filter(id => id !== userId),
+          dislikes: Math.max(0, inspiration.dislikes - 1)
+        }
+      })
+    } else {
+      // إضافة ديسلايك وإزالة لايك إذا كان موجوداً
+      const newDislikedBy = [...dislikedBy, userId]
+      const newLikedBy = likedBy.filter(id => id !== userId)
+      const wasLiked = likedBy.includes(userId)
+
+      await prisma.inspiration.update({
+        where: { id: inspirationId },
+        data: {
+          dislikedBy: newDislikedBy,
+          likedBy: newLikedBy,
+          dislikes: inspiration.dislikes + 1,
+          likes: wasLiked ? Math.max(0, inspiration.likes - 1) : inspiration.likes
+        }
+      })
+    }
+  } catch (error) {
+    console.error("Error toggling inspiration dislike:", error)
+    throw new Error("فشل في تبديل عدم الإعجاب")
+  }
+}
+
+// للتوافق مع الكود الموجود - هذه functions اسمها القديم
+export const likeInspiration = toggleInspirationLike
+export const dislikeInspiration = toggleInspirationDislike
+export const rateInspiration = addInspirationRating
+
+// جلب الإلهامات الشائعة
+export async function getPopularInspirations(): Promise<Inspiration[]> {
+  try {
+    const inspirations = await prisma.inspiration.findMany({
+      where: {
+        likes: { gte: 5 } // الإلهامات التي لديها 5 لايكات أو أكثر
+      },
+      orderBy: [
+        { likes: 'desc' },
+        { createdAt: 'desc' }
+      ],
+      take: 10, // أحدث 10 إلهامات شائعة
+      include: {
+        ratings: true,
+        comments: true,
+        box: true,
+        mainProducts: true,
+        products: true,
+        decorations: true,
+        bag: true
+      }
+    })
+    return inspirations
   } catch (error) {
     console.error("Error fetching popular inspirations:", error)
-    throw new Error("فشل في جلب هدايا الإلهام الشائعة")
-  }
-}
-
-// جلب هدايا الإلهام حسب الفئة
-export async function getInspirationsByCategory(category: string, limit = 4): Promise<Inspiration[]> {
-  try {
-    const collection = await getInspirationsCollection()
-    // استخدام خاصية category الجديدة للفلترة
-    const inspirations = await collection.find({ "category": category }).sort({ rating: -1, reviews: -1 }).limit(limit).toArray()
-    return inspirations.map(mapInspirationDocument)
-  } catch (error) {
-    console.error(`Error fetching inspirations for category ${category}:`, error)
-    throw new Error(`فشل في جلب هدايا الإلهام للفئة ${category}`)
+    throw new Error("فشل في جلب الإلهامات الشائعة")
   }
 }

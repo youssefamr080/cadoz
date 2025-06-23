@@ -1,10 +1,11 @@
-import { connectToDatabase } from '@/lib/mongodb';
+import { prisma } from '@/lib/prisma';
 
 export interface AuditLog {
   userId?: string;
   action: string;
   category: 'auth' | 'data' | 'admin' | 'security';
-  status: 'success' | 'failure';  details: Record<string, string | number | boolean | null | undefined>;
+  status: 'success' | 'failure';
+  details: Record<string, string | number | boolean | null | undefined>;
   ip?: string;
   userAgent?: string;
   timestamp: Date;
@@ -12,38 +13,45 @@ export interface AuditLog {
 
 export async function logAuditEvent(event: Omit<AuditLog, 'timestamp'>) {
   try {
-    const { db } = await connectToDatabase();
-    
     const logEntry = {
       ...event,
       timestamp: new Date(),
     };
 
-    await db.collection('auditLogs').insertOne(logEntry);
+    await prisma.auditLog.create({
+      data: {
+        userId: logEntry.userId,
+        action: logEntry.action,
+        category: logEntry.category,
+        status: logEntry.status,
+        details: logEntry.details,
+        ip: logEntry.ip,
+        userAgent: logEntry.userAgent,
+        timestamp: logEntry.timestamp,
+      }
+    });
 
     // If it's a security-related failure, also store in a separate collection
     if (event.category === 'security' && event.status === 'failure') {
-      await db.collection('securityIncidents').insertOne({
-        ...logEntry,
-        reviewed: false,
-        severity: 'medium', // Default severity
-        resolution: null,
-      });
+      await prisma.securityIncident.create({
+        data: {
+          userId: logEntry.userId,
+          action: logEntry.action,
+          category: logEntry.category,
+          status: logEntry.status,
+          details: logEntry.details,
+          ip: logEntry.ip,
+          userAgent: logEntry.userAgent,
+          timestamp: logEntry.timestamp,
+          reviewed: false,
+          severity: 'medium',
+          resolution: null,
+        }      });
     }
   } catch (error) {
     console.error('Failed to write audit log:', error);
     // Don't throw - audit logging should not interrupt the main flow
   }
-}
-
-interface QueryFilters {
-  userId?: string;
-  action?: string;
-  category?: 'auth' | 'data' | 'admin' | 'security';
-  status?: 'success' | 'failure';
-  timestamp?: Date;
-  ip?: string;
-  userAgent?: string;
 }
 
 export async function getAuditLogs(
@@ -52,21 +60,19 @@ export async function getAuditLogs(
   skip = 0
 ) {
   try {
-    const { db } = await connectToDatabase();
-    
-    const query = Object.entries(filters).reduce((acc, [key, value]) => {
+    const whereClause = Object.entries(filters).reduce((acc, [key, value]) => {
       if (value !== undefined) {
         acc[key] = value;
       }
       return acc;
-    }, {} as QueryFilters);
+    }, {} as Record<string, unknown>);
 
-    const logs = await db.collection('auditLogs')
-      .find(query)
-      .sort({ timestamp: -1 })
-      .skip(skip)
-      .limit(limit)
-      .toArray();
+    const logs = await prisma.auditLog.findMany({
+      where: whereClause,
+      orderBy: { timestamp: 'desc' },
+      skip,
+      take: limit,
+    });
 
     return logs;
   } catch (error) {

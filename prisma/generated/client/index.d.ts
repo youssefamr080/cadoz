@@ -169,20 +169,25 @@ export type ReviewVote = $Result.DefaultSelection<Prisma.$ReviewVotePayload>
  */
 export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
 /**
- * Model Session
+ * Model UsedPromoCode
  * 
  */
-export type Session = $Result.DefaultSelection<Prisma.$SessionPayload>
+export type UsedPromoCode = $Result.DefaultSelection<Prisma.$UsedPromoCodePayload>
 /**
  * Model UserPreference
  * 
  */
 export type UserPreference = $Result.DefaultSelection<Prisma.$UserPreferencePayload>
 /**
- * Model UsedPromoCode
+ * Model Session
  * 
  */
-export type UsedPromoCode = $Result.DefaultSelection<Prisma.$UsedPromoCodePayload>
+export type Session = $Result.DefaultSelection<Prisma.$SessionPayload>
+/**
+ * Model NewsAttachment
+ * 
+ */
+export type NewsAttachment = $Result.DefaultSelection<Prisma.$NewsAttachmentPayload>
 /**
  * Model AuditLog
  * 
@@ -193,6 +198,36 @@ export type AuditLog = $Result.DefaultSelection<Prisma.$AuditLogPayload>
  * 
  */
 export type SecurityIncident = $Result.DefaultSelection<Prisma.$SecurityIncidentPayload>
+/**
+ * Model Decoration
+ * 
+ */
+export type Decoration = $Result.DefaultSelection<Prisma.$DecorationPayload>
+/**
+ * Model GiftProduct
+ * 
+ */
+export type GiftProduct = $Result.DefaultSelection<Prisma.$GiftProductPayload>
+/**
+ * Model MainProduct
+ * 
+ */
+export type MainProduct = $Result.DefaultSelection<Prisma.$MainProductPayload>
+/**
+ * Model CustomGift
+ * 
+ */
+export type CustomGift = $Result.DefaultSelection<Prisma.$CustomGiftPayload>
+/**
+ * Model Box
+ * 
+ */
+export type Box = $Result.DefaultSelection<Prisma.$BoxPayload>
+/**
+ * Model SavedItem
+ * 
+ */
+export type SavedItem = $Result.DefaultSelection<Prisma.$SavedItemPayload>
 
 /**
  * Enums
@@ -684,14 +719,14 @@ export class PrismaClient<
   get notification(): Prisma.NotificationDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.session`: Exposes CRUD operations for the **Session** model.
+   * `prisma.usedPromoCode`: Exposes CRUD operations for the **UsedPromoCode** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Sessions
-    * const sessions = await prisma.session.findMany()
+    * // Fetch zero or more UsedPromoCodes
+    * const usedPromoCodes = await prisma.usedPromoCode.findMany()
     * ```
     */
-  get session(): Prisma.SessionDelegate<ExtArgs, ClientOptions>;
+  get usedPromoCode(): Prisma.UsedPromoCodeDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.userPreference`: Exposes CRUD operations for the **UserPreference** model.
@@ -704,14 +739,24 @@ export class PrismaClient<
   get userPreference(): Prisma.UserPreferenceDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.usedPromoCode`: Exposes CRUD operations for the **UsedPromoCode** model.
+   * `prisma.session`: Exposes CRUD operations for the **Session** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more UsedPromoCodes
-    * const usedPromoCodes = await prisma.usedPromoCode.findMany()
+    * // Fetch zero or more Sessions
+    * const sessions = await prisma.session.findMany()
     * ```
     */
-  get usedPromoCode(): Prisma.UsedPromoCodeDelegate<ExtArgs, ClientOptions>;
+  get session(): Prisma.SessionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.newsAttachment`: Exposes CRUD operations for the **NewsAttachment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NewsAttachments
+    * const newsAttachments = await prisma.newsAttachment.findMany()
+    * ```
+    */
+  get newsAttachment(): Prisma.NewsAttachmentDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.auditLog`: Exposes CRUD operations for the **AuditLog** model.
@@ -732,6 +777,66 @@ export class PrismaClient<
     * ```
     */
   get securityIncident(): Prisma.SecurityIncidentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.decoration`: Exposes CRUD operations for the **Decoration** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Decorations
+    * const decorations = await prisma.decoration.findMany()
+    * ```
+    */
+  get decoration(): Prisma.DecorationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.giftProduct`: Exposes CRUD operations for the **GiftProduct** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GiftProducts
+    * const giftProducts = await prisma.giftProduct.findMany()
+    * ```
+    */
+  get giftProduct(): Prisma.GiftProductDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.mainProduct`: Exposes CRUD operations for the **MainProduct** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MainProducts
+    * const mainProducts = await prisma.mainProduct.findMany()
+    * ```
+    */
+  get mainProduct(): Prisma.MainProductDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.customGift`: Exposes CRUD operations for the **CustomGift** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CustomGifts
+    * const customGifts = await prisma.customGift.findMany()
+    * ```
+    */
+  get customGift(): Prisma.CustomGiftDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.box`: Exposes CRUD operations for the **Box** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Boxes
+    * const boxes = await prisma.box.findMany()
+    * ```
+    */
+  get box(): Prisma.BoxDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.savedItem`: Exposes CRUD operations for the **SavedItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SavedItems
+    * const savedItems = await prisma.savedItem.findMany()
+    * ```
+    */
+  get savedItem(): Prisma.SavedItemDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -790,8 +895,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.9.0
-   * Query Engine version: 81e4af48011447c3cc503a190e86995b66d2a28e
+   * Prisma Client JS version: 6.10.1
+   * Query Engine version: 9b628578b3b7cae625e8c927178f15a170e74a9c
    */
   export type PrismaVersion = {
     client: string
@@ -1203,11 +1308,18 @@ export namespace Prisma {
     Review: 'Review',
     ReviewVote: 'ReviewVote',
     Notification: 'Notification',
-    Session: 'Session',
-    UserPreference: 'UserPreference',
     UsedPromoCode: 'UsedPromoCode',
+    UserPreference: 'UserPreference',
+    Session: 'Session',
+    NewsAttachment: 'NewsAttachment',
     AuditLog: 'AuditLog',
-    SecurityIncident: 'SecurityIncident'
+    SecurityIncident: 'SecurityIncident',
+    Decoration: 'Decoration',
+    GiftProduct: 'GiftProduct',
+    MainProduct: 'MainProduct',
+    CustomGift: 'CustomGift',
+    Box: 'Box',
+    SavedItem: 'SavedItem'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1226,7 +1338,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "product" | "category" | "customer" | "device" | "address" | "customerPreferences" | "priceRange" | "notificationPreferences" | "order" | "orderItem" | "giftData" | "giftItem" | "giftBox" | "giftWrap" | "shippingInfo" | "paymentInfo" | "orderTotals" | "promoCode" | "inspiration" | "inspirationRating" | "inspirationComment" | "inspirationBox" | "inspirationMainProduct" | "inspirationProduct" | "inspirationDecoration" | "inspirationBag" | "productView" | "customerEvent" | "review" | "reviewVote" | "notification" | "session" | "userPreference" | "usedPromoCode" | "auditLog" | "securityIncident"
+      modelProps: "product" | "category" | "customer" | "device" | "address" | "customerPreferences" | "priceRange" | "notificationPreferences" | "order" | "orderItem" | "giftData" | "giftItem" | "giftBox" | "giftWrap" | "shippingInfo" | "paymentInfo" | "orderTotals" | "promoCode" | "inspiration" | "inspirationRating" | "inspirationComment" | "inspirationBox" | "inspirationMainProduct" | "inspirationProduct" | "inspirationDecoration" | "inspirationBag" | "productView" | "customerEvent" | "review" | "reviewVote" | "notification" | "usedPromoCode" | "userPreference" | "session" | "newsAttachment" | "auditLog" | "securityIncident" | "decoration" | "giftProduct" | "mainProduct" | "customGift" | "box" | "savedItem"
       txIsolationLevel: never
     }
     model: {
@@ -3524,77 +3636,77 @@ export namespace Prisma {
           }
         }
       }
-      Session: {
-        payload: Prisma.$SessionPayload<ExtArgs>
-        fields: Prisma.SessionFieldRefs
+      UsedPromoCode: {
+        payload: Prisma.$UsedPromoCodePayload<ExtArgs>
+        fields: Prisma.UsedPromoCodeFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.SessionFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SessionPayload> | null
+            args: Prisma.UsedPromoCodeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.SessionFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
+            args: Prisma.UsedPromoCodeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
           }
           findFirst: {
-            args: Prisma.SessionFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SessionPayload> | null
+            args: Prisma.UsedPromoCodeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.SessionFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
+            args: Prisma.UsedPromoCodeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
           }
           findMany: {
-            args: Prisma.SessionFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SessionPayload>[]
+            args: Prisma.UsedPromoCodeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>[]
           }
           create: {
-            args: Prisma.SessionCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
+            args: Prisma.UsedPromoCodeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
           }
           createMany: {
-            args: Prisma.SessionCreateManyArgs<ExtArgs>
+            args: Prisma.UsedPromoCodeCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           delete: {
-            args: Prisma.SessionDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
+            args: Prisma.UsedPromoCodeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
           }
           update: {
-            args: Prisma.SessionUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
+            args: Prisma.UsedPromoCodeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
           }
           deleteMany: {
-            args: Prisma.SessionDeleteManyArgs<ExtArgs>
+            args: Prisma.UsedPromoCodeDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.SessionUpdateManyArgs<ExtArgs>
+            args: Prisma.UsedPromoCodeUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.SessionUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
+            args: Prisma.UsedPromoCodeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
           }
           aggregate: {
-            args: Prisma.SessionAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateSession>
+            args: Prisma.UsedPromoCodeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUsedPromoCode>
           }
           groupBy: {
-            args: Prisma.SessionGroupByArgs<ExtArgs>
-            result: $Utils.Optional<SessionGroupByOutputType>[]
+            args: Prisma.UsedPromoCodeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UsedPromoCodeGroupByOutputType>[]
           }
           findRaw: {
-            args: Prisma.SessionFindRawArgs<ExtArgs>
+            args: Prisma.UsedPromoCodeFindRawArgs<ExtArgs>
             result: JsonObject
           }
           aggregateRaw: {
-            args: Prisma.SessionAggregateRawArgs<ExtArgs>
+            args: Prisma.UsedPromoCodeAggregateRawArgs<ExtArgs>
             result: JsonObject
           }
           count: {
-            args: Prisma.SessionCountArgs<ExtArgs>
-            result: $Utils.Optional<SessionCountAggregateOutputType> | number
+            args: Prisma.UsedPromoCodeCountArgs<ExtArgs>
+            result: $Utils.Optional<UsedPromoCodeCountAggregateOutputType> | number
           }
         }
       }
@@ -3672,77 +3784,151 @@ export namespace Prisma {
           }
         }
       }
-      UsedPromoCode: {
-        payload: Prisma.$UsedPromoCodePayload<ExtArgs>
-        fields: Prisma.UsedPromoCodeFieldRefs
+      Session: {
+        payload: Prisma.$SessionPayload<ExtArgs>
+        fields: Prisma.SessionFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.UsedPromoCodeFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload> | null
+            args: Prisma.SessionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.UsedPromoCodeFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
+            args: Prisma.SessionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
           }
           findFirst: {
-            args: Prisma.UsedPromoCodeFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload> | null
+            args: Prisma.SessionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.UsedPromoCodeFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
+            args: Prisma.SessionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
           }
           findMany: {
-            args: Prisma.UsedPromoCodeFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>[]
+            args: Prisma.SessionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionPayload>[]
           }
           create: {
-            args: Prisma.UsedPromoCodeCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
+            args: Prisma.SessionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
           }
           createMany: {
-            args: Prisma.UsedPromoCodeCreateManyArgs<ExtArgs>
+            args: Prisma.SessionCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           delete: {
-            args: Prisma.UsedPromoCodeDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
+            args: Prisma.SessionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
           }
           update: {
-            args: Prisma.UsedPromoCodeUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
+            args: Prisma.SessionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
           }
           deleteMany: {
-            args: Prisma.UsedPromoCodeDeleteManyArgs<ExtArgs>
+            args: Prisma.SessionDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.UsedPromoCodeUpdateManyArgs<ExtArgs>
+            args: Prisma.SessionUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           upsert: {
-            args: Prisma.UsedPromoCodeUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$UsedPromoCodePayload>
+            args: Prisma.SessionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SessionPayload>
           }
           aggregate: {
-            args: Prisma.UsedPromoCodeAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateUsedPromoCode>
+            args: Prisma.SessionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSession>
           }
           groupBy: {
-            args: Prisma.UsedPromoCodeGroupByArgs<ExtArgs>
-            result: $Utils.Optional<UsedPromoCodeGroupByOutputType>[]
+            args: Prisma.SessionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SessionGroupByOutputType>[]
           }
           findRaw: {
-            args: Prisma.UsedPromoCodeFindRawArgs<ExtArgs>
+            args: Prisma.SessionFindRawArgs<ExtArgs>
             result: JsonObject
           }
           aggregateRaw: {
-            args: Prisma.UsedPromoCodeAggregateRawArgs<ExtArgs>
+            args: Prisma.SessionAggregateRawArgs<ExtArgs>
             result: JsonObject
           }
           count: {
-            args: Prisma.UsedPromoCodeCountArgs<ExtArgs>
-            result: $Utils.Optional<UsedPromoCodeCountAggregateOutputType> | number
+            args: Prisma.SessionCountArgs<ExtArgs>
+            result: $Utils.Optional<SessionCountAggregateOutputType> | number
+          }
+        }
+      }
+      NewsAttachment: {
+        payload: Prisma.$NewsAttachmentPayload<ExtArgs>
+        fields: Prisma.NewsAttachmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NewsAttachmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsAttachmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NewsAttachmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsAttachmentPayload>
+          }
+          findFirst: {
+            args: Prisma.NewsAttachmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsAttachmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NewsAttachmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsAttachmentPayload>
+          }
+          findMany: {
+            args: Prisma.NewsAttachmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsAttachmentPayload>[]
+          }
+          create: {
+            args: Prisma.NewsAttachmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsAttachmentPayload>
+          }
+          createMany: {
+            args: Prisma.NewsAttachmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.NewsAttachmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsAttachmentPayload>
+          }
+          update: {
+            args: Prisma.NewsAttachmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsAttachmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.NewsAttachmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NewsAttachmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.NewsAttachmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NewsAttachmentPayload>
+          }
+          aggregate: {
+            args: Prisma.NewsAttachmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNewsAttachment>
+          }
+          groupBy: {
+            args: Prisma.NewsAttachmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NewsAttachmentGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.NewsAttachmentFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.NewsAttachmentAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.NewsAttachmentCountArgs<ExtArgs>
+            result: $Utils.Optional<NewsAttachmentCountAggregateOutputType> | number
           }
         }
       }
@@ -3894,6 +4080,450 @@ export namespace Prisma {
           }
         }
       }
+      Decoration: {
+        payload: Prisma.$DecorationPayload<ExtArgs>
+        fields: Prisma.DecorationFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DecorationFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DecorationPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DecorationFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DecorationPayload>
+          }
+          findFirst: {
+            args: Prisma.DecorationFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DecorationPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DecorationFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DecorationPayload>
+          }
+          findMany: {
+            args: Prisma.DecorationFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DecorationPayload>[]
+          }
+          create: {
+            args: Prisma.DecorationCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DecorationPayload>
+          }
+          createMany: {
+            args: Prisma.DecorationCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.DecorationDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DecorationPayload>
+          }
+          update: {
+            args: Prisma.DecorationUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DecorationPayload>
+          }
+          deleteMany: {
+            args: Prisma.DecorationDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DecorationUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.DecorationUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DecorationPayload>
+          }
+          aggregate: {
+            args: Prisma.DecorationAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDecoration>
+          }
+          groupBy: {
+            args: Prisma.DecorationGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DecorationGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.DecorationFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.DecorationAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.DecorationCountArgs<ExtArgs>
+            result: $Utils.Optional<DecorationCountAggregateOutputType> | number
+          }
+        }
+      }
+      GiftProduct: {
+        payload: Prisma.$GiftProductPayload<ExtArgs>
+        fields: Prisma.GiftProductFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GiftProductFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GiftProductPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GiftProductFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GiftProductPayload>
+          }
+          findFirst: {
+            args: Prisma.GiftProductFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GiftProductPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GiftProductFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GiftProductPayload>
+          }
+          findMany: {
+            args: Prisma.GiftProductFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GiftProductPayload>[]
+          }
+          create: {
+            args: Prisma.GiftProductCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GiftProductPayload>
+          }
+          createMany: {
+            args: Prisma.GiftProductCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.GiftProductDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GiftProductPayload>
+          }
+          update: {
+            args: Prisma.GiftProductUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GiftProductPayload>
+          }
+          deleteMany: {
+            args: Prisma.GiftProductDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GiftProductUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.GiftProductUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GiftProductPayload>
+          }
+          aggregate: {
+            args: Prisma.GiftProductAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGiftProduct>
+          }
+          groupBy: {
+            args: Prisma.GiftProductGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GiftProductGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.GiftProductFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.GiftProductAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.GiftProductCountArgs<ExtArgs>
+            result: $Utils.Optional<GiftProductCountAggregateOutputType> | number
+          }
+        }
+      }
+      MainProduct: {
+        payload: Prisma.$MainProductPayload<ExtArgs>
+        fields: Prisma.MainProductFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MainProductFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MainProductPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MainProductFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MainProductPayload>
+          }
+          findFirst: {
+            args: Prisma.MainProductFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MainProductPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MainProductFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MainProductPayload>
+          }
+          findMany: {
+            args: Prisma.MainProductFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MainProductPayload>[]
+          }
+          create: {
+            args: Prisma.MainProductCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MainProductPayload>
+          }
+          createMany: {
+            args: Prisma.MainProductCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.MainProductDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MainProductPayload>
+          }
+          update: {
+            args: Prisma.MainProductUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MainProductPayload>
+          }
+          deleteMany: {
+            args: Prisma.MainProductDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MainProductUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.MainProductUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MainProductPayload>
+          }
+          aggregate: {
+            args: Prisma.MainProductAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMainProduct>
+          }
+          groupBy: {
+            args: Prisma.MainProductGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MainProductGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.MainProductFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.MainProductAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.MainProductCountArgs<ExtArgs>
+            result: $Utils.Optional<MainProductCountAggregateOutputType> | number
+          }
+        }
+      }
+      CustomGift: {
+        payload: Prisma.$CustomGiftPayload<ExtArgs>
+        fields: Prisma.CustomGiftFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CustomGiftFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomGiftPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CustomGiftFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomGiftPayload>
+          }
+          findFirst: {
+            args: Prisma.CustomGiftFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomGiftPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CustomGiftFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomGiftPayload>
+          }
+          findMany: {
+            args: Prisma.CustomGiftFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomGiftPayload>[]
+          }
+          create: {
+            args: Prisma.CustomGiftCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomGiftPayload>
+          }
+          createMany: {
+            args: Prisma.CustomGiftCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.CustomGiftDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomGiftPayload>
+          }
+          update: {
+            args: Prisma.CustomGiftUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomGiftPayload>
+          }
+          deleteMany: {
+            args: Prisma.CustomGiftDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CustomGiftUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CustomGiftUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CustomGiftPayload>
+          }
+          aggregate: {
+            args: Prisma.CustomGiftAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCustomGift>
+          }
+          groupBy: {
+            args: Prisma.CustomGiftGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CustomGiftGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.CustomGiftFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.CustomGiftAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.CustomGiftCountArgs<ExtArgs>
+            result: $Utils.Optional<CustomGiftCountAggregateOutputType> | number
+          }
+        }
+      }
+      Box: {
+        payload: Prisma.$BoxPayload<ExtArgs>
+        fields: Prisma.BoxFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BoxFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BoxPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BoxFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BoxPayload>
+          }
+          findFirst: {
+            args: Prisma.BoxFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BoxPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BoxFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BoxPayload>
+          }
+          findMany: {
+            args: Prisma.BoxFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BoxPayload>[]
+          }
+          create: {
+            args: Prisma.BoxCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BoxPayload>
+          }
+          createMany: {
+            args: Prisma.BoxCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.BoxDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BoxPayload>
+          }
+          update: {
+            args: Prisma.BoxUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BoxPayload>
+          }
+          deleteMany: {
+            args: Prisma.BoxDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BoxUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.BoxUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BoxPayload>
+          }
+          aggregate: {
+            args: Prisma.BoxAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBox>
+          }
+          groupBy: {
+            args: Prisma.BoxGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BoxGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.BoxFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.BoxAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.BoxCountArgs<ExtArgs>
+            result: $Utils.Optional<BoxCountAggregateOutputType> | number
+          }
+        }
+      }
+      SavedItem: {
+        payload: Prisma.$SavedItemPayload<ExtArgs>
+        fields: Prisma.SavedItemFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SavedItemFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavedItemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SavedItemFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavedItemPayload>
+          }
+          findFirst: {
+            args: Prisma.SavedItemFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavedItemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SavedItemFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavedItemPayload>
+          }
+          findMany: {
+            args: Prisma.SavedItemFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavedItemPayload>[]
+          }
+          create: {
+            args: Prisma.SavedItemCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavedItemPayload>
+          }
+          createMany: {
+            args: Prisma.SavedItemCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.SavedItemDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavedItemPayload>
+          }
+          update: {
+            args: Prisma.SavedItemUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavedItemPayload>
+          }
+          deleteMany: {
+            args: Prisma.SavedItemDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SavedItemUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SavedItemUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavedItemPayload>
+          }
+          aggregate: {
+            args: Prisma.SavedItemAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSavedItem>
+          }
+          groupBy: {
+            args: Prisma.SavedItemGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SavedItemGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.SavedItemFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.SavedItemAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.SavedItemCountArgs<ExtArgs>
+            result: $Utils.Optional<SavedItemCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3996,11 +4626,18 @@ export namespace Prisma {
     review?: ReviewOmit
     reviewVote?: ReviewVoteOmit
     notification?: NotificationOmit
-    session?: SessionOmit
-    userPreference?: UserPreferenceOmit
     usedPromoCode?: UsedPromoCodeOmit
+    userPreference?: UserPreferenceOmit
+    session?: SessionOmit
+    newsAttachment?: NewsAttachmentOmit
     auditLog?: AuditLogOmit
     securityIncident?: SecurityIncidentOmit
+    decoration?: DecorationOmit
+    giftProduct?: GiftProductOmit
+    mainProduct?: MainProductOmit
+    customGift?: CustomGiftOmit
+    box?: BoxOmit
+    savedItem?: SavedItemOmit
   }
 
   /* Types for Logging */
@@ -6905,7 +7542,6 @@ export namespace Prisma {
     lastOrderAt: Date | null
     reviewCount: number | null
     lastReviewAt: Date | null
-    needsPhoneUpdate: boolean | null
   }
 
   export type CustomerMaxAggregateOutputType = {
@@ -6932,7 +7568,6 @@ export namespace Prisma {
     lastOrderAt: Date | null
     reviewCount: number | null
     lastReviewAt: Date | null
-    needsPhoneUpdate: boolean | null
   }
 
   export type CustomerCountAggregateOutputType = {
@@ -6959,7 +7594,6 @@ export namespace Prisma {
     lastOrderAt: number
     reviewCount: number
     lastReviewAt: number
-    needsPhoneUpdate: number
     _all: number
   }
 
@@ -7010,7 +7644,6 @@ export namespace Prisma {
     lastOrderAt?: true
     reviewCount?: true
     lastReviewAt?: true
-    needsPhoneUpdate?: true
   }
 
   export type CustomerMaxAggregateInputType = {
@@ -7037,7 +7670,6 @@ export namespace Prisma {
     lastOrderAt?: true
     reviewCount?: true
     lastReviewAt?: true
-    needsPhoneUpdate?: true
   }
 
   export type CustomerCountAggregateInputType = {
@@ -7064,7 +7696,6 @@ export namespace Prisma {
     lastOrderAt?: true
     reviewCount?: true
     lastReviewAt?: true
-    needsPhoneUpdate?: true
     _all?: true
   }
 
@@ -7178,7 +7809,6 @@ export namespace Prisma {
     lastOrderAt: Date | null
     reviewCount: number
     lastReviewAt: Date | null
-    needsPhoneUpdate: boolean | null
     _count: CustomerCountAggregateOutputType | null
     _avg: CustomerAvgAggregateOutputType | null
     _sum: CustomerSumAggregateOutputType | null
@@ -7224,7 +7854,6 @@ export namespace Prisma {
     lastOrderAt?: boolean
     reviewCount?: boolean
     lastReviewAt?: boolean
-    needsPhoneUpdate?: boolean
     orders?: boolean | Customer$ordersArgs<ExtArgs>
     devices?: boolean | Customer$devicesArgs<ExtArgs>
     addresses?: boolean | Customer$addressesArgs<ExtArgs>
@@ -7263,10 +7892,9 @@ export namespace Prisma {
     lastOrderAt?: boolean
     reviewCount?: boolean
     lastReviewAt?: boolean
-    needsPhoneUpdate?: boolean
   }
 
-  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "phone" | "email" | "password" | "isActive" | "createdAt" | "updatedAt" | "lastLoginAt" | "lastIp" | "lastUserAgent" | "currentSessionId" | "loginCount" | "lastProductViewed" | "lastActiveAt" | "totalProductViews" | "totalViewDuration" | "viewCount" | "averageViewDuration" | "orderCount" | "lastOrderAt" | "reviewCount" | "lastReviewAt" | "needsPhoneUpdate", ExtArgs["result"]["customer"]>
+  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "phone" | "email" | "password" | "isActive" | "createdAt" | "updatedAt" | "lastLoginAt" | "lastIp" | "lastUserAgent" | "currentSessionId" | "loginCount" | "lastProductViewed" | "lastActiveAt" | "totalProductViews" | "totalViewDuration" | "viewCount" | "averageViewDuration" | "orderCount" | "lastOrderAt" | "reviewCount" | "lastReviewAt", ExtArgs["result"]["customer"]>
   export type CustomerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     orders?: boolean | Customer$ordersArgs<ExtArgs>
     devices?: boolean | Customer$devicesArgs<ExtArgs>
@@ -7317,7 +7945,6 @@ export namespace Prisma {
       lastOrderAt: Date | null
       reviewCount: number
       lastReviewAt: Date | null
-      needsPhoneUpdate: boolean | null
     }, ExtArgs["result"]["customer"]>
     composites: {}
   }
@@ -7742,7 +8369,6 @@ export namespace Prisma {
     readonly lastOrderAt: FieldRef<"Customer", 'DateTime'>
     readonly reviewCount: FieldRef<"Customer", 'Int'>
     readonly lastReviewAt: FieldRef<"Customer", 'DateTime'>
-    readonly needsPhoneUpdate: FieldRef<"Customer", 'Boolean'>
   }
     
 
@@ -37598,6 +38224,1854 @@ export namespace Prisma {
 
 
   /**
+   * Model UsedPromoCode
+   */
+
+  export type AggregateUsedPromoCode = {
+    _count: UsedPromoCodeCountAggregateOutputType | null
+    _min: UsedPromoCodeMinAggregateOutputType | null
+    _max: UsedPromoCodeMaxAggregateOutputType | null
+  }
+
+  export type UsedPromoCodeMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    promoCode: string | null
+    usedAt: Date | null
+  }
+
+  export type UsedPromoCodeMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    promoCode: string | null
+    usedAt: Date | null
+  }
+
+  export type UsedPromoCodeCountAggregateOutputType = {
+    id: number
+    userId: number
+    promoCode: number
+    usedAt: number
+    _all: number
+  }
+
+
+  export type UsedPromoCodeMinAggregateInputType = {
+    id?: true
+    userId?: true
+    promoCode?: true
+    usedAt?: true
+  }
+
+  export type UsedPromoCodeMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    promoCode?: true
+    usedAt?: true
+  }
+
+  export type UsedPromoCodeCountAggregateInputType = {
+    id?: true
+    userId?: true
+    promoCode?: true
+    usedAt?: true
+    _all?: true
+  }
+
+  export type UsedPromoCodeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UsedPromoCode to aggregate.
+     */
+    where?: UsedPromoCodeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UsedPromoCodes to fetch.
+     */
+    orderBy?: UsedPromoCodeOrderByWithRelationInput | UsedPromoCodeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UsedPromoCodeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UsedPromoCodes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UsedPromoCodes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UsedPromoCodes
+    **/
+    _count?: true | UsedPromoCodeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UsedPromoCodeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UsedPromoCodeMaxAggregateInputType
+  }
+
+  export type GetUsedPromoCodeAggregateType<T extends UsedPromoCodeAggregateArgs> = {
+        [P in keyof T & keyof AggregateUsedPromoCode]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUsedPromoCode[P]>
+      : GetScalarType<T[P], AggregateUsedPromoCode[P]>
+  }
+
+
+
+
+  export type UsedPromoCodeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UsedPromoCodeWhereInput
+    orderBy?: UsedPromoCodeOrderByWithAggregationInput | UsedPromoCodeOrderByWithAggregationInput[]
+    by: UsedPromoCodeScalarFieldEnum[] | UsedPromoCodeScalarFieldEnum
+    having?: UsedPromoCodeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UsedPromoCodeCountAggregateInputType | true
+    _min?: UsedPromoCodeMinAggregateInputType
+    _max?: UsedPromoCodeMaxAggregateInputType
+  }
+
+  export type UsedPromoCodeGroupByOutputType = {
+    id: string
+    userId: string
+    promoCode: string
+    usedAt: Date
+    _count: UsedPromoCodeCountAggregateOutputType | null
+    _min: UsedPromoCodeMinAggregateOutputType | null
+    _max: UsedPromoCodeMaxAggregateOutputType | null
+  }
+
+  type GetUsedPromoCodeGroupByPayload<T extends UsedPromoCodeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UsedPromoCodeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UsedPromoCodeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UsedPromoCodeGroupByOutputType[P]>
+            : GetScalarType<T[P], UsedPromoCodeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UsedPromoCodeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    promoCode?: boolean
+    usedAt?: boolean
+  }, ExtArgs["result"]["usedPromoCode"]>
+
+
+
+  export type UsedPromoCodeSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    promoCode?: boolean
+    usedAt?: boolean
+  }
+
+  export type UsedPromoCodeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "promoCode" | "usedAt", ExtArgs["result"]["usedPromoCode"]>
+
+  export type $UsedPromoCodePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UsedPromoCode"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      promoCode: string
+      usedAt: Date
+    }, ExtArgs["result"]["usedPromoCode"]>
+    composites: {}
+  }
+
+  type UsedPromoCodeGetPayload<S extends boolean | null | undefined | UsedPromoCodeDefaultArgs> = $Result.GetResult<Prisma.$UsedPromoCodePayload, S>
+
+  type UsedPromoCodeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UsedPromoCodeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UsedPromoCodeCountAggregateInputType | true
+    }
+
+  export interface UsedPromoCodeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UsedPromoCode'], meta: { name: 'UsedPromoCode' } }
+    /**
+     * Find zero or one UsedPromoCode that matches the filter.
+     * @param {UsedPromoCodeFindUniqueArgs} args - Arguments to find a UsedPromoCode
+     * @example
+     * // Get one UsedPromoCode
+     * const usedPromoCode = await prisma.usedPromoCode.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UsedPromoCodeFindUniqueArgs>(args: SelectSubset<T, UsedPromoCodeFindUniqueArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UsedPromoCode that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UsedPromoCodeFindUniqueOrThrowArgs} args - Arguments to find a UsedPromoCode
+     * @example
+     * // Get one UsedPromoCode
+     * const usedPromoCode = await prisma.usedPromoCode.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UsedPromoCodeFindUniqueOrThrowArgs>(args: SelectSubset<T, UsedPromoCodeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UsedPromoCode that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsedPromoCodeFindFirstArgs} args - Arguments to find a UsedPromoCode
+     * @example
+     * // Get one UsedPromoCode
+     * const usedPromoCode = await prisma.usedPromoCode.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UsedPromoCodeFindFirstArgs>(args?: SelectSubset<T, UsedPromoCodeFindFirstArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UsedPromoCode that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsedPromoCodeFindFirstOrThrowArgs} args - Arguments to find a UsedPromoCode
+     * @example
+     * // Get one UsedPromoCode
+     * const usedPromoCode = await prisma.usedPromoCode.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UsedPromoCodeFindFirstOrThrowArgs>(args?: SelectSubset<T, UsedPromoCodeFindFirstOrThrowArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UsedPromoCodes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsedPromoCodeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UsedPromoCodes
+     * const usedPromoCodes = await prisma.usedPromoCode.findMany()
+     * 
+     * // Get first 10 UsedPromoCodes
+     * const usedPromoCodes = await prisma.usedPromoCode.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const usedPromoCodeWithIdOnly = await prisma.usedPromoCode.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends UsedPromoCodeFindManyArgs>(args?: SelectSubset<T, UsedPromoCodeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UsedPromoCode.
+     * @param {UsedPromoCodeCreateArgs} args - Arguments to create a UsedPromoCode.
+     * @example
+     * // Create one UsedPromoCode
+     * const UsedPromoCode = await prisma.usedPromoCode.create({
+     *   data: {
+     *     // ... data to create a UsedPromoCode
+     *   }
+     * })
+     * 
+     */
+    create<T extends UsedPromoCodeCreateArgs>(args: SelectSubset<T, UsedPromoCodeCreateArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UsedPromoCodes.
+     * @param {UsedPromoCodeCreateManyArgs} args - Arguments to create many UsedPromoCodes.
+     * @example
+     * // Create many UsedPromoCodes
+     * const usedPromoCode = await prisma.usedPromoCode.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UsedPromoCodeCreateManyArgs>(args?: SelectSubset<T, UsedPromoCodeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a UsedPromoCode.
+     * @param {UsedPromoCodeDeleteArgs} args - Arguments to delete one UsedPromoCode.
+     * @example
+     * // Delete one UsedPromoCode
+     * const UsedPromoCode = await prisma.usedPromoCode.delete({
+     *   where: {
+     *     // ... filter to delete one UsedPromoCode
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UsedPromoCodeDeleteArgs>(args: SelectSubset<T, UsedPromoCodeDeleteArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UsedPromoCode.
+     * @param {UsedPromoCodeUpdateArgs} args - Arguments to update one UsedPromoCode.
+     * @example
+     * // Update one UsedPromoCode
+     * const usedPromoCode = await prisma.usedPromoCode.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UsedPromoCodeUpdateArgs>(args: SelectSubset<T, UsedPromoCodeUpdateArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UsedPromoCodes.
+     * @param {UsedPromoCodeDeleteManyArgs} args - Arguments to filter UsedPromoCodes to delete.
+     * @example
+     * // Delete a few UsedPromoCodes
+     * const { count } = await prisma.usedPromoCode.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UsedPromoCodeDeleteManyArgs>(args?: SelectSubset<T, UsedPromoCodeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UsedPromoCodes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsedPromoCodeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UsedPromoCodes
+     * const usedPromoCode = await prisma.usedPromoCode.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UsedPromoCodeUpdateManyArgs>(args: SelectSubset<T, UsedPromoCodeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one UsedPromoCode.
+     * @param {UsedPromoCodeUpsertArgs} args - Arguments to update or create a UsedPromoCode.
+     * @example
+     * // Update or create a UsedPromoCode
+     * const usedPromoCode = await prisma.usedPromoCode.upsert({
+     *   create: {
+     *     // ... data to create a UsedPromoCode
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UsedPromoCode we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UsedPromoCodeUpsertArgs>(args: SelectSubset<T, UsedPromoCodeUpsertArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UsedPromoCodes that matches the filter.
+     * @param {UsedPromoCodeFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const usedPromoCode = await prisma.usedPromoCode.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: UsedPromoCodeFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a UsedPromoCode.
+     * @param {UsedPromoCodeAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const usedPromoCode = await prisma.usedPromoCode.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: UsedPromoCodeAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of UsedPromoCodes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsedPromoCodeCountArgs} args - Arguments to filter UsedPromoCodes to count.
+     * @example
+     * // Count the number of UsedPromoCodes
+     * const count = await prisma.usedPromoCode.count({
+     *   where: {
+     *     // ... the filter for the UsedPromoCodes we want to count
+     *   }
+     * })
+    **/
+    count<T extends UsedPromoCodeCountArgs>(
+      args?: Subset<T, UsedPromoCodeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UsedPromoCodeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UsedPromoCode.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsedPromoCodeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UsedPromoCodeAggregateArgs>(args: Subset<T, UsedPromoCodeAggregateArgs>): Prisma.PrismaPromise<GetUsedPromoCodeAggregateType<T>>
+
+    /**
+     * Group by UsedPromoCode.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UsedPromoCodeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UsedPromoCodeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UsedPromoCodeGroupByArgs['orderBy'] }
+        : { orderBy?: UsedPromoCodeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UsedPromoCodeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUsedPromoCodeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UsedPromoCode model
+   */
+  readonly fields: UsedPromoCodeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UsedPromoCode.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UsedPromoCodeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UsedPromoCode model
+   */
+  interface UsedPromoCodeFieldRefs {
+    readonly id: FieldRef<"UsedPromoCode", 'String'>
+    readonly userId: FieldRef<"UsedPromoCode", 'String'>
+    readonly promoCode: FieldRef<"UsedPromoCode", 'String'>
+    readonly usedAt: FieldRef<"UsedPromoCode", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UsedPromoCode findUnique
+   */
+  export type UsedPromoCodeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    /**
+     * Filter, which UsedPromoCode to fetch.
+     */
+    where: UsedPromoCodeWhereUniqueInput
+  }
+
+  /**
+   * UsedPromoCode findUniqueOrThrow
+   */
+  export type UsedPromoCodeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    /**
+     * Filter, which UsedPromoCode to fetch.
+     */
+    where: UsedPromoCodeWhereUniqueInput
+  }
+
+  /**
+   * UsedPromoCode findFirst
+   */
+  export type UsedPromoCodeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    /**
+     * Filter, which UsedPromoCode to fetch.
+     */
+    where?: UsedPromoCodeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UsedPromoCodes to fetch.
+     */
+    orderBy?: UsedPromoCodeOrderByWithRelationInput | UsedPromoCodeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UsedPromoCodes.
+     */
+    cursor?: UsedPromoCodeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UsedPromoCodes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UsedPromoCodes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UsedPromoCodes.
+     */
+    distinct?: UsedPromoCodeScalarFieldEnum | UsedPromoCodeScalarFieldEnum[]
+  }
+
+  /**
+   * UsedPromoCode findFirstOrThrow
+   */
+  export type UsedPromoCodeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    /**
+     * Filter, which UsedPromoCode to fetch.
+     */
+    where?: UsedPromoCodeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UsedPromoCodes to fetch.
+     */
+    orderBy?: UsedPromoCodeOrderByWithRelationInput | UsedPromoCodeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UsedPromoCodes.
+     */
+    cursor?: UsedPromoCodeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UsedPromoCodes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UsedPromoCodes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UsedPromoCodes.
+     */
+    distinct?: UsedPromoCodeScalarFieldEnum | UsedPromoCodeScalarFieldEnum[]
+  }
+
+  /**
+   * UsedPromoCode findMany
+   */
+  export type UsedPromoCodeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    /**
+     * Filter, which UsedPromoCodes to fetch.
+     */
+    where?: UsedPromoCodeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UsedPromoCodes to fetch.
+     */
+    orderBy?: UsedPromoCodeOrderByWithRelationInput | UsedPromoCodeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UsedPromoCodes.
+     */
+    cursor?: UsedPromoCodeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UsedPromoCodes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UsedPromoCodes.
+     */
+    skip?: number
+    distinct?: UsedPromoCodeScalarFieldEnum | UsedPromoCodeScalarFieldEnum[]
+  }
+
+  /**
+   * UsedPromoCode create
+   */
+  export type UsedPromoCodeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    /**
+     * The data needed to create a UsedPromoCode.
+     */
+    data: XOR<UsedPromoCodeCreateInput, UsedPromoCodeUncheckedCreateInput>
+  }
+
+  /**
+   * UsedPromoCode createMany
+   */
+  export type UsedPromoCodeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UsedPromoCodes.
+     */
+    data: UsedPromoCodeCreateManyInput | UsedPromoCodeCreateManyInput[]
+  }
+
+  /**
+   * UsedPromoCode update
+   */
+  export type UsedPromoCodeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    /**
+     * The data needed to update a UsedPromoCode.
+     */
+    data: XOR<UsedPromoCodeUpdateInput, UsedPromoCodeUncheckedUpdateInput>
+    /**
+     * Choose, which UsedPromoCode to update.
+     */
+    where: UsedPromoCodeWhereUniqueInput
+  }
+
+  /**
+   * UsedPromoCode updateMany
+   */
+  export type UsedPromoCodeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UsedPromoCodes.
+     */
+    data: XOR<UsedPromoCodeUpdateManyMutationInput, UsedPromoCodeUncheckedUpdateManyInput>
+    /**
+     * Filter which UsedPromoCodes to update
+     */
+    where?: UsedPromoCodeWhereInput
+    /**
+     * Limit how many UsedPromoCodes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UsedPromoCode upsert
+   */
+  export type UsedPromoCodeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    /**
+     * The filter to search for the UsedPromoCode to update in case it exists.
+     */
+    where: UsedPromoCodeWhereUniqueInput
+    /**
+     * In case the UsedPromoCode found by the `where` argument doesn't exist, create a new UsedPromoCode with this data.
+     */
+    create: XOR<UsedPromoCodeCreateInput, UsedPromoCodeUncheckedCreateInput>
+    /**
+     * In case the UsedPromoCode was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UsedPromoCodeUpdateInput, UsedPromoCodeUncheckedUpdateInput>
+  }
+
+  /**
+   * UsedPromoCode delete
+   */
+  export type UsedPromoCodeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    /**
+     * Filter which UsedPromoCode to delete.
+     */
+    where: UsedPromoCodeWhereUniqueInput
+  }
+
+  /**
+   * UsedPromoCode deleteMany
+   */
+  export type UsedPromoCodeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UsedPromoCodes to delete
+     */
+    where?: UsedPromoCodeWhereInput
+    /**
+     * Limit how many UsedPromoCodes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UsedPromoCode findRaw
+   */
+  export type UsedPromoCodeFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * UsedPromoCode aggregateRaw
+   */
+  export type UsedPromoCodeAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * UsedPromoCode without action
+   */
+  export type UsedPromoCodeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsedPromoCode
+     */
+    select?: UsedPromoCodeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UsedPromoCode
+     */
+    omit?: UsedPromoCodeOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model UserPreference
+   */
+
+  export type AggregateUserPreference = {
+    _count: UserPreferenceCountAggregateOutputType | null
+    _min: UserPreferenceMinAggregateOutputType | null
+    _max: UserPreferenceMaxAggregateOutputType | null
+  }
+
+  export type UserPreferenceMinAggregateOutputType = {
+    userId: string | null
+    updatedAt: Date | null
+  }
+
+  export type UserPreferenceMaxAggregateOutputType = {
+    userId: string | null
+    updatedAt: Date | null
+  }
+
+  export type UserPreferenceCountAggregateOutputType = {
+    userId: number
+    categories: number
+    tags: number
+    brands: number
+    priceRange: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UserPreferenceMinAggregateInputType = {
+    userId?: true
+    updatedAt?: true
+  }
+
+  export type UserPreferenceMaxAggregateInputType = {
+    userId?: true
+    updatedAt?: true
+  }
+
+  export type UserPreferenceCountAggregateInputType = {
+    userId?: true
+    categories?: true
+    tags?: true
+    brands?: true
+    priceRange?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UserPreferenceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserPreference to aggregate.
+     */
+    where?: UserPreferenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPreferences to fetch.
+     */
+    orderBy?: UserPreferenceOrderByWithRelationInput | UserPreferenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UserPreferenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPreferences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPreferences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UserPreferences
+    **/
+    _count?: true | UserPreferenceCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserPreferenceMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserPreferenceMaxAggregateInputType
+  }
+
+  export type GetUserPreferenceAggregateType<T extends UserPreferenceAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserPreference]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserPreference[P]>
+      : GetScalarType<T[P], AggregateUserPreference[P]>
+  }
+
+
+
+
+  export type UserPreferenceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserPreferenceWhereInput
+    orderBy?: UserPreferenceOrderByWithAggregationInput | UserPreferenceOrderByWithAggregationInput[]
+    by: UserPreferenceScalarFieldEnum[] | UserPreferenceScalarFieldEnum
+    having?: UserPreferenceScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserPreferenceCountAggregateInputType | true
+    _min?: UserPreferenceMinAggregateInputType
+    _max?: UserPreferenceMaxAggregateInputType
+  }
+
+  export type UserPreferenceGroupByOutputType = {
+    userId: string
+    categories: string[]
+    tags: string[]
+    brands: string[]
+    priceRange: JsonValue | null
+    updatedAt: Date
+    _count: UserPreferenceCountAggregateOutputType | null
+    _min: UserPreferenceMinAggregateOutputType | null
+    _max: UserPreferenceMaxAggregateOutputType | null
+  }
+
+  type GetUserPreferenceGroupByPayload<T extends UserPreferenceGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserPreferenceGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserPreferenceGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserPreferenceGroupByOutputType[P]>
+            : GetScalarType<T[P], UserPreferenceGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UserPreferenceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    categories?: boolean
+    tags?: boolean
+    brands?: boolean
+    priceRange?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["userPreference"]>
+
+
+
+  export type UserPreferenceSelectScalar = {
+    userId?: boolean
+    categories?: boolean
+    tags?: boolean
+    brands?: boolean
+    priceRange?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UserPreferenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "categories" | "tags" | "brands" | "priceRange" | "updatedAt", ExtArgs["result"]["userPreference"]>
+
+  export type $UserPreferencePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "UserPreference"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      userId: string
+      categories: string[]
+      tags: string[]
+      brands: string[]
+      priceRange: Prisma.JsonValue | null
+      updatedAt: Date
+    }, ExtArgs["result"]["userPreference"]>
+    composites: {}
+  }
+
+  type UserPreferenceGetPayload<S extends boolean | null | undefined | UserPreferenceDefaultArgs> = $Result.GetResult<Prisma.$UserPreferencePayload, S>
+
+  type UserPreferenceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<UserPreferenceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserPreferenceCountAggregateInputType | true
+    }
+
+  export interface UserPreferenceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserPreference'], meta: { name: 'UserPreference' } }
+    /**
+     * Find zero or one UserPreference that matches the filter.
+     * @param {UserPreferenceFindUniqueArgs} args - Arguments to find a UserPreference
+     * @example
+     * // Get one UserPreference
+     * const userPreference = await prisma.userPreference.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends UserPreferenceFindUniqueArgs>(args: SelectSubset<T, UserPreferenceFindUniqueArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserPreference that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {UserPreferenceFindUniqueOrThrowArgs} args - Arguments to find a UserPreference
+     * @example
+     * // Get one UserPreference
+     * const userPreference = await prisma.userPreference.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends UserPreferenceFindUniqueOrThrowArgs>(args: SelectSubset<T, UserPreferenceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserPreference that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPreferenceFindFirstArgs} args - Arguments to find a UserPreference
+     * @example
+     * // Get one UserPreference
+     * const userPreference = await prisma.userPreference.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends UserPreferenceFindFirstArgs>(args?: SelectSubset<T, UserPreferenceFindFirstArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserPreference that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPreferenceFindFirstOrThrowArgs} args - Arguments to find a UserPreference
+     * @example
+     * // Get one UserPreference
+     * const userPreference = await prisma.userPreference.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends UserPreferenceFindFirstOrThrowArgs>(args?: SelectSubset<T, UserPreferenceFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserPreferences that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPreferenceFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserPreferences
+     * const userPreferences = await prisma.userPreference.findMany()
+     * 
+     * // Get first 10 UserPreferences
+     * const userPreferences = await prisma.userPreference.findMany({ take: 10 })
+     * 
+     * // Only select the `userId`
+     * const userPreferenceWithUserIdOnly = await prisma.userPreference.findMany({ select: { userId: true } })
+     * 
+     */
+    findMany<T extends UserPreferenceFindManyArgs>(args?: SelectSubset<T, UserPreferenceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserPreference.
+     * @param {UserPreferenceCreateArgs} args - Arguments to create a UserPreference.
+     * @example
+     * // Create one UserPreference
+     * const UserPreference = await prisma.userPreference.create({
+     *   data: {
+     *     // ... data to create a UserPreference
+     *   }
+     * })
+     * 
+     */
+    create<T extends UserPreferenceCreateArgs>(args: SelectSubset<T, UserPreferenceCreateArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserPreferences.
+     * @param {UserPreferenceCreateManyArgs} args - Arguments to create many UserPreferences.
+     * @example
+     * // Create many UserPreferences
+     * const userPreference = await prisma.userPreference.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends UserPreferenceCreateManyArgs>(args?: SelectSubset<T, UserPreferenceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a UserPreference.
+     * @param {UserPreferenceDeleteArgs} args - Arguments to delete one UserPreference.
+     * @example
+     * // Delete one UserPreference
+     * const UserPreference = await prisma.userPreference.delete({
+     *   where: {
+     *     // ... filter to delete one UserPreference
+     *   }
+     * })
+     * 
+     */
+    delete<T extends UserPreferenceDeleteArgs>(args: SelectSubset<T, UserPreferenceDeleteArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserPreference.
+     * @param {UserPreferenceUpdateArgs} args - Arguments to update one UserPreference.
+     * @example
+     * // Update one UserPreference
+     * const userPreference = await prisma.userPreference.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends UserPreferenceUpdateArgs>(args: SelectSubset<T, UserPreferenceUpdateArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserPreferences.
+     * @param {UserPreferenceDeleteManyArgs} args - Arguments to filter UserPreferences to delete.
+     * @example
+     * // Delete a few UserPreferences
+     * const { count } = await prisma.userPreference.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends UserPreferenceDeleteManyArgs>(args?: SelectSubset<T, UserPreferenceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserPreferences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPreferenceUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserPreferences
+     * const userPreference = await prisma.userPreference.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends UserPreferenceUpdateManyArgs>(args: SelectSubset<T, UserPreferenceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one UserPreference.
+     * @param {UserPreferenceUpsertArgs} args - Arguments to update or create a UserPreference.
+     * @example
+     * // Update or create a UserPreference
+     * const userPreference = await prisma.userPreference.upsert({
+     *   create: {
+     *     // ... data to create a UserPreference
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserPreference we want to update
+     *   }
+     * })
+     */
+    upsert<T extends UserPreferenceUpsertArgs>(args: SelectSubset<T, UserPreferenceUpsertArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserPreferences that matches the filter.
+     * @param {UserPreferenceFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const userPreference = await prisma.userPreference.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: UserPreferenceFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a UserPreference.
+     * @param {UserPreferenceAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const userPreference = await prisma.userPreference.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: UserPreferenceAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of UserPreferences.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPreferenceCountArgs} args - Arguments to filter UserPreferences to count.
+     * @example
+     * // Count the number of UserPreferences
+     * const count = await prisma.userPreference.count({
+     *   where: {
+     *     // ... the filter for the UserPreferences we want to count
+     *   }
+     * })
+    **/
+    count<T extends UserPreferenceCountArgs>(
+      args?: Subset<T, UserPreferenceCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserPreferenceCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserPreference.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPreferenceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserPreferenceAggregateArgs>(args: Subset<T, UserPreferenceAggregateArgs>): Prisma.PrismaPromise<GetUserPreferenceAggregateType<T>>
+
+    /**
+     * Group by UserPreference.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserPreferenceGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UserPreferenceGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UserPreferenceGroupByArgs['orderBy'] }
+        : { orderBy?: UserPreferenceGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UserPreferenceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserPreferenceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the UserPreference model
+   */
+  readonly fields: UserPreferenceFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UserPreference.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__UserPreferenceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the UserPreference model
+   */
+  interface UserPreferenceFieldRefs {
+    readonly userId: FieldRef<"UserPreference", 'String'>
+    readonly categories: FieldRef<"UserPreference", 'String[]'>
+    readonly tags: FieldRef<"UserPreference", 'String[]'>
+    readonly brands: FieldRef<"UserPreference", 'String[]'>
+    readonly priceRange: FieldRef<"UserPreference", 'Json'>
+    readonly updatedAt: FieldRef<"UserPreference", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * UserPreference findUnique
+   */
+  export type UserPreferenceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+    /**
+     * Filter, which UserPreference to fetch.
+     */
+    where: UserPreferenceWhereUniqueInput
+  }
+
+  /**
+   * UserPreference findUniqueOrThrow
+   */
+  export type UserPreferenceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+    /**
+     * Filter, which UserPreference to fetch.
+     */
+    where: UserPreferenceWhereUniqueInput
+  }
+
+  /**
+   * UserPreference findFirst
+   */
+  export type UserPreferenceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+    /**
+     * Filter, which UserPreference to fetch.
+     */
+    where?: UserPreferenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPreferences to fetch.
+     */
+    orderBy?: UserPreferenceOrderByWithRelationInput | UserPreferenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserPreferences.
+     */
+    cursor?: UserPreferenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPreferences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPreferences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserPreferences.
+     */
+    distinct?: UserPreferenceScalarFieldEnum | UserPreferenceScalarFieldEnum[]
+  }
+
+  /**
+   * UserPreference findFirstOrThrow
+   */
+  export type UserPreferenceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+    /**
+     * Filter, which UserPreference to fetch.
+     */
+    where?: UserPreferenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPreferences to fetch.
+     */
+    orderBy?: UserPreferenceOrderByWithRelationInput | UserPreferenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UserPreferences.
+     */
+    cursor?: UserPreferenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPreferences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPreferences.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UserPreferences.
+     */
+    distinct?: UserPreferenceScalarFieldEnum | UserPreferenceScalarFieldEnum[]
+  }
+
+  /**
+   * UserPreference findMany
+   */
+  export type UserPreferenceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+    /**
+     * Filter, which UserPreferences to fetch.
+     */
+    where?: UserPreferenceWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UserPreferences to fetch.
+     */
+    orderBy?: UserPreferenceOrderByWithRelationInput | UserPreferenceOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UserPreferences.
+     */
+    cursor?: UserPreferenceWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UserPreferences from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UserPreferences.
+     */
+    skip?: number
+    distinct?: UserPreferenceScalarFieldEnum | UserPreferenceScalarFieldEnum[]
+  }
+
+  /**
+   * UserPreference create
+   */
+  export type UserPreferenceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+    /**
+     * The data needed to create a UserPreference.
+     */
+    data: XOR<UserPreferenceCreateInput, UserPreferenceUncheckedCreateInput>
+  }
+
+  /**
+   * UserPreference createMany
+   */
+  export type UserPreferenceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UserPreferences.
+     */
+    data: UserPreferenceCreateManyInput | UserPreferenceCreateManyInput[]
+  }
+
+  /**
+   * UserPreference update
+   */
+  export type UserPreferenceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+    /**
+     * The data needed to update a UserPreference.
+     */
+    data: XOR<UserPreferenceUpdateInput, UserPreferenceUncheckedUpdateInput>
+    /**
+     * Choose, which UserPreference to update.
+     */
+    where: UserPreferenceWhereUniqueInput
+  }
+
+  /**
+   * UserPreference updateMany
+   */
+  export type UserPreferenceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UserPreferences.
+     */
+    data: XOR<UserPreferenceUpdateManyMutationInput, UserPreferenceUncheckedUpdateManyInput>
+    /**
+     * Filter which UserPreferences to update
+     */
+    where?: UserPreferenceWhereInput
+    /**
+     * Limit how many UserPreferences to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserPreference upsert
+   */
+  export type UserPreferenceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+    /**
+     * The filter to search for the UserPreference to update in case it exists.
+     */
+    where: UserPreferenceWhereUniqueInput
+    /**
+     * In case the UserPreference found by the `where` argument doesn't exist, create a new UserPreference with this data.
+     */
+    create: XOR<UserPreferenceCreateInput, UserPreferenceUncheckedCreateInput>
+    /**
+     * In case the UserPreference was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UserPreferenceUpdateInput, UserPreferenceUncheckedUpdateInput>
+  }
+
+  /**
+   * UserPreference delete
+   */
+  export type UserPreferenceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+    /**
+     * Filter which UserPreference to delete.
+     */
+    where: UserPreferenceWhereUniqueInput
+  }
+
+  /**
+   * UserPreference deleteMany
+   */
+  export type UserPreferenceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UserPreferences to delete
+     */
+    where?: UserPreferenceWhereInput
+    /**
+     * Limit how many UserPreferences to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * UserPreference findRaw
+   */
+  export type UserPreferenceFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * UserPreference aggregateRaw
+   */
+  export type UserPreferenceAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * UserPreference without action
+   */
+  export type UserPreferenceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserPreference
+     */
+    select?: UserPreferenceSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the UserPreference
+     */
+    omit?: UserPreferenceOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model Session
    */
 
@@ -38574,1246 +41048,349 @@ export namespace Prisma {
 
 
   /**
-   * Model UserPreference
+   * Model NewsAttachment
    */
 
-  export type AggregateUserPreference = {
-    _count: UserPreferenceCountAggregateOutputType | null
-    _min: UserPreferenceMinAggregateOutputType | null
-    _max: UserPreferenceMaxAggregateOutputType | null
+  export type AggregateNewsAttachment = {
+    _count: NewsAttachmentCountAggregateOutputType | null
+    _min: NewsAttachmentMinAggregateOutputType | null
+    _max: NewsAttachmentMaxAggregateOutputType | null
   }
 
-  export type UserPreferenceMinAggregateOutputType = {
-    userId: string | null
-    updatedAt: Date | null
-  }
-
-  export type UserPreferenceMaxAggregateOutputType = {
-    userId: string | null
-    updatedAt: Date | null
-  }
-
-  export type UserPreferenceCountAggregateOutputType = {
-    userId: number
-    categories: number
-    tags: number
-    brands: number
-    priceRange: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type UserPreferenceMinAggregateInputType = {
-    userId?: true
-    updatedAt?: true
-  }
-
-  export type UserPreferenceMaxAggregateInputType = {
-    userId?: true
-    updatedAt?: true
-  }
-
-  export type UserPreferenceCountAggregateInputType = {
-    userId?: true
-    categories?: true
-    tags?: true
-    brands?: true
-    priceRange?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type UserPreferenceAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which UserPreference to aggregate.
-     */
-    where?: UserPreferenceWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserPreferences to fetch.
-     */
-    orderBy?: UserPreferenceOrderByWithRelationInput | UserPreferenceOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: UserPreferenceWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserPreferences from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserPreferences.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned UserPreferences
-    **/
-    _count?: true | UserPreferenceCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: UserPreferenceMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: UserPreferenceMaxAggregateInputType
-  }
-
-  export type GetUserPreferenceAggregateType<T extends UserPreferenceAggregateArgs> = {
-        [P in keyof T & keyof AggregateUserPreference]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateUserPreference[P]>
-      : GetScalarType<T[P], AggregateUserPreference[P]>
-  }
-
-
-
-
-  export type UserPreferenceGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UserPreferenceWhereInput
-    orderBy?: UserPreferenceOrderByWithAggregationInput | UserPreferenceOrderByWithAggregationInput[]
-    by: UserPreferenceScalarFieldEnum[] | UserPreferenceScalarFieldEnum
-    having?: UserPreferenceScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: UserPreferenceCountAggregateInputType | true
-    _min?: UserPreferenceMinAggregateInputType
-    _max?: UserPreferenceMaxAggregateInputType
-  }
-
-  export type UserPreferenceGroupByOutputType = {
-    userId: string
-    categories: JsonValue
-    tags: JsonValue
-    brands: JsonValue
-    priceRange: JsonValue
-    updatedAt: Date
-    _count: UserPreferenceCountAggregateOutputType | null
-    _min: UserPreferenceMinAggregateOutputType | null
-    _max: UserPreferenceMaxAggregateOutputType | null
-  }
-
-  type GetUserPreferenceGroupByPayload<T extends UserPreferenceGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<UserPreferenceGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof UserPreferenceGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], UserPreferenceGroupByOutputType[P]>
-            : GetScalarType<T[P], UserPreferenceGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type UserPreferenceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    userId?: boolean
-    categories?: boolean
-    tags?: boolean
-    brands?: boolean
-    priceRange?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["userPreference"]>
-
-
-
-  export type UserPreferenceSelectScalar = {
-    userId?: boolean
-    categories?: boolean
-    tags?: boolean
-    brands?: boolean
-    priceRange?: boolean
-    updatedAt?: boolean
-  }
-
-  export type UserPreferenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "categories" | "tags" | "brands" | "priceRange" | "updatedAt", ExtArgs["result"]["userPreference"]>
-
-  export type $UserPreferencePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "UserPreference"
-    objects: {}
-    scalars: $Extensions.GetPayloadResult<{
-      userId: string
-      categories: Prisma.JsonValue
-      tags: Prisma.JsonValue
-      brands: Prisma.JsonValue
-      priceRange: Prisma.JsonValue
-      updatedAt: Date
-    }, ExtArgs["result"]["userPreference"]>
-    composites: {}
-  }
-
-  type UserPreferenceGetPayload<S extends boolean | null | undefined | UserPreferenceDefaultArgs> = $Result.GetResult<Prisma.$UserPreferencePayload, S>
-
-  type UserPreferenceCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<UserPreferenceFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: UserPreferenceCountAggregateInputType | true
-    }
-
-  export interface UserPreferenceDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserPreference'], meta: { name: 'UserPreference' } }
-    /**
-     * Find zero or one UserPreference that matches the filter.
-     * @param {UserPreferenceFindUniqueArgs} args - Arguments to find a UserPreference
-     * @example
-     * // Get one UserPreference
-     * const userPreference = await prisma.userPreference.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends UserPreferenceFindUniqueArgs>(args: SelectSubset<T, UserPreferenceFindUniqueArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one UserPreference that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {UserPreferenceFindUniqueOrThrowArgs} args - Arguments to find a UserPreference
-     * @example
-     * // Get one UserPreference
-     * const userPreference = await prisma.userPreference.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends UserPreferenceFindUniqueOrThrowArgs>(args: SelectSubset<T, UserPreferenceFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first UserPreference that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferenceFindFirstArgs} args - Arguments to find a UserPreference
-     * @example
-     * // Get one UserPreference
-     * const userPreference = await prisma.userPreference.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends UserPreferenceFindFirstArgs>(args?: SelectSubset<T, UserPreferenceFindFirstArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first UserPreference that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferenceFindFirstOrThrowArgs} args - Arguments to find a UserPreference
-     * @example
-     * // Get one UserPreference
-     * const userPreference = await prisma.userPreference.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends UserPreferenceFindFirstOrThrowArgs>(args?: SelectSubset<T, UserPreferenceFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more UserPreferences that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferenceFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all UserPreferences
-     * const userPreferences = await prisma.userPreference.findMany()
-     * 
-     * // Get first 10 UserPreferences
-     * const userPreferences = await prisma.userPreference.findMany({ take: 10 })
-     * 
-     * // Only select the `userId`
-     * const userPreferenceWithUserIdOnly = await prisma.userPreference.findMany({ select: { userId: true } })
-     * 
-     */
-    findMany<T extends UserPreferenceFindManyArgs>(args?: SelectSubset<T, UserPreferenceFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a UserPreference.
-     * @param {UserPreferenceCreateArgs} args - Arguments to create a UserPreference.
-     * @example
-     * // Create one UserPreference
-     * const UserPreference = await prisma.userPreference.create({
-     *   data: {
-     *     // ... data to create a UserPreference
-     *   }
-     * })
-     * 
-     */
-    create<T extends UserPreferenceCreateArgs>(args: SelectSubset<T, UserPreferenceCreateArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many UserPreferences.
-     * @param {UserPreferenceCreateManyArgs} args - Arguments to create many UserPreferences.
-     * @example
-     * // Create many UserPreferences
-     * const userPreference = await prisma.userPreference.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends UserPreferenceCreateManyArgs>(args?: SelectSubset<T, UserPreferenceCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a UserPreference.
-     * @param {UserPreferenceDeleteArgs} args - Arguments to delete one UserPreference.
-     * @example
-     * // Delete one UserPreference
-     * const UserPreference = await prisma.userPreference.delete({
-     *   where: {
-     *     // ... filter to delete one UserPreference
-     *   }
-     * })
-     * 
-     */
-    delete<T extends UserPreferenceDeleteArgs>(args: SelectSubset<T, UserPreferenceDeleteArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one UserPreference.
-     * @param {UserPreferenceUpdateArgs} args - Arguments to update one UserPreference.
-     * @example
-     * // Update one UserPreference
-     * const userPreference = await prisma.userPreference.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends UserPreferenceUpdateArgs>(args: SelectSubset<T, UserPreferenceUpdateArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more UserPreferences.
-     * @param {UserPreferenceDeleteManyArgs} args - Arguments to filter UserPreferences to delete.
-     * @example
-     * // Delete a few UserPreferences
-     * const { count } = await prisma.userPreference.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends UserPreferenceDeleteManyArgs>(args?: SelectSubset<T, UserPreferenceDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more UserPreferences.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferenceUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many UserPreferences
-     * const userPreference = await prisma.userPreference.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends UserPreferenceUpdateManyArgs>(args: SelectSubset<T, UserPreferenceUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one UserPreference.
-     * @param {UserPreferenceUpsertArgs} args - Arguments to update or create a UserPreference.
-     * @example
-     * // Update or create a UserPreference
-     * const userPreference = await prisma.userPreference.upsert({
-     *   create: {
-     *     // ... data to create a UserPreference
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the UserPreference we want to update
-     *   }
-     * })
-     */
-    upsert<T extends UserPreferenceUpsertArgs>(args: SelectSubset<T, UserPreferenceUpsertArgs<ExtArgs>>): Prisma__UserPreferenceClient<$Result.GetResult<Prisma.$UserPreferencePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more UserPreferences that matches the filter.
-     * @param {UserPreferenceFindRawArgs} args - Select which filters you would like to apply.
-     * @example
-     * const userPreference = await prisma.userPreference.findRaw({
-     *   filter: { age: { $gt: 25 } }
-     * })
-     */
-    findRaw(args?: UserPreferenceFindRawArgs): Prisma.PrismaPromise<JsonObject>
-
-    /**
-     * Perform aggregation operations on a UserPreference.
-     * @param {UserPreferenceAggregateRawArgs} args - Select which aggregations you would like to apply.
-     * @example
-     * const userPreference = await prisma.userPreference.aggregateRaw({
-     *   pipeline: [
-     *     { $match: { status: "registered" } },
-     *     { $group: { _id: "$country", total: { $sum: 1 } } }
-     *   ]
-     * })
-     */
-    aggregateRaw(args?: UserPreferenceAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
-
-
-    /**
-     * Count the number of UserPreferences.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferenceCountArgs} args - Arguments to filter UserPreferences to count.
-     * @example
-     * // Count the number of UserPreferences
-     * const count = await prisma.userPreference.count({
-     *   where: {
-     *     // ... the filter for the UserPreferences we want to count
-     *   }
-     * })
-    **/
-    count<T extends UserPreferenceCountArgs>(
-      args?: Subset<T, UserPreferenceCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], UserPreferenceCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a UserPreference.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferenceAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends UserPreferenceAggregateArgs>(args: Subset<T, UserPreferenceAggregateArgs>): Prisma.PrismaPromise<GetUserPreferenceAggregateType<T>>
-
-    /**
-     * Group by UserPreference.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {UserPreferenceGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends UserPreferenceGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: UserPreferenceGroupByArgs['orderBy'] }
-        : { orderBy?: UserPreferenceGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, UserPreferenceGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserPreferenceGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the UserPreference model
-   */
-  readonly fields: UserPreferenceFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for UserPreference.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__UserPreferenceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the UserPreference model
-   */
-  interface UserPreferenceFieldRefs {
-    readonly userId: FieldRef<"UserPreference", 'String'>
-    readonly categories: FieldRef<"UserPreference", 'Json'>
-    readonly tags: FieldRef<"UserPreference", 'Json'>
-    readonly brands: FieldRef<"UserPreference", 'Json'>
-    readonly priceRange: FieldRef<"UserPreference", 'Json'>
-    readonly updatedAt: FieldRef<"UserPreference", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * UserPreference findUnique
-   */
-  export type UserPreferenceFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-    /**
-     * Filter, which UserPreference to fetch.
-     */
-    where: UserPreferenceWhereUniqueInput
-  }
-
-  /**
-   * UserPreference findUniqueOrThrow
-   */
-  export type UserPreferenceFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-    /**
-     * Filter, which UserPreference to fetch.
-     */
-    where: UserPreferenceWhereUniqueInput
-  }
-
-  /**
-   * UserPreference findFirst
-   */
-  export type UserPreferenceFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-    /**
-     * Filter, which UserPreference to fetch.
-     */
-    where?: UserPreferenceWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserPreferences to fetch.
-     */
-    orderBy?: UserPreferenceOrderByWithRelationInput | UserPreferenceOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for UserPreferences.
-     */
-    cursor?: UserPreferenceWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserPreferences from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserPreferences.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserPreferences.
-     */
-    distinct?: UserPreferenceScalarFieldEnum | UserPreferenceScalarFieldEnum[]
-  }
-
-  /**
-   * UserPreference findFirstOrThrow
-   */
-  export type UserPreferenceFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-    /**
-     * Filter, which UserPreference to fetch.
-     */
-    where?: UserPreferenceWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserPreferences to fetch.
-     */
-    orderBy?: UserPreferenceOrderByWithRelationInput | UserPreferenceOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for UserPreferences.
-     */
-    cursor?: UserPreferenceWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserPreferences from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserPreferences.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of UserPreferences.
-     */
-    distinct?: UserPreferenceScalarFieldEnum | UserPreferenceScalarFieldEnum[]
-  }
-
-  /**
-   * UserPreference findMany
-   */
-  export type UserPreferenceFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-    /**
-     * Filter, which UserPreferences to fetch.
-     */
-    where?: UserPreferenceWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of UserPreferences to fetch.
-     */
-    orderBy?: UserPreferenceOrderByWithRelationInput | UserPreferenceOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing UserPreferences.
-     */
-    cursor?: UserPreferenceWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` UserPreferences from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` UserPreferences.
-     */
-    skip?: number
-    distinct?: UserPreferenceScalarFieldEnum | UserPreferenceScalarFieldEnum[]
-  }
-
-  /**
-   * UserPreference create
-   */
-  export type UserPreferenceCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-    /**
-     * The data needed to create a UserPreference.
-     */
-    data: XOR<UserPreferenceCreateInput, UserPreferenceUncheckedCreateInput>
-  }
-
-  /**
-   * UserPreference createMany
-   */
-  export type UserPreferenceCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many UserPreferences.
-     */
-    data: UserPreferenceCreateManyInput | UserPreferenceCreateManyInput[]
-  }
-
-  /**
-   * UserPreference update
-   */
-  export type UserPreferenceUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-    /**
-     * The data needed to update a UserPreference.
-     */
-    data: XOR<UserPreferenceUpdateInput, UserPreferenceUncheckedUpdateInput>
-    /**
-     * Choose, which UserPreference to update.
-     */
-    where: UserPreferenceWhereUniqueInput
-  }
-
-  /**
-   * UserPreference updateMany
-   */
-  export type UserPreferenceUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update UserPreferences.
-     */
-    data: XOR<UserPreferenceUpdateManyMutationInput, UserPreferenceUncheckedUpdateManyInput>
-    /**
-     * Filter which UserPreferences to update
-     */
-    where?: UserPreferenceWhereInput
-    /**
-     * Limit how many UserPreferences to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * UserPreference upsert
-   */
-  export type UserPreferenceUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-    /**
-     * The filter to search for the UserPreference to update in case it exists.
-     */
-    where: UserPreferenceWhereUniqueInput
-    /**
-     * In case the UserPreference found by the `where` argument doesn't exist, create a new UserPreference with this data.
-     */
-    create: XOR<UserPreferenceCreateInput, UserPreferenceUncheckedCreateInput>
-    /**
-     * In case the UserPreference was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<UserPreferenceUpdateInput, UserPreferenceUncheckedUpdateInput>
-  }
-
-  /**
-   * UserPreference delete
-   */
-  export type UserPreferenceDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-    /**
-     * Filter which UserPreference to delete.
-     */
-    where: UserPreferenceWhereUniqueInput
-  }
-
-  /**
-   * UserPreference deleteMany
-   */
-  export type UserPreferenceDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which UserPreferences to delete
-     */
-    where?: UserPreferenceWhereInput
-    /**
-     * Limit how many UserPreferences to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * UserPreference findRaw
-   */
-  export type UserPreferenceFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
-     */
-    filter?: InputJsonValue
-    /**
-     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
-     */
-    options?: InputJsonValue
-  }
-
-  /**
-   * UserPreference aggregateRaw
-   */
-  export type UserPreferenceAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
-     */
-    pipeline?: InputJsonValue[]
-    /**
-     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
-     */
-    options?: InputJsonValue
-  }
-
-  /**
-   * UserPreference without action
-   */
-  export type UserPreferenceDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UserPreference
-     */
-    select?: UserPreferenceSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the UserPreference
-     */
-    omit?: UserPreferenceOmit<ExtArgs> | null
-  }
-
-
-  /**
-   * Model UsedPromoCode
-   */
-
-  export type AggregateUsedPromoCode = {
-    _count: UsedPromoCodeCountAggregateOutputType | null
-    _min: UsedPromoCodeMinAggregateOutputType | null
-    _max: UsedPromoCodeMaxAggregateOutputType | null
-  }
-
-  export type UsedPromoCodeMinAggregateOutputType = {
+  export type NewsAttachmentMinAggregateOutputType = {
     id: string | null
-    userId: string | null
-    promoCode: string | null
-    usedAt: Date | null
+    email: string | null
+    whatsappNumber: string | null
+    name: string | null
+    type: string | null
+    subscribedAt: Date | null
+    source: string | null
   }
 
-  export type UsedPromoCodeMaxAggregateOutputType = {
+  export type NewsAttachmentMaxAggregateOutputType = {
     id: string | null
-    userId: string | null
-    promoCode: string | null
-    usedAt: Date | null
+    email: string | null
+    whatsappNumber: string | null
+    name: string | null
+    type: string | null
+    subscribedAt: Date | null
+    source: string | null
   }
 
-  export type UsedPromoCodeCountAggregateOutputType = {
+  export type NewsAttachmentCountAggregateOutputType = {
     id: number
-    userId: number
-    promoCode: number
-    usedAt: number
+    email: number
+    whatsappNumber: number
+    name: number
+    type: number
+    subscribedAt: number
+    source: number
     _all: number
   }
 
 
-  export type UsedPromoCodeMinAggregateInputType = {
+  export type NewsAttachmentMinAggregateInputType = {
     id?: true
-    userId?: true
-    promoCode?: true
-    usedAt?: true
+    email?: true
+    whatsappNumber?: true
+    name?: true
+    type?: true
+    subscribedAt?: true
+    source?: true
   }
 
-  export type UsedPromoCodeMaxAggregateInputType = {
+  export type NewsAttachmentMaxAggregateInputType = {
     id?: true
-    userId?: true
-    promoCode?: true
-    usedAt?: true
+    email?: true
+    whatsappNumber?: true
+    name?: true
+    type?: true
+    subscribedAt?: true
+    source?: true
   }
 
-  export type UsedPromoCodeCountAggregateInputType = {
+  export type NewsAttachmentCountAggregateInputType = {
     id?: true
-    userId?: true
-    promoCode?: true
-    usedAt?: true
+    email?: true
+    whatsappNumber?: true
+    name?: true
+    type?: true
+    subscribedAt?: true
+    source?: true
     _all?: true
   }
 
-  export type UsedPromoCodeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which UsedPromoCode to aggregate.
+     * Filter which NewsAttachment to aggregate.
      */
-    where?: UsedPromoCodeWhereInput
+    where?: NewsAttachmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UsedPromoCodes to fetch.
+     * Determine the order of NewsAttachments to fetch.
      */
-    orderBy?: UsedPromoCodeOrderByWithRelationInput | UsedPromoCodeOrderByWithRelationInput[]
+    orderBy?: NewsAttachmentOrderByWithRelationInput | NewsAttachmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: UsedPromoCodeWhereUniqueInput
+    cursor?: NewsAttachmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UsedPromoCodes from the position of the cursor.
+     * Take `±n` NewsAttachments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UsedPromoCodes.
+     * Skip the first `n` NewsAttachments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned UsedPromoCodes
+     * Count returned NewsAttachments
     **/
-    _count?: true | UsedPromoCodeCountAggregateInputType
+    _count?: true | NewsAttachmentCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: UsedPromoCodeMinAggregateInputType
+    _min?: NewsAttachmentMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: UsedPromoCodeMaxAggregateInputType
+    _max?: NewsAttachmentMaxAggregateInputType
   }
 
-  export type GetUsedPromoCodeAggregateType<T extends UsedPromoCodeAggregateArgs> = {
-        [P in keyof T & keyof AggregateUsedPromoCode]: P extends '_count' | 'count'
+  export type GetNewsAttachmentAggregateType<T extends NewsAttachmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateNewsAttachment]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateUsedPromoCode[P]>
-      : GetScalarType<T[P], AggregateUsedPromoCode[P]>
+        : GetScalarType<T[P], AggregateNewsAttachment[P]>
+      : GetScalarType<T[P], AggregateNewsAttachment[P]>
   }
 
 
 
 
-  export type UsedPromoCodeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: UsedPromoCodeWhereInput
-    orderBy?: UsedPromoCodeOrderByWithAggregationInput | UsedPromoCodeOrderByWithAggregationInput[]
-    by: UsedPromoCodeScalarFieldEnum[] | UsedPromoCodeScalarFieldEnum
-    having?: UsedPromoCodeScalarWhereWithAggregatesInput
+  export type NewsAttachmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NewsAttachmentWhereInput
+    orderBy?: NewsAttachmentOrderByWithAggregationInput | NewsAttachmentOrderByWithAggregationInput[]
+    by: NewsAttachmentScalarFieldEnum[] | NewsAttachmentScalarFieldEnum
+    having?: NewsAttachmentScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: UsedPromoCodeCountAggregateInputType | true
-    _min?: UsedPromoCodeMinAggregateInputType
-    _max?: UsedPromoCodeMaxAggregateInputType
+    _count?: NewsAttachmentCountAggregateInputType | true
+    _min?: NewsAttachmentMinAggregateInputType
+    _max?: NewsAttachmentMaxAggregateInputType
   }
 
-  export type UsedPromoCodeGroupByOutputType = {
+  export type NewsAttachmentGroupByOutputType = {
     id: string
-    userId: string
-    promoCode: string
-    usedAt: Date
-    _count: UsedPromoCodeCountAggregateOutputType | null
-    _min: UsedPromoCodeMinAggregateOutputType | null
-    _max: UsedPromoCodeMaxAggregateOutputType | null
+    email: string | null
+    whatsappNumber: string | null
+    name: string | null
+    type: string
+    subscribedAt: Date
+    source: string
+    _count: NewsAttachmentCountAggregateOutputType | null
+    _min: NewsAttachmentMinAggregateOutputType | null
+    _max: NewsAttachmentMaxAggregateOutputType | null
   }
 
-  type GetUsedPromoCodeGroupByPayload<T extends UsedPromoCodeGroupByArgs> = Prisma.PrismaPromise<
+  type GetNewsAttachmentGroupByPayload<T extends NewsAttachmentGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<UsedPromoCodeGroupByOutputType, T['by']> &
+      PickEnumerable<NewsAttachmentGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof UsedPromoCodeGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof NewsAttachmentGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], UsedPromoCodeGroupByOutputType[P]>
-            : GetScalarType<T[P], UsedPromoCodeGroupByOutputType[P]>
+              : GetScalarType<T[P], NewsAttachmentGroupByOutputType[P]>
+            : GetScalarType<T[P], NewsAttachmentGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type UsedPromoCodeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type NewsAttachmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    userId?: boolean
-    promoCode?: boolean
-    usedAt?: boolean
-  }, ExtArgs["result"]["usedPromoCode"]>
+    email?: boolean
+    whatsappNumber?: boolean
+    name?: boolean
+    type?: boolean
+    subscribedAt?: boolean
+    source?: boolean
+  }, ExtArgs["result"]["newsAttachment"]>
 
 
 
-  export type UsedPromoCodeSelectScalar = {
+  export type NewsAttachmentSelectScalar = {
     id?: boolean
-    userId?: boolean
-    promoCode?: boolean
-    usedAt?: boolean
+    email?: boolean
+    whatsappNumber?: boolean
+    name?: boolean
+    type?: boolean
+    subscribedAt?: boolean
+    source?: boolean
   }
 
-  export type UsedPromoCodeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "promoCode" | "usedAt", ExtArgs["result"]["usedPromoCode"]>
+  export type NewsAttachmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "whatsappNumber" | "name" | "type" | "subscribedAt" | "source", ExtArgs["result"]["newsAttachment"]>
 
-  export type $UsedPromoCodePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "UsedPromoCode"
+  export type $NewsAttachmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NewsAttachment"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      userId: string
-      promoCode: string
-      usedAt: Date
-    }, ExtArgs["result"]["usedPromoCode"]>
+      email: string | null
+      whatsappNumber: string | null
+      name: string | null
+      type: string
+      subscribedAt: Date
+      source: string
+    }, ExtArgs["result"]["newsAttachment"]>
     composites: {}
   }
 
-  type UsedPromoCodeGetPayload<S extends boolean | null | undefined | UsedPromoCodeDefaultArgs> = $Result.GetResult<Prisma.$UsedPromoCodePayload, S>
+  type NewsAttachmentGetPayload<S extends boolean | null | undefined | NewsAttachmentDefaultArgs> = $Result.GetResult<Prisma.$NewsAttachmentPayload, S>
 
-  type UsedPromoCodeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<UsedPromoCodeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: UsedPromoCodeCountAggregateInputType | true
+  type NewsAttachmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NewsAttachmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: NewsAttachmentCountAggregateInputType | true
     }
 
-  export interface UsedPromoCodeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UsedPromoCode'], meta: { name: 'UsedPromoCode' } }
+  export interface NewsAttachmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NewsAttachment'], meta: { name: 'NewsAttachment' } }
     /**
-     * Find zero or one UsedPromoCode that matches the filter.
-     * @param {UsedPromoCodeFindUniqueArgs} args - Arguments to find a UsedPromoCode
+     * Find zero or one NewsAttachment that matches the filter.
+     * @param {NewsAttachmentFindUniqueArgs} args - Arguments to find a NewsAttachment
      * @example
-     * // Get one UsedPromoCode
-     * const usedPromoCode = await prisma.usedPromoCode.findUnique({
+     * // Get one NewsAttachment
+     * const newsAttachment = await prisma.newsAttachment.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends UsedPromoCodeFindUniqueArgs>(args: SelectSubset<T, UsedPromoCodeFindUniqueArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends NewsAttachmentFindUniqueArgs>(args: SelectSubset<T, NewsAttachmentFindUniqueArgs<ExtArgs>>): Prisma__NewsAttachmentClient<$Result.GetResult<Prisma.$NewsAttachmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one UsedPromoCode that matches the filter or throw an error with `error.code='P2025'`
+     * Find one NewsAttachment that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {UsedPromoCodeFindUniqueOrThrowArgs} args - Arguments to find a UsedPromoCode
+     * @param {NewsAttachmentFindUniqueOrThrowArgs} args - Arguments to find a NewsAttachment
      * @example
-     * // Get one UsedPromoCode
-     * const usedPromoCode = await prisma.usedPromoCode.findUniqueOrThrow({
+     * // Get one NewsAttachment
+     * const newsAttachment = await prisma.newsAttachment.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends UsedPromoCodeFindUniqueOrThrowArgs>(args: SelectSubset<T, UsedPromoCodeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends NewsAttachmentFindUniqueOrThrowArgs>(args: SelectSubset<T, NewsAttachmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NewsAttachmentClient<$Result.GetResult<Prisma.$NewsAttachmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first UsedPromoCode that matches the filter.
+     * Find the first NewsAttachment that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UsedPromoCodeFindFirstArgs} args - Arguments to find a UsedPromoCode
+     * @param {NewsAttachmentFindFirstArgs} args - Arguments to find a NewsAttachment
      * @example
-     * // Get one UsedPromoCode
-     * const usedPromoCode = await prisma.usedPromoCode.findFirst({
+     * // Get one NewsAttachment
+     * const newsAttachment = await prisma.newsAttachment.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends UsedPromoCodeFindFirstArgs>(args?: SelectSubset<T, UsedPromoCodeFindFirstArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends NewsAttachmentFindFirstArgs>(args?: SelectSubset<T, NewsAttachmentFindFirstArgs<ExtArgs>>): Prisma__NewsAttachmentClient<$Result.GetResult<Prisma.$NewsAttachmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first UsedPromoCode that matches the filter or
+     * Find the first NewsAttachment that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UsedPromoCodeFindFirstOrThrowArgs} args - Arguments to find a UsedPromoCode
+     * @param {NewsAttachmentFindFirstOrThrowArgs} args - Arguments to find a NewsAttachment
      * @example
-     * // Get one UsedPromoCode
-     * const usedPromoCode = await prisma.usedPromoCode.findFirstOrThrow({
+     * // Get one NewsAttachment
+     * const newsAttachment = await prisma.newsAttachment.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends UsedPromoCodeFindFirstOrThrowArgs>(args?: SelectSubset<T, UsedPromoCodeFindFirstOrThrowArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends NewsAttachmentFindFirstOrThrowArgs>(args?: SelectSubset<T, NewsAttachmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__NewsAttachmentClient<$Result.GetResult<Prisma.$NewsAttachmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more UsedPromoCodes that matches the filter.
+     * Find zero or more NewsAttachments that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UsedPromoCodeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {NewsAttachmentFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all UsedPromoCodes
-     * const usedPromoCodes = await prisma.usedPromoCode.findMany()
+     * // Get all NewsAttachments
+     * const newsAttachments = await prisma.newsAttachment.findMany()
      * 
-     * // Get first 10 UsedPromoCodes
-     * const usedPromoCodes = await prisma.usedPromoCode.findMany({ take: 10 })
+     * // Get first 10 NewsAttachments
+     * const newsAttachments = await prisma.newsAttachment.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const usedPromoCodeWithIdOnly = await prisma.usedPromoCode.findMany({ select: { id: true } })
+     * const newsAttachmentWithIdOnly = await prisma.newsAttachment.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends UsedPromoCodeFindManyArgs>(args?: SelectSubset<T, UsedPromoCodeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends NewsAttachmentFindManyArgs>(args?: SelectSubset<T, NewsAttachmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NewsAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a UsedPromoCode.
-     * @param {UsedPromoCodeCreateArgs} args - Arguments to create a UsedPromoCode.
+     * Create a NewsAttachment.
+     * @param {NewsAttachmentCreateArgs} args - Arguments to create a NewsAttachment.
      * @example
-     * // Create one UsedPromoCode
-     * const UsedPromoCode = await prisma.usedPromoCode.create({
+     * // Create one NewsAttachment
+     * const NewsAttachment = await prisma.newsAttachment.create({
      *   data: {
-     *     // ... data to create a UsedPromoCode
+     *     // ... data to create a NewsAttachment
      *   }
      * })
      * 
      */
-    create<T extends UsedPromoCodeCreateArgs>(args: SelectSubset<T, UsedPromoCodeCreateArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends NewsAttachmentCreateArgs>(args: SelectSubset<T, NewsAttachmentCreateArgs<ExtArgs>>): Prisma__NewsAttachmentClient<$Result.GetResult<Prisma.$NewsAttachmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many UsedPromoCodes.
-     * @param {UsedPromoCodeCreateManyArgs} args - Arguments to create many UsedPromoCodes.
+     * Create many NewsAttachments.
+     * @param {NewsAttachmentCreateManyArgs} args - Arguments to create many NewsAttachments.
      * @example
-     * // Create many UsedPromoCodes
-     * const usedPromoCode = await prisma.usedPromoCode.createMany({
+     * // Create many NewsAttachments
+     * const newsAttachment = await prisma.newsAttachment.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends UsedPromoCodeCreateManyArgs>(args?: SelectSubset<T, UsedPromoCodeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends NewsAttachmentCreateManyArgs>(args?: SelectSubset<T, NewsAttachmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Delete a UsedPromoCode.
-     * @param {UsedPromoCodeDeleteArgs} args - Arguments to delete one UsedPromoCode.
+     * Delete a NewsAttachment.
+     * @param {NewsAttachmentDeleteArgs} args - Arguments to delete one NewsAttachment.
      * @example
-     * // Delete one UsedPromoCode
-     * const UsedPromoCode = await prisma.usedPromoCode.delete({
+     * // Delete one NewsAttachment
+     * const NewsAttachment = await prisma.newsAttachment.delete({
      *   where: {
-     *     // ... filter to delete one UsedPromoCode
+     *     // ... filter to delete one NewsAttachment
      *   }
      * })
      * 
      */
-    delete<T extends UsedPromoCodeDeleteArgs>(args: SelectSubset<T, UsedPromoCodeDeleteArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends NewsAttachmentDeleteArgs>(args: SelectSubset<T, NewsAttachmentDeleteArgs<ExtArgs>>): Prisma__NewsAttachmentClient<$Result.GetResult<Prisma.$NewsAttachmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one UsedPromoCode.
-     * @param {UsedPromoCodeUpdateArgs} args - Arguments to update one UsedPromoCode.
+     * Update one NewsAttachment.
+     * @param {NewsAttachmentUpdateArgs} args - Arguments to update one NewsAttachment.
      * @example
-     * // Update one UsedPromoCode
-     * const usedPromoCode = await prisma.usedPromoCode.update({
+     * // Update one NewsAttachment
+     * const newsAttachment = await prisma.newsAttachment.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -39823,30 +41400,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends UsedPromoCodeUpdateArgs>(args: SelectSubset<T, UsedPromoCodeUpdateArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends NewsAttachmentUpdateArgs>(args: SelectSubset<T, NewsAttachmentUpdateArgs<ExtArgs>>): Prisma__NewsAttachmentClient<$Result.GetResult<Prisma.$NewsAttachmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more UsedPromoCodes.
-     * @param {UsedPromoCodeDeleteManyArgs} args - Arguments to filter UsedPromoCodes to delete.
+     * Delete zero or more NewsAttachments.
+     * @param {NewsAttachmentDeleteManyArgs} args - Arguments to filter NewsAttachments to delete.
      * @example
-     * // Delete a few UsedPromoCodes
-     * const { count } = await prisma.usedPromoCode.deleteMany({
+     * // Delete a few NewsAttachments
+     * const { count } = await prisma.newsAttachment.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends UsedPromoCodeDeleteManyArgs>(args?: SelectSubset<T, UsedPromoCodeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends NewsAttachmentDeleteManyArgs>(args?: SelectSubset<T, NewsAttachmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more UsedPromoCodes.
+     * Update zero or more NewsAttachments.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UsedPromoCodeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {NewsAttachmentUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many UsedPromoCodes
-     * const usedPromoCode = await prisma.usedPromoCode.updateMany({
+     * // Update many NewsAttachments
+     * const newsAttachment = await prisma.newsAttachment.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -39856,79 +41433,79 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends UsedPromoCodeUpdateManyArgs>(args: SelectSubset<T, UsedPromoCodeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends NewsAttachmentUpdateManyArgs>(args: SelectSubset<T, NewsAttachmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one UsedPromoCode.
-     * @param {UsedPromoCodeUpsertArgs} args - Arguments to update or create a UsedPromoCode.
+     * Create or update one NewsAttachment.
+     * @param {NewsAttachmentUpsertArgs} args - Arguments to update or create a NewsAttachment.
      * @example
-     * // Update or create a UsedPromoCode
-     * const usedPromoCode = await prisma.usedPromoCode.upsert({
+     * // Update or create a NewsAttachment
+     * const newsAttachment = await prisma.newsAttachment.upsert({
      *   create: {
-     *     // ... data to create a UsedPromoCode
+     *     // ... data to create a NewsAttachment
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the UsedPromoCode we want to update
+     *     // ... the filter for the NewsAttachment we want to update
      *   }
      * })
      */
-    upsert<T extends UsedPromoCodeUpsertArgs>(args: SelectSubset<T, UsedPromoCodeUpsertArgs<ExtArgs>>): Prisma__UsedPromoCodeClient<$Result.GetResult<Prisma.$UsedPromoCodePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends NewsAttachmentUpsertArgs>(args: SelectSubset<T, NewsAttachmentUpsertArgs<ExtArgs>>): Prisma__NewsAttachmentClient<$Result.GetResult<Prisma.$NewsAttachmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more UsedPromoCodes that matches the filter.
-     * @param {UsedPromoCodeFindRawArgs} args - Select which filters you would like to apply.
+     * Find zero or more NewsAttachments that matches the filter.
+     * @param {NewsAttachmentFindRawArgs} args - Select which filters you would like to apply.
      * @example
-     * const usedPromoCode = await prisma.usedPromoCode.findRaw({
+     * const newsAttachment = await prisma.newsAttachment.findRaw({
      *   filter: { age: { $gt: 25 } }
      * })
      */
-    findRaw(args?: UsedPromoCodeFindRawArgs): Prisma.PrismaPromise<JsonObject>
+    findRaw(args?: NewsAttachmentFindRawArgs): Prisma.PrismaPromise<JsonObject>
 
     /**
-     * Perform aggregation operations on a UsedPromoCode.
-     * @param {UsedPromoCodeAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * Perform aggregation operations on a NewsAttachment.
+     * @param {NewsAttachmentAggregateRawArgs} args - Select which aggregations you would like to apply.
      * @example
-     * const usedPromoCode = await prisma.usedPromoCode.aggregateRaw({
+     * const newsAttachment = await prisma.newsAttachment.aggregateRaw({
      *   pipeline: [
      *     { $match: { status: "registered" } },
      *     { $group: { _id: "$country", total: { $sum: 1 } } }
      *   ]
      * })
      */
-    aggregateRaw(args?: UsedPromoCodeAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+    aggregateRaw(args?: NewsAttachmentAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
 
 
     /**
-     * Count the number of UsedPromoCodes.
+     * Count the number of NewsAttachments.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UsedPromoCodeCountArgs} args - Arguments to filter UsedPromoCodes to count.
+     * @param {NewsAttachmentCountArgs} args - Arguments to filter NewsAttachments to count.
      * @example
-     * // Count the number of UsedPromoCodes
-     * const count = await prisma.usedPromoCode.count({
+     * // Count the number of NewsAttachments
+     * const count = await prisma.newsAttachment.count({
      *   where: {
-     *     // ... the filter for the UsedPromoCodes we want to count
+     *     // ... the filter for the NewsAttachments we want to count
      *   }
      * })
     **/
-    count<T extends UsedPromoCodeCountArgs>(
-      args?: Subset<T, UsedPromoCodeCountArgs>,
+    count<T extends NewsAttachmentCountArgs>(
+      args?: Subset<T, NewsAttachmentCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], UsedPromoCodeCountAggregateOutputType>
+          : GetScalarType<T['select'], NewsAttachmentCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a UsedPromoCode.
+     * Allows you to perform aggregations operations on a NewsAttachment.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UsedPromoCodeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {NewsAttachmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -39948,13 +41525,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends UsedPromoCodeAggregateArgs>(args: Subset<T, UsedPromoCodeAggregateArgs>): Prisma.PrismaPromise<GetUsedPromoCodeAggregateType<T>>
+    aggregate<T extends NewsAttachmentAggregateArgs>(args: Subset<T, NewsAttachmentAggregateArgs>): Prisma.PrismaPromise<GetNewsAttachmentAggregateType<T>>
 
     /**
-     * Group by UsedPromoCode.
+     * Group by NewsAttachment.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {UsedPromoCodeGroupByArgs} args - Group by arguments.
+     * @param {NewsAttachmentGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -39969,14 +41546,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends UsedPromoCodeGroupByArgs,
+      T extends NewsAttachmentGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: UsedPromoCodeGroupByArgs['orderBy'] }
-        : { orderBy?: UsedPromoCodeGroupByArgs['orderBy'] },
+        ? { orderBy: NewsAttachmentGroupByArgs['orderBy'] }
+        : { orderBy?: NewsAttachmentGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -40025,20 +41602,20 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, UsedPromoCodeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUsedPromoCodeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, NewsAttachmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNewsAttachmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the UsedPromoCode model
+   * Fields of the NewsAttachment model
    */
-  readonly fields: UsedPromoCodeFieldRefs;
+  readonly fields: NewsAttachmentFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for UsedPromoCode.
+   * The delegate class that acts as a "Promise-like" for NewsAttachment.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__UsedPromoCodeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__NewsAttachmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -40066,322 +41643,325 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the UsedPromoCode model
+   * Fields of the NewsAttachment model
    */
-  interface UsedPromoCodeFieldRefs {
-    readonly id: FieldRef<"UsedPromoCode", 'String'>
-    readonly userId: FieldRef<"UsedPromoCode", 'String'>
-    readonly promoCode: FieldRef<"UsedPromoCode", 'String'>
-    readonly usedAt: FieldRef<"UsedPromoCode", 'DateTime'>
+  interface NewsAttachmentFieldRefs {
+    readonly id: FieldRef<"NewsAttachment", 'String'>
+    readonly email: FieldRef<"NewsAttachment", 'String'>
+    readonly whatsappNumber: FieldRef<"NewsAttachment", 'String'>
+    readonly name: FieldRef<"NewsAttachment", 'String'>
+    readonly type: FieldRef<"NewsAttachment", 'String'>
+    readonly subscribedAt: FieldRef<"NewsAttachment", 'DateTime'>
+    readonly source: FieldRef<"NewsAttachment", 'String'>
   }
     
 
   // Custom InputTypes
   /**
-   * UsedPromoCode findUnique
+   * NewsAttachment findUnique
    */
-  export type UsedPromoCodeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
     /**
-     * Filter, which UsedPromoCode to fetch.
+     * Filter, which NewsAttachment to fetch.
      */
-    where: UsedPromoCodeWhereUniqueInput
+    where: NewsAttachmentWhereUniqueInput
   }
 
   /**
-   * UsedPromoCode findUniqueOrThrow
+   * NewsAttachment findUniqueOrThrow
    */
-  export type UsedPromoCodeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
     /**
-     * Filter, which UsedPromoCode to fetch.
+     * Filter, which NewsAttachment to fetch.
      */
-    where: UsedPromoCodeWhereUniqueInput
+    where: NewsAttachmentWhereUniqueInput
   }
 
   /**
-   * UsedPromoCode findFirst
+   * NewsAttachment findFirst
    */
-  export type UsedPromoCodeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
     /**
-     * Filter, which UsedPromoCode to fetch.
+     * Filter, which NewsAttachment to fetch.
      */
-    where?: UsedPromoCodeWhereInput
+    where?: NewsAttachmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UsedPromoCodes to fetch.
+     * Determine the order of NewsAttachments to fetch.
      */
-    orderBy?: UsedPromoCodeOrderByWithRelationInput | UsedPromoCodeOrderByWithRelationInput[]
+    orderBy?: NewsAttachmentOrderByWithRelationInput | NewsAttachmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for UsedPromoCodes.
+     * Sets the position for searching for NewsAttachments.
      */
-    cursor?: UsedPromoCodeWhereUniqueInput
+    cursor?: NewsAttachmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UsedPromoCodes from the position of the cursor.
+     * Take `±n` NewsAttachments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UsedPromoCodes.
+     * Skip the first `n` NewsAttachments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of UsedPromoCodes.
+     * Filter by unique combinations of NewsAttachments.
      */
-    distinct?: UsedPromoCodeScalarFieldEnum | UsedPromoCodeScalarFieldEnum[]
+    distinct?: NewsAttachmentScalarFieldEnum | NewsAttachmentScalarFieldEnum[]
   }
 
   /**
-   * UsedPromoCode findFirstOrThrow
+   * NewsAttachment findFirstOrThrow
    */
-  export type UsedPromoCodeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
     /**
-     * Filter, which UsedPromoCode to fetch.
+     * Filter, which NewsAttachment to fetch.
      */
-    where?: UsedPromoCodeWhereInput
+    where?: NewsAttachmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UsedPromoCodes to fetch.
+     * Determine the order of NewsAttachments to fetch.
      */
-    orderBy?: UsedPromoCodeOrderByWithRelationInput | UsedPromoCodeOrderByWithRelationInput[]
+    orderBy?: NewsAttachmentOrderByWithRelationInput | NewsAttachmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for UsedPromoCodes.
+     * Sets the position for searching for NewsAttachments.
      */
-    cursor?: UsedPromoCodeWhereUniqueInput
+    cursor?: NewsAttachmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UsedPromoCodes from the position of the cursor.
+     * Take `±n` NewsAttachments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UsedPromoCodes.
+     * Skip the first `n` NewsAttachments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of UsedPromoCodes.
+     * Filter by unique combinations of NewsAttachments.
      */
-    distinct?: UsedPromoCodeScalarFieldEnum | UsedPromoCodeScalarFieldEnum[]
+    distinct?: NewsAttachmentScalarFieldEnum | NewsAttachmentScalarFieldEnum[]
   }
 
   /**
-   * UsedPromoCode findMany
+   * NewsAttachment findMany
    */
-  export type UsedPromoCodeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
     /**
-     * Filter, which UsedPromoCodes to fetch.
+     * Filter, which NewsAttachments to fetch.
      */
-    where?: UsedPromoCodeWhereInput
+    where?: NewsAttachmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of UsedPromoCodes to fetch.
+     * Determine the order of NewsAttachments to fetch.
      */
-    orderBy?: UsedPromoCodeOrderByWithRelationInput | UsedPromoCodeOrderByWithRelationInput[]
+    orderBy?: NewsAttachmentOrderByWithRelationInput | NewsAttachmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing UsedPromoCodes.
+     * Sets the position for listing NewsAttachments.
      */
-    cursor?: UsedPromoCodeWhereUniqueInput
+    cursor?: NewsAttachmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` UsedPromoCodes from the position of the cursor.
+     * Take `±n` NewsAttachments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` UsedPromoCodes.
+     * Skip the first `n` NewsAttachments.
      */
     skip?: number
-    distinct?: UsedPromoCodeScalarFieldEnum | UsedPromoCodeScalarFieldEnum[]
+    distinct?: NewsAttachmentScalarFieldEnum | NewsAttachmentScalarFieldEnum[]
   }
 
   /**
-   * UsedPromoCode create
+   * NewsAttachment create
    */
-  export type UsedPromoCodeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
     /**
-     * The data needed to create a UsedPromoCode.
+     * The data needed to create a NewsAttachment.
      */
-    data: XOR<UsedPromoCodeCreateInput, UsedPromoCodeUncheckedCreateInput>
+    data: XOR<NewsAttachmentCreateInput, NewsAttachmentUncheckedCreateInput>
   }
 
   /**
-   * UsedPromoCode createMany
+   * NewsAttachment createMany
    */
-  export type UsedPromoCodeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many UsedPromoCodes.
+     * The data used to create many NewsAttachments.
      */
-    data: UsedPromoCodeCreateManyInput | UsedPromoCodeCreateManyInput[]
+    data: NewsAttachmentCreateManyInput | NewsAttachmentCreateManyInput[]
   }
 
   /**
-   * UsedPromoCode update
+   * NewsAttachment update
    */
-  export type UsedPromoCodeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
     /**
-     * The data needed to update a UsedPromoCode.
+     * The data needed to update a NewsAttachment.
      */
-    data: XOR<UsedPromoCodeUpdateInput, UsedPromoCodeUncheckedUpdateInput>
+    data: XOR<NewsAttachmentUpdateInput, NewsAttachmentUncheckedUpdateInput>
     /**
-     * Choose, which UsedPromoCode to update.
+     * Choose, which NewsAttachment to update.
      */
-    where: UsedPromoCodeWhereUniqueInput
+    where: NewsAttachmentWhereUniqueInput
   }
 
   /**
-   * UsedPromoCode updateMany
+   * NewsAttachment updateMany
    */
-  export type UsedPromoCodeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update UsedPromoCodes.
+     * The data used to update NewsAttachments.
      */
-    data: XOR<UsedPromoCodeUpdateManyMutationInput, UsedPromoCodeUncheckedUpdateManyInput>
+    data: XOR<NewsAttachmentUpdateManyMutationInput, NewsAttachmentUncheckedUpdateManyInput>
     /**
-     * Filter which UsedPromoCodes to update
+     * Filter which NewsAttachments to update
      */
-    where?: UsedPromoCodeWhereInput
+    where?: NewsAttachmentWhereInput
     /**
-     * Limit how many UsedPromoCodes to update.
+     * Limit how many NewsAttachments to update.
      */
     limit?: number
   }
 
   /**
-   * UsedPromoCode upsert
+   * NewsAttachment upsert
    */
-  export type UsedPromoCodeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
     /**
-     * The filter to search for the UsedPromoCode to update in case it exists.
+     * The filter to search for the NewsAttachment to update in case it exists.
      */
-    where: UsedPromoCodeWhereUniqueInput
+    where: NewsAttachmentWhereUniqueInput
     /**
-     * In case the UsedPromoCode found by the `where` argument doesn't exist, create a new UsedPromoCode with this data.
+     * In case the NewsAttachment found by the `where` argument doesn't exist, create a new NewsAttachment with this data.
      */
-    create: XOR<UsedPromoCodeCreateInput, UsedPromoCodeUncheckedCreateInput>
+    create: XOR<NewsAttachmentCreateInput, NewsAttachmentUncheckedCreateInput>
     /**
-     * In case the UsedPromoCode was found with the provided `where` argument, update it with this data.
+     * In case the NewsAttachment was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<UsedPromoCodeUpdateInput, UsedPromoCodeUncheckedUpdateInput>
+    update: XOR<NewsAttachmentUpdateInput, NewsAttachmentUncheckedUpdateInput>
   }
 
   /**
-   * UsedPromoCode delete
+   * NewsAttachment delete
    */
-  export type UsedPromoCodeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
     /**
-     * Filter which UsedPromoCode to delete.
+     * Filter which NewsAttachment to delete.
      */
-    where: UsedPromoCodeWhereUniqueInput
+    where: NewsAttachmentWhereUniqueInput
   }
 
   /**
-   * UsedPromoCode deleteMany
+   * NewsAttachment deleteMany
    */
-  export type UsedPromoCodeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which UsedPromoCodes to delete
+     * Filter which NewsAttachments to delete
      */
-    where?: UsedPromoCodeWhereInput
+    where?: NewsAttachmentWhereInput
     /**
-     * Limit how many UsedPromoCodes to delete.
+     * Limit how many NewsAttachments to delete.
      */
     limit?: number
   }
 
   /**
-   * UsedPromoCode findRaw
+   * NewsAttachment findRaw
    */
-  export type UsedPromoCodeFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
      */
@@ -40393,9 +41973,9 @@ export namespace Prisma {
   }
 
   /**
-   * UsedPromoCode aggregateRaw
+   * NewsAttachment aggregateRaw
    */
-  export type UsedPromoCodeAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
      * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
      */
@@ -40407,17 +41987,17 @@ export namespace Prisma {
   }
 
   /**
-   * UsedPromoCode without action
+   * NewsAttachment without action
    */
-  export type UsedPromoCodeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type NewsAttachmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the UsedPromoCode
+     * Select specific fields to fetch from the NewsAttachment
      */
-    select?: UsedPromoCodeSelect<ExtArgs> | null
+    select?: NewsAttachmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the UsedPromoCode
+     * Omit specific fields from the NewsAttachment
      */
-    omit?: UsedPromoCodeOmit<ExtArgs> | null
+    omit?: NewsAttachmentOmit<ExtArgs> | null
   }
 
 
@@ -42399,6 +43979,6415 @@ export namespace Prisma {
 
 
   /**
+   * Model Decoration
+   */
+
+  export type AggregateDecoration = {
+    _count: DecorationCountAggregateOutputType | null
+    _avg: DecorationAvgAggregateOutputType | null
+    _sum: DecorationSumAggregateOutputType | null
+    _min: DecorationMinAggregateOutputType | null
+    _max: DecorationMaxAggregateOutputType | null
+  }
+
+  export type DecorationAvgAggregateOutputType = {
+    price: number | null
+    stock: number | null
+  }
+
+  export type DecorationSumAggregateOutputType = {
+    price: number | null
+    stock: number | null
+  }
+
+  export type DecorationMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    price: number | null
+    image: string | null
+    stock: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DecorationMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    price: number | null
+    image: string | null
+    stock: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DecorationCountAggregateOutputType = {
+    id: number
+    name: number
+    price: number
+    image: number
+    stock: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DecorationAvgAggregateInputType = {
+    price?: true
+    stock?: true
+  }
+
+  export type DecorationSumAggregateInputType = {
+    price?: true
+    stock?: true
+  }
+
+  export type DecorationMinAggregateInputType = {
+    id?: true
+    name?: true
+    price?: true
+    image?: true
+    stock?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DecorationMaxAggregateInputType = {
+    id?: true
+    name?: true
+    price?: true
+    image?: true
+    stock?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DecorationCountAggregateInputType = {
+    id?: true
+    name?: true
+    price?: true
+    image?: true
+    stock?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DecorationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Decoration to aggregate.
+     */
+    where?: DecorationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Decorations to fetch.
+     */
+    orderBy?: DecorationOrderByWithRelationInput | DecorationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DecorationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Decorations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Decorations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Decorations
+    **/
+    _count?: true | DecorationCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DecorationAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DecorationSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DecorationMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DecorationMaxAggregateInputType
+  }
+
+  export type GetDecorationAggregateType<T extends DecorationAggregateArgs> = {
+        [P in keyof T & keyof AggregateDecoration]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDecoration[P]>
+      : GetScalarType<T[P], AggregateDecoration[P]>
+  }
+
+
+
+
+  export type DecorationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DecorationWhereInput
+    orderBy?: DecorationOrderByWithAggregationInput | DecorationOrderByWithAggregationInput[]
+    by: DecorationScalarFieldEnum[] | DecorationScalarFieldEnum
+    having?: DecorationScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DecorationCountAggregateInputType | true
+    _avg?: DecorationAvgAggregateInputType
+    _sum?: DecorationSumAggregateInputType
+    _min?: DecorationMinAggregateInputType
+    _max?: DecorationMaxAggregateInputType
+  }
+
+  export type DecorationGroupByOutputType = {
+    id: string
+    name: string
+    price: number
+    image: string
+    stock: number
+    createdAt: Date
+    updatedAt: Date
+    _count: DecorationCountAggregateOutputType | null
+    _avg: DecorationAvgAggregateOutputType | null
+    _sum: DecorationSumAggregateOutputType | null
+    _min: DecorationMinAggregateOutputType | null
+    _max: DecorationMaxAggregateOutputType | null
+  }
+
+  type GetDecorationGroupByPayload<T extends DecorationGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DecorationGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DecorationGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DecorationGroupByOutputType[P]>
+            : GetScalarType<T[P], DecorationGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DecorationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    price?: boolean
+    image?: boolean
+    stock?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["decoration"]>
+
+
+
+  export type DecorationSelectScalar = {
+    id?: boolean
+    name?: boolean
+    price?: boolean
+    image?: boolean
+    stock?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DecorationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "price" | "image" | "stock" | "createdAt" | "updatedAt", ExtArgs["result"]["decoration"]>
+
+  export type $DecorationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Decoration"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      price: number
+      image: string
+      stock: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["decoration"]>
+    composites: {}
+  }
+
+  type DecorationGetPayload<S extends boolean | null | undefined | DecorationDefaultArgs> = $Result.GetResult<Prisma.$DecorationPayload, S>
+
+  type DecorationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DecorationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DecorationCountAggregateInputType | true
+    }
+
+  export interface DecorationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Decoration'], meta: { name: 'Decoration' } }
+    /**
+     * Find zero or one Decoration that matches the filter.
+     * @param {DecorationFindUniqueArgs} args - Arguments to find a Decoration
+     * @example
+     * // Get one Decoration
+     * const decoration = await prisma.decoration.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DecorationFindUniqueArgs>(args: SelectSubset<T, DecorationFindUniqueArgs<ExtArgs>>): Prisma__DecorationClient<$Result.GetResult<Prisma.$DecorationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Decoration that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DecorationFindUniqueOrThrowArgs} args - Arguments to find a Decoration
+     * @example
+     * // Get one Decoration
+     * const decoration = await prisma.decoration.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DecorationFindUniqueOrThrowArgs>(args: SelectSubset<T, DecorationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DecorationClient<$Result.GetResult<Prisma.$DecorationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Decoration that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DecorationFindFirstArgs} args - Arguments to find a Decoration
+     * @example
+     * // Get one Decoration
+     * const decoration = await prisma.decoration.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DecorationFindFirstArgs>(args?: SelectSubset<T, DecorationFindFirstArgs<ExtArgs>>): Prisma__DecorationClient<$Result.GetResult<Prisma.$DecorationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Decoration that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DecorationFindFirstOrThrowArgs} args - Arguments to find a Decoration
+     * @example
+     * // Get one Decoration
+     * const decoration = await prisma.decoration.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DecorationFindFirstOrThrowArgs>(args?: SelectSubset<T, DecorationFindFirstOrThrowArgs<ExtArgs>>): Prisma__DecorationClient<$Result.GetResult<Prisma.$DecorationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Decorations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DecorationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Decorations
+     * const decorations = await prisma.decoration.findMany()
+     * 
+     * // Get first 10 Decorations
+     * const decorations = await prisma.decoration.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const decorationWithIdOnly = await prisma.decoration.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DecorationFindManyArgs>(args?: SelectSubset<T, DecorationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DecorationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Decoration.
+     * @param {DecorationCreateArgs} args - Arguments to create a Decoration.
+     * @example
+     * // Create one Decoration
+     * const Decoration = await prisma.decoration.create({
+     *   data: {
+     *     // ... data to create a Decoration
+     *   }
+     * })
+     * 
+     */
+    create<T extends DecorationCreateArgs>(args: SelectSubset<T, DecorationCreateArgs<ExtArgs>>): Prisma__DecorationClient<$Result.GetResult<Prisma.$DecorationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Decorations.
+     * @param {DecorationCreateManyArgs} args - Arguments to create many Decorations.
+     * @example
+     * // Create many Decorations
+     * const decoration = await prisma.decoration.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DecorationCreateManyArgs>(args?: SelectSubset<T, DecorationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Decoration.
+     * @param {DecorationDeleteArgs} args - Arguments to delete one Decoration.
+     * @example
+     * // Delete one Decoration
+     * const Decoration = await prisma.decoration.delete({
+     *   where: {
+     *     // ... filter to delete one Decoration
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DecorationDeleteArgs>(args: SelectSubset<T, DecorationDeleteArgs<ExtArgs>>): Prisma__DecorationClient<$Result.GetResult<Prisma.$DecorationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Decoration.
+     * @param {DecorationUpdateArgs} args - Arguments to update one Decoration.
+     * @example
+     * // Update one Decoration
+     * const decoration = await prisma.decoration.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DecorationUpdateArgs>(args: SelectSubset<T, DecorationUpdateArgs<ExtArgs>>): Prisma__DecorationClient<$Result.GetResult<Prisma.$DecorationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Decorations.
+     * @param {DecorationDeleteManyArgs} args - Arguments to filter Decorations to delete.
+     * @example
+     * // Delete a few Decorations
+     * const { count } = await prisma.decoration.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DecorationDeleteManyArgs>(args?: SelectSubset<T, DecorationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Decorations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DecorationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Decorations
+     * const decoration = await prisma.decoration.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DecorationUpdateManyArgs>(args: SelectSubset<T, DecorationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Decoration.
+     * @param {DecorationUpsertArgs} args - Arguments to update or create a Decoration.
+     * @example
+     * // Update or create a Decoration
+     * const decoration = await prisma.decoration.upsert({
+     *   create: {
+     *     // ... data to create a Decoration
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Decoration we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DecorationUpsertArgs>(args: SelectSubset<T, DecorationUpsertArgs<ExtArgs>>): Prisma__DecorationClient<$Result.GetResult<Prisma.$DecorationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Decorations that matches the filter.
+     * @param {DecorationFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const decoration = await prisma.decoration.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: DecorationFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Decoration.
+     * @param {DecorationAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const decoration = await prisma.decoration.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: DecorationAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Decorations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DecorationCountArgs} args - Arguments to filter Decorations to count.
+     * @example
+     * // Count the number of Decorations
+     * const count = await prisma.decoration.count({
+     *   where: {
+     *     // ... the filter for the Decorations we want to count
+     *   }
+     * })
+    **/
+    count<T extends DecorationCountArgs>(
+      args?: Subset<T, DecorationCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DecorationCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Decoration.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DecorationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DecorationAggregateArgs>(args: Subset<T, DecorationAggregateArgs>): Prisma.PrismaPromise<GetDecorationAggregateType<T>>
+
+    /**
+     * Group by Decoration.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DecorationGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DecorationGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DecorationGroupByArgs['orderBy'] }
+        : { orderBy?: DecorationGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DecorationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDecorationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Decoration model
+   */
+  readonly fields: DecorationFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Decoration.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DecorationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Decoration model
+   */
+  interface DecorationFieldRefs {
+    readonly id: FieldRef<"Decoration", 'String'>
+    readonly name: FieldRef<"Decoration", 'String'>
+    readonly price: FieldRef<"Decoration", 'Float'>
+    readonly image: FieldRef<"Decoration", 'String'>
+    readonly stock: FieldRef<"Decoration", 'Int'>
+    readonly createdAt: FieldRef<"Decoration", 'DateTime'>
+    readonly updatedAt: FieldRef<"Decoration", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Decoration findUnique
+   */
+  export type DecorationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+    /**
+     * Filter, which Decoration to fetch.
+     */
+    where: DecorationWhereUniqueInput
+  }
+
+  /**
+   * Decoration findUniqueOrThrow
+   */
+  export type DecorationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+    /**
+     * Filter, which Decoration to fetch.
+     */
+    where: DecorationWhereUniqueInput
+  }
+
+  /**
+   * Decoration findFirst
+   */
+  export type DecorationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+    /**
+     * Filter, which Decoration to fetch.
+     */
+    where?: DecorationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Decorations to fetch.
+     */
+    orderBy?: DecorationOrderByWithRelationInput | DecorationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Decorations.
+     */
+    cursor?: DecorationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Decorations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Decorations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Decorations.
+     */
+    distinct?: DecorationScalarFieldEnum | DecorationScalarFieldEnum[]
+  }
+
+  /**
+   * Decoration findFirstOrThrow
+   */
+  export type DecorationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+    /**
+     * Filter, which Decoration to fetch.
+     */
+    where?: DecorationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Decorations to fetch.
+     */
+    orderBy?: DecorationOrderByWithRelationInput | DecorationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Decorations.
+     */
+    cursor?: DecorationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Decorations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Decorations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Decorations.
+     */
+    distinct?: DecorationScalarFieldEnum | DecorationScalarFieldEnum[]
+  }
+
+  /**
+   * Decoration findMany
+   */
+  export type DecorationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+    /**
+     * Filter, which Decorations to fetch.
+     */
+    where?: DecorationWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Decorations to fetch.
+     */
+    orderBy?: DecorationOrderByWithRelationInput | DecorationOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Decorations.
+     */
+    cursor?: DecorationWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Decorations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Decorations.
+     */
+    skip?: number
+    distinct?: DecorationScalarFieldEnum | DecorationScalarFieldEnum[]
+  }
+
+  /**
+   * Decoration create
+   */
+  export type DecorationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Decoration.
+     */
+    data: XOR<DecorationCreateInput, DecorationUncheckedCreateInput>
+  }
+
+  /**
+   * Decoration createMany
+   */
+  export type DecorationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Decorations.
+     */
+    data: DecorationCreateManyInput | DecorationCreateManyInput[]
+  }
+
+  /**
+   * Decoration update
+   */
+  export type DecorationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Decoration.
+     */
+    data: XOR<DecorationUpdateInput, DecorationUncheckedUpdateInput>
+    /**
+     * Choose, which Decoration to update.
+     */
+    where: DecorationWhereUniqueInput
+  }
+
+  /**
+   * Decoration updateMany
+   */
+  export type DecorationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Decorations.
+     */
+    data: XOR<DecorationUpdateManyMutationInput, DecorationUncheckedUpdateManyInput>
+    /**
+     * Filter which Decorations to update
+     */
+    where?: DecorationWhereInput
+    /**
+     * Limit how many Decorations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Decoration upsert
+   */
+  export type DecorationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Decoration to update in case it exists.
+     */
+    where: DecorationWhereUniqueInput
+    /**
+     * In case the Decoration found by the `where` argument doesn't exist, create a new Decoration with this data.
+     */
+    create: XOR<DecorationCreateInput, DecorationUncheckedCreateInput>
+    /**
+     * In case the Decoration was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DecorationUpdateInput, DecorationUncheckedUpdateInput>
+  }
+
+  /**
+   * Decoration delete
+   */
+  export type DecorationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+    /**
+     * Filter which Decoration to delete.
+     */
+    where: DecorationWhereUniqueInput
+  }
+
+  /**
+   * Decoration deleteMany
+   */
+  export type DecorationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Decorations to delete
+     */
+    where?: DecorationWhereInput
+    /**
+     * Limit how many Decorations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Decoration findRaw
+   */
+  export type DecorationFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Decoration aggregateRaw
+   */
+  export type DecorationAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Decoration without action
+   */
+  export type DecorationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Decoration
+     */
+    select?: DecorationSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Decoration
+     */
+    omit?: DecorationOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GiftProduct
+   */
+
+  export type AggregateGiftProduct = {
+    _count: GiftProductCountAggregateOutputType | null
+    _avg: GiftProductAvgAggregateOutputType | null
+    _sum: GiftProductSumAggregateOutputType | null
+    _min: GiftProductMinAggregateOutputType | null
+    _max: GiftProductMaxAggregateOutputType | null
+  }
+
+  export type GiftProductAvgAggregateOutputType = {
+    price: number | null
+    old_price: number | null
+    stock: number | null
+    rating: number | null
+    views: number | null
+    discountPercentage: number | null
+  }
+
+  export type GiftProductSumAggregateOutputType = {
+    price: number | null
+    old_price: number | null
+    stock: number | null
+    rating: number | null
+    views: number | null
+    discountPercentage: number | null
+  }
+
+  export type GiftProductMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    price: number | null
+    old_price: number | null
+    image: string | null
+    category: string | null
+    subCategory: string | null
+    brand: string | null
+    stock: number | null
+    inStock: boolean | null
+    rating: number | null
+    views: number | null
+    best_seller: boolean | null
+    new_arrival: boolean | null
+    trending: boolean | null
+    sale: boolean | null
+    popular: boolean | null
+    video: string | null
+    discountPercentage: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GiftProductMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    price: number | null
+    old_price: number | null
+    image: string | null
+    category: string | null
+    subCategory: string | null
+    brand: string | null
+    stock: number | null
+    inStock: boolean | null
+    rating: number | null
+    views: number | null
+    best_seller: boolean | null
+    new_arrival: boolean | null
+    trending: boolean | null
+    sale: boolean | null
+    popular: boolean | null
+    video: string | null
+    discountPercentage: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GiftProductCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    price: number
+    old_price: number
+    image: number
+    images: number
+    category: number
+    subCategory: number
+    brand: number
+    tags: number
+    stock: number
+    inStock: number
+    rating: number
+    views: number
+    best_seller: number
+    new_arrival: number
+    trending: number
+    sale: number
+    popular: number
+    occasion: number
+    season: number
+    colors: number
+    video: number
+    discountPercentage: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GiftProductAvgAggregateInputType = {
+    price?: true
+    old_price?: true
+    stock?: true
+    rating?: true
+    views?: true
+    discountPercentage?: true
+  }
+
+  export type GiftProductSumAggregateInputType = {
+    price?: true
+    old_price?: true
+    stock?: true
+    rating?: true
+    views?: true
+    discountPercentage?: true
+  }
+
+  export type GiftProductMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    price?: true
+    old_price?: true
+    image?: true
+    category?: true
+    subCategory?: true
+    brand?: true
+    stock?: true
+    inStock?: true
+    rating?: true
+    views?: true
+    best_seller?: true
+    new_arrival?: true
+    trending?: true
+    sale?: true
+    popular?: true
+    video?: true
+    discountPercentage?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GiftProductMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    price?: true
+    old_price?: true
+    image?: true
+    category?: true
+    subCategory?: true
+    brand?: true
+    stock?: true
+    inStock?: true
+    rating?: true
+    views?: true
+    best_seller?: true
+    new_arrival?: true
+    trending?: true
+    sale?: true
+    popular?: true
+    video?: true
+    discountPercentage?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GiftProductCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    price?: true
+    old_price?: true
+    image?: true
+    images?: true
+    category?: true
+    subCategory?: true
+    brand?: true
+    tags?: true
+    stock?: true
+    inStock?: true
+    rating?: true
+    views?: true
+    best_seller?: true
+    new_arrival?: true
+    trending?: true
+    sale?: true
+    popular?: true
+    occasion?: true
+    season?: true
+    colors?: true
+    video?: true
+    discountPercentage?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GiftProductAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GiftProduct to aggregate.
+     */
+    where?: GiftProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GiftProducts to fetch.
+     */
+    orderBy?: GiftProductOrderByWithRelationInput | GiftProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GiftProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GiftProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GiftProducts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GiftProducts
+    **/
+    _count?: true | GiftProductCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GiftProductAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GiftProductSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GiftProductMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GiftProductMaxAggregateInputType
+  }
+
+  export type GetGiftProductAggregateType<T extends GiftProductAggregateArgs> = {
+        [P in keyof T & keyof AggregateGiftProduct]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGiftProduct[P]>
+      : GetScalarType<T[P], AggregateGiftProduct[P]>
+  }
+
+
+
+
+  export type GiftProductGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GiftProductWhereInput
+    orderBy?: GiftProductOrderByWithAggregationInput | GiftProductOrderByWithAggregationInput[]
+    by: GiftProductScalarFieldEnum[] | GiftProductScalarFieldEnum
+    having?: GiftProductScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GiftProductCountAggregateInputType | true
+    _avg?: GiftProductAvgAggregateInputType
+    _sum?: GiftProductSumAggregateInputType
+    _min?: GiftProductMinAggregateInputType
+    _max?: GiftProductMaxAggregateInputType
+  }
+
+  export type GiftProductGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    price: number
+    old_price: number | null
+    image: string | null
+    images: string[]
+    category: string | null
+    subCategory: string | null
+    brand: string | null
+    tags: string[]
+    stock: number
+    inStock: boolean
+    rating: number | null
+    views: number
+    best_seller: boolean
+    new_arrival: boolean
+    trending: boolean
+    sale: boolean
+    popular: boolean
+    occasion: string[]
+    season: string[]
+    colors: string[]
+    video: string | null
+    discountPercentage: number | null
+    createdAt: Date
+    updatedAt: Date
+    _count: GiftProductCountAggregateOutputType | null
+    _avg: GiftProductAvgAggregateOutputType | null
+    _sum: GiftProductSumAggregateOutputType | null
+    _min: GiftProductMinAggregateOutputType | null
+    _max: GiftProductMaxAggregateOutputType | null
+  }
+
+  type GetGiftProductGroupByPayload<T extends GiftProductGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GiftProductGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GiftProductGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GiftProductGroupByOutputType[P]>
+            : GetScalarType<T[P], GiftProductGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GiftProductSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    price?: boolean
+    old_price?: boolean
+    image?: boolean
+    images?: boolean
+    category?: boolean
+    subCategory?: boolean
+    brand?: boolean
+    tags?: boolean
+    stock?: boolean
+    inStock?: boolean
+    rating?: boolean
+    views?: boolean
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    popular?: boolean
+    occasion?: boolean
+    season?: boolean
+    colors?: boolean
+    video?: boolean
+    discountPercentage?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["giftProduct"]>
+
+
+
+  export type GiftProductSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    price?: boolean
+    old_price?: boolean
+    image?: boolean
+    images?: boolean
+    category?: boolean
+    subCategory?: boolean
+    brand?: boolean
+    tags?: boolean
+    stock?: boolean
+    inStock?: boolean
+    rating?: boolean
+    views?: boolean
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    popular?: boolean
+    occasion?: boolean
+    season?: boolean
+    colors?: boolean
+    video?: boolean
+    discountPercentage?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GiftProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "old_price" | "image" | "images" | "category" | "subCategory" | "brand" | "tags" | "stock" | "inStock" | "rating" | "views" | "best_seller" | "new_arrival" | "trending" | "sale" | "popular" | "occasion" | "season" | "colors" | "video" | "discountPercentage" | "createdAt" | "updatedAt", ExtArgs["result"]["giftProduct"]>
+
+  export type $GiftProductPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GiftProduct"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      price: number
+      old_price: number | null
+      image: string | null
+      images: string[]
+      category: string | null
+      subCategory: string | null
+      brand: string | null
+      tags: string[]
+      stock: number
+      inStock: boolean
+      rating: number | null
+      views: number
+      best_seller: boolean
+      new_arrival: boolean
+      trending: boolean
+      sale: boolean
+      popular: boolean
+      occasion: string[]
+      season: string[]
+      colors: string[]
+      video: string | null
+      discountPercentage: number | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["giftProduct"]>
+    composites: {}
+  }
+
+  type GiftProductGetPayload<S extends boolean | null | undefined | GiftProductDefaultArgs> = $Result.GetResult<Prisma.$GiftProductPayload, S>
+
+  type GiftProductCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GiftProductFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GiftProductCountAggregateInputType | true
+    }
+
+  export interface GiftProductDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GiftProduct'], meta: { name: 'GiftProduct' } }
+    /**
+     * Find zero or one GiftProduct that matches the filter.
+     * @param {GiftProductFindUniqueArgs} args - Arguments to find a GiftProduct
+     * @example
+     * // Get one GiftProduct
+     * const giftProduct = await prisma.giftProduct.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GiftProductFindUniqueArgs>(args: SelectSubset<T, GiftProductFindUniqueArgs<ExtArgs>>): Prisma__GiftProductClient<$Result.GetResult<Prisma.$GiftProductPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GiftProduct that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GiftProductFindUniqueOrThrowArgs} args - Arguments to find a GiftProduct
+     * @example
+     * // Get one GiftProduct
+     * const giftProduct = await prisma.giftProduct.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GiftProductFindUniqueOrThrowArgs>(args: SelectSubset<T, GiftProductFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GiftProductClient<$Result.GetResult<Prisma.$GiftProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GiftProduct that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GiftProductFindFirstArgs} args - Arguments to find a GiftProduct
+     * @example
+     * // Get one GiftProduct
+     * const giftProduct = await prisma.giftProduct.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GiftProductFindFirstArgs>(args?: SelectSubset<T, GiftProductFindFirstArgs<ExtArgs>>): Prisma__GiftProductClient<$Result.GetResult<Prisma.$GiftProductPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GiftProduct that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GiftProductFindFirstOrThrowArgs} args - Arguments to find a GiftProduct
+     * @example
+     * // Get one GiftProduct
+     * const giftProduct = await prisma.giftProduct.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GiftProductFindFirstOrThrowArgs>(args?: SelectSubset<T, GiftProductFindFirstOrThrowArgs<ExtArgs>>): Prisma__GiftProductClient<$Result.GetResult<Prisma.$GiftProductPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GiftProducts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GiftProductFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GiftProducts
+     * const giftProducts = await prisma.giftProduct.findMany()
+     * 
+     * // Get first 10 GiftProducts
+     * const giftProducts = await prisma.giftProduct.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const giftProductWithIdOnly = await prisma.giftProduct.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GiftProductFindManyArgs>(args?: SelectSubset<T, GiftProductFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GiftProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GiftProduct.
+     * @param {GiftProductCreateArgs} args - Arguments to create a GiftProduct.
+     * @example
+     * // Create one GiftProduct
+     * const GiftProduct = await prisma.giftProduct.create({
+     *   data: {
+     *     // ... data to create a GiftProduct
+     *   }
+     * })
+     * 
+     */
+    create<T extends GiftProductCreateArgs>(args: SelectSubset<T, GiftProductCreateArgs<ExtArgs>>): Prisma__GiftProductClient<$Result.GetResult<Prisma.$GiftProductPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GiftProducts.
+     * @param {GiftProductCreateManyArgs} args - Arguments to create many GiftProducts.
+     * @example
+     * // Create many GiftProducts
+     * const giftProduct = await prisma.giftProduct.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GiftProductCreateManyArgs>(args?: SelectSubset<T, GiftProductCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a GiftProduct.
+     * @param {GiftProductDeleteArgs} args - Arguments to delete one GiftProduct.
+     * @example
+     * // Delete one GiftProduct
+     * const GiftProduct = await prisma.giftProduct.delete({
+     *   where: {
+     *     // ... filter to delete one GiftProduct
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GiftProductDeleteArgs>(args: SelectSubset<T, GiftProductDeleteArgs<ExtArgs>>): Prisma__GiftProductClient<$Result.GetResult<Prisma.$GiftProductPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GiftProduct.
+     * @param {GiftProductUpdateArgs} args - Arguments to update one GiftProduct.
+     * @example
+     * // Update one GiftProduct
+     * const giftProduct = await prisma.giftProduct.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GiftProductUpdateArgs>(args: SelectSubset<T, GiftProductUpdateArgs<ExtArgs>>): Prisma__GiftProductClient<$Result.GetResult<Prisma.$GiftProductPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GiftProducts.
+     * @param {GiftProductDeleteManyArgs} args - Arguments to filter GiftProducts to delete.
+     * @example
+     * // Delete a few GiftProducts
+     * const { count } = await prisma.giftProduct.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GiftProductDeleteManyArgs>(args?: SelectSubset<T, GiftProductDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GiftProducts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GiftProductUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GiftProducts
+     * const giftProduct = await prisma.giftProduct.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GiftProductUpdateManyArgs>(args: SelectSubset<T, GiftProductUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one GiftProduct.
+     * @param {GiftProductUpsertArgs} args - Arguments to update or create a GiftProduct.
+     * @example
+     * // Update or create a GiftProduct
+     * const giftProduct = await prisma.giftProduct.upsert({
+     *   create: {
+     *     // ... data to create a GiftProduct
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GiftProduct we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GiftProductUpsertArgs>(args: SelectSubset<T, GiftProductUpsertArgs<ExtArgs>>): Prisma__GiftProductClient<$Result.GetResult<Prisma.$GiftProductPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GiftProducts that matches the filter.
+     * @param {GiftProductFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const giftProduct = await prisma.giftProduct.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: GiftProductFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a GiftProduct.
+     * @param {GiftProductAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const giftProduct = await prisma.giftProduct.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: GiftProductAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of GiftProducts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GiftProductCountArgs} args - Arguments to filter GiftProducts to count.
+     * @example
+     * // Count the number of GiftProducts
+     * const count = await prisma.giftProduct.count({
+     *   where: {
+     *     // ... the filter for the GiftProducts we want to count
+     *   }
+     * })
+    **/
+    count<T extends GiftProductCountArgs>(
+      args?: Subset<T, GiftProductCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GiftProductCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GiftProduct.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GiftProductAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GiftProductAggregateArgs>(args: Subset<T, GiftProductAggregateArgs>): Prisma.PrismaPromise<GetGiftProductAggregateType<T>>
+
+    /**
+     * Group by GiftProduct.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GiftProductGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GiftProductGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GiftProductGroupByArgs['orderBy'] }
+        : { orderBy?: GiftProductGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GiftProductGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGiftProductGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GiftProduct model
+   */
+  readonly fields: GiftProductFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GiftProduct.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GiftProductClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GiftProduct model
+   */
+  interface GiftProductFieldRefs {
+    readonly id: FieldRef<"GiftProduct", 'String'>
+    readonly name: FieldRef<"GiftProduct", 'String'>
+    readonly description: FieldRef<"GiftProduct", 'String'>
+    readonly price: FieldRef<"GiftProduct", 'Float'>
+    readonly old_price: FieldRef<"GiftProduct", 'Float'>
+    readonly image: FieldRef<"GiftProduct", 'String'>
+    readonly images: FieldRef<"GiftProduct", 'String[]'>
+    readonly category: FieldRef<"GiftProduct", 'String'>
+    readonly subCategory: FieldRef<"GiftProduct", 'String'>
+    readonly brand: FieldRef<"GiftProduct", 'String'>
+    readonly tags: FieldRef<"GiftProduct", 'String[]'>
+    readonly stock: FieldRef<"GiftProduct", 'Int'>
+    readonly inStock: FieldRef<"GiftProduct", 'Boolean'>
+    readonly rating: FieldRef<"GiftProduct", 'Float'>
+    readonly views: FieldRef<"GiftProduct", 'Int'>
+    readonly best_seller: FieldRef<"GiftProduct", 'Boolean'>
+    readonly new_arrival: FieldRef<"GiftProduct", 'Boolean'>
+    readonly trending: FieldRef<"GiftProduct", 'Boolean'>
+    readonly sale: FieldRef<"GiftProduct", 'Boolean'>
+    readonly popular: FieldRef<"GiftProduct", 'Boolean'>
+    readonly occasion: FieldRef<"GiftProduct", 'String[]'>
+    readonly season: FieldRef<"GiftProduct", 'String[]'>
+    readonly colors: FieldRef<"GiftProduct", 'String[]'>
+    readonly video: FieldRef<"GiftProduct", 'String'>
+    readonly discountPercentage: FieldRef<"GiftProduct", 'Float'>
+    readonly createdAt: FieldRef<"GiftProduct", 'DateTime'>
+    readonly updatedAt: FieldRef<"GiftProduct", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GiftProduct findUnique
+   */
+  export type GiftProductFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+    /**
+     * Filter, which GiftProduct to fetch.
+     */
+    where: GiftProductWhereUniqueInput
+  }
+
+  /**
+   * GiftProduct findUniqueOrThrow
+   */
+  export type GiftProductFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+    /**
+     * Filter, which GiftProduct to fetch.
+     */
+    where: GiftProductWhereUniqueInput
+  }
+
+  /**
+   * GiftProduct findFirst
+   */
+  export type GiftProductFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+    /**
+     * Filter, which GiftProduct to fetch.
+     */
+    where?: GiftProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GiftProducts to fetch.
+     */
+    orderBy?: GiftProductOrderByWithRelationInput | GiftProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GiftProducts.
+     */
+    cursor?: GiftProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GiftProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GiftProducts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GiftProducts.
+     */
+    distinct?: GiftProductScalarFieldEnum | GiftProductScalarFieldEnum[]
+  }
+
+  /**
+   * GiftProduct findFirstOrThrow
+   */
+  export type GiftProductFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+    /**
+     * Filter, which GiftProduct to fetch.
+     */
+    where?: GiftProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GiftProducts to fetch.
+     */
+    orderBy?: GiftProductOrderByWithRelationInput | GiftProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GiftProducts.
+     */
+    cursor?: GiftProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GiftProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GiftProducts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GiftProducts.
+     */
+    distinct?: GiftProductScalarFieldEnum | GiftProductScalarFieldEnum[]
+  }
+
+  /**
+   * GiftProduct findMany
+   */
+  export type GiftProductFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+    /**
+     * Filter, which GiftProducts to fetch.
+     */
+    where?: GiftProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GiftProducts to fetch.
+     */
+    orderBy?: GiftProductOrderByWithRelationInput | GiftProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GiftProducts.
+     */
+    cursor?: GiftProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GiftProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GiftProducts.
+     */
+    skip?: number
+    distinct?: GiftProductScalarFieldEnum | GiftProductScalarFieldEnum[]
+  }
+
+  /**
+   * GiftProduct create
+   */
+  export type GiftProductCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+    /**
+     * The data needed to create a GiftProduct.
+     */
+    data: XOR<GiftProductCreateInput, GiftProductUncheckedCreateInput>
+  }
+
+  /**
+   * GiftProduct createMany
+   */
+  export type GiftProductCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GiftProducts.
+     */
+    data: GiftProductCreateManyInput | GiftProductCreateManyInput[]
+  }
+
+  /**
+   * GiftProduct update
+   */
+  export type GiftProductUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+    /**
+     * The data needed to update a GiftProduct.
+     */
+    data: XOR<GiftProductUpdateInput, GiftProductUncheckedUpdateInput>
+    /**
+     * Choose, which GiftProduct to update.
+     */
+    where: GiftProductWhereUniqueInput
+  }
+
+  /**
+   * GiftProduct updateMany
+   */
+  export type GiftProductUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GiftProducts.
+     */
+    data: XOR<GiftProductUpdateManyMutationInput, GiftProductUncheckedUpdateManyInput>
+    /**
+     * Filter which GiftProducts to update
+     */
+    where?: GiftProductWhereInput
+    /**
+     * Limit how many GiftProducts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GiftProduct upsert
+   */
+  export type GiftProductUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+    /**
+     * The filter to search for the GiftProduct to update in case it exists.
+     */
+    where: GiftProductWhereUniqueInput
+    /**
+     * In case the GiftProduct found by the `where` argument doesn't exist, create a new GiftProduct with this data.
+     */
+    create: XOR<GiftProductCreateInput, GiftProductUncheckedCreateInput>
+    /**
+     * In case the GiftProduct was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GiftProductUpdateInput, GiftProductUncheckedUpdateInput>
+  }
+
+  /**
+   * GiftProduct delete
+   */
+  export type GiftProductDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+    /**
+     * Filter which GiftProduct to delete.
+     */
+    where: GiftProductWhereUniqueInput
+  }
+
+  /**
+   * GiftProduct deleteMany
+   */
+  export type GiftProductDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GiftProducts to delete
+     */
+    where?: GiftProductWhereInput
+    /**
+     * Limit how many GiftProducts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GiftProduct findRaw
+   */
+  export type GiftProductFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * GiftProduct aggregateRaw
+   */
+  export type GiftProductAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * GiftProduct without action
+   */
+  export type GiftProductDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GiftProduct
+     */
+    select?: GiftProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GiftProduct
+     */
+    omit?: GiftProductOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model MainProduct
+   */
+
+  export type AggregateMainProduct = {
+    _count: MainProductCountAggregateOutputType | null
+    _avg: MainProductAvgAggregateOutputType | null
+    _sum: MainProductSumAggregateOutputType | null
+    _min: MainProductMinAggregateOutputType | null
+    _max: MainProductMaxAggregateOutputType | null
+  }
+
+  export type MainProductAvgAggregateOutputType = {
+    price: number | null
+    old_price: number | null
+    stock: number | null
+    rating: number | null
+    views: number | null
+    discountPercentage: number | null
+  }
+
+  export type MainProductSumAggregateOutputType = {
+    price: number | null
+    old_price: number | null
+    stock: number | null
+    rating: number | null
+    views: number | null
+    discountPercentage: number | null
+  }
+
+  export type MainProductMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    price: number | null
+    old_price: number | null
+    image: string | null
+    category: string | null
+    subCategory: string | null
+    brand: string | null
+    stock: number | null
+    inStock: boolean | null
+    rating: number | null
+    views: number | null
+    best_seller: boolean | null
+    new_arrival: boolean | null
+    trending: boolean | null
+    sale: boolean | null
+    video: string | null
+    discountPercentage: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MainProductMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    price: number | null
+    old_price: number | null
+    image: string | null
+    category: string | null
+    subCategory: string | null
+    brand: string | null
+    stock: number | null
+    inStock: boolean | null
+    rating: number | null
+    views: number | null
+    best_seller: boolean | null
+    new_arrival: boolean | null
+    trending: boolean | null
+    sale: boolean | null
+    video: string | null
+    discountPercentage: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type MainProductCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    price: number
+    old_price: number
+    image: number
+    images: number
+    category: number
+    subCategory: number
+    brand: number
+    tags: number
+    stock: number
+    inStock: number
+    rating: number
+    views: number
+    best_seller: number
+    new_arrival: number
+    trending: number
+    sale: number
+    occasion: number
+    season: number
+    colors: number
+    video: number
+    discountPercentage: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type MainProductAvgAggregateInputType = {
+    price?: true
+    old_price?: true
+    stock?: true
+    rating?: true
+    views?: true
+    discountPercentage?: true
+  }
+
+  export type MainProductSumAggregateInputType = {
+    price?: true
+    old_price?: true
+    stock?: true
+    rating?: true
+    views?: true
+    discountPercentage?: true
+  }
+
+  export type MainProductMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    price?: true
+    old_price?: true
+    image?: true
+    category?: true
+    subCategory?: true
+    brand?: true
+    stock?: true
+    inStock?: true
+    rating?: true
+    views?: true
+    best_seller?: true
+    new_arrival?: true
+    trending?: true
+    sale?: true
+    video?: true
+    discountPercentage?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MainProductMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    price?: true
+    old_price?: true
+    image?: true
+    category?: true
+    subCategory?: true
+    brand?: true
+    stock?: true
+    inStock?: true
+    rating?: true
+    views?: true
+    best_seller?: true
+    new_arrival?: true
+    trending?: true
+    sale?: true
+    video?: true
+    discountPercentage?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type MainProductCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    price?: true
+    old_price?: true
+    image?: true
+    images?: true
+    category?: true
+    subCategory?: true
+    brand?: true
+    tags?: true
+    stock?: true
+    inStock?: true
+    rating?: true
+    views?: true
+    best_seller?: true
+    new_arrival?: true
+    trending?: true
+    sale?: true
+    occasion?: true
+    season?: true
+    colors?: true
+    video?: true
+    discountPercentage?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type MainProductAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MainProduct to aggregate.
+     */
+    where?: MainProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MainProducts to fetch.
+     */
+    orderBy?: MainProductOrderByWithRelationInput | MainProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MainProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MainProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MainProducts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MainProducts
+    **/
+    _count?: true | MainProductCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: MainProductAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: MainProductSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MainProductMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MainProductMaxAggregateInputType
+  }
+
+  export type GetMainProductAggregateType<T extends MainProductAggregateArgs> = {
+        [P in keyof T & keyof AggregateMainProduct]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMainProduct[P]>
+      : GetScalarType<T[P], AggregateMainProduct[P]>
+  }
+
+
+
+
+  export type MainProductGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MainProductWhereInput
+    orderBy?: MainProductOrderByWithAggregationInput | MainProductOrderByWithAggregationInput[]
+    by: MainProductScalarFieldEnum[] | MainProductScalarFieldEnum
+    having?: MainProductScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MainProductCountAggregateInputType | true
+    _avg?: MainProductAvgAggregateInputType
+    _sum?: MainProductSumAggregateInputType
+    _min?: MainProductMinAggregateInputType
+    _max?: MainProductMaxAggregateInputType
+  }
+
+  export type MainProductGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    price: number
+    old_price: number | null
+    image: string | null
+    images: string[]
+    category: string | null
+    subCategory: string | null
+    brand: string | null
+    tags: string[]
+    stock: number
+    inStock: boolean
+    rating: number | null
+    views: number
+    best_seller: boolean
+    new_arrival: boolean
+    trending: boolean
+    sale: boolean
+    occasion: string[]
+    season: string[]
+    colors: string[]
+    video: string | null
+    discountPercentage: number | null
+    createdAt: Date
+    updatedAt: Date
+    _count: MainProductCountAggregateOutputType | null
+    _avg: MainProductAvgAggregateOutputType | null
+    _sum: MainProductSumAggregateOutputType | null
+    _min: MainProductMinAggregateOutputType | null
+    _max: MainProductMaxAggregateOutputType | null
+  }
+
+  type GetMainProductGroupByPayload<T extends MainProductGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MainProductGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MainProductGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MainProductGroupByOutputType[P]>
+            : GetScalarType<T[P], MainProductGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MainProductSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    price?: boolean
+    old_price?: boolean
+    image?: boolean
+    images?: boolean
+    category?: boolean
+    subCategory?: boolean
+    brand?: boolean
+    tags?: boolean
+    stock?: boolean
+    inStock?: boolean
+    rating?: boolean
+    views?: boolean
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    occasion?: boolean
+    season?: boolean
+    colors?: boolean
+    video?: boolean
+    discountPercentage?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["mainProduct"]>
+
+
+
+  export type MainProductSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    price?: boolean
+    old_price?: boolean
+    image?: boolean
+    images?: boolean
+    category?: boolean
+    subCategory?: boolean
+    brand?: boolean
+    tags?: boolean
+    stock?: boolean
+    inStock?: boolean
+    rating?: boolean
+    views?: boolean
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    occasion?: boolean
+    season?: boolean
+    colors?: boolean
+    video?: boolean
+    discountPercentage?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type MainProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "old_price" | "image" | "images" | "category" | "subCategory" | "brand" | "tags" | "stock" | "inStock" | "rating" | "views" | "best_seller" | "new_arrival" | "trending" | "sale" | "occasion" | "season" | "colors" | "video" | "discountPercentage" | "createdAt" | "updatedAt", ExtArgs["result"]["mainProduct"]>
+
+  export type $MainProductPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MainProduct"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      price: number
+      old_price: number | null
+      image: string | null
+      images: string[]
+      category: string | null
+      subCategory: string | null
+      brand: string | null
+      tags: string[]
+      stock: number
+      inStock: boolean
+      rating: number | null
+      views: number
+      best_seller: boolean
+      new_arrival: boolean
+      trending: boolean
+      sale: boolean
+      occasion: string[]
+      season: string[]
+      colors: string[]
+      video: string | null
+      discountPercentage: number | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["mainProduct"]>
+    composites: {}
+  }
+
+  type MainProductGetPayload<S extends boolean | null | undefined | MainProductDefaultArgs> = $Result.GetResult<Prisma.$MainProductPayload, S>
+
+  type MainProductCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MainProductFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MainProductCountAggregateInputType | true
+    }
+
+  export interface MainProductDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MainProduct'], meta: { name: 'MainProduct' } }
+    /**
+     * Find zero or one MainProduct that matches the filter.
+     * @param {MainProductFindUniqueArgs} args - Arguments to find a MainProduct
+     * @example
+     * // Get one MainProduct
+     * const mainProduct = await prisma.mainProduct.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MainProductFindUniqueArgs>(args: SelectSubset<T, MainProductFindUniqueArgs<ExtArgs>>): Prisma__MainProductClient<$Result.GetResult<Prisma.$MainProductPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MainProduct that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MainProductFindUniqueOrThrowArgs} args - Arguments to find a MainProduct
+     * @example
+     * // Get one MainProduct
+     * const mainProduct = await prisma.mainProduct.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MainProductFindUniqueOrThrowArgs>(args: SelectSubset<T, MainProductFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MainProductClient<$Result.GetResult<Prisma.$MainProductPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MainProduct that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MainProductFindFirstArgs} args - Arguments to find a MainProduct
+     * @example
+     * // Get one MainProduct
+     * const mainProduct = await prisma.mainProduct.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MainProductFindFirstArgs>(args?: SelectSubset<T, MainProductFindFirstArgs<ExtArgs>>): Prisma__MainProductClient<$Result.GetResult<Prisma.$MainProductPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MainProduct that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MainProductFindFirstOrThrowArgs} args - Arguments to find a MainProduct
+     * @example
+     * // Get one MainProduct
+     * const mainProduct = await prisma.mainProduct.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MainProductFindFirstOrThrowArgs>(args?: SelectSubset<T, MainProductFindFirstOrThrowArgs<ExtArgs>>): Prisma__MainProductClient<$Result.GetResult<Prisma.$MainProductPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MainProducts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MainProductFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MainProducts
+     * const mainProducts = await prisma.mainProduct.findMany()
+     * 
+     * // Get first 10 MainProducts
+     * const mainProducts = await prisma.mainProduct.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const mainProductWithIdOnly = await prisma.mainProduct.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MainProductFindManyArgs>(args?: SelectSubset<T, MainProductFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MainProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MainProduct.
+     * @param {MainProductCreateArgs} args - Arguments to create a MainProduct.
+     * @example
+     * // Create one MainProduct
+     * const MainProduct = await prisma.mainProduct.create({
+     *   data: {
+     *     // ... data to create a MainProduct
+     *   }
+     * })
+     * 
+     */
+    create<T extends MainProductCreateArgs>(args: SelectSubset<T, MainProductCreateArgs<ExtArgs>>): Prisma__MainProductClient<$Result.GetResult<Prisma.$MainProductPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MainProducts.
+     * @param {MainProductCreateManyArgs} args - Arguments to create many MainProducts.
+     * @example
+     * // Create many MainProducts
+     * const mainProduct = await prisma.mainProduct.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MainProductCreateManyArgs>(args?: SelectSubset<T, MainProductCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a MainProduct.
+     * @param {MainProductDeleteArgs} args - Arguments to delete one MainProduct.
+     * @example
+     * // Delete one MainProduct
+     * const MainProduct = await prisma.mainProduct.delete({
+     *   where: {
+     *     // ... filter to delete one MainProduct
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MainProductDeleteArgs>(args: SelectSubset<T, MainProductDeleteArgs<ExtArgs>>): Prisma__MainProductClient<$Result.GetResult<Prisma.$MainProductPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MainProduct.
+     * @param {MainProductUpdateArgs} args - Arguments to update one MainProduct.
+     * @example
+     * // Update one MainProduct
+     * const mainProduct = await prisma.mainProduct.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MainProductUpdateArgs>(args: SelectSubset<T, MainProductUpdateArgs<ExtArgs>>): Prisma__MainProductClient<$Result.GetResult<Prisma.$MainProductPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MainProducts.
+     * @param {MainProductDeleteManyArgs} args - Arguments to filter MainProducts to delete.
+     * @example
+     * // Delete a few MainProducts
+     * const { count } = await prisma.mainProduct.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MainProductDeleteManyArgs>(args?: SelectSubset<T, MainProductDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MainProducts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MainProductUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MainProducts
+     * const mainProduct = await prisma.mainProduct.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MainProductUpdateManyArgs>(args: SelectSubset<T, MainProductUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one MainProduct.
+     * @param {MainProductUpsertArgs} args - Arguments to update or create a MainProduct.
+     * @example
+     * // Update or create a MainProduct
+     * const mainProduct = await prisma.mainProduct.upsert({
+     *   create: {
+     *     // ... data to create a MainProduct
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MainProduct we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MainProductUpsertArgs>(args: SelectSubset<T, MainProductUpsertArgs<ExtArgs>>): Prisma__MainProductClient<$Result.GetResult<Prisma.$MainProductPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MainProducts that matches the filter.
+     * @param {MainProductFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const mainProduct = await prisma.mainProduct.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: MainProductFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a MainProduct.
+     * @param {MainProductAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const mainProduct = await prisma.mainProduct.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: MainProductAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of MainProducts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MainProductCountArgs} args - Arguments to filter MainProducts to count.
+     * @example
+     * // Count the number of MainProducts
+     * const count = await prisma.mainProduct.count({
+     *   where: {
+     *     // ... the filter for the MainProducts we want to count
+     *   }
+     * })
+    **/
+    count<T extends MainProductCountArgs>(
+      args?: Subset<T, MainProductCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MainProductCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MainProduct.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MainProductAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MainProductAggregateArgs>(args: Subset<T, MainProductAggregateArgs>): Prisma.PrismaPromise<GetMainProductAggregateType<T>>
+
+    /**
+     * Group by MainProduct.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MainProductGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MainProductGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MainProductGroupByArgs['orderBy'] }
+        : { orderBy?: MainProductGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MainProductGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMainProductGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MainProduct model
+   */
+  readonly fields: MainProductFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MainProduct.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MainProductClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MainProduct model
+   */
+  interface MainProductFieldRefs {
+    readonly id: FieldRef<"MainProduct", 'String'>
+    readonly name: FieldRef<"MainProduct", 'String'>
+    readonly description: FieldRef<"MainProduct", 'String'>
+    readonly price: FieldRef<"MainProduct", 'Float'>
+    readonly old_price: FieldRef<"MainProduct", 'Float'>
+    readonly image: FieldRef<"MainProduct", 'String'>
+    readonly images: FieldRef<"MainProduct", 'String[]'>
+    readonly category: FieldRef<"MainProduct", 'String'>
+    readonly subCategory: FieldRef<"MainProduct", 'String'>
+    readonly brand: FieldRef<"MainProduct", 'String'>
+    readonly tags: FieldRef<"MainProduct", 'String[]'>
+    readonly stock: FieldRef<"MainProduct", 'Int'>
+    readonly inStock: FieldRef<"MainProduct", 'Boolean'>
+    readonly rating: FieldRef<"MainProduct", 'Float'>
+    readonly views: FieldRef<"MainProduct", 'Int'>
+    readonly best_seller: FieldRef<"MainProduct", 'Boolean'>
+    readonly new_arrival: FieldRef<"MainProduct", 'Boolean'>
+    readonly trending: FieldRef<"MainProduct", 'Boolean'>
+    readonly sale: FieldRef<"MainProduct", 'Boolean'>
+    readonly occasion: FieldRef<"MainProduct", 'String[]'>
+    readonly season: FieldRef<"MainProduct", 'String[]'>
+    readonly colors: FieldRef<"MainProduct", 'String[]'>
+    readonly video: FieldRef<"MainProduct", 'String'>
+    readonly discountPercentage: FieldRef<"MainProduct", 'Float'>
+    readonly createdAt: FieldRef<"MainProduct", 'DateTime'>
+    readonly updatedAt: FieldRef<"MainProduct", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MainProduct findUnique
+   */
+  export type MainProductFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+    /**
+     * Filter, which MainProduct to fetch.
+     */
+    where: MainProductWhereUniqueInput
+  }
+
+  /**
+   * MainProduct findUniqueOrThrow
+   */
+  export type MainProductFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+    /**
+     * Filter, which MainProduct to fetch.
+     */
+    where: MainProductWhereUniqueInput
+  }
+
+  /**
+   * MainProduct findFirst
+   */
+  export type MainProductFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+    /**
+     * Filter, which MainProduct to fetch.
+     */
+    where?: MainProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MainProducts to fetch.
+     */
+    orderBy?: MainProductOrderByWithRelationInput | MainProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MainProducts.
+     */
+    cursor?: MainProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MainProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MainProducts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MainProducts.
+     */
+    distinct?: MainProductScalarFieldEnum | MainProductScalarFieldEnum[]
+  }
+
+  /**
+   * MainProduct findFirstOrThrow
+   */
+  export type MainProductFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+    /**
+     * Filter, which MainProduct to fetch.
+     */
+    where?: MainProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MainProducts to fetch.
+     */
+    orderBy?: MainProductOrderByWithRelationInput | MainProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MainProducts.
+     */
+    cursor?: MainProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MainProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MainProducts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MainProducts.
+     */
+    distinct?: MainProductScalarFieldEnum | MainProductScalarFieldEnum[]
+  }
+
+  /**
+   * MainProduct findMany
+   */
+  export type MainProductFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+    /**
+     * Filter, which MainProducts to fetch.
+     */
+    where?: MainProductWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MainProducts to fetch.
+     */
+    orderBy?: MainProductOrderByWithRelationInput | MainProductOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MainProducts.
+     */
+    cursor?: MainProductWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MainProducts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MainProducts.
+     */
+    skip?: number
+    distinct?: MainProductScalarFieldEnum | MainProductScalarFieldEnum[]
+  }
+
+  /**
+   * MainProduct create
+   */
+  export type MainProductCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+    /**
+     * The data needed to create a MainProduct.
+     */
+    data: XOR<MainProductCreateInput, MainProductUncheckedCreateInput>
+  }
+
+  /**
+   * MainProduct createMany
+   */
+  export type MainProductCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MainProducts.
+     */
+    data: MainProductCreateManyInput | MainProductCreateManyInput[]
+  }
+
+  /**
+   * MainProduct update
+   */
+  export type MainProductUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+    /**
+     * The data needed to update a MainProduct.
+     */
+    data: XOR<MainProductUpdateInput, MainProductUncheckedUpdateInput>
+    /**
+     * Choose, which MainProduct to update.
+     */
+    where: MainProductWhereUniqueInput
+  }
+
+  /**
+   * MainProduct updateMany
+   */
+  export type MainProductUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MainProducts.
+     */
+    data: XOR<MainProductUpdateManyMutationInput, MainProductUncheckedUpdateManyInput>
+    /**
+     * Filter which MainProducts to update
+     */
+    where?: MainProductWhereInput
+    /**
+     * Limit how many MainProducts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MainProduct upsert
+   */
+  export type MainProductUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+    /**
+     * The filter to search for the MainProduct to update in case it exists.
+     */
+    where: MainProductWhereUniqueInput
+    /**
+     * In case the MainProduct found by the `where` argument doesn't exist, create a new MainProduct with this data.
+     */
+    create: XOR<MainProductCreateInput, MainProductUncheckedCreateInput>
+    /**
+     * In case the MainProduct was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MainProductUpdateInput, MainProductUncheckedUpdateInput>
+  }
+
+  /**
+   * MainProduct delete
+   */
+  export type MainProductDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+    /**
+     * Filter which MainProduct to delete.
+     */
+    where: MainProductWhereUniqueInput
+  }
+
+  /**
+   * MainProduct deleteMany
+   */
+  export type MainProductDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MainProducts to delete
+     */
+    where?: MainProductWhereInput
+    /**
+     * Limit how many MainProducts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MainProduct findRaw
+   */
+  export type MainProductFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * MainProduct aggregateRaw
+   */
+  export type MainProductAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * MainProduct without action
+   */
+  export type MainProductDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MainProduct
+     */
+    select?: MainProductSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MainProduct
+     */
+    omit?: MainProductOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CustomGift
+   */
+
+  export type AggregateCustomGift = {
+    _count: CustomGiftCountAggregateOutputType | null
+    _avg: CustomGiftAvgAggregateOutputType | null
+    _sum: CustomGiftSumAggregateOutputType | null
+    _min: CustomGiftMinAggregateOutputType | null
+    _max: CustomGiftMaxAggregateOutputType | null
+  }
+
+  export type CustomGiftAvgAggregateOutputType = {
+    basePrice: number | null
+  }
+
+  export type CustomGiftSumAggregateOutputType = {
+    basePrice: number | null
+  }
+
+  export type CustomGiftMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    basePrice: number | null
+    image: string | null
+    category: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CustomGiftMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    basePrice: number | null
+    image: string | null
+    category: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CustomGiftCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    basePrice: number
+    image: number
+    category: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CustomGiftAvgAggregateInputType = {
+    basePrice?: true
+  }
+
+  export type CustomGiftSumAggregateInputType = {
+    basePrice?: true
+  }
+
+  export type CustomGiftMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    basePrice?: true
+    image?: true
+    category?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CustomGiftMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    basePrice?: true
+    image?: true
+    category?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CustomGiftCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    basePrice?: true
+    image?: true
+    category?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CustomGiftAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomGift to aggregate.
+     */
+    where?: CustomGiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomGifts to fetch.
+     */
+    orderBy?: CustomGiftOrderByWithRelationInput | CustomGiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CustomGiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomGifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomGifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CustomGifts
+    **/
+    _count?: true | CustomGiftCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CustomGiftAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CustomGiftSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CustomGiftMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CustomGiftMaxAggregateInputType
+  }
+
+  export type GetCustomGiftAggregateType<T extends CustomGiftAggregateArgs> = {
+        [P in keyof T & keyof AggregateCustomGift]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCustomGift[P]>
+      : GetScalarType<T[P], AggregateCustomGift[P]>
+  }
+
+
+
+
+  export type CustomGiftGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CustomGiftWhereInput
+    orderBy?: CustomGiftOrderByWithAggregationInput | CustomGiftOrderByWithAggregationInput[]
+    by: CustomGiftScalarFieldEnum[] | CustomGiftScalarFieldEnum
+    having?: CustomGiftScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CustomGiftCountAggregateInputType | true
+    _avg?: CustomGiftAvgAggregateInputType
+    _sum?: CustomGiftSumAggregateInputType
+    _min?: CustomGiftMinAggregateInputType
+    _max?: CustomGiftMaxAggregateInputType
+  }
+
+  export type CustomGiftGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    basePrice: number
+    image: string | null
+    category: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: CustomGiftCountAggregateOutputType | null
+    _avg: CustomGiftAvgAggregateOutputType | null
+    _sum: CustomGiftSumAggregateOutputType | null
+    _min: CustomGiftMinAggregateOutputType | null
+    _max: CustomGiftMaxAggregateOutputType | null
+  }
+
+  type GetCustomGiftGroupByPayload<T extends CustomGiftGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CustomGiftGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CustomGiftGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CustomGiftGroupByOutputType[P]>
+            : GetScalarType<T[P], CustomGiftGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CustomGiftSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    basePrice?: boolean
+    image?: boolean
+    category?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["customGift"]>
+
+
+
+  export type CustomGiftSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    basePrice?: boolean
+    image?: boolean
+    category?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CustomGiftOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "basePrice" | "image" | "category" | "createdAt" | "updatedAt", ExtArgs["result"]["customGift"]>
+
+  export type $CustomGiftPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CustomGift"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      basePrice: number
+      image: string | null
+      category: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["customGift"]>
+    composites: {}
+  }
+
+  type CustomGiftGetPayload<S extends boolean | null | undefined | CustomGiftDefaultArgs> = $Result.GetResult<Prisma.$CustomGiftPayload, S>
+
+  type CustomGiftCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CustomGiftFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CustomGiftCountAggregateInputType | true
+    }
+
+  export interface CustomGiftDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CustomGift'], meta: { name: 'CustomGift' } }
+    /**
+     * Find zero or one CustomGift that matches the filter.
+     * @param {CustomGiftFindUniqueArgs} args - Arguments to find a CustomGift
+     * @example
+     * // Get one CustomGift
+     * const customGift = await prisma.customGift.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CustomGiftFindUniqueArgs>(args: SelectSubset<T, CustomGiftFindUniqueArgs<ExtArgs>>): Prisma__CustomGiftClient<$Result.GetResult<Prisma.$CustomGiftPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CustomGift that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CustomGiftFindUniqueOrThrowArgs} args - Arguments to find a CustomGift
+     * @example
+     * // Get one CustomGift
+     * const customGift = await prisma.customGift.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CustomGiftFindUniqueOrThrowArgs>(args: SelectSubset<T, CustomGiftFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CustomGiftClient<$Result.GetResult<Prisma.$CustomGiftPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomGift that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomGiftFindFirstArgs} args - Arguments to find a CustomGift
+     * @example
+     * // Get one CustomGift
+     * const customGift = await prisma.customGift.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CustomGiftFindFirstArgs>(args?: SelectSubset<T, CustomGiftFindFirstArgs<ExtArgs>>): Prisma__CustomGiftClient<$Result.GetResult<Prisma.$CustomGiftPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CustomGift that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomGiftFindFirstOrThrowArgs} args - Arguments to find a CustomGift
+     * @example
+     * // Get one CustomGift
+     * const customGift = await prisma.customGift.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CustomGiftFindFirstOrThrowArgs>(args?: SelectSubset<T, CustomGiftFindFirstOrThrowArgs<ExtArgs>>): Prisma__CustomGiftClient<$Result.GetResult<Prisma.$CustomGiftPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CustomGifts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomGiftFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CustomGifts
+     * const customGifts = await prisma.customGift.findMany()
+     * 
+     * // Get first 10 CustomGifts
+     * const customGifts = await prisma.customGift.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const customGiftWithIdOnly = await prisma.customGift.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CustomGiftFindManyArgs>(args?: SelectSubset<T, CustomGiftFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CustomGiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CustomGift.
+     * @param {CustomGiftCreateArgs} args - Arguments to create a CustomGift.
+     * @example
+     * // Create one CustomGift
+     * const CustomGift = await prisma.customGift.create({
+     *   data: {
+     *     // ... data to create a CustomGift
+     *   }
+     * })
+     * 
+     */
+    create<T extends CustomGiftCreateArgs>(args: SelectSubset<T, CustomGiftCreateArgs<ExtArgs>>): Prisma__CustomGiftClient<$Result.GetResult<Prisma.$CustomGiftPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CustomGifts.
+     * @param {CustomGiftCreateManyArgs} args - Arguments to create many CustomGifts.
+     * @example
+     * // Create many CustomGifts
+     * const customGift = await prisma.customGift.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CustomGiftCreateManyArgs>(args?: SelectSubset<T, CustomGiftCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a CustomGift.
+     * @param {CustomGiftDeleteArgs} args - Arguments to delete one CustomGift.
+     * @example
+     * // Delete one CustomGift
+     * const CustomGift = await prisma.customGift.delete({
+     *   where: {
+     *     // ... filter to delete one CustomGift
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CustomGiftDeleteArgs>(args: SelectSubset<T, CustomGiftDeleteArgs<ExtArgs>>): Prisma__CustomGiftClient<$Result.GetResult<Prisma.$CustomGiftPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CustomGift.
+     * @param {CustomGiftUpdateArgs} args - Arguments to update one CustomGift.
+     * @example
+     * // Update one CustomGift
+     * const customGift = await prisma.customGift.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CustomGiftUpdateArgs>(args: SelectSubset<T, CustomGiftUpdateArgs<ExtArgs>>): Prisma__CustomGiftClient<$Result.GetResult<Prisma.$CustomGiftPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CustomGifts.
+     * @param {CustomGiftDeleteManyArgs} args - Arguments to filter CustomGifts to delete.
+     * @example
+     * // Delete a few CustomGifts
+     * const { count } = await prisma.customGift.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CustomGiftDeleteManyArgs>(args?: SelectSubset<T, CustomGiftDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CustomGifts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomGiftUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CustomGifts
+     * const customGift = await prisma.customGift.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CustomGiftUpdateManyArgs>(args: SelectSubset<T, CustomGiftUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CustomGift.
+     * @param {CustomGiftUpsertArgs} args - Arguments to update or create a CustomGift.
+     * @example
+     * // Update or create a CustomGift
+     * const customGift = await prisma.customGift.upsert({
+     *   create: {
+     *     // ... data to create a CustomGift
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CustomGift we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CustomGiftUpsertArgs>(args: SelectSubset<T, CustomGiftUpsertArgs<ExtArgs>>): Prisma__CustomGiftClient<$Result.GetResult<Prisma.$CustomGiftPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CustomGifts that matches the filter.
+     * @param {CustomGiftFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const customGift = await prisma.customGift.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: CustomGiftFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a CustomGift.
+     * @param {CustomGiftAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const customGift = await prisma.customGift.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: CustomGiftAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of CustomGifts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomGiftCountArgs} args - Arguments to filter CustomGifts to count.
+     * @example
+     * // Count the number of CustomGifts
+     * const count = await prisma.customGift.count({
+     *   where: {
+     *     // ... the filter for the CustomGifts we want to count
+     *   }
+     * })
+    **/
+    count<T extends CustomGiftCountArgs>(
+      args?: Subset<T, CustomGiftCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CustomGiftCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CustomGift.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomGiftAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CustomGiftAggregateArgs>(args: Subset<T, CustomGiftAggregateArgs>): Prisma.PrismaPromise<GetCustomGiftAggregateType<T>>
+
+    /**
+     * Group by CustomGift.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CustomGiftGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CustomGiftGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CustomGiftGroupByArgs['orderBy'] }
+        : { orderBy?: CustomGiftGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CustomGiftGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCustomGiftGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CustomGift model
+   */
+  readonly fields: CustomGiftFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CustomGift.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CustomGiftClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CustomGift model
+   */
+  interface CustomGiftFieldRefs {
+    readonly id: FieldRef<"CustomGift", 'String'>
+    readonly name: FieldRef<"CustomGift", 'String'>
+    readonly description: FieldRef<"CustomGift", 'String'>
+    readonly basePrice: FieldRef<"CustomGift", 'Float'>
+    readonly image: FieldRef<"CustomGift", 'String'>
+    readonly category: FieldRef<"CustomGift", 'String'>
+    readonly createdAt: FieldRef<"CustomGift", 'DateTime'>
+    readonly updatedAt: FieldRef<"CustomGift", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CustomGift findUnique
+   */
+  export type CustomGiftFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+    /**
+     * Filter, which CustomGift to fetch.
+     */
+    where: CustomGiftWhereUniqueInput
+  }
+
+  /**
+   * CustomGift findUniqueOrThrow
+   */
+  export type CustomGiftFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+    /**
+     * Filter, which CustomGift to fetch.
+     */
+    where: CustomGiftWhereUniqueInput
+  }
+
+  /**
+   * CustomGift findFirst
+   */
+  export type CustomGiftFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+    /**
+     * Filter, which CustomGift to fetch.
+     */
+    where?: CustomGiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomGifts to fetch.
+     */
+    orderBy?: CustomGiftOrderByWithRelationInput | CustomGiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomGifts.
+     */
+    cursor?: CustomGiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomGifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomGifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomGifts.
+     */
+    distinct?: CustomGiftScalarFieldEnum | CustomGiftScalarFieldEnum[]
+  }
+
+  /**
+   * CustomGift findFirstOrThrow
+   */
+  export type CustomGiftFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+    /**
+     * Filter, which CustomGift to fetch.
+     */
+    where?: CustomGiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomGifts to fetch.
+     */
+    orderBy?: CustomGiftOrderByWithRelationInput | CustomGiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CustomGifts.
+     */
+    cursor?: CustomGiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomGifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomGifts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CustomGifts.
+     */
+    distinct?: CustomGiftScalarFieldEnum | CustomGiftScalarFieldEnum[]
+  }
+
+  /**
+   * CustomGift findMany
+   */
+  export type CustomGiftFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+    /**
+     * Filter, which CustomGifts to fetch.
+     */
+    where?: CustomGiftWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CustomGifts to fetch.
+     */
+    orderBy?: CustomGiftOrderByWithRelationInput | CustomGiftOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CustomGifts.
+     */
+    cursor?: CustomGiftWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CustomGifts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CustomGifts.
+     */
+    skip?: number
+    distinct?: CustomGiftScalarFieldEnum | CustomGiftScalarFieldEnum[]
+  }
+
+  /**
+   * CustomGift create
+   */
+  export type CustomGiftCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+    /**
+     * The data needed to create a CustomGift.
+     */
+    data: XOR<CustomGiftCreateInput, CustomGiftUncheckedCreateInput>
+  }
+
+  /**
+   * CustomGift createMany
+   */
+  export type CustomGiftCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CustomGifts.
+     */
+    data: CustomGiftCreateManyInput | CustomGiftCreateManyInput[]
+  }
+
+  /**
+   * CustomGift update
+   */
+  export type CustomGiftUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+    /**
+     * The data needed to update a CustomGift.
+     */
+    data: XOR<CustomGiftUpdateInput, CustomGiftUncheckedUpdateInput>
+    /**
+     * Choose, which CustomGift to update.
+     */
+    where: CustomGiftWhereUniqueInput
+  }
+
+  /**
+   * CustomGift updateMany
+   */
+  export type CustomGiftUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CustomGifts.
+     */
+    data: XOR<CustomGiftUpdateManyMutationInput, CustomGiftUncheckedUpdateManyInput>
+    /**
+     * Filter which CustomGifts to update
+     */
+    where?: CustomGiftWhereInput
+    /**
+     * Limit how many CustomGifts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomGift upsert
+   */
+  export type CustomGiftUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+    /**
+     * The filter to search for the CustomGift to update in case it exists.
+     */
+    where: CustomGiftWhereUniqueInput
+    /**
+     * In case the CustomGift found by the `where` argument doesn't exist, create a new CustomGift with this data.
+     */
+    create: XOR<CustomGiftCreateInput, CustomGiftUncheckedCreateInput>
+    /**
+     * In case the CustomGift was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CustomGiftUpdateInput, CustomGiftUncheckedUpdateInput>
+  }
+
+  /**
+   * CustomGift delete
+   */
+  export type CustomGiftDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+    /**
+     * Filter which CustomGift to delete.
+     */
+    where: CustomGiftWhereUniqueInput
+  }
+
+  /**
+   * CustomGift deleteMany
+   */
+  export type CustomGiftDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CustomGifts to delete
+     */
+    where?: CustomGiftWhereInput
+    /**
+     * Limit how many CustomGifts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CustomGift findRaw
+   */
+  export type CustomGiftFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * CustomGift aggregateRaw
+   */
+  export type CustomGiftAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * CustomGift without action
+   */
+  export type CustomGiftDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CustomGift
+     */
+    select?: CustomGiftSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CustomGift
+     */
+    omit?: CustomGiftOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Box
+   */
+
+  export type AggregateBox = {
+    _count: BoxCountAggregateOutputType | null
+    _avg: BoxAvgAggregateOutputType | null
+    _sum: BoxSumAggregateOutputType | null
+    _min: BoxMinAggregateOutputType | null
+    _max: BoxMaxAggregateOutputType | null
+  }
+
+  export type BoxAvgAggregateOutputType = {
+    price: number | null
+    stock: number | null
+  }
+
+  export type BoxSumAggregateOutputType = {
+    price: number | null
+    stock: number | null
+  }
+
+  export type BoxMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    price: number | null
+    image: string | null
+    stock: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BoxMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    price: number | null
+    image: string | null
+    stock: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BoxCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    price: number
+    image: number
+    stock: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BoxAvgAggregateInputType = {
+    price?: true
+    stock?: true
+  }
+
+  export type BoxSumAggregateInputType = {
+    price?: true
+    stock?: true
+  }
+
+  export type BoxMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    price?: true
+    image?: true
+    stock?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BoxMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    price?: true
+    image?: true
+    stock?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BoxCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    price?: true
+    image?: true
+    stock?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BoxAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Box to aggregate.
+     */
+    where?: BoxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Boxes to fetch.
+     */
+    orderBy?: BoxOrderByWithRelationInput | BoxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BoxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Boxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Boxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Boxes
+    **/
+    _count?: true | BoxCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BoxAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BoxSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BoxMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BoxMaxAggregateInputType
+  }
+
+  export type GetBoxAggregateType<T extends BoxAggregateArgs> = {
+        [P in keyof T & keyof AggregateBox]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBox[P]>
+      : GetScalarType<T[P], AggregateBox[P]>
+  }
+
+
+
+
+  export type BoxGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BoxWhereInput
+    orderBy?: BoxOrderByWithAggregationInput | BoxOrderByWithAggregationInput[]
+    by: BoxScalarFieldEnum[] | BoxScalarFieldEnum
+    having?: BoxScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BoxCountAggregateInputType | true
+    _avg?: BoxAvgAggregateInputType
+    _sum?: BoxSumAggregateInputType
+    _min?: BoxMinAggregateInputType
+    _max?: BoxMaxAggregateInputType
+  }
+
+  export type BoxGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    price: number
+    image: string | null
+    stock: number
+    createdAt: Date
+    updatedAt: Date
+    _count: BoxCountAggregateOutputType | null
+    _avg: BoxAvgAggregateOutputType | null
+    _sum: BoxSumAggregateOutputType | null
+    _min: BoxMinAggregateOutputType | null
+    _max: BoxMaxAggregateOutputType | null
+  }
+
+  type GetBoxGroupByPayload<T extends BoxGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BoxGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BoxGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BoxGroupByOutputType[P]>
+            : GetScalarType<T[P], BoxGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BoxSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    price?: boolean
+    image?: boolean
+    stock?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["box"]>
+
+
+
+  export type BoxSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    price?: boolean
+    image?: boolean
+    stock?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BoxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "image" | "stock" | "createdAt" | "updatedAt", ExtArgs["result"]["box"]>
+
+  export type $BoxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Box"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      price: number
+      image: string | null
+      stock: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["box"]>
+    composites: {}
+  }
+
+  type BoxGetPayload<S extends boolean | null | undefined | BoxDefaultArgs> = $Result.GetResult<Prisma.$BoxPayload, S>
+
+  type BoxCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BoxFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BoxCountAggregateInputType | true
+    }
+
+  export interface BoxDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Box'], meta: { name: 'Box' } }
+    /**
+     * Find zero or one Box that matches the filter.
+     * @param {BoxFindUniqueArgs} args - Arguments to find a Box
+     * @example
+     * // Get one Box
+     * const box = await prisma.box.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BoxFindUniqueArgs>(args: SelectSubset<T, BoxFindUniqueArgs<ExtArgs>>): Prisma__BoxClient<$Result.GetResult<Prisma.$BoxPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Box that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BoxFindUniqueOrThrowArgs} args - Arguments to find a Box
+     * @example
+     * // Get one Box
+     * const box = await prisma.box.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BoxFindUniqueOrThrowArgs>(args: SelectSubset<T, BoxFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BoxClient<$Result.GetResult<Prisma.$BoxPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Box that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BoxFindFirstArgs} args - Arguments to find a Box
+     * @example
+     * // Get one Box
+     * const box = await prisma.box.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BoxFindFirstArgs>(args?: SelectSubset<T, BoxFindFirstArgs<ExtArgs>>): Prisma__BoxClient<$Result.GetResult<Prisma.$BoxPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Box that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BoxFindFirstOrThrowArgs} args - Arguments to find a Box
+     * @example
+     * // Get one Box
+     * const box = await prisma.box.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BoxFindFirstOrThrowArgs>(args?: SelectSubset<T, BoxFindFirstOrThrowArgs<ExtArgs>>): Prisma__BoxClient<$Result.GetResult<Prisma.$BoxPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Boxes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BoxFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Boxes
+     * const boxes = await prisma.box.findMany()
+     * 
+     * // Get first 10 Boxes
+     * const boxes = await prisma.box.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const boxWithIdOnly = await prisma.box.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BoxFindManyArgs>(args?: SelectSubset<T, BoxFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BoxPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Box.
+     * @param {BoxCreateArgs} args - Arguments to create a Box.
+     * @example
+     * // Create one Box
+     * const Box = await prisma.box.create({
+     *   data: {
+     *     // ... data to create a Box
+     *   }
+     * })
+     * 
+     */
+    create<T extends BoxCreateArgs>(args: SelectSubset<T, BoxCreateArgs<ExtArgs>>): Prisma__BoxClient<$Result.GetResult<Prisma.$BoxPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Boxes.
+     * @param {BoxCreateManyArgs} args - Arguments to create many Boxes.
+     * @example
+     * // Create many Boxes
+     * const box = await prisma.box.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BoxCreateManyArgs>(args?: SelectSubset<T, BoxCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Box.
+     * @param {BoxDeleteArgs} args - Arguments to delete one Box.
+     * @example
+     * // Delete one Box
+     * const Box = await prisma.box.delete({
+     *   where: {
+     *     // ... filter to delete one Box
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BoxDeleteArgs>(args: SelectSubset<T, BoxDeleteArgs<ExtArgs>>): Prisma__BoxClient<$Result.GetResult<Prisma.$BoxPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Box.
+     * @param {BoxUpdateArgs} args - Arguments to update one Box.
+     * @example
+     * // Update one Box
+     * const box = await prisma.box.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BoxUpdateArgs>(args: SelectSubset<T, BoxUpdateArgs<ExtArgs>>): Prisma__BoxClient<$Result.GetResult<Prisma.$BoxPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Boxes.
+     * @param {BoxDeleteManyArgs} args - Arguments to filter Boxes to delete.
+     * @example
+     * // Delete a few Boxes
+     * const { count } = await prisma.box.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BoxDeleteManyArgs>(args?: SelectSubset<T, BoxDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Boxes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BoxUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Boxes
+     * const box = await prisma.box.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BoxUpdateManyArgs>(args: SelectSubset<T, BoxUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Box.
+     * @param {BoxUpsertArgs} args - Arguments to update or create a Box.
+     * @example
+     * // Update or create a Box
+     * const box = await prisma.box.upsert({
+     *   create: {
+     *     // ... data to create a Box
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Box we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BoxUpsertArgs>(args: SelectSubset<T, BoxUpsertArgs<ExtArgs>>): Prisma__BoxClient<$Result.GetResult<Prisma.$BoxPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Boxes that matches the filter.
+     * @param {BoxFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const box = await prisma.box.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: BoxFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Box.
+     * @param {BoxAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const box = await prisma.box.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: BoxAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Boxes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BoxCountArgs} args - Arguments to filter Boxes to count.
+     * @example
+     * // Count the number of Boxes
+     * const count = await prisma.box.count({
+     *   where: {
+     *     // ... the filter for the Boxes we want to count
+     *   }
+     * })
+    **/
+    count<T extends BoxCountArgs>(
+      args?: Subset<T, BoxCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BoxCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Box.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BoxAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BoxAggregateArgs>(args: Subset<T, BoxAggregateArgs>): Prisma.PrismaPromise<GetBoxAggregateType<T>>
+
+    /**
+     * Group by Box.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BoxGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BoxGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BoxGroupByArgs['orderBy'] }
+        : { orderBy?: BoxGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BoxGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBoxGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Box model
+   */
+  readonly fields: BoxFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Box.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BoxClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Box model
+   */
+  interface BoxFieldRefs {
+    readonly id: FieldRef<"Box", 'String'>
+    readonly name: FieldRef<"Box", 'String'>
+    readonly description: FieldRef<"Box", 'String'>
+    readonly price: FieldRef<"Box", 'Float'>
+    readonly image: FieldRef<"Box", 'String'>
+    readonly stock: FieldRef<"Box", 'Int'>
+    readonly createdAt: FieldRef<"Box", 'DateTime'>
+    readonly updatedAt: FieldRef<"Box", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Box findUnique
+   */
+  export type BoxFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+    /**
+     * Filter, which Box to fetch.
+     */
+    where: BoxWhereUniqueInput
+  }
+
+  /**
+   * Box findUniqueOrThrow
+   */
+  export type BoxFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+    /**
+     * Filter, which Box to fetch.
+     */
+    where: BoxWhereUniqueInput
+  }
+
+  /**
+   * Box findFirst
+   */
+  export type BoxFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+    /**
+     * Filter, which Box to fetch.
+     */
+    where?: BoxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Boxes to fetch.
+     */
+    orderBy?: BoxOrderByWithRelationInput | BoxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Boxes.
+     */
+    cursor?: BoxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Boxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Boxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Boxes.
+     */
+    distinct?: BoxScalarFieldEnum | BoxScalarFieldEnum[]
+  }
+
+  /**
+   * Box findFirstOrThrow
+   */
+  export type BoxFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+    /**
+     * Filter, which Box to fetch.
+     */
+    where?: BoxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Boxes to fetch.
+     */
+    orderBy?: BoxOrderByWithRelationInput | BoxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Boxes.
+     */
+    cursor?: BoxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Boxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Boxes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Boxes.
+     */
+    distinct?: BoxScalarFieldEnum | BoxScalarFieldEnum[]
+  }
+
+  /**
+   * Box findMany
+   */
+  export type BoxFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+    /**
+     * Filter, which Boxes to fetch.
+     */
+    where?: BoxWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Boxes to fetch.
+     */
+    orderBy?: BoxOrderByWithRelationInput | BoxOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Boxes.
+     */
+    cursor?: BoxWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Boxes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Boxes.
+     */
+    skip?: number
+    distinct?: BoxScalarFieldEnum | BoxScalarFieldEnum[]
+  }
+
+  /**
+   * Box create
+   */
+  export type BoxCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Box.
+     */
+    data: XOR<BoxCreateInput, BoxUncheckedCreateInput>
+  }
+
+  /**
+   * Box createMany
+   */
+  export type BoxCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Boxes.
+     */
+    data: BoxCreateManyInput | BoxCreateManyInput[]
+  }
+
+  /**
+   * Box update
+   */
+  export type BoxUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Box.
+     */
+    data: XOR<BoxUpdateInput, BoxUncheckedUpdateInput>
+    /**
+     * Choose, which Box to update.
+     */
+    where: BoxWhereUniqueInput
+  }
+
+  /**
+   * Box updateMany
+   */
+  export type BoxUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Boxes.
+     */
+    data: XOR<BoxUpdateManyMutationInput, BoxUncheckedUpdateManyInput>
+    /**
+     * Filter which Boxes to update
+     */
+    where?: BoxWhereInput
+    /**
+     * Limit how many Boxes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Box upsert
+   */
+  export type BoxUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Box to update in case it exists.
+     */
+    where: BoxWhereUniqueInput
+    /**
+     * In case the Box found by the `where` argument doesn't exist, create a new Box with this data.
+     */
+    create: XOR<BoxCreateInput, BoxUncheckedCreateInput>
+    /**
+     * In case the Box was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BoxUpdateInput, BoxUncheckedUpdateInput>
+  }
+
+  /**
+   * Box delete
+   */
+  export type BoxDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+    /**
+     * Filter which Box to delete.
+     */
+    where: BoxWhereUniqueInput
+  }
+
+  /**
+   * Box deleteMany
+   */
+  export type BoxDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Boxes to delete
+     */
+    where?: BoxWhereInput
+    /**
+     * Limit how many Boxes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Box findRaw
+   */
+  export type BoxFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Box aggregateRaw
+   */
+  export type BoxAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Box without action
+   */
+  export type BoxDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Box
+     */
+    select?: BoxSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Box
+     */
+    omit?: BoxOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SavedItem
+   */
+
+  export type AggregateSavedItem = {
+    _count: SavedItemCountAggregateOutputType | null
+    _avg: SavedItemAvgAggregateOutputType | null
+    _sum: SavedItemSumAggregateOutputType | null
+    _min: SavedItemMinAggregateOutputType | null
+    _max: SavedItemMaxAggregateOutputType | null
+  }
+
+  export type SavedItemAvgAggregateOutputType = {
+    price: number | null
+  }
+
+  export type SavedItemSumAggregateOutputType = {
+    price: number | null
+  }
+
+  export type SavedItemMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    productId: string | null
+    type: string | null
+    name: string | null
+    price: number | null
+    image: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SavedItemMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    productId: string | null
+    type: string | null
+    name: string | null
+    price: number | null
+    image: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type SavedItemCountAggregateOutputType = {
+    id: number
+    userId: number
+    productId: number
+    type: number
+    name: number
+    price: number
+    image: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type SavedItemAvgAggregateInputType = {
+    price?: true
+  }
+
+  export type SavedItemSumAggregateInputType = {
+    price?: true
+  }
+
+  export type SavedItemMinAggregateInputType = {
+    id?: true
+    userId?: true
+    productId?: true
+    type?: true
+    name?: true
+    price?: true
+    image?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SavedItemMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    productId?: true
+    type?: true
+    name?: true
+    price?: true
+    image?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type SavedItemCountAggregateInputType = {
+    id?: true
+    userId?: true
+    productId?: true
+    type?: true
+    name?: true
+    price?: true
+    image?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type SavedItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SavedItem to aggregate.
+     */
+    where?: SavedItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SavedItems to fetch.
+     */
+    orderBy?: SavedItemOrderByWithRelationInput | SavedItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SavedItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SavedItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SavedItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SavedItems
+    **/
+    _count?: true | SavedItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SavedItemAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SavedItemSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SavedItemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SavedItemMaxAggregateInputType
+  }
+
+  export type GetSavedItemAggregateType<T extends SavedItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateSavedItem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSavedItem[P]>
+      : GetScalarType<T[P], AggregateSavedItem[P]>
+  }
+
+
+
+
+  export type SavedItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SavedItemWhereInput
+    orderBy?: SavedItemOrderByWithAggregationInput | SavedItemOrderByWithAggregationInput[]
+    by: SavedItemScalarFieldEnum[] | SavedItemScalarFieldEnum
+    having?: SavedItemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SavedItemCountAggregateInputType | true
+    _avg?: SavedItemAvgAggregateInputType
+    _sum?: SavedItemSumAggregateInputType
+    _min?: SavedItemMinAggregateInputType
+    _max?: SavedItemMaxAggregateInputType
+  }
+
+  export type SavedItemGroupByOutputType = {
+    id: string
+    userId: string
+    productId: string
+    type: string
+    name: string
+    price: number
+    image: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: SavedItemCountAggregateOutputType | null
+    _avg: SavedItemAvgAggregateOutputType | null
+    _sum: SavedItemSumAggregateOutputType | null
+    _min: SavedItemMinAggregateOutputType | null
+    _max: SavedItemMaxAggregateOutputType | null
+  }
+
+  type GetSavedItemGroupByPayload<T extends SavedItemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SavedItemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SavedItemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SavedItemGroupByOutputType[P]>
+            : GetScalarType<T[P], SavedItemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SavedItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    productId?: boolean
+    type?: boolean
+    name?: boolean
+    price?: boolean
+    image?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["savedItem"]>
+
+
+
+  export type SavedItemSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    productId?: boolean
+    type?: boolean
+    name?: boolean
+    price?: boolean
+    image?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type SavedItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "productId" | "type" | "name" | "price" | "image" | "createdAt" | "updatedAt", ExtArgs["result"]["savedItem"]>
+
+  export type $SavedItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SavedItem"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      productId: string
+      type: string
+      name: string
+      price: number
+      image: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["savedItem"]>
+    composites: {}
+  }
+
+  type SavedItemGetPayload<S extends boolean | null | undefined | SavedItemDefaultArgs> = $Result.GetResult<Prisma.$SavedItemPayload, S>
+
+  type SavedItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SavedItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SavedItemCountAggregateInputType | true
+    }
+
+  export interface SavedItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SavedItem'], meta: { name: 'SavedItem' } }
+    /**
+     * Find zero or one SavedItem that matches the filter.
+     * @param {SavedItemFindUniqueArgs} args - Arguments to find a SavedItem
+     * @example
+     * // Get one SavedItem
+     * const savedItem = await prisma.savedItem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SavedItemFindUniqueArgs>(args: SelectSubset<T, SavedItemFindUniqueArgs<ExtArgs>>): Prisma__SavedItemClient<$Result.GetResult<Prisma.$SavedItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SavedItem that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SavedItemFindUniqueOrThrowArgs} args - Arguments to find a SavedItem
+     * @example
+     * // Get one SavedItem
+     * const savedItem = await prisma.savedItem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SavedItemFindUniqueOrThrowArgs>(args: SelectSubset<T, SavedItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SavedItemClient<$Result.GetResult<Prisma.$SavedItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SavedItem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SavedItemFindFirstArgs} args - Arguments to find a SavedItem
+     * @example
+     * // Get one SavedItem
+     * const savedItem = await prisma.savedItem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SavedItemFindFirstArgs>(args?: SelectSubset<T, SavedItemFindFirstArgs<ExtArgs>>): Prisma__SavedItemClient<$Result.GetResult<Prisma.$SavedItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SavedItem that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SavedItemFindFirstOrThrowArgs} args - Arguments to find a SavedItem
+     * @example
+     * // Get one SavedItem
+     * const savedItem = await prisma.savedItem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SavedItemFindFirstOrThrowArgs>(args?: SelectSubset<T, SavedItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__SavedItemClient<$Result.GetResult<Prisma.$SavedItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SavedItems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SavedItemFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SavedItems
+     * const savedItems = await prisma.savedItem.findMany()
+     * 
+     * // Get first 10 SavedItems
+     * const savedItems = await prisma.savedItem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const savedItemWithIdOnly = await prisma.savedItem.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SavedItemFindManyArgs>(args?: SelectSubset<T, SavedItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavedItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SavedItem.
+     * @param {SavedItemCreateArgs} args - Arguments to create a SavedItem.
+     * @example
+     * // Create one SavedItem
+     * const SavedItem = await prisma.savedItem.create({
+     *   data: {
+     *     // ... data to create a SavedItem
+     *   }
+     * })
+     * 
+     */
+    create<T extends SavedItemCreateArgs>(args: SelectSubset<T, SavedItemCreateArgs<ExtArgs>>): Prisma__SavedItemClient<$Result.GetResult<Prisma.$SavedItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SavedItems.
+     * @param {SavedItemCreateManyArgs} args - Arguments to create many SavedItems.
+     * @example
+     * // Create many SavedItems
+     * const savedItem = await prisma.savedItem.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SavedItemCreateManyArgs>(args?: SelectSubset<T, SavedItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a SavedItem.
+     * @param {SavedItemDeleteArgs} args - Arguments to delete one SavedItem.
+     * @example
+     * // Delete one SavedItem
+     * const SavedItem = await prisma.savedItem.delete({
+     *   where: {
+     *     // ... filter to delete one SavedItem
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SavedItemDeleteArgs>(args: SelectSubset<T, SavedItemDeleteArgs<ExtArgs>>): Prisma__SavedItemClient<$Result.GetResult<Prisma.$SavedItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SavedItem.
+     * @param {SavedItemUpdateArgs} args - Arguments to update one SavedItem.
+     * @example
+     * // Update one SavedItem
+     * const savedItem = await prisma.savedItem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SavedItemUpdateArgs>(args: SelectSubset<T, SavedItemUpdateArgs<ExtArgs>>): Prisma__SavedItemClient<$Result.GetResult<Prisma.$SavedItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SavedItems.
+     * @param {SavedItemDeleteManyArgs} args - Arguments to filter SavedItems to delete.
+     * @example
+     * // Delete a few SavedItems
+     * const { count } = await prisma.savedItem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SavedItemDeleteManyArgs>(args?: SelectSubset<T, SavedItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SavedItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SavedItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SavedItems
+     * const savedItem = await prisma.savedItem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SavedItemUpdateManyArgs>(args: SelectSubset<T, SavedItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SavedItem.
+     * @param {SavedItemUpsertArgs} args - Arguments to update or create a SavedItem.
+     * @example
+     * // Update or create a SavedItem
+     * const savedItem = await prisma.savedItem.upsert({
+     *   create: {
+     *     // ... data to create a SavedItem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SavedItem we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SavedItemUpsertArgs>(args: SelectSubset<T, SavedItemUpsertArgs<ExtArgs>>): Prisma__SavedItemClient<$Result.GetResult<Prisma.$SavedItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SavedItems that matches the filter.
+     * @param {SavedItemFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const savedItem = await prisma.savedItem.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: SavedItemFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a SavedItem.
+     * @param {SavedItemAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const savedItem = await prisma.savedItem.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: SavedItemAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of SavedItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SavedItemCountArgs} args - Arguments to filter SavedItems to count.
+     * @example
+     * // Count the number of SavedItems
+     * const count = await prisma.savedItem.count({
+     *   where: {
+     *     // ... the filter for the SavedItems we want to count
+     *   }
+     * })
+    **/
+    count<T extends SavedItemCountArgs>(
+      args?: Subset<T, SavedItemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SavedItemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SavedItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SavedItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SavedItemAggregateArgs>(args: Subset<T, SavedItemAggregateArgs>): Prisma.PrismaPromise<GetSavedItemAggregateType<T>>
+
+    /**
+     * Group by SavedItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SavedItemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SavedItemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SavedItemGroupByArgs['orderBy'] }
+        : { orderBy?: SavedItemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SavedItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSavedItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SavedItem model
+   */
+  readonly fields: SavedItemFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SavedItem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SavedItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SavedItem model
+   */
+  interface SavedItemFieldRefs {
+    readonly id: FieldRef<"SavedItem", 'String'>
+    readonly userId: FieldRef<"SavedItem", 'String'>
+    readonly productId: FieldRef<"SavedItem", 'String'>
+    readonly type: FieldRef<"SavedItem", 'String'>
+    readonly name: FieldRef<"SavedItem", 'String'>
+    readonly price: FieldRef<"SavedItem", 'Float'>
+    readonly image: FieldRef<"SavedItem", 'String'>
+    readonly createdAt: FieldRef<"SavedItem", 'DateTime'>
+    readonly updatedAt: FieldRef<"SavedItem", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SavedItem findUnique
+   */
+  export type SavedItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+    /**
+     * Filter, which SavedItem to fetch.
+     */
+    where: SavedItemWhereUniqueInput
+  }
+
+  /**
+   * SavedItem findUniqueOrThrow
+   */
+  export type SavedItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+    /**
+     * Filter, which SavedItem to fetch.
+     */
+    where: SavedItemWhereUniqueInput
+  }
+
+  /**
+   * SavedItem findFirst
+   */
+  export type SavedItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+    /**
+     * Filter, which SavedItem to fetch.
+     */
+    where?: SavedItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SavedItems to fetch.
+     */
+    orderBy?: SavedItemOrderByWithRelationInput | SavedItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SavedItems.
+     */
+    cursor?: SavedItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SavedItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SavedItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SavedItems.
+     */
+    distinct?: SavedItemScalarFieldEnum | SavedItemScalarFieldEnum[]
+  }
+
+  /**
+   * SavedItem findFirstOrThrow
+   */
+  export type SavedItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+    /**
+     * Filter, which SavedItem to fetch.
+     */
+    where?: SavedItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SavedItems to fetch.
+     */
+    orderBy?: SavedItemOrderByWithRelationInput | SavedItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SavedItems.
+     */
+    cursor?: SavedItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SavedItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SavedItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SavedItems.
+     */
+    distinct?: SavedItemScalarFieldEnum | SavedItemScalarFieldEnum[]
+  }
+
+  /**
+   * SavedItem findMany
+   */
+  export type SavedItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+    /**
+     * Filter, which SavedItems to fetch.
+     */
+    where?: SavedItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SavedItems to fetch.
+     */
+    orderBy?: SavedItemOrderByWithRelationInput | SavedItemOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SavedItems.
+     */
+    cursor?: SavedItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SavedItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SavedItems.
+     */
+    skip?: number
+    distinct?: SavedItemScalarFieldEnum | SavedItemScalarFieldEnum[]
+  }
+
+  /**
+   * SavedItem create
+   */
+  export type SavedItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SavedItem.
+     */
+    data: XOR<SavedItemCreateInput, SavedItemUncheckedCreateInput>
+  }
+
+  /**
+   * SavedItem createMany
+   */
+  export type SavedItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SavedItems.
+     */
+    data: SavedItemCreateManyInput | SavedItemCreateManyInput[]
+  }
+
+  /**
+   * SavedItem update
+   */
+  export type SavedItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SavedItem.
+     */
+    data: XOR<SavedItemUpdateInput, SavedItemUncheckedUpdateInput>
+    /**
+     * Choose, which SavedItem to update.
+     */
+    where: SavedItemWhereUniqueInput
+  }
+
+  /**
+   * SavedItem updateMany
+   */
+  export type SavedItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SavedItems.
+     */
+    data: XOR<SavedItemUpdateManyMutationInput, SavedItemUncheckedUpdateManyInput>
+    /**
+     * Filter which SavedItems to update
+     */
+    where?: SavedItemWhereInput
+    /**
+     * Limit how many SavedItems to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SavedItem upsert
+   */
+  export type SavedItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SavedItem to update in case it exists.
+     */
+    where: SavedItemWhereUniqueInput
+    /**
+     * In case the SavedItem found by the `where` argument doesn't exist, create a new SavedItem with this data.
+     */
+    create: XOR<SavedItemCreateInput, SavedItemUncheckedCreateInput>
+    /**
+     * In case the SavedItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SavedItemUpdateInput, SavedItemUncheckedUpdateInput>
+  }
+
+  /**
+   * SavedItem delete
+   */
+  export type SavedItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+    /**
+     * Filter which SavedItem to delete.
+     */
+    where: SavedItemWhereUniqueInput
+  }
+
+  /**
+   * SavedItem deleteMany
+   */
+  export type SavedItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SavedItems to delete
+     */
+    where?: SavedItemWhereInput
+    /**
+     * Limit how many SavedItems to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SavedItem findRaw
+   */
+  export type SavedItemFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * SavedItem aggregateRaw
+   */
+  export type SavedItemAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * SavedItem without action
+   */
+  export type SavedItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SavedItem
+     */
+    select?: SavedItemSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SavedItem
+     */
+    omit?: SavedItemOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -42475,8 +50464,7 @@ export namespace Prisma {
     orderCount: 'orderCount',
     lastOrderAt: 'lastOrderAt',
     reviewCount: 'reviewCount',
-    lastReviewAt: 'lastReviewAt',
-    needsPhoneUpdate: 'needsPhoneUpdate'
+    lastReviewAt: 'lastReviewAt'
   };
 
   export type CustomerScalarFieldEnum = (typeof CustomerScalarFieldEnum)[keyof typeof CustomerScalarFieldEnum]
@@ -42855,6 +50843,28 @@ export namespace Prisma {
   export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
+  export const UsedPromoCodeScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    promoCode: 'promoCode',
+    usedAt: 'usedAt'
+  };
+
+  export type UsedPromoCodeScalarFieldEnum = (typeof UsedPromoCodeScalarFieldEnum)[keyof typeof UsedPromoCodeScalarFieldEnum]
+
+
+  export const UserPreferenceScalarFieldEnum: {
+    userId: 'userId',
+    categories: 'categories',
+    tags: 'tags',
+    brands: 'brands',
+    priceRange: 'priceRange',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UserPreferenceScalarFieldEnum = (typeof UserPreferenceScalarFieldEnum)[keyof typeof UserPreferenceScalarFieldEnum]
+
+
   export const SessionScalarFieldEnum: {
     sessionId: 'sessionId',
     userId: 'userId',
@@ -42870,26 +50880,17 @@ export namespace Prisma {
   export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
 
 
-  export const UserPreferenceScalarFieldEnum: {
-    userId: 'userId',
-    categories: 'categories',
-    tags: 'tags',
-    brands: 'brands',
-    priceRange: 'priceRange',
-    updatedAt: 'updatedAt'
-  };
-
-  export type UserPreferenceScalarFieldEnum = (typeof UserPreferenceScalarFieldEnum)[keyof typeof UserPreferenceScalarFieldEnum]
-
-
-  export const UsedPromoCodeScalarFieldEnum: {
+  export const NewsAttachmentScalarFieldEnum: {
     id: 'id',
-    userId: 'userId',
-    promoCode: 'promoCode',
-    usedAt: 'usedAt'
+    email: 'email',
+    whatsappNumber: 'whatsappNumber',
+    name: 'name',
+    type: 'type',
+    subscribedAt: 'subscribedAt',
+    source: 'source'
   };
 
-  export type UsedPromoCodeScalarFieldEnum = (typeof UsedPromoCodeScalarFieldEnum)[keyof typeof UsedPromoCodeScalarFieldEnum]
+  export type NewsAttachmentScalarFieldEnum = (typeof NewsAttachmentScalarFieldEnum)[keyof typeof NewsAttachmentScalarFieldEnum]
 
 
   export const AuditLogScalarFieldEnum: {
@@ -42923,6 +50924,127 @@ export namespace Prisma {
   };
 
   export type SecurityIncidentScalarFieldEnum = (typeof SecurityIncidentScalarFieldEnum)[keyof typeof SecurityIncidentScalarFieldEnum]
+
+
+  export const DecorationScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    price: 'price',
+    image: 'image',
+    stock: 'stock',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DecorationScalarFieldEnum = (typeof DecorationScalarFieldEnum)[keyof typeof DecorationScalarFieldEnum]
+
+
+  export const GiftProductScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    price: 'price',
+    old_price: 'old_price',
+    image: 'image',
+    images: 'images',
+    category: 'category',
+    subCategory: 'subCategory',
+    brand: 'brand',
+    tags: 'tags',
+    stock: 'stock',
+    inStock: 'inStock',
+    rating: 'rating',
+    views: 'views',
+    best_seller: 'best_seller',
+    new_arrival: 'new_arrival',
+    trending: 'trending',
+    sale: 'sale',
+    popular: 'popular',
+    occasion: 'occasion',
+    season: 'season',
+    colors: 'colors',
+    video: 'video',
+    discountPercentage: 'discountPercentage',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GiftProductScalarFieldEnum = (typeof GiftProductScalarFieldEnum)[keyof typeof GiftProductScalarFieldEnum]
+
+
+  export const MainProductScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    price: 'price',
+    old_price: 'old_price',
+    image: 'image',
+    images: 'images',
+    category: 'category',
+    subCategory: 'subCategory',
+    brand: 'brand',
+    tags: 'tags',
+    stock: 'stock',
+    inStock: 'inStock',
+    rating: 'rating',
+    views: 'views',
+    best_seller: 'best_seller',
+    new_arrival: 'new_arrival',
+    trending: 'trending',
+    sale: 'sale',
+    occasion: 'occasion',
+    season: 'season',
+    colors: 'colors',
+    video: 'video',
+    discountPercentage: 'discountPercentage',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type MainProductScalarFieldEnum = (typeof MainProductScalarFieldEnum)[keyof typeof MainProductScalarFieldEnum]
+
+
+  export const CustomGiftScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    basePrice: 'basePrice',
+    image: 'image',
+    category: 'category',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CustomGiftScalarFieldEnum = (typeof CustomGiftScalarFieldEnum)[keyof typeof CustomGiftScalarFieldEnum]
+
+
+  export const BoxScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    price: 'price',
+    image: 'image',
+    stock: 'stock',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BoxScalarFieldEnum = (typeof BoxScalarFieldEnum)[keyof typeof BoxScalarFieldEnum]
+
+
+  export const SavedItemScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    productId: 'productId',
+    type: 'type',
+    name: 'name',
+    price: 'price',
+    image: 'image',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type SavedItemScalarFieldEnum = (typeof SavedItemScalarFieldEnum)[keyof typeof SavedItemScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -43390,7 +51512,6 @@ export namespace Prisma {
     lastOrderAt?: DateTimeNullableFilter<"Customer"> | Date | string | null
     reviewCount?: IntFilter<"Customer"> | number
     lastReviewAt?: DateTimeNullableFilter<"Customer"> | Date | string | null
-    needsPhoneUpdate?: BoolNullableFilter<"Customer"> | boolean | null
     orders?: OrderListRelationFilter
     devices?: DeviceListRelationFilter
     addresses?: AddressListRelationFilter
@@ -43426,7 +51547,6 @@ export namespace Prisma {
     lastOrderAt?: SortOrder
     reviewCount?: SortOrder
     lastReviewAt?: SortOrder
-    needsPhoneUpdate?: SortOrder
     orders?: OrderOrderByRelationAggregateInput
     devices?: DeviceOrderByRelationAggregateInput
     addresses?: AddressOrderByRelationAggregateInput
@@ -43465,7 +51585,6 @@ export namespace Prisma {
     lastOrderAt?: DateTimeNullableFilter<"Customer"> | Date | string | null
     reviewCount?: IntFilter<"Customer"> | number
     lastReviewAt?: DateTimeNullableFilter<"Customer"> | Date | string | null
-    needsPhoneUpdate?: BoolNullableFilter<"Customer"> | boolean | null
     orders?: OrderListRelationFilter
     devices?: DeviceListRelationFilter
     addresses?: AddressListRelationFilter
@@ -43501,7 +51620,6 @@ export namespace Prisma {
     lastOrderAt?: SortOrder
     reviewCount?: SortOrder
     lastReviewAt?: SortOrder
-    needsPhoneUpdate?: SortOrder
     _count?: CustomerCountOrderByAggregateInput
     _avg?: CustomerAvgOrderByAggregateInput
     _max?: CustomerMaxOrderByAggregateInput
@@ -43536,7 +51654,6 @@ export namespace Prisma {
     lastOrderAt?: DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
     reviewCount?: IntWithAggregatesFilter<"Customer"> | number
     lastReviewAt?: DateTimeNullableWithAggregatesFilter<"Customer"> | Date | string | null
-    needsPhoneUpdate?: BoolNullableWithAggregatesFilter<"Customer"> | boolean | null
   }
 
   export type DeviceWhereInput = {
@@ -45496,6 +53613,111 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Notification"> | Date | string
   }
 
+  export type UsedPromoCodeWhereInput = {
+    AND?: UsedPromoCodeWhereInput | UsedPromoCodeWhereInput[]
+    OR?: UsedPromoCodeWhereInput[]
+    NOT?: UsedPromoCodeWhereInput | UsedPromoCodeWhereInput[]
+    id?: StringFilter<"UsedPromoCode"> | string
+    userId?: StringFilter<"UsedPromoCode"> | string
+    promoCode?: StringFilter<"UsedPromoCode"> | string
+    usedAt?: DateTimeFilter<"UsedPromoCode"> | Date | string
+  }
+
+  export type UsedPromoCodeOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    promoCode?: SortOrder
+    usedAt?: SortOrder
+  }
+
+  export type UsedPromoCodeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_promoCode?: UsedPromoCodeUserIdPromoCodeCompoundUniqueInput
+    AND?: UsedPromoCodeWhereInput | UsedPromoCodeWhereInput[]
+    OR?: UsedPromoCodeWhereInput[]
+    NOT?: UsedPromoCodeWhereInput | UsedPromoCodeWhereInput[]
+    userId?: StringFilter<"UsedPromoCode"> | string
+    promoCode?: StringFilter<"UsedPromoCode"> | string
+    usedAt?: DateTimeFilter<"UsedPromoCode"> | Date | string
+  }, "id" | "userId_promoCode">
+
+  export type UsedPromoCodeOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    promoCode?: SortOrder
+    usedAt?: SortOrder
+    _count?: UsedPromoCodeCountOrderByAggregateInput
+    _max?: UsedPromoCodeMaxOrderByAggregateInput
+    _min?: UsedPromoCodeMinOrderByAggregateInput
+  }
+
+  export type UsedPromoCodeScalarWhereWithAggregatesInput = {
+    AND?: UsedPromoCodeScalarWhereWithAggregatesInput | UsedPromoCodeScalarWhereWithAggregatesInput[]
+    OR?: UsedPromoCodeScalarWhereWithAggregatesInput[]
+    NOT?: UsedPromoCodeScalarWhereWithAggregatesInput | UsedPromoCodeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"UsedPromoCode"> | string
+    userId?: StringWithAggregatesFilter<"UsedPromoCode"> | string
+    promoCode?: StringWithAggregatesFilter<"UsedPromoCode"> | string
+    usedAt?: DateTimeWithAggregatesFilter<"UsedPromoCode"> | Date | string
+  }
+
+  export type UserPreferenceWhereInput = {
+    AND?: UserPreferenceWhereInput | UserPreferenceWhereInput[]
+    OR?: UserPreferenceWhereInput[]
+    NOT?: UserPreferenceWhereInput | UserPreferenceWhereInput[]
+    userId?: StringFilter<"UserPreference"> | string
+    categories?: StringNullableListFilter<"UserPreference">
+    tags?: StringNullableListFilter<"UserPreference">
+    brands?: StringNullableListFilter<"UserPreference">
+    priceRange?: JsonNullableFilter<"UserPreference">
+    updatedAt?: DateTimeFilter<"UserPreference"> | Date | string
+  }
+
+  export type UserPreferenceOrderByWithRelationInput = {
+    userId?: SortOrder
+    categories?: SortOrder
+    tags?: SortOrder
+    brands?: SortOrder
+    priceRange?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserPreferenceWhereUniqueInput = Prisma.AtLeast<{
+    userId?: string
+    AND?: UserPreferenceWhereInput | UserPreferenceWhereInput[]
+    OR?: UserPreferenceWhereInput[]
+    NOT?: UserPreferenceWhereInput | UserPreferenceWhereInput[]
+    categories?: StringNullableListFilter<"UserPreference">
+    tags?: StringNullableListFilter<"UserPreference">
+    brands?: StringNullableListFilter<"UserPreference">
+    priceRange?: JsonNullableFilter<"UserPreference">
+    updatedAt?: DateTimeFilter<"UserPreference"> | Date | string
+  }, "userId">
+
+  export type UserPreferenceOrderByWithAggregationInput = {
+    userId?: SortOrder
+    categories?: SortOrder
+    tags?: SortOrder
+    brands?: SortOrder
+    priceRange?: SortOrder
+    updatedAt?: SortOrder
+    _count?: UserPreferenceCountOrderByAggregateInput
+    _max?: UserPreferenceMaxOrderByAggregateInput
+    _min?: UserPreferenceMinOrderByAggregateInput
+  }
+
+  export type UserPreferenceScalarWhereWithAggregatesInput = {
+    AND?: UserPreferenceScalarWhereWithAggregatesInput | UserPreferenceScalarWhereWithAggregatesInput[]
+    OR?: UserPreferenceScalarWhereWithAggregatesInput[]
+    NOT?: UserPreferenceScalarWhereWithAggregatesInput | UserPreferenceScalarWhereWithAggregatesInput[]
+    userId?: StringWithAggregatesFilter<"UserPreference"> | string
+    categories?: StringNullableListFilter<"UserPreference">
+    tags?: StringNullableListFilter<"UserPreference">
+    brands?: StringNullableListFilter<"UserPreference">
+    priceRange?: JsonNullableWithAggregatesFilter<"UserPreference">
+    updatedAt?: DateTimeWithAggregatesFilter<"UserPreference"> | Date | string
+  }
+
   export type SessionWhereInput = {
     AND?: SessionWhereInput | SessionWhereInput[]
     OR?: SessionWhereInput[]
@@ -45568,109 +53790,67 @@ export namespace Prisma {
     userAgent?: StringNullableWithAggregatesFilter<"Session"> | string | null
   }
 
-  export type UserPreferenceWhereInput = {
-    AND?: UserPreferenceWhereInput | UserPreferenceWhereInput[]
-    OR?: UserPreferenceWhereInput[]
-    NOT?: UserPreferenceWhereInput | UserPreferenceWhereInput[]
-    userId?: StringFilter<"UserPreference"> | string
-    categories?: JsonFilter<"UserPreference">
-    tags?: JsonFilter<"UserPreference">
-    brands?: JsonFilter<"UserPreference">
-    priceRange?: JsonFilter<"UserPreference">
-    updatedAt?: DateTimeFilter<"UserPreference"> | Date | string
+  export type NewsAttachmentWhereInput = {
+    AND?: NewsAttachmentWhereInput | NewsAttachmentWhereInput[]
+    OR?: NewsAttachmentWhereInput[]
+    NOT?: NewsAttachmentWhereInput | NewsAttachmentWhereInput[]
+    id?: StringFilter<"NewsAttachment"> | string
+    email?: StringNullableFilter<"NewsAttachment"> | string | null
+    whatsappNumber?: StringNullableFilter<"NewsAttachment"> | string | null
+    name?: StringNullableFilter<"NewsAttachment"> | string | null
+    type?: StringFilter<"NewsAttachment"> | string
+    subscribedAt?: DateTimeFilter<"NewsAttachment"> | Date | string
+    source?: StringFilter<"NewsAttachment"> | string
   }
 
-  export type UserPreferenceOrderByWithRelationInput = {
-    userId?: SortOrder
-    categories?: SortOrder
-    tags?: SortOrder
-    brands?: SortOrder
-    priceRange?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type UserPreferenceWhereUniqueInput = Prisma.AtLeast<{
-    userId?: string
-    AND?: UserPreferenceWhereInput | UserPreferenceWhereInput[]
-    OR?: UserPreferenceWhereInput[]
-    NOT?: UserPreferenceWhereInput | UserPreferenceWhereInput[]
-    categories?: JsonFilter<"UserPreference">
-    tags?: JsonFilter<"UserPreference">
-    brands?: JsonFilter<"UserPreference">
-    priceRange?: JsonFilter<"UserPreference">
-    updatedAt?: DateTimeFilter<"UserPreference"> | Date | string
-  }, "userId">
-
-  export type UserPreferenceOrderByWithAggregationInput = {
-    userId?: SortOrder
-    categories?: SortOrder
-    tags?: SortOrder
-    brands?: SortOrder
-    priceRange?: SortOrder
-    updatedAt?: SortOrder
-    _count?: UserPreferenceCountOrderByAggregateInput
-    _max?: UserPreferenceMaxOrderByAggregateInput
-    _min?: UserPreferenceMinOrderByAggregateInput
-  }
-
-  export type UserPreferenceScalarWhereWithAggregatesInput = {
-    AND?: UserPreferenceScalarWhereWithAggregatesInput | UserPreferenceScalarWhereWithAggregatesInput[]
-    OR?: UserPreferenceScalarWhereWithAggregatesInput[]
-    NOT?: UserPreferenceScalarWhereWithAggregatesInput | UserPreferenceScalarWhereWithAggregatesInput[]
-    userId?: StringWithAggregatesFilter<"UserPreference"> | string
-    categories?: JsonWithAggregatesFilter<"UserPreference">
-    tags?: JsonWithAggregatesFilter<"UserPreference">
-    brands?: JsonWithAggregatesFilter<"UserPreference">
-    priceRange?: JsonWithAggregatesFilter<"UserPreference">
-    updatedAt?: DateTimeWithAggregatesFilter<"UserPreference"> | Date | string
-  }
-
-  export type UsedPromoCodeWhereInput = {
-    AND?: UsedPromoCodeWhereInput | UsedPromoCodeWhereInput[]
-    OR?: UsedPromoCodeWhereInput[]
-    NOT?: UsedPromoCodeWhereInput | UsedPromoCodeWhereInput[]
-    id?: StringFilter<"UsedPromoCode"> | string
-    userId?: StringFilter<"UsedPromoCode"> | string
-    promoCode?: StringFilter<"UsedPromoCode"> | string
-    usedAt?: DateTimeFilter<"UsedPromoCode"> | Date | string
-  }
-
-  export type UsedPromoCodeOrderByWithRelationInput = {
+  export type NewsAttachmentOrderByWithRelationInput = {
     id?: SortOrder
-    userId?: SortOrder
-    promoCode?: SortOrder
-    usedAt?: SortOrder
+    email?: SortOrder
+    whatsappNumber?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subscribedAt?: SortOrder
+    source?: SortOrder
   }
 
-  export type UsedPromoCodeWhereUniqueInput = Prisma.AtLeast<{
+  export type NewsAttachmentWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    userId_promoCode?: UsedPromoCodeUserIdPromoCodeCompoundUniqueInput
-    AND?: UsedPromoCodeWhereInput | UsedPromoCodeWhereInput[]
-    OR?: UsedPromoCodeWhereInput[]
-    NOT?: UsedPromoCodeWhereInput | UsedPromoCodeWhereInput[]
-    userId?: StringFilter<"UsedPromoCode"> | string
-    promoCode?: StringFilter<"UsedPromoCode"> | string
-    usedAt?: DateTimeFilter<"UsedPromoCode"> | Date | string
-  }, "id" | "userId_promoCode">
+    email_type?: NewsAttachmentEmailTypeCompoundUniqueInput
+    AND?: NewsAttachmentWhereInput | NewsAttachmentWhereInput[]
+    OR?: NewsAttachmentWhereInput[]
+    NOT?: NewsAttachmentWhereInput | NewsAttachmentWhereInput[]
+    email?: StringNullableFilter<"NewsAttachment"> | string | null
+    whatsappNumber?: StringNullableFilter<"NewsAttachment"> | string | null
+    name?: StringNullableFilter<"NewsAttachment"> | string | null
+    type?: StringFilter<"NewsAttachment"> | string
+    subscribedAt?: DateTimeFilter<"NewsAttachment"> | Date | string
+    source?: StringFilter<"NewsAttachment"> | string
+  }, "id" | "email_type">
 
-  export type UsedPromoCodeOrderByWithAggregationInput = {
+  export type NewsAttachmentOrderByWithAggregationInput = {
     id?: SortOrder
-    userId?: SortOrder
-    promoCode?: SortOrder
-    usedAt?: SortOrder
-    _count?: UsedPromoCodeCountOrderByAggregateInput
-    _max?: UsedPromoCodeMaxOrderByAggregateInput
-    _min?: UsedPromoCodeMinOrderByAggregateInput
+    email?: SortOrder
+    whatsappNumber?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subscribedAt?: SortOrder
+    source?: SortOrder
+    _count?: NewsAttachmentCountOrderByAggregateInput
+    _max?: NewsAttachmentMaxOrderByAggregateInput
+    _min?: NewsAttachmentMinOrderByAggregateInput
   }
 
-  export type UsedPromoCodeScalarWhereWithAggregatesInput = {
-    AND?: UsedPromoCodeScalarWhereWithAggregatesInput | UsedPromoCodeScalarWhereWithAggregatesInput[]
-    OR?: UsedPromoCodeScalarWhereWithAggregatesInput[]
-    NOT?: UsedPromoCodeScalarWhereWithAggregatesInput | UsedPromoCodeScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"UsedPromoCode"> | string
-    userId?: StringWithAggregatesFilter<"UsedPromoCode"> | string
-    promoCode?: StringWithAggregatesFilter<"UsedPromoCode"> | string
-    usedAt?: DateTimeWithAggregatesFilter<"UsedPromoCode"> | Date | string
+  export type NewsAttachmentScalarWhereWithAggregatesInput = {
+    AND?: NewsAttachmentScalarWhereWithAggregatesInput | NewsAttachmentScalarWhereWithAggregatesInput[]
+    OR?: NewsAttachmentScalarWhereWithAggregatesInput[]
+    NOT?: NewsAttachmentScalarWhereWithAggregatesInput | NewsAttachmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"NewsAttachment"> | string
+    email?: StringNullableWithAggregatesFilter<"NewsAttachment"> | string | null
+    whatsappNumber?: StringNullableWithAggregatesFilter<"NewsAttachment"> | string | null
+    name?: StringNullableWithAggregatesFilter<"NewsAttachment"> | string | null
+    type?: StringWithAggregatesFilter<"NewsAttachment"> | string
+    subscribedAt?: DateTimeWithAggregatesFilter<"NewsAttachment"> | Date | string
+    source?: StringWithAggregatesFilter<"NewsAttachment"> | string
   }
 
   export type AuditLogWhereInput = {
@@ -45830,6 +54010,606 @@ export namespace Prisma {
     reviewed?: BoolWithAggregatesFilter<"SecurityIncident"> | boolean
     severity?: StringWithAggregatesFilter<"SecurityIncident"> | string
     resolution?: StringNullableWithAggregatesFilter<"SecurityIncident"> | string | null
+  }
+
+  export type DecorationWhereInput = {
+    AND?: DecorationWhereInput | DecorationWhereInput[]
+    OR?: DecorationWhereInput[]
+    NOT?: DecorationWhereInput | DecorationWhereInput[]
+    id?: StringFilter<"Decoration"> | string
+    name?: StringFilter<"Decoration"> | string
+    price?: FloatFilter<"Decoration"> | number
+    image?: StringFilter<"Decoration"> | string
+    stock?: IntFilter<"Decoration"> | number
+    createdAt?: DateTimeFilter<"Decoration"> | Date | string
+    updatedAt?: DateTimeFilter<"Decoration"> | Date | string
+  }
+
+  export type DecorationOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DecorationWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DecorationWhereInput | DecorationWhereInput[]
+    OR?: DecorationWhereInput[]
+    NOT?: DecorationWhereInput | DecorationWhereInput[]
+    name?: StringFilter<"Decoration"> | string
+    price?: FloatFilter<"Decoration"> | number
+    image?: StringFilter<"Decoration"> | string
+    stock?: IntFilter<"Decoration"> | number
+    createdAt?: DateTimeFilter<"Decoration"> | Date | string
+    updatedAt?: DateTimeFilter<"Decoration"> | Date | string
+  }, "id">
+
+  export type DecorationOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DecorationCountOrderByAggregateInput
+    _avg?: DecorationAvgOrderByAggregateInput
+    _max?: DecorationMaxOrderByAggregateInput
+    _min?: DecorationMinOrderByAggregateInput
+    _sum?: DecorationSumOrderByAggregateInput
+  }
+
+  export type DecorationScalarWhereWithAggregatesInput = {
+    AND?: DecorationScalarWhereWithAggregatesInput | DecorationScalarWhereWithAggregatesInput[]
+    OR?: DecorationScalarWhereWithAggregatesInput[]
+    NOT?: DecorationScalarWhereWithAggregatesInput | DecorationScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Decoration"> | string
+    name?: StringWithAggregatesFilter<"Decoration"> | string
+    price?: FloatWithAggregatesFilter<"Decoration"> | number
+    image?: StringWithAggregatesFilter<"Decoration"> | string
+    stock?: IntWithAggregatesFilter<"Decoration"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"Decoration"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Decoration"> | Date | string
+  }
+
+  export type GiftProductWhereInput = {
+    AND?: GiftProductWhereInput | GiftProductWhereInput[]
+    OR?: GiftProductWhereInput[]
+    NOT?: GiftProductWhereInput | GiftProductWhereInput[]
+    id?: StringFilter<"GiftProduct"> | string
+    name?: StringFilter<"GiftProduct"> | string
+    description?: StringNullableFilter<"GiftProduct"> | string | null
+    price?: FloatFilter<"GiftProduct"> | number
+    old_price?: FloatNullableFilter<"GiftProduct"> | number | null
+    image?: StringNullableFilter<"GiftProduct"> | string | null
+    images?: StringNullableListFilter<"GiftProduct">
+    category?: StringNullableFilter<"GiftProduct"> | string | null
+    subCategory?: StringNullableFilter<"GiftProduct"> | string | null
+    brand?: StringNullableFilter<"GiftProduct"> | string | null
+    tags?: StringNullableListFilter<"GiftProduct">
+    stock?: IntFilter<"GiftProduct"> | number
+    inStock?: BoolFilter<"GiftProduct"> | boolean
+    rating?: FloatNullableFilter<"GiftProduct"> | number | null
+    views?: IntFilter<"GiftProduct"> | number
+    best_seller?: BoolFilter<"GiftProduct"> | boolean
+    new_arrival?: BoolFilter<"GiftProduct"> | boolean
+    trending?: BoolFilter<"GiftProduct"> | boolean
+    sale?: BoolFilter<"GiftProduct"> | boolean
+    popular?: BoolFilter<"GiftProduct"> | boolean
+    occasion?: StringNullableListFilter<"GiftProduct">
+    season?: StringNullableListFilter<"GiftProduct">
+    colors?: StringNullableListFilter<"GiftProduct">
+    video?: StringNullableFilter<"GiftProduct"> | string | null
+    discountPercentage?: FloatNullableFilter<"GiftProduct"> | number | null
+    createdAt?: DateTimeFilter<"GiftProduct"> | Date | string
+    updatedAt?: DateTimeFilter<"GiftProduct"> | Date | string
+  }
+
+  export type GiftProductOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    images?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    tags?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    popular?: SortOrder
+    occasion?: SortOrder
+    season?: SortOrder
+    colors?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GiftProductWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: GiftProductWhereInput | GiftProductWhereInput[]
+    OR?: GiftProductWhereInput[]
+    NOT?: GiftProductWhereInput | GiftProductWhereInput[]
+    name?: StringFilter<"GiftProduct"> | string
+    description?: StringNullableFilter<"GiftProduct"> | string | null
+    price?: FloatFilter<"GiftProduct"> | number
+    old_price?: FloatNullableFilter<"GiftProduct"> | number | null
+    image?: StringNullableFilter<"GiftProduct"> | string | null
+    images?: StringNullableListFilter<"GiftProduct">
+    category?: StringNullableFilter<"GiftProduct"> | string | null
+    subCategory?: StringNullableFilter<"GiftProduct"> | string | null
+    brand?: StringNullableFilter<"GiftProduct"> | string | null
+    tags?: StringNullableListFilter<"GiftProduct">
+    stock?: IntFilter<"GiftProduct"> | number
+    inStock?: BoolFilter<"GiftProduct"> | boolean
+    rating?: FloatNullableFilter<"GiftProduct"> | number | null
+    views?: IntFilter<"GiftProduct"> | number
+    best_seller?: BoolFilter<"GiftProduct"> | boolean
+    new_arrival?: BoolFilter<"GiftProduct"> | boolean
+    trending?: BoolFilter<"GiftProduct"> | boolean
+    sale?: BoolFilter<"GiftProduct"> | boolean
+    popular?: BoolFilter<"GiftProduct"> | boolean
+    occasion?: StringNullableListFilter<"GiftProduct">
+    season?: StringNullableListFilter<"GiftProduct">
+    colors?: StringNullableListFilter<"GiftProduct">
+    video?: StringNullableFilter<"GiftProduct"> | string | null
+    discountPercentage?: FloatNullableFilter<"GiftProduct"> | number | null
+    createdAt?: DateTimeFilter<"GiftProduct"> | Date | string
+    updatedAt?: DateTimeFilter<"GiftProduct"> | Date | string
+  }, "id">
+
+  export type GiftProductOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    images?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    tags?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    popular?: SortOrder
+    occasion?: SortOrder
+    season?: SortOrder
+    colors?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GiftProductCountOrderByAggregateInput
+    _avg?: GiftProductAvgOrderByAggregateInput
+    _max?: GiftProductMaxOrderByAggregateInput
+    _min?: GiftProductMinOrderByAggregateInput
+    _sum?: GiftProductSumOrderByAggregateInput
+  }
+
+  export type GiftProductScalarWhereWithAggregatesInput = {
+    AND?: GiftProductScalarWhereWithAggregatesInput | GiftProductScalarWhereWithAggregatesInput[]
+    OR?: GiftProductScalarWhereWithAggregatesInput[]
+    NOT?: GiftProductScalarWhereWithAggregatesInput | GiftProductScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GiftProduct"> | string
+    name?: StringWithAggregatesFilter<"GiftProduct"> | string
+    description?: StringNullableWithAggregatesFilter<"GiftProduct"> | string | null
+    price?: FloatWithAggregatesFilter<"GiftProduct"> | number
+    old_price?: FloatNullableWithAggregatesFilter<"GiftProduct"> | number | null
+    image?: StringNullableWithAggregatesFilter<"GiftProduct"> | string | null
+    images?: StringNullableListFilter<"GiftProduct">
+    category?: StringNullableWithAggregatesFilter<"GiftProduct"> | string | null
+    subCategory?: StringNullableWithAggregatesFilter<"GiftProduct"> | string | null
+    brand?: StringNullableWithAggregatesFilter<"GiftProduct"> | string | null
+    tags?: StringNullableListFilter<"GiftProduct">
+    stock?: IntWithAggregatesFilter<"GiftProduct"> | number
+    inStock?: BoolWithAggregatesFilter<"GiftProduct"> | boolean
+    rating?: FloatNullableWithAggregatesFilter<"GiftProduct"> | number | null
+    views?: IntWithAggregatesFilter<"GiftProduct"> | number
+    best_seller?: BoolWithAggregatesFilter<"GiftProduct"> | boolean
+    new_arrival?: BoolWithAggregatesFilter<"GiftProduct"> | boolean
+    trending?: BoolWithAggregatesFilter<"GiftProduct"> | boolean
+    sale?: BoolWithAggregatesFilter<"GiftProduct"> | boolean
+    popular?: BoolWithAggregatesFilter<"GiftProduct"> | boolean
+    occasion?: StringNullableListFilter<"GiftProduct">
+    season?: StringNullableListFilter<"GiftProduct">
+    colors?: StringNullableListFilter<"GiftProduct">
+    video?: StringNullableWithAggregatesFilter<"GiftProduct"> | string | null
+    discountPercentage?: FloatNullableWithAggregatesFilter<"GiftProduct"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"GiftProduct"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GiftProduct"> | Date | string
+  }
+
+  export type MainProductWhereInput = {
+    AND?: MainProductWhereInput | MainProductWhereInput[]
+    OR?: MainProductWhereInput[]
+    NOT?: MainProductWhereInput | MainProductWhereInput[]
+    id?: StringFilter<"MainProduct"> | string
+    name?: StringFilter<"MainProduct"> | string
+    description?: StringNullableFilter<"MainProduct"> | string | null
+    price?: FloatFilter<"MainProduct"> | number
+    old_price?: FloatNullableFilter<"MainProduct"> | number | null
+    image?: StringNullableFilter<"MainProduct"> | string | null
+    images?: StringNullableListFilter<"MainProduct">
+    category?: StringNullableFilter<"MainProduct"> | string | null
+    subCategory?: StringNullableFilter<"MainProduct"> | string | null
+    brand?: StringNullableFilter<"MainProduct"> | string | null
+    tags?: StringNullableListFilter<"MainProduct">
+    stock?: IntFilter<"MainProduct"> | number
+    inStock?: BoolFilter<"MainProduct"> | boolean
+    rating?: FloatNullableFilter<"MainProduct"> | number | null
+    views?: IntFilter<"MainProduct"> | number
+    best_seller?: BoolFilter<"MainProduct"> | boolean
+    new_arrival?: BoolFilter<"MainProduct"> | boolean
+    trending?: BoolFilter<"MainProduct"> | boolean
+    sale?: BoolFilter<"MainProduct"> | boolean
+    occasion?: StringNullableListFilter<"MainProduct">
+    season?: StringNullableListFilter<"MainProduct">
+    colors?: StringNullableListFilter<"MainProduct">
+    video?: StringNullableFilter<"MainProduct"> | string | null
+    discountPercentage?: FloatNullableFilter<"MainProduct"> | number | null
+    createdAt?: DateTimeFilter<"MainProduct"> | Date | string
+    updatedAt?: DateTimeFilter<"MainProduct"> | Date | string
+  }
+
+  export type MainProductOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    images?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    tags?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    occasion?: SortOrder
+    season?: SortOrder
+    colors?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MainProductWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: MainProductWhereInput | MainProductWhereInput[]
+    OR?: MainProductWhereInput[]
+    NOT?: MainProductWhereInput | MainProductWhereInput[]
+    name?: StringFilter<"MainProduct"> | string
+    description?: StringNullableFilter<"MainProduct"> | string | null
+    price?: FloatFilter<"MainProduct"> | number
+    old_price?: FloatNullableFilter<"MainProduct"> | number | null
+    image?: StringNullableFilter<"MainProduct"> | string | null
+    images?: StringNullableListFilter<"MainProduct">
+    category?: StringNullableFilter<"MainProduct"> | string | null
+    subCategory?: StringNullableFilter<"MainProduct"> | string | null
+    brand?: StringNullableFilter<"MainProduct"> | string | null
+    tags?: StringNullableListFilter<"MainProduct">
+    stock?: IntFilter<"MainProduct"> | number
+    inStock?: BoolFilter<"MainProduct"> | boolean
+    rating?: FloatNullableFilter<"MainProduct"> | number | null
+    views?: IntFilter<"MainProduct"> | number
+    best_seller?: BoolFilter<"MainProduct"> | boolean
+    new_arrival?: BoolFilter<"MainProduct"> | boolean
+    trending?: BoolFilter<"MainProduct"> | boolean
+    sale?: BoolFilter<"MainProduct"> | boolean
+    occasion?: StringNullableListFilter<"MainProduct">
+    season?: StringNullableListFilter<"MainProduct">
+    colors?: StringNullableListFilter<"MainProduct">
+    video?: StringNullableFilter<"MainProduct"> | string | null
+    discountPercentage?: FloatNullableFilter<"MainProduct"> | number | null
+    createdAt?: DateTimeFilter<"MainProduct"> | Date | string
+    updatedAt?: DateTimeFilter<"MainProduct"> | Date | string
+  }, "id">
+
+  export type MainProductOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    images?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    tags?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    occasion?: SortOrder
+    season?: SortOrder
+    colors?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: MainProductCountOrderByAggregateInput
+    _avg?: MainProductAvgOrderByAggregateInput
+    _max?: MainProductMaxOrderByAggregateInput
+    _min?: MainProductMinOrderByAggregateInput
+    _sum?: MainProductSumOrderByAggregateInput
+  }
+
+  export type MainProductScalarWhereWithAggregatesInput = {
+    AND?: MainProductScalarWhereWithAggregatesInput | MainProductScalarWhereWithAggregatesInput[]
+    OR?: MainProductScalarWhereWithAggregatesInput[]
+    NOT?: MainProductScalarWhereWithAggregatesInput | MainProductScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MainProduct"> | string
+    name?: StringWithAggregatesFilter<"MainProduct"> | string
+    description?: StringNullableWithAggregatesFilter<"MainProduct"> | string | null
+    price?: FloatWithAggregatesFilter<"MainProduct"> | number
+    old_price?: FloatNullableWithAggregatesFilter<"MainProduct"> | number | null
+    image?: StringNullableWithAggregatesFilter<"MainProduct"> | string | null
+    images?: StringNullableListFilter<"MainProduct">
+    category?: StringNullableWithAggregatesFilter<"MainProduct"> | string | null
+    subCategory?: StringNullableWithAggregatesFilter<"MainProduct"> | string | null
+    brand?: StringNullableWithAggregatesFilter<"MainProduct"> | string | null
+    tags?: StringNullableListFilter<"MainProduct">
+    stock?: IntWithAggregatesFilter<"MainProduct"> | number
+    inStock?: BoolWithAggregatesFilter<"MainProduct"> | boolean
+    rating?: FloatNullableWithAggregatesFilter<"MainProduct"> | number | null
+    views?: IntWithAggregatesFilter<"MainProduct"> | number
+    best_seller?: BoolWithAggregatesFilter<"MainProduct"> | boolean
+    new_arrival?: BoolWithAggregatesFilter<"MainProduct"> | boolean
+    trending?: BoolWithAggregatesFilter<"MainProduct"> | boolean
+    sale?: BoolWithAggregatesFilter<"MainProduct"> | boolean
+    occasion?: StringNullableListFilter<"MainProduct">
+    season?: StringNullableListFilter<"MainProduct">
+    colors?: StringNullableListFilter<"MainProduct">
+    video?: StringNullableWithAggregatesFilter<"MainProduct"> | string | null
+    discountPercentage?: FloatNullableWithAggregatesFilter<"MainProduct"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"MainProduct"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"MainProduct"> | Date | string
+  }
+
+  export type CustomGiftWhereInput = {
+    AND?: CustomGiftWhereInput | CustomGiftWhereInput[]
+    OR?: CustomGiftWhereInput[]
+    NOT?: CustomGiftWhereInput | CustomGiftWhereInput[]
+    id?: StringFilter<"CustomGift"> | string
+    name?: StringFilter<"CustomGift"> | string
+    description?: StringNullableFilter<"CustomGift"> | string | null
+    basePrice?: FloatFilter<"CustomGift"> | number
+    image?: StringNullableFilter<"CustomGift"> | string | null
+    category?: StringNullableFilter<"CustomGift"> | string | null
+    createdAt?: DateTimeFilter<"CustomGift"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomGift"> | Date | string
+  }
+
+  export type CustomGiftOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    basePrice?: SortOrder
+    image?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomGiftWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CustomGiftWhereInput | CustomGiftWhereInput[]
+    OR?: CustomGiftWhereInput[]
+    NOT?: CustomGiftWhereInput | CustomGiftWhereInput[]
+    name?: StringFilter<"CustomGift"> | string
+    description?: StringNullableFilter<"CustomGift"> | string | null
+    basePrice?: FloatFilter<"CustomGift"> | number
+    image?: StringNullableFilter<"CustomGift"> | string | null
+    category?: StringNullableFilter<"CustomGift"> | string | null
+    createdAt?: DateTimeFilter<"CustomGift"> | Date | string
+    updatedAt?: DateTimeFilter<"CustomGift"> | Date | string
+  }, "id">
+
+  export type CustomGiftOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    basePrice?: SortOrder
+    image?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CustomGiftCountOrderByAggregateInput
+    _avg?: CustomGiftAvgOrderByAggregateInput
+    _max?: CustomGiftMaxOrderByAggregateInput
+    _min?: CustomGiftMinOrderByAggregateInput
+    _sum?: CustomGiftSumOrderByAggregateInput
+  }
+
+  export type CustomGiftScalarWhereWithAggregatesInput = {
+    AND?: CustomGiftScalarWhereWithAggregatesInput | CustomGiftScalarWhereWithAggregatesInput[]
+    OR?: CustomGiftScalarWhereWithAggregatesInput[]
+    NOT?: CustomGiftScalarWhereWithAggregatesInput | CustomGiftScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CustomGift"> | string
+    name?: StringWithAggregatesFilter<"CustomGift"> | string
+    description?: StringNullableWithAggregatesFilter<"CustomGift"> | string | null
+    basePrice?: FloatWithAggregatesFilter<"CustomGift"> | number
+    image?: StringNullableWithAggregatesFilter<"CustomGift"> | string | null
+    category?: StringNullableWithAggregatesFilter<"CustomGift"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"CustomGift"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CustomGift"> | Date | string
+  }
+
+  export type BoxWhereInput = {
+    AND?: BoxWhereInput | BoxWhereInput[]
+    OR?: BoxWhereInput[]
+    NOT?: BoxWhereInput | BoxWhereInput[]
+    id?: StringFilter<"Box"> | string
+    name?: StringFilter<"Box"> | string
+    description?: StringNullableFilter<"Box"> | string | null
+    price?: FloatFilter<"Box"> | number
+    image?: StringNullableFilter<"Box"> | string | null
+    stock?: IntFilter<"Box"> | number
+    createdAt?: DateTimeFilter<"Box"> | Date | string
+    updatedAt?: DateTimeFilter<"Box"> | Date | string
+  }
+
+  export type BoxOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BoxWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BoxWhereInput | BoxWhereInput[]
+    OR?: BoxWhereInput[]
+    NOT?: BoxWhereInput | BoxWhereInput[]
+    name?: StringFilter<"Box"> | string
+    description?: StringNullableFilter<"Box"> | string | null
+    price?: FloatFilter<"Box"> | number
+    image?: StringNullableFilter<"Box"> | string | null
+    stock?: IntFilter<"Box"> | number
+    createdAt?: DateTimeFilter<"Box"> | Date | string
+    updatedAt?: DateTimeFilter<"Box"> | Date | string
+  }, "id">
+
+  export type BoxOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BoxCountOrderByAggregateInput
+    _avg?: BoxAvgOrderByAggregateInput
+    _max?: BoxMaxOrderByAggregateInput
+    _min?: BoxMinOrderByAggregateInput
+    _sum?: BoxSumOrderByAggregateInput
+  }
+
+  export type BoxScalarWhereWithAggregatesInput = {
+    AND?: BoxScalarWhereWithAggregatesInput | BoxScalarWhereWithAggregatesInput[]
+    OR?: BoxScalarWhereWithAggregatesInput[]
+    NOT?: BoxScalarWhereWithAggregatesInput | BoxScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Box"> | string
+    name?: StringWithAggregatesFilter<"Box"> | string
+    description?: StringNullableWithAggregatesFilter<"Box"> | string | null
+    price?: FloatWithAggregatesFilter<"Box"> | number
+    image?: StringNullableWithAggregatesFilter<"Box"> | string | null
+    stock?: IntWithAggregatesFilter<"Box"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"Box"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Box"> | Date | string
+  }
+
+  export type SavedItemWhereInput = {
+    AND?: SavedItemWhereInput | SavedItemWhereInput[]
+    OR?: SavedItemWhereInput[]
+    NOT?: SavedItemWhereInput | SavedItemWhereInput[]
+    id?: StringFilter<"SavedItem"> | string
+    userId?: StringFilter<"SavedItem"> | string
+    productId?: StringFilter<"SavedItem"> | string
+    type?: StringFilter<"SavedItem"> | string
+    name?: StringFilter<"SavedItem"> | string
+    price?: FloatFilter<"SavedItem"> | number
+    image?: StringNullableFilter<"SavedItem"> | string | null
+    createdAt?: DateTimeFilter<"SavedItem"> | Date | string
+    updatedAt?: DateTimeFilter<"SavedItem"> | Date | string
+  }
+
+  export type SavedItemOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    productId?: SortOrder
+    type?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SavedItemWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_productId_type?: SavedItemUserIdProductIdTypeCompoundUniqueInput
+    AND?: SavedItemWhereInput | SavedItemWhereInput[]
+    OR?: SavedItemWhereInput[]
+    NOT?: SavedItemWhereInput | SavedItemWhereInput[]
+    userId?: StringFilter<"SavedItem"> | string
+    productId?: StringFilter<"SavedItem"> | string
+    type?: StringFilter<"SavedItem"> | string
+    name?: StringFilter<"SavedItem"> | string
+    price?: FloatFilter<"SavedItem"> | number
+    image?: StringNullableFilter<"SavedItem"> | string | null
+    createdAt?: DateTimeFilter<"SavedItem"> | Date | string
+    updatedAt?: DateTimeFilter<"SavedItem"> | Date | string
+  }, "id" | "userId_productId_type">
+
+  export type SavedItemOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    productId?: SortOrder
+    type?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: SavedItemCountOrderByAggregateInput
+    _avg?: SavedItemAvgOrderByAggregateInput
+    _max?: SavedItemMaxOrderByAggregateInput
+    _min?: SavedItemMinOrderByAggregateInput
+    _sum?: SavedItemSumOrderByAggregateInput
+  }
+
+  export type SavedItemScalarWhereWithAggregatesInput = {
+    AND?: SavedItemScalarWhereWithAggregatesInput | SavedItemScalarWhereWithAggregatesInput[]
+    OR?: SavedItemScalarWhereWithAggregatesInput[]
+    NOT?: SavedItemScalarWhereWithAggregatesInput | SavedItemScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SavedItem"> | string
+    userId?: StringWithAggregatesFilter<"SavedItem"> | string
+    productId?: StringWithAggregatesFilter<"SavedItem"> | string
+    type?: StringWithAggregatesFilter<"SavedItem"> | string
+    name?: StringWithAggregatesFilter<"SavedItem"> | string
+    price?: FloatWithAggregatesFilter<"SavedItem"> | number
+    image?: StringNullableWithAggregatesFilter<"SavedItem"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"SavedItem"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"SavedItem"> | Date | string
   }
 
   export type ProductCreateInput = {
@@ -46167,7 +54947,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderCreateNestedManyWithoutCustomerInput
     devices?: DeviceCreateNestedManyWithoutCustomerInput
     addresses?: AddressCreateNestedManyWithoutCustomerInput
@@ -46203,7 +54982,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCustomerInput
     addresses?: AddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -46238,7 +55016,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUpdateManyWithoutCustomerNestedInput
@@ -46273,7 +55050,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -46309,7 +55085,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
   }
 
   export type CustomerUpdateManyMutationInput = {
@@ -46335,7 +55110,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type CustomerUncheckedUpdateManyInput = {
@@ -46361,7 +55135,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
   }
 
   export type DeviceCreateInput = {
@@ -48318,14 +57091,118 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type UsedPromoCodeCreateInput = {
+    id?: string
+    userId: string
+    promoCode: string
+    usedAt?: Date | string
+  }
+
+  export type UsedPromoCodeUncheckedCreateInput = {
+    id?: string
+    userId: string
+    promoCode: string
+    usedAt?: Date | string
+  }
+
+  export type UsedPromoCodeUpdateInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    promoCode?: StringFieldUpdateOperationsInput | string
+    usedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsedPromoCodeUncheckedUpdateInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    promoCode?: StringFieldUpdateOperationsInput | string
+    usedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsedPromoCodeCreateManyInput = {
+    id?: string
+    userId: string
+    promoCode: string
+    usedAt?: Date | string
+  }
+
+  export type UsedPromoCodeUpdateManyMutationInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    promoCode?: StringFieldUpdateOperationsInput | string
+    usedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UsedPromoCodeUncheckedUpdateManyInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    promoCode?: StringFieldUpdateOperationsInput | string
+    usedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPreferenceCreateInput = {
+    userId: string
+    categories?: UserPreferenceCreatecategoriesInput | string[]
+    tags?: UserPreferenceCreatetagsInput | string[]
+    brands?: UserPreferenceCreatebrandsInput | string[]
+    priceRange?: InputJsonValue | null
+    updatedAt?: Date | string
+  }
+
+  export type UserPreferenceUncheckedCreateInput = {
+    userId: string
+    categories?: UserPreferenceCreatecategoriesInput | string[]
+    tags?: UserPreferenceCreatetagsInput | string[]
+    brands?: UserPreferenceCreatebrandsInput | string[]
+    priceRange?: InputJsonValue | null
+    updatedAt?: Date | string
+  }
+
+  export type UserPreferenceUpdateInput = {
+    categories?: UserPreferenceUpdatecategoriesInput | string[]
+    tags?: UserPreferenceUpdatetagsInput | string[]
+    brands?: UserPreferenceUpdatebrandsInput | string[]
+    priceRange?: InputJsonValue | InputJsonValue | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPreferenceUncheckedUpdateInput = {
+    categories?: UserPreferenceUpdatecategoriesInput | string[]
+    tags?: UserPreferenceUpdatetagsInput | string[]
+    brands?: UserPreferenceUpdatebrandsInput | string[]
+    priceRange?: InputJsonValue | InputJsonValue | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPreferenceCreateManyInput = {
+    userId: string
+    categories?: UserPreferenceCreatecategoriesInput | string[]
+    tags?: UserPreferenceCreatetagsInput | string[]
+    brands?: UserPreferenceCreatebrandsInput | string[]
+    priceRange?: InputJsonValue | null
+    updatedAt?: Date | string
+  }
+
+  export type UserPreferenceUpdateManyMutationInput = {
+    categories?: UserPreferenceUpdatecategoriesInput | string[]
+    tags?: UserPreferenceUpdatetagsInput | string[]
+    brands?: UserPreferenceUpdatebrandsInput | string[]
+    priceRange?: InputJsonValue | InputJsonValue | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserPreferenceUncheckedUpdateManyInput = {
+    categories?: UserPreferenceUpdatecategoriesInput | string[]
+    tags?: UserPreferenceUpdatetagsInput | string[]
+    brands?: UserPreferenceUpdatebrandsInput | string[]
+    priceRange?: InputJsonValue | InputJsonValue | null
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SessionCreateInput = {
     sessionId: string
     userId: string
     accessToken?: string | null
     refreshToken?: string | null
     expiresAt?: Date | string | null
-    createdAt: Date | string
-    lastActiveAt: Date | string
+    createdAt?: Date | string
+    lastActiveAt?: Date | string
     ipAddress?: string | null
     userAgent?: string | null
   }
@@ -48336,8 +57213,8 @@ export namespace Prisma {
     accessToken?: string | null
     refreshToken?: string | null
     expiresAt?: Date | string | null
-    createdAt: Date | string
-    lastActiveAt: Date | string
+    createdAt?: Date | string
+    lastActiveAt?: Date | string
     ipAddress?: string | null
     userAgent?: string | null
   }
@@ -48370,8 +57247,8 @@ export namespace Prisma {
     accessToken?: string | null
     refreshToken?: string | null
     expiresAt?: Date | string | null
-    createdAt: Date | string
-    lastActiveAt: Date | string
+    createdAt?: Date | string
+    lastActiveAt?: Date | string
     ipAddress?: string | null
     userAgent?: string | null
   }
@@ -48398,108 +57275,70 @@ export namespace Prisma {
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
-  export type UserPreferenceCreateInput = {
-    userId: string
-    categories: InputJsonValue
-    tags: InputJsonValue
-    brands: InputJsonValue
-    priceRange: InputJsonValue
-    updatedAt: Date | string
-  }
-
-  export type UserPreferenceUncheckedCreateInput = {
-    userId: string
-    categories: InputJsonValue
-    tags: InputJsonValue
-    brands: InputJsonValue
-    priceRange: InputJsonValue
-    updatedAt: Date | string
-  }
-
-  export type UserPreferenceUpdateInput = {
-    categories?: InputJsonValue | InputJsonValue
-    tags?: InputJsonValue | InputJsonValue
-    brands?: InputJsonValue | InputJsonValue
-    priceRange?: InputJsonValue | InputJsonValue
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type UserPreferenceUncheckedUpdateInput = {
-    categories?: InputJsonValue | InputJsonValue
-    tags?: InputJsonValue | InputJsonValue
-    brands?: InputJsonValue | InputJsonValue
-    priceRange?: InputJsonValue | InputJsonValue
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type UserPreferenceCreateManyInput = {
-    userId: string
-    categories: InputJsonValue
-    tags: InputJsonValue
-    brands: InputJsonValue
-    priceRange: InputJsonValue
-    updatedAt: Date | string
-  }
-
-  export type UserPreferenceUpdateManyMutationInput = {
-    categories?: InputJsonValue | InputJsonValue
-    tags?: InputJsonValue | InputJsonValue
-    brands?: InputJsonValue | InputJsonValue
-    priceRange?: InputJsonValue | InputJsonValue
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type UserPreferenceUncheckedUpdateManyInput = {
-    categories?: InputJsonValue | InputJsonValue
-    tags?: InputJsonValue | InputJsonValue
-    brands?: InputJsonValue | InputJsonValue
-    priceRange?: InputJsonValue | InputJsonValue
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type UsedPromoCodeCreateInput = {
+  export type NewsAttachmentCreateInput = {
     id?: string
-    userId: string
-    promoCode: string
-    usedAt: Date | string
+    email?: string | null
+    whatsappNumber?: string | null
+    name?: string | null
+    type: string
+    subscribedAt?: Date | string
+    source: string
   }
 
-  export type UsedPromoCodeUncheckedCreateInput = {
+  export type NewsAttachmentUncheckedCreateInput = {
     id?: string
-    userId: string
-    promoCode: string
-    usedAt: Date | string
+    email?: string | null
+    whatsappNumber?: string | null
+    name?: string | null
+    type: string
+    subscribedAt?: Date | string
+    source: string
   }
 
-  export type UsedPromoCodeUpdateInput = {
-    userId?: StringFieldUpdateOperationsInput | string
-    promoCode?: StringFieldUpdateOperationsInput | string
-    usedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NewsAttachmentUpdateInput = {
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    subscribedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
   }
 
-  export type UsedPromoCodeUncheckedUpdateInput = {
-    userId?: StringFieldUpdateOperationsInput | string
-    promoCode?: StringFieldUpdateOperationsInput | string
-    usedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NewsAttachmentUncheckedUpdateInput = {
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    subscribedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
   }
 
-  export type UsedPromoCodeCreateManyInput = {
+  export type NewsAttachmentCreateManyInput = {
     id?: string
-    userId: string
-    promoCode: string
-    usedAt: Date | string
+    email?: string | null
+    whatsappNumber?: string | null
+    name?: string | null
+    type: string
+    subscribedAt?: Date | string
+    source: string
   }
 
-  export type UsedPromoCodeUpdateManyMutationInput = {
-    userId?: StringFieldUpdateOperationsInput | string
-    promoCode?: StringFieldUpdateOperationsInput | string
-    usedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NewsAttachmentUpdateManyMutationInput = {
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    subscribedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
   }
 
-  export type UsedPromoCodeUncheckedUpdateManyInput = {
-    userId?: StringFieldUpdateOperationsInput | string
-    promoCode?: StringFieldUpdateOperationsInput | string
-    usedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NewsAttachmentUncheckedUpdateManyInput = {
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    whatsappNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    type?: StringFieldUpdateOperationsInput | string
+    subscribedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
   }
 
   export type AuditLogCreateInput = {
@@ -48511,7 +57350,7 @@ export namespace Prisma {
     details: InputJsonValue
     ip?: string | null
     userAgent?: string | null
-    timestamp: Date | string
+    timestamp?: Date | string
   }
 
   export type AuditLogUncheckedCreateInput = {
@@ -48523,7 +57362,7 @@ export namespace Prisma {
     details: InputJsonValue
     ip?: string | null
     userAgent?: string | null
-    timestamp: Date | string
+    timestamp?: Date | string
   }
 
   export type AuditLogUpdateInput = {
@@ -48557,7 +57396,7 @@ export namespace Prisma {
     details: InputJsonValue
     ip?: string | null
     userAgent?: string | null
-    timestamp: Date | string
+    timestamp?: Date | string
   }
 
   export type AuditLogUpdateManyMutationInput = {
@@ -48591,8 +57430,8 @@ export namespace Prisma {
     details: InputJsonValue
     ip?: string | null
     userAgent?: string | null
-    timestamp: Date | string
-    reviewed: boolean
+    timestamp?: Date | string
+    reviewed?: boolean
     severity: string
     resolution?: string | null
   }
@@ -48606,8 +57445,8 @@ export namespace Prisma {
     details: InputJsonValue
     ip?: string | null
     userAgent?: string | null
-    timestamp: Date | string
-    reviewed: boolean
+    timestamp?: Date | string
+    reviewed?: boolean
     severity: string
     resolution?: string | null
   }
@@ -48649,8 +57488,8 @@ export namespace Prisma {
     details: InputJsonValue
     ip?: string | null
     userAgent?: string | null
-    timestamp: Date | string
-    reviewed: boolean
+    timestamp?: Date | string
+    reviewed?: boolean
     severity: string
     resolution?: string | null
   }
@@ -48681,6 +57520,703 @@ export namespace Prisma {
     reviewed?: BoolFieldUpdateOperationsInput | boolean
     severity?: StringFieldUpdateOperationsInput | string
     resolution?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DecorationCreateInput = {
+    id?: string
+    name: string
+    price: number
+    image: string
+    stock?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DecorationUncheckedCreateInput = {
+    id?: string
+    name: string
+    price: number
+    image: string
+    stock?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DecorationUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: StringFieldUpdateOperationsInput | string
+    stock?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DecorationUncheckedUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: StringFieldUpdateOperationsInput | string
+    stock?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DecorationCreateManyInput = {
+    id?: string
+    name: string
+    price: number
+    image: string
+    stock?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DecorationUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: StringFieldUpdateOperationsInput | string
+    stock?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DecorationUncheckedUpdateManyInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: StringFieldUpdateOperationsInput | string
+    stock?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GiftProductCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    price: number
+    old_price?: number | null
+    image?: string | null
+    images?: GiftProductCreateimagesInput | string[]
+    category?: string | null
+    subCategory?: string | null
+    brand?: string | null
+    tags?: GiftProductCreatetagsInput | string[]
+    stock?: number
+    inStock?: boolean
+    rating?: number | null
+    views?: number
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    popular?: boolean
+    occasion?: GiftProductCreateoccasionInput | string[]
+    season?: GiftProductCreateseasonInput | string[]
+    colors?: GiftProductCreatecolorsInput | string[]
+    video?: string | null
+    discountPercentage?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GiftProductUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    price: number
+    old_price?: number | null
+    image?: string | null
+    images?: GiftProductCreateimagesInput | string[]
+    category?: string | null
+    subCategory?: string | null
+    brand?: string | null
+    tags?: GiftProductCreatetagsInput | string[]
+    stock?: number
+    inStock?: boolean
+    rating?: number | null
+    views?: number
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    popular?: boolean
+    occasion?: GiftProductCreateoccasionInput | string[]
+    season?: GiftProductCreateseasonInput | string[]
+    colors?: GiftProductCreatecolorsInput | string[]
+    video?: string | null
+    discountPercentage?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GiftProductUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    old_price?: NullableFloatFieldUpdateOperationsInput | number | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: GiftProductUpdateimagesInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    subCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    brand?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: GiftProductUpdatetagsInput | string[]
+    stock?: IntFieldUpdateOperationsInput | number
+    inStock?: BoolFieldUpdateOperationsInput | boolean
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    views?: IntFieldUpdateOperationsInput | number
+    best_seller?: BoolFieldUpdateOperationsInput | boolean
+    new_arrival?: BoolFieldUpdateOperationsInput | boolean
+    trending?: BoolFieldUpdateOperationsInput | boolean
+    sale?: BoolFieldUpdateOperationsInput | boolean
+    popular?: BoolFieldUpdateOperationsInput | boolean
+    occasion?: GiftProductUpdateoccasionInput | string[]
+    season?: GiftProductUpdateseasonInput | string[]
+    colors?: GiftProductUpdatecolorsInput | string[]
+    video?: NullableStringFieldUpdateOperationsInput | string | null
+    discountPercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GiftProductUncheckedUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    old_price?: NullableFloatFieldUpdateOperationsInput | number | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: GiftProductUpdateimagesInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    subCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    brand?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: GiftProductUpdatetagsInput | string[]
+    stock?: IntFieldUpdateOperationsInput | number
+    inStock?: BoolFieldUpdateOperationsInput | boolean
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    views?: IntFieldUpdateOperationsInput | number
+    best_seller?: BoolFieldUpdateOperationsInput | boolean
+    new_arrival?: BoolFieldUpdateOperationsInput | boolean
+    trending?: BoolFieldUpdateOperationsInput | boolean
+    sale?: BoolFieldUpdateOperationsInput | boolean
+    popular?: BoolFieldUpdateOperationsInput | boolean
+    occasion?: GiftProductUpdateoccasionInput | string[]
+    season?: GiftProductUpdateseasonInput | string[]
+    colors?: GiftProductUpdatecolorsInput | string[]
+    video?: NullableStringFieldUpdateOperationsInput | string | null
+    discountPercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GiftProductCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    price: number
+    old_price?: number | null
+    image?: string | null
+    images?: GiftProductCreateimagesInput | string[]
+    category?: string | null
+    subCategory?: string | null
+    brand?: string | null
+    tags?: GiftProductCreatetagsInput | string[]
+    stock?: number
+    inStock?: boolean
+    rating?: number | null
+    views?: number
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    popular?: boolean
+    occasion?: GiftProductCreateoccasionInput | string[]
+    season?: GiftProductCreateseasonInput | string[]
+    colors?: GiftProductCreatecolorsInput | string[]
+    video?: string | null
+    discountPercentage?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GiftProductUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    old_price?: NullableFloatFieldUpdateOperationsInput | number | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: GiftProductUpdateimagesInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    subCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    brand?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: GiftProductUpdatetagsInput | string[]
+    stock?: IntFieldUpdateOperationsInput | number
+    inStock?: BoolFieldUpdateOperationsInput | boolean
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    views?: IntFieldUpdateOperationsInput | number
+    best_seller?: BoolFieldUpdateOperationsInput | boolean
+    new_arrival?: BoolFieldUpdateOperationsInput | boolean
+    trending?: BoolFieldUpdateOperationsInput | boolean
+    sale?: BoolFieldUpdateOperationsInput | boolean
+    popular?: BoolFieldUpdateOperationsInput | boolean
+    occasion?: GiftProductUpdateoccasionInput | string[]
+    season?: GiftProductUpdateseasonInput | string[]
+    colors?: GiftProductUpdatecolorsInput | string[]
+    video?: NullableStringFieldUpdateOperationsInput | string | null
+    discountPercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GiftProductUncheckedUpdateManyInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    old_price?: NullableFloatFieldUpdateOperationsInput | number | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: GiftProductUpdateimagesInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    subCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    brand?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: GiftProductUpdatetagsInput | string[]
+    stock?: IntFieldUpdateOperationsInput | number
+    inStock?: BoolFieldUpdateOperationsInput | boolean
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    views?: IntFieldUpdateOperationsInput | number
+    best_seller?: BoolFieldUpdateOperationsInput | boolean
+    new_arrival?: BoolFieldUpdateOperationsInput | boolean
+    trending?: BoolFieldUpdateOperationsInput | boolean
+    sale?: BoolFieldUpdateOperationsInput | boolean
+    popular?: BoolFieldUpdateOperationsInput | boolean
+    occasion?: GiftProductUpdateoccasionInput | string[]
+    season?: GiftProductUpdateseasonInput | string[]
+    colors?: GiftProductUpdatecolorsInput | string[]
+    video?: NullableStringFieldUpdateOperationsInput | string | null
+    discountPercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MainProductCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    price: number
+    old_price?: number | null
+    image?: string | null
+    images?: MainProductCreateimagesInput | string[]
+    category?: string | null
+    subCategory?: string | null
+    brand?: string | null
+    tags?: MainProductCreatetagsInput | string[]
+    stock?: number
+    inStock?: boolean
+    rating?: number | null
+    views?: number
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    occasion?: MainProductCreateoccasionInput | string[]
+    season?: MainProductCreateseasonInput | string[]
+    colors?: MainProductCreatecolorsInput | string[]
+    video?: string | null
+    discountPercentage?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MainProductUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    price: number
+    old_price?: number | null
+    image?: string | null
+    images?: MainProductCreateimagesInput | string[]
+    category?: string | null
+    subCategory?: string | null
+    brand?: string | null
+    tags?: MainProductCreatetagsInput | string[]
+    stock?: number
+    inStock?: boolean
+    rating?: number | null
+    views?: number
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    occasion?: MainProductCreateoccasionInput | string[]
+    season?: MainProductCreateseasonInput | string[]
+    colors?: MainProductCreatecolorsInput | string[]
+    video?: string | null
+    discountPercentage?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MainProductUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    old_price?: NullableFloatFieldUpdateOperationsInput | number | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: MainProductUpdateimagesInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    subCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    brand?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: MainProductUpdatetagsInput | string[]
+    stock?: IntFieldUpdateOperationsInput | number
+    inStock?: BoolFieldUpdateOperationsInput | boolean
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    views?: IntFieldUpdateOperationsInput | number
+    best_seller?: BoolFieldUpdateOperationsInput | boolean
+    new_arrival?: BoolFieldUpdateOperationsInput | boolean
+    trending?: BoolFieldUpdateOperationsInput | boolean
+    sale?: BoolFieldUpdateOperationsInput | boolean
+    occasion?: MainProductUpdateoccasionInput | string[]
+    season?: MainProductUpdateseasonInput | string[]
+    colors?: MainProductUpdatecolorsInput | string[]
+    video?: NullableStringFieldUpdateOperationsInput | string | null
+    discountPercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MainProductUncheckedUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    old_price?: NullableFloatFieldUpdateOperationsInput | number | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: MainProductUpdateimagesInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    subCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    brand?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: MainProductUpdatetagsInput | string[]
+    stock?: IntFieldUpdateOperationsInput | number
+    inStock?: BoolFieldUpdateOperationsInput | boolean
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    views?: IntFieldUpdateOperationsInput | number
+    best_seller?: BoolFieldUpdateOperationsInput | boolean
+    new_arrival?: BoolFieldUpdateOperationsInput | boolean
+    trending?: BoolFieldUpdateOperationsInput | boolean
+    sale?: BoolFieldUpdateOperationsInput | boolean
+    occasion?: MainProductUpdateoccasionInput | string[]
+    season?: MainProductUpdateseasonInput | string[]
+    colors?: MainProductUpdatecolorsInput | string[]
+    video?: NullableStringFieldUpdateOperationsInput | string | null
+    discountPercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MainProductCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    price: number
+    old_price?: number | null
+    image?: string | null
+    images?: MainProductCreateimagesInput | string[]
+    category?: string | null
+    subCategory?: string | null
+    brand?: string | null
+    tags?: MainProductCreatetagsInput | string[]
+    stock?: number
+    inStock?: boolean
+    rating?: number | null
+    views?: number
+    best_seller?: boolean
+    new_arrival?: boolean
+    trending?: boolean
+    sale?: boolean
+    occasion?: MainProductCreateoccasionInput | string[]
+    season?: MainProductCreateseasonInput | string[]
+    colors?: MainProductCreatecolorsInput | string[]
+    video?: string | null
+    discountPercentage?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type MainProductUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    old_price?: NullableFloatFieldUpdateOperationsInput | number | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: MainProductUpdateimagesInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    subCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    brand?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: MainProductUpdatetagsInput | string[]
+    stock?: IntFieldUpdateOperationsInput | number
+    inStock?: BoolFieldUpdateOperationsInput | boolean
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    views?: IntFieldUpdateOperationsInput | number
+    best_seller?: BoolFieldUpdateOperationsInput | boolean
+    new_arrival?: BoolFieldUpdateOperationsInput | boolean
+    trending?: BoolFieldUpdateOperationsInput | boolean
+    sale?: BoolFieldUpdateOperationsInput | boolean
+    occasion?: MainProductUpdateoccasionInput | string[]
+    season?: MainProductUpdateseasonInput | string[]
+    colors?: MainProductUpdatecolorsInput | string[]
+    video?: NullableStringFieldUpdateOperationsInput | string | null
+    discountPercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MainProductUncheckedUpdateManyInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    old_price?: NullableFloatFieldUpdateOperationsInput | number | null
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    images?: MainProductUpdateimagesInput | string[]
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    subCategory?: NullableStringFieldUpdateOperationsInput | string | null
+    brand?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: MainProductUpdatetagsInput | string[]
+    stock?: IntFieldUpdateOperationsInput | number
+    inStock?: BoolFieldUpdateOperationsInput | boolean
+    rating?: NullableFloatFieldUpdateOperationsInput | number | null
+    views?: IntFieldUpdateOperationsInput | number
+    best_seller?: BoolFieldUpdateOperationsInput | boolean
+    new_arrival?: BoolFieldUpdateOperationsInput | boolean
+    trending?: BoolFieldUpdateOperationsInput | boolean
+    sale?: BoolFieldUpdateOperationsInput | boolean
+    occasion?: MainProductUpdateoccasionInput | string[]
+    season?: MainProductUpdateseasonInput | string[]
+    colors?: MainProductUpdatecolorsInput | string[]
+    video?: NullableStringFieldUpdateOperationsInput | string | null
+    discountPercentage?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomGiftCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    basePrice: number
+    image?: string | null
+    category?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomGiftUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    basePrice: number
+    image?: string | null
+    category?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomGiftUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    basePrice?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomGiftUncheckedUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    basePrice?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomGiftCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    basePrice: number
+    image?: string | null
+    category?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CustomGiftUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    basePrice?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CustomGiftUncheckedUpdateManyInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    basePrice?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    category?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BoxCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    price: number
+    image?: string | null
+    stock?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BoxUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    price: number
+    image?: string | null
+    stock?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BoxUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    stock?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BoxUncheckedUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    stock?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BoxCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    price: number
+    image?: string | null
+    stock?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BoxUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    stock?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BoxUncheckedUpdateManyInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    stock?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SavedItemCreateInput = {
+    id?: string
+    userId: string
+    productId: string
+    type: string
+    name: string
+    price: number
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SavedItemUncheckedCreateInput = {
+    id?: string
+    userId: string
+    productId: string
+    type: string
+    name: string
+    price: number
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SavedItemUpdateInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SavedItemUncheckedUpdateInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SavedItemCreateManyInput = {
+    id?: string
+    userId: string
+    productId: string
+    type: string
+    name: string
+    price: number
+    image?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SavedItemUpdateManyMutationInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SavedItemUncheckedUpdateManyInput = {
+    userId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    type?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    price?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -49087,12 +58623,6 @@ export namespace Prisma {
     isSet?: boolean
   }
 
-  export type BoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-    isSet?: boolean
-  }
-
   export type OrderListRelationFilter = {
     every?: OrderWhereInput
     some?: OrderWhereInput
@@ -49177,7 +58707,6 @@ export namespace Prisma {
     lastOrderAt?: SortOrder
     reviewCount?: SortOrder
     lastReviewAt?: SortOrder
-    needsPhoneUpdate?: SortOrder
   }
 
   export type CustomerAvgOrderByAggregateInput = {
@@ -49215,7 +58744,6 @@ export namespace Prisma {
     lastOrderAt?: SortOrder
     reviewCount?: SortOrder
     lastReviewAt?: SortOrder
-    needsPhoneUpdate?: SortOrder
   }
 
   export type CustomerMinOrderByAggregateInput = {
@@ -49242,7 +58770,6 @@ export namespace Prisma {
     lastOrderAt?: SortOrder
     reviewCount?: SortOrder
     lastReviewAt?: SortOrder
-    needsPhoneUpdate?: SortOrder
   }
 
   export type CustomerSumOrderByAggregateInput = {
@@ -49285,15 +58812,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-    isSet?: boolean
-  }
-
-  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedBoolNullableFilter<$PrismaModel>
-    _max?: NestedBoolNullableFilter<$PrismaModel>
     isSet?: boolean
   }
 
@@ -50640,6 +60158,51 @@ export namespace Prisma {
     _max?: NestedEnumNotificationTypeFilter<$PrismaModel>
   }
 
+  export type UsedPromoCodeUserIdPromoCodeCompoundUniqueInput = {
+    userId: string
+    promoCode: string
+  }
+
+  export type UsedPromoCodeCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    promoCode?: SortOrder
+    usedAt?: SortOrder
+  }
+
+  export type UsedPromoCodeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    promoCode?: SortOrder
+    usedAt?: SortOrder
+  }
+
+  export type UsedPromoCodeMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    promoCode?: SortOrder
+    usedAt?: SortOrder
+  }
+
+  export type UserPreferenceCountOrderByAggregateInput = {
+    userId?: SortOrder
+    categories?: SortOrder
+    tags?: SortOrder
+    brands?: SortOrder
+    priceRange?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserPreferenceMaxOrderByAggregateInput = {
+    userId?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UserPreferenceMinOrderByAggregateInput = {
+    userId?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type SessionCountOrderByAggregateInput = {
     sessionId?: SortOrder
     userId?: SortOrder
@@ -50675,6 +60238,41 @@ export namespace Prisma {
     ipAddress?: SortOrder
     userAgent?: SortOrder
   }
+
+  export type NewsAttachmentEmailTypeCompoundUniqueInput = {
+    email: string
+    type: string
+  }
+
+  export type NewsAttachmentCountOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    whatsappNumber?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subscribedAt?: SortOrder
+    source?: SortOrder
+  }
+
+  export type NewsAttachmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    whatsappNumber?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subscribedAt?: SortOrder
+    source?: SortOrder
+  }
+
+  export type NewsAttachmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    email?: SortOrder
+    whatsappNumber?: SortOrder
+    name?: SortOrder
+    type?: SortOrder
+    subscribedAt?: SortOrder
+    source?: SortOrder
+  }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -50685,65 +60283,6 @@ export namespace Prisma {
   export type JsonFilterBase<$PrismaModel = never> = {
     equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-  }
-
-  export type UserPreferenceCountOrderByAggregateInput = {
-    userId?: SortOrder
-    categories?: SortOrder
-    tags?: SortOrder
-    brands?: SortOrder
-    priceRange?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type UserPreferenceMaxOrderByAggregateInput = {
-    userId?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type UserPreferenceMinOrderByAggregateInput = {
-    userId?: SortOrder
-    updatedAt?: SortOrder
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
-  }
-
-  export type UsedPromoCodeUserIdPromoCodeCompoundUniqueInput = {
-    userId: string
-    promoCode: string
-  }
-
-  export type UsedPromoCodeCountOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    promoCode?: SortOrder
-    usedAt?: SortOrder
-  }
-
-  export type UsedPromoCodeMaxOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    promoCode?: SortOrder
-    usedAt?: SortOrder
-  }
-
-  export type UsedPromoCodeMinOrderByAggregateInput = {
-    id?: SortOrder
-    userId?: SortOrder
-    promoCode?: SortOrder
-    usedAt?: SortOrder
   }
 
   export type AuditLogCountOrderByAggregateInput = {
@@ -50778,6 +60317,20 @@ export namespace Prisma {
     ip?: SortOrder
     userAgent?: SortOrder
     timestamp?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type SecurityIncidentCountOrderByAggregateInput = {
@@ -50821,6 +60374,373 @@ export namespace Prisma {
     reviewed?: SortOrder
     severity?: SortOrder
     resolution?: SortOrder
+  }
+
+  export type DecorationCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DecorationAvgOrderByAggregateInput = {
+    price?: SortOrder
+    stock?: SortOrder
+  }
+
+  export type DecorationMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DecorationMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DecorationSumOrderByAggregateInput = {
+    price?: SortOrder
+    stock?: SortOrder
+  }
+
+  export type GiftProductCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    images?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    tags?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    popular?: SortOrder
+    occasion?: SortOrder
+    season?: SortOrder
+    colors?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GiftProductAvgOrderByAggregateInput = {
+    price?: SortOrder
+    old_price?: SortOrder
+    stock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    discountPercentage?: SortOrder
+  }
+
+  export type GiftProductMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    popular?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GiftProductMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    popular?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GiftProductSumOrderByAggregateInput = {
+    price?: SortOrder
+    old_price?: SortOrder
+    stock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    discountPercentage?: SortOrder
+  }
+
+  export type MainProductCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    images?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    tags?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    occasion?: SortOrder
+    season?: SortOrder
+    colors?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MainProductAvgOrderByAggregateInput = {
+    price?: SortOrder
+    old_price?: SortOrder
+    stock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    discountPercentage?: SortOrder
+  }
+
+  export type MainProductMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MainProductMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    old_price?: SortOrder
+    image?: SortOrder
+    category?: SortOrder
+    subCategory?: SortOrder
+    brand?: SortOrder
+    stock?: SortOrder
+    inStock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    best_seller?: SortOrder
+    new_arrival?: SortOrder
+    trending?: SortOrder
+    sale?: SortOrder
+    video?: SortOrder
+    discountPercentage?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type MainProductSumOrderByAggregateInput = {
+    price?: SortOrder
+    old_price?: SortOrder
+    stock?: SortOrder
+    rating?: SortOrder
+    views?: SortOrder
+    discountPercentage?: SortOrder
+  }
+
+  export type CustomGiftCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    basePrice?: SortOrder
+    image?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomGiftAvgOrderByAggregateInput = {
+    basePrice?: SortOrder
+  }
+
+  export type CustomGiftMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    basePrice?: SortOrder
+    image?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomGiftMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    basePrice?: SortOrder
+    image?: SortOrder
+    category?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CustomGiftSumOrderByAggregateInput = {
+    basePrice?: SortOrder
+  }
+
+  export type BoxCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BoxAvgOrderByAggregateInput = {
+    price?: SortOrder
+    stock?: SortOrder
+  }
+
+  export type BoxMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BoxMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    stock?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BoxSumOrderByAggregateInput = {
+    price?: SortOrder
+    stock?: SortOrder
+  }
+
+  export type SavedItemUserIdProductIdTypeCompoundUniqueInput = {
+    userId: string
+    productId: string
+    type: string
+  }
+
+  export type SavedItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    productId?: SortOrder
+    type?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SavedItemAvgOrderByAggregateInput = {
+    price?: SortOrder
+  }
+
+  export type SavedItemMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    productId?: SortOrder
+    type?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SavedItemMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    productId?: SortOrder
+    type?: SortOrder
+    name?: SortOrder
+    price?: SortOrder
+    image?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type SavedItemSumOrderByAggregateInput = {
+    price?: SortOrder
   }
 
   export type ProductCreateimagesInput = {
@@ -51185,11 +61105,6 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
-    unset?: boolean
-  }
-
-  export type NullableBoolFieldUpdateOperationsInput = {
-    set?: boolean | null
     unset?: boolean
   }
 
@@ -52577,6 +62492,123 @@ export namespace Prisma {
     set?: $Enums.NotificationType
   }
 
+  export type UserPreferenceCreatecategoriesInput = {
+    set: string[]
+  }
+
+  export type UserPreferenceCreatetagsInput = {
+    set: string[]
+  }
+
+  export type UserPreferenceCreatebrandsInput = {
+    set: string[]
+  }
+
+  export type UserPreferenceUpdatecategoriesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type UserPreferenceUpdatetagsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type UserPreferenceUpdatebrandsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type GiftProductCreateimagesInput = {
+    set: string[]
+  }
+
+  export type GiftProductCreatetagsInput = {
+    set: string[]
+  }
+
+  export type GiftProductCreateoccasionInput = {
+    set: string[]
+  }
+
+  export type GiftProductCreateseasonInput = {
+    set: string[]
+  }
+
+  export type GiftProductCreatecolorsInput = {
+    set: string[]
+  }
+
+  export type GiftProductUpdateimagesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type GiftProductUpdatetagsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type GiftProductUpdateoccasionInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type GiftProductUpdateseasonInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type GiftProductUpdatecolorsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type MainProductCreateimagesInput = {
+    set: string[]
+  }
+
+  export type MainProductCreatetagsInput = {
+    set: string[]
+  }
+
+  export type MainProductCreateoccasionInput = {
+    set: string[]
+  }
+
+  export type MainProductCreateseasonInput = {
+    set: string[]
+  }
+
+  export type MainProductCreatecolorsInput = {
+    set: string[]
+  }
+
+  export type MainProductUpdateimagesInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type MainProductUpdatetagsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type MainProductUpdateoccasionInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type MainProductUpdateseasonInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
+  export type MainProductUpdatecolorsInput = {
+    set?: string[]
+    push?: string | string[]
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -52786,12 +62818,6 @@ export namespace Prisma {
     isSet?: boolean
   }
 
-  export type NestedBoolNullableFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
-    isSet?: boolean
-  }
-
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -52821,15 +62847,6 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
-    isSet?: boolean
-  }
-
-  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
-    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedBoolNullableFilter<$PrismaModel>
-    _max?: NestedBoolNullableFilter<$PrismaModel>
     isSet?: boolean
   }
 
@@ -53774,7 +63791,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderCreateNestedManyWithoutCustomerInput
     addresses?: AddressCreateNestedManyWithoutCustomerInput
     preferences?: CustomerPreferencesCreateNestedOneWithoutCustomerInput
@@ -53809,7 +63825,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
     addresses?: AddressUncheckedCreateNestedManyWithoutCustomerInput
     preferences?: CustomerPreferencesUncheckedCreateNestedOneWithoutCustomerInput
@@ -53859,7 +63874,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUpdateManyWithoutCustomerNestedInput
     preferences?: CustomerPreferencesUpdateOneWithoutCustomerNestedInput
@@ -53893,7 +63907,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUncheckedUpdateManyWithoutCustomerNestedInput
     preferences?: CustomerPreferencesUncheckedUpdateOneWithoutCustomerNestedInput
@@ -53928,7 +63941,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderCreateNestedManyWithoutCustomerInput
     devices?: DeviceCreateNestedManyWithoutCustomerInput
     preferences?: CustomerPreferencesCreateNestedOneWithoutCustomerInput
@@ -53963,7 +63975,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCustomerInput
     preferences?: CustomerPreferencesUncheckedCreateNestedOneWithoutCustomerInput
@@ -54013,7 +64024,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUpdateManyWithoutCustomerNestedInput
     preferences?: CustomerPreferencesUpdateOneWithoutCustomerNestedInput
@@ -54047,7 +64057,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCustomerNestedInput
     preferences?: CustomerPreferencesUncheckedUpdateOneWithoutCustomerNestedInput
@@ -54082,7 +64091,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderCreateNestedManyWithoutCustomerInput
     devices?: DeviceCreateNestedManyWithoutCustomerInput
     addresses?: AddressCreateNestedManyWithoutCustomerInput
@@ -54117,7 +64125,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCustomerInput
     addresses?: AddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -54184,7 +64191,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUpdateManyWithoutCustomerNestedInput
@@ -54218,7 +64224,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -54324,7 +64329,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderCreateNestedManyWithoutCustomerInput
     devices?: DeviceCreateNestedManyWithoutCustomerInput
     addresses?: AddressCreateNestedManyWithoutCustomerInput
@@ -54359,7 +64363,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCustomerInput
     addresses?: AddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -54409,7 +64412,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUpdateManyWithoutCustomerNestedInput
@@ -54443,7 +64445,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -54478,7 +64479,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     devices?: DeviceCreateNestedManyWithoutCustomerInput
     addresses?: AddressCreateNestedManyWithoutCustomerInput
     preferences?: CustomerPreferencesCreateNestedOneWithoutCustomerInput
@@ -54513,7 +64513,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     devices?: DeviceUncheckedCreateNestedManyWithoutCustomerInput
     addresses?: AddressUncheckedCreateNestedManyWithoutCustomerInput
     preferences?: CustomerPreferencesUncheckedCreateNestedOneWithoutCustomerInput
@@ -54678,7 +64677,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     devices?: DeviceUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUpdateManyWithoutCustomerNestedInput
     preferences?: CustomerPreferencesUpdateOneWithoutCustomerNestedInput
@@ -54712,7 +64710,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     devices?: DeviceUncheckedUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUncheckedUpdateManyWithoutCustomerNestedInput
     preferences?: CustomerPreferencesUncheckedUpdateOneWithoutCustomerNestedInput
@@ -57019,7 +67016,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderCreateNestedManyWithoutCustomerInput
     devices?: DeviceCreateNestedManyWithoutCustomerInput
     addresses?: AddressCreateNestedManyWithoutCustomerInput
@@ -57054,7 +67050,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCustomerInput
     addresses?: AddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -57175,7 +67170,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUpdateManyWithoutCustomerNestedInput
@@ -57209,7 +67203,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -57244,7 +67237,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderCreateNestedManyWithoutCustomerInput
     devices?: DeviceCreateNestedManyWithoutCustomerInput
     addresses?: AddressCreateNestedManyWithoutCustomerInput
@@ -57279,7 +67271,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCustomerInput
     addresses?: AddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -57329,7 +67320,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUpdateManyWithoutCustomerNestedInput
@@ -57363,7 +67353,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -57465,7 +67454,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderCreateNestedManyWithoutCustomerInput
     devices?: DeviceCreateNestedManyWithoutCustomerInput
     addresses?: AddressCreateNestedManyWithoutCustomerInput
@@ -57500,7 +67488,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCustomerInput
     addresses?: AddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -57646,7 +67633,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUpdateManyWithoutCustomerNestedInput
@@ -57680,7 +67666,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUncheckedUpdateManyWithoutCustomerNestedInput
@@ -57768,7 +67753,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderCreateNestedManyWithoutCustomerInput
     devices?: DeviceCreateNestedManyWithoutCustomerInput
     addresses?: AddressCreateNestedManyWithoutCustomerInput
@@ -57803,7 +67787,6 @@ export namespace Prisma {
     lastOrderAt?: Date | string | null
     reviewCount?: number
     lastReviewAt?: Date | string | null
-    needsPhoneUpdate?: boolean | null
     orders?: OrderUncheckedCreateNestedManyWithoutCustomerInput
     devices?: DeviceUncheckedCreateNestedManyWithoutCustomerInput
     addresses?: AddressUncheckedCreateNestedManyWithoutCustomerInput
@@ -57894,7 +67877,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUpdateManyWithoutCustomerNestedInput
@@ -57928,7 +67910,6 @@ export namespace Prisma {
     lastOrderAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     reviewCount?: IntFieldUpdateOperationsInput | number
     lastReviewAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    needsPhoneUpdate?: NullableBoolFieldUpdateOperationsInput | boolean | null
     orders?: OrderUncheckedUpdateManyWithoutCustomerNestedInput
     devices?: DeviceUncheckedUpdateManyWithoutCustomerNestedInput
     addresses?: AddressUncheckedUpdateManyWithoutCustomerNestedInput

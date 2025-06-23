@@ -8,13 +8,13 @@ import { getBagsByIds } from "@/lib/actions/bag-actions";
 import { getGiftProductsByIds } from "@/lib/actions/product-actions";
 import { getDecorationsByIds } from "@/lib/actions/decoration-actions";
 import { getMainProductsByIds } from "@/lib/actions/main-product-actions";
-import type { Inspiration } from "@/types/inspiration";
+import type { LegacyInspiration } from "@/types/inspiration";
 import { useDispatch } from "react-redux";
 import { addItem } from "@/lib/redux/slices/cartSlice";
 import type { CartItem } from "@/lib/redux/slices/cartSlice";
 
 interface AddToCartButtonProps {
-  inspiration: Inspiration;
+  inspiration: LegacyInspiration;
 }
 
 export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
@@ -26,7 +26,8 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
     
     try {
       // Validate at least one product
-      if (inspiration.products.length === 0) {
+      const productsArray = Array.isArray(inspiration.products) ? inspiration.products : [];
+      if (productsArray.length === 0) {
         toast.error("لا يمكن إضافة هدية بدون منتجات");
         return;
       }
@@ -35,16 +36,16 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
       let productIds: string[] = [];
       let productQuantities: Record<string, number> = {};
       
-      if (inspiration.products && inspiration.products.length > 0) {
+      if (productsArray && productsArray.length > 0) {
         // Check if products are objects or just string IDs
-        if (typeof inspiration.products[0] === 'string') {
+        if (typeof productsArray[0] === 'string') {
           // Old format: array of IDs
-          productIds = inspiration.products as string[];
+          productIds = productsArray as string[];
           // Use quantities from productQuantities if available
           productQuantities = inspiration.productQuantities || {};
         } else {
           // New format: array of objects with id and quantity
-          const productsWithQuantity = inspiration.products as { id: string; quantity: number | { $numberInt: string } }[];
+          const productsWithQuantity = productsArray as { id: string; quantity: number | { $numberInt: string } }[];
           
           productIds = productsWithQuantity.map(p => {
             const id = p.id;

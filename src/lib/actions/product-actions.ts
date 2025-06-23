@@ -1,30 +1,14 @@
 "use server"
 
-import { getGiftProductsCollection } from "@/lib/gift-db-helpers"
-import type { GiftProduct, GiftProductDocument } from "@/types/database"
-import { ObjectId } from "mongodb"
+import { prisma } from "@/lib/prisma"
+import type { GiftProduct } from "../../../prisma/generated/client"
 import { revalidatePath } from "next/cache"
-
-// تحويل كائن المستند من MongoDB إلى النوع المستخدم في الواجهة
-function mapGiftProductDocument(doc: GiftProductDocument): GiftProduct {
-  return {
-    id: doc._id.toString(),
-    name: doc.name,
-    price: doc.price,
-    image: doc.image,
-    category: doc.category,
-    stock: doc.stock,
-    popular: doc.popular,
-    occasion: doc.occasion,
-  }
-}
 
 // جلب جميع المنتجات
 export async function getAllProducts(): Promise<GiftProduct[]> {
   try {
-    const collection = await getGiftProductsCollection()
-    const products = await collection.find({}).toArray()
-    return products.map(mapGiftProductDocument)
+    const products = await prisma.giftProduct.findMany()
+    return products
   } catch (error) {
     console.error("Error fetching products:", error)
     throw new Error("فشل في جلب المنتجات")
@@ -34,9 +18,10 @@ export async function getAllProducts(): Promise<GiftProduct[]> {
 // جلب المنتجات حسب الفئة
 export async function getProductsByCategory(category: string): Promise<GiftProduct[]> {
   try {
-    const collection = await getGiftProductsCollection()
-    const products = await collection.find({ category }).toArray()
-    return products.map(mapGiftProductDocument)
+    const products = await prisma.giftProduct.findMany({
+      where: { category }
+    })
+    return products
   } catch (error) {
     console.error("Error fetching products by category:", error)
     throw new Error("فشل في جلب المنتجات حسب الفئة")
@@ -46,9 +31,10 @@ export async function getProductsByCategory(category: string): Promise<GiftProdu
 // جلب المنتجات الشائعة
 export async function getPopularProducts(): Promise<GiftProduct[]> {
   try {
-    const collection = await getGiftProductsCollection()
-    const products = await collection.find({ popular: true }).toArray()
-    return products.map(mapGiftProductDocument)
+    const products = await prisma.giftProduct.findMany({
+      where: { popular: true }
+    })
+    return products
   } catch (error) {
     console.error("Error fetching popular products:", error)
     throw new Error("فشل في جلب المنتجات الشائعة")
@@ -58,9 +44,10 @@ export async function getPopularProducts(): Promise<GiftProduct[]> {
 // جلب منتج واحد حسب المعرف
 export async function getProductById(id: string): Promise<GiftProduct | null> {
   try {
-    const collection = await getGiftProductsCollection()
-    const product = await collection.findOne({ _id: new ObjectId(id) })
-    return product ? mapGiftProductDocument(product) : null
+    const product = await prisma.giftProduct.findUnique({
+      where: { id }
+    })
+    return product
   } catch (error) {
     console.error("Error fetching product by id:", error)
     throw new Error("فشل في جلب المنتج")
@@ -71,10 +58,10 @@ export async function getProductById(id: string): Promise<GiftProduct | null> {
 export async function getGiftProductsByIds(ids: string[]): Promise<GiftProduct[]> {
   try {
     if (!ids || ids.length === 0) return [];
-    const objectIds = ids.map((id) => new ObjectId(id));
-    const collection = await getGiftProductsCollection();
-    const products = await collection.find({ _id: { $in: objectIds } }).toArray();
-    return products.map(mapGiftProductDocument);
+    const products = await prisma.giftProduct.findMany({
+      where: { id: { in: ids } }
+    })
+    return products;
   } catch (error) {
     console.error("Error fetching products by ids:", error);
     throw new Error("فشل في جلب المنتجات حسب المعرفات");
@@ -84,8 +71,10 @@ export async function getGiftProductsByIds(ids: string[]): Promise<GiftProduct[]
 // تحديث مخزون المنتج
 export async function updateProductStock(id: string, newStock: number): Promise<void> {
   try {
-    const collection = await getGiftProductsCollection()
-    await collection.updateOne({ _id: new ObjectId(id) }, { $set: { stock: newStock } })
+    await prisma.giftProduct.update({
+      where: { id },
+      data: { stock: newStock }
+    })
     revalidatePath("/")
   } catch (error) {
     console.error("Error updating product stock:", error)
@@ -96,13 +85,15 @@ export async function updateProductStock(id: string, newStock: number): Promise<
 // البحث عن المنتجات
 export async function searchProducts(searchTerm: string): Promise<GiftProduct[]> {
   try {
-    const collection = await getGiftProductsCollection()
-    const products = await collection
-      .find({
-        name: { $regex: searchTerm, $options: "i" },
-      })
-      .toArray()
-    return products.map(mapGiftProductDocument)
+    const products = await prisma.giftProduct.findMany({
+      where: {
+        name: {
+          contains: searchTerm,
+          mode: 'insensitive'
+        }
+      }
+    })
+    return products
   } catch (error) {
     console.error("Error searching products:", error)
     throw new Error("فشل في البحث عن المنتجات")
@@ -117,33 +108,28 @@ export async function filterProducts(filters: {
   inStock?: boolean
 }): Promise<GiftProduct[]> {
   try {
-    const collection = await getGiftProductsCollection()
-
-    const query: {
-      category?: string
-      flavor?: { $in: string[] }
-      occasion?: string
-      stock?: { $gt: number }
-    } = {}
+    const whereClause: Record<string, unknown> = {}
 
     if (filters.category && filters.category !== "الكل") {
-      query.category = filters.category
+      whereClause.category = filters.category
     }
 
     if (filters.flavor && filters.flavor.length > 0) {
-      query.flavor = { $in: filters.flavor }
+      whereClause.colors = { hasSome: filters.flavor }
     }
 
     if (filters.occasion && filters.occasion !== "all") {
-      query.occasion = filters.occasion
+      whereClause.occasion = { has: filters.occasion }
     }
 
     if (filters.inStock) {
-      query.stock = { $gt: 0 }
+      whereClause.stock = { gt: 0 }
     }
 
-    const products = await collection.find(query).toArray()
-    return products.map(mapGiftProductDocument)
+    const products = await prisma.giftProduct.findMany({
+      where: whereClause
+    })
+    return products
   } catch (error) {
     console.error("Error filtering products:", error)
     throw new Error("فشل في فلترة المنتجات")

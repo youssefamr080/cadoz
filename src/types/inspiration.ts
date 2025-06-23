@@ -1,45 +1,57 @@
 // تعريف نوع Inspiration المستخدم في مكونات الإلهام
+// يمكن استخدام Prisma types مباشرة بدلاً من هذا الملف
 
-// Interface for product with quantity
+export type { 
+  Inspiration,
+  InspirationRating,
+  InspirationComment,
+  InspirationBox,
+  InspirationMainProduct,
+  InspirationProduct,
+  InspirationDecoration,
+  InspirationBag
+} from "../../prisma/generated/client"
+
+// Interface for product with quantity (للتوافق مع الكود الموجود)
 export interface ProductWithQuantity {
   id: string;
   quantity: number;
 }
 
-export interface Inspiration {
+// Legacy interface للتوافق مع الكود الموجود
+export interface LegacyInspiration {
   id: string;
-  _id?: { $oid: string }; // MongoDB ObjectId format
   name: string;
   description: string;
   image: string;
   rating: number;
   reviews: number;
-  box: string; // box ID only
-  products: ProductWithQuantity[] | string[]; // Can be either array of objects with id and quantity or just string IDs
-  productQuantities?: Record<string, number>; // Legacy field - كميات المنتجات مرتبطة بمعرفات المنتجات
-  decorations: string[]; // decoration IDs only
-  bag: string; // bag ID only
-  Mainproducts?: string[]; // main product IDs only
+  box: string;
+  products: ProductWithQuantity[] | string[];
+  productQuantities?: Record<string, number>;
+  decorations: string[];
+  bag: string;
+  Mainproducts?: string[];
   likes?: number;
   dislikes?: number;
-  price?: number; // Added price field
-  oldPrice?: number; // Added old price field for discounts
-  discount_percentage?: number; // Added discount percentage field
+  price?: number;
+  oldPrice?: number;
+  discount_percentage?: number;
   comments?: Array<{
-    _id: { $oid: string } | string;
+    _id: string;
     userId: string;
     userName: string;
     comment: string;
-    createdAt: { $date: { $numberLong: string } } | string;
+    createdAt: string;
   }>;
   likedBy?: string[];
   dislikedBy?: string[];
   ratings?: Array<{ 
     userId: string; 
-    rating: number | { $numberInt: string } 
+    rating: number;
   }>;
-  category?: string; // Category field
-  occasions?: string[]; // Occasions this gift is suitable for
-  tags?: string[]; // Tags for the gift
-  updatedAt?: { $date: { $numberLong: string } } | string;
+  category?: string;
+  occasions?: string[];
+  tags?: string[];
+  updatedAt?: string;
 }

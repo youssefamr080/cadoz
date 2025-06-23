@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.9.0
- * Query Engine version: 81e4af48011447c3cc503a190e86995b66d2a28e
+ * Prisma Client JS version: 6.10.1
+ * Query Engine version: 9b628578b3b7cae625e8c927178f15a170e74a9c
  */
 Prisma.prismaVersion = {
-  client: "6.9.0",
-  engine: "81e4af48011447c3cc503a190e86995b66d2a28e"
+  client: "6.10.1",
+  engine: "9b628578b3b7cae625e8c927178f15a170e74a9c"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -180,8 +180,7 @@ exports.Prisma.CustomerScalarFieldEnum = {
   orderCount: 'orderCount',
   lastOrderAt: 'lastOrderAt',
   reviewCount: 'reviewCount',
-  lastReviewAt: 'lastReviewAt',
-  needsPhoneUpdate: 'needsPhoneUpdate'
+  lastReviewAt: 'lastReviewAt'
 };
 
 exports.Prisma.DeviceScalarFieldEnum = {
@@ -473,6 +472,22 @@ exports.Prisma.NotificationScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.UsedPromoCodeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  promoCode: 'promoCode',
+  usedAt: 'usedAt'
+};
+
+exports.Prisma.UserPreferenceScalarFieldEnum = {
+  userId: 'userId',
+  categories: 'categories',
+  tags: 'tags',
+  brands: 'brands',
+  priceRange: 'priceRange',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SessionScalarFieldEnum = {
   sessionId: 'sessionId',
   userId: 'userId',
@@ -485,20 +500,14 @@ exports.Prisma.SessionScalarFieldEnum = {
   userAgent: 'userAgent'
 };
 
-exports.Prisma.UserPreferenceScalarFieldEnum = {
-  userId: 'userId',
-  categories: 'categories',
-  tags: 'tags',
-  brands: 'brands',
-  priceRange: 'priceRange',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.UsedPromoCodeScalarFieldEnum = {
+exports.Prisma.NewsAttachmentScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
-  promoCode: 'promoCode',
-  usedAt: 'usedAt'
+  email: 'email',
+  whatsappNumber: 'whatsappNumber',
+  name: 'name',
+  type: 'type',
+  subscribedAt: 'subscribedAt',
+  source: 'source'
 };
 
 exports.Prisma.AuditLogScalarFieldEnum = {
@@ -526,6 +535,109 @@ exports.Prisma.SecurityIncidentScalarFieldEnum = {
   reviewed: 'reviewed',
   severity: 'severity',
   resolution: 'resolution'
+};
+
+exports.Prisma.DecorationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  price: 'price',
+  image: 'image',
+  stock: 'stock',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GiftProductScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  old_price: 'old_price',
+  image: 'image',
+  images: 'images',
+  category: 'category',
+  subCategory: 'subCategory',
+  brand: 'brand',
+  tags: 'tags',
+  stock: 'stock',
+  inStock: 'inStock',
+  rating: 'rating',
+  views: 'views',
+  best_seller: 'best_seller',
+  new_arrival: 'new_arrival',
+  trending: 'trending',
+  sale: 'sale',
+  popular: 'popular',
+  occasion: 'occasion',
+  season: 'season',
+  colors: 'colors',
+  video: 'video',
+  discountPercentage: 'discountPercentage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MainProductScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  old_price: 'old_price',
+  image: 'image',
+  images: 'images',
+  category: 'category',
+  subCategory: 'subCategory',
+  brand: 'brand',
+  tags: 'tags',
+  stock: 'stock',
+  inStock: 'inStock',
+  rating: 'rating',
+  views: 'views',
+  best_seller: 'best_seller',
+  new_arrival: 'new_arrival',
+  trending: 'trending',
+  sale: 'sale',
+  occasion: 'occasion',
+  season: 'season',
+  colors: 'colors',
+  video: 'video',
+  discountPercentage: 'discountPercentage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CustomGiftScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  basePrice: 'basePrice',
+  image: 'image',
+  category: 'category',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BoxScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  image: 'image',
+  stock: 'stock',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SavedItemScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  productId: 'productId',
+  type: 'type',
+  name: 'name',
+  price: 'price',
+  image: 'image',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -609,11 +721,18 @@ exports.Prisma.ModelName = {
   Review: 'Review',
   ReviewVote: 'ReviewVote',
   Notification: 'Notification',
-  Session: 'Session',
-  UserPreference: 'UserPreference',
   UsedPromoCode: 'UsedPromoCode',
+  UserPreference: 'UserPreference',
+  Session: 'Session',
+  NewsAttachment: 'NewsAttachment',
   AuditLog: 'AuditLog',
-  SecurityIncident: 'SecurityIncident'
+  SecurityIncident: 'SecurityIncident',
+  Decoration: 'Decoration',
+  GiftProduct: 'GiftProduct',
+  MainProduct: 'MainProduct',
+  CustomGift: 'CustomGift',
+  Box: 'Box',
+  SavedItem: 'SavedItem'
 };
 
 /**

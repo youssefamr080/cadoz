@@ -456,6 +456,85 @@ model Notification {
   createdAt DateTime         @default(now())
 }
 
+model UsedPromoCode {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  promoCode String
+  usedAt    DateTime @default(now())
+
+  @@unique([userId, promoCode])
+  @@map("usedPromoCodes")
+}
+
+model UserPreference {
+  userId     String   @id @map("_id")
+  categories String[]
+  tags       String[]
+  brands     String[]
+  priceRange Json?
+  updatedAt  DateTime @updatedAt
+
+  @@map("userPreferences")
+}
+
+model Session {
+  sessionId    String    @id @map("_id")
+  userId       String
+  accessToken  String?
+  refreshToken String?
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+  lastActiveAt DateTime  @default(now())
+  ipAddress    String?
+  userAgent    String?
+
+  @@map("sessions")
+}
+
+model NewsAttachment {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  email          String?
+  whatsappNumber String?
+  name           String?
+  type           String // "email" or "whatsapp"
+  subscribedAt   DateTime @default(now())
+  source         String // "footer", etc.
+
+  @@unique([email, type])
+  @@map("newsAttachment")
+}
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?
+  action    String
+  category  String
+  status    String
+  details   Json
+  ip        String?
+  userAgent String?
+  timestamp DateTime @default(now())
+
+  @@map("auditLogs")
+}
+
+model SecurityIncident {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String?
+  action     String
+  category   String
+  status     String
+  details    Json
+  ip         String?
+  userAgent  String?
+  timestamp  DateTime @default(now())
+  reviewed   Boolean  @default(false)
+  severity   String
+  resolution String?
+
+  @@map("securityIncidents")
+}
+
 // Enums
 enum OrderStatus {
   PENDING
@@ -495,4 +574,132 @@ enum NotificationType {
 enum VoteAction {
   HELPFUL
   NOT_HELPFUL
+}
+
+// Gift Decorations
+model Decoration {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  name  String
+  price Float
+  image String
+  stock Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("decorations")
+}
+
+// Gift Products
+model GiftProduct {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  description        String?
+  price              Float
+  old_price          Float?
+  image              String?
+  images             String[]
+  category           String?
+  subCategory        String?
+  brand              String?
+  tags               String[]
+  stock              Int      @default(0)
+  inStock            Boolean  @default(true)
+  rating             Float?
+  views              Int      @default(0)
+  best_seller        Boolean  @default(false)
+  new_arrival        Boolean  @default(false)
+  trending           Boolean  @default(false)
+  sale               Boolean  @default(false)
+  popular            Boolean  @default(false)
+  occasion           String[]
+  season             String[] @default(["الكل"])
+  colors             String[]
+  video              String?
+  discountPercentage Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("gift_products")
+}
+
+// Main Products (different from gift products)
+model MainProduct {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  description        String?
+  price              Float
+  old_price          Float?
+  image              String?
+  images             String[]
+  category           String?
+  subCategory        String?
+  brand              String?
+  tags               String[]
+  stock              Int      @default(0)
+  inStock            Boolean  @default(true)
+  rating             Float?
+  views              Int      @default(0)
+  best_seller        Boolean  @default(false)
+  new_arrival        Boolean  @default(false)
+  trending           Boolean  @default(false)
+  sale               Boolean  @default(false)
+  occasion           String[]
+  season             String[] @default(["الكل"])
+  colors             String[]
+  video              String?
+  discountPercentage Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("main_products")
+}
+
+// Custom Gifts
+model CustomGift {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  basePrice   Float
+  image       String?
+  category    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("custom_gifts")
+}
+
+// Gift Boxes
+model Box {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  price       Float
+  image       String?
+  stock       Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("boxes")
+}
+
+// Saved Items
+model SavedItem {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String  @db.ObjectId
+  productId String  @db.ObjectId
+  type      String // "product", "gift", "decoration", etc.
+  name      String
+  price     Float
+  image     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId, type])
+  @@map("saved_items")
 }

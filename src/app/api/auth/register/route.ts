@@ -14,9 +14,7 @@ export async function POST(request: Request) {
 
     if (!name || !phone || !password) {
       return NextResponse.json({ success: false, message: "جميع الحقول مطلوبة" }, { status: 400 })
-    }
-
-    // التحقق من وجود المستخدم مسبقًا
+    }    // التحقق من وجود المستخدم مسبقًا
     const existingUser = await prisma.customer.findUnique({
       where: { phone }
     })

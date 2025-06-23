@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "../../../lib/mongodb"
+import { prisma } from "@/lib/prisma"
 
 // الحصول على تفضيلات المستخدم
 export async function GET(request: Request) {
@@ -11,19 +11,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, message: "User ID is required" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
-
     // البحث عن تفضيلات المستخدم
-    const preferences = await db.collection("userPreferences").findOne({ userId })
+    const preferences = await prisma.userPreference.findUnique({
+      where: { userId }
+    })
 
     if (!preferences) {
       return NextResponse.json({
         success: true,
         data: {
-          categories: {},
-          tags: {},
-          brands: {},
-          priceRange: { min: 0, max: 10000, count: 0 },
+          categories: [],
+          tags: [],
+          brands: [],
+          priceRange: null,
         },
       })
     }
@@ -48,12 +48,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "User ID and preferences are required" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
-
     // تحديث تفضيلات المستخدم
-    await db
-      .collection("userPreferences")
-      .updateOne({ userId }, { $set: { ...preferences, updatedAt: new Date() } }, { upsert: true })
+    await prisma.userPreference.upsert({
+      where: { userId },
+      update: {
+        categories: preferences.categories || [],
+        tags: preferences.tags || [],
+        brands: preferences.brands || [],
+        priceRange: preferences.priceRange,
+        updatedAt: new Date()
+      },
+      create: {
+        userId,
+        categories: preferences.categories || [],
+        tags: preferences.tags || [],
+        brands: preferences.brands || [],
+        priceRange: preferences.priceRange,
+        updatedAt: new Date()
+      }
+    })
 
     return NextResponse.json({
       success: true,

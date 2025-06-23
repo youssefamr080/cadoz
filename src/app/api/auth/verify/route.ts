@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "../../../../lib/mongodb"
+import { prisma } from "@/lib/prisma"
 
-// API endpoint para verificar si un usuario existe en la base de datos
+// API endpoint للتحقق من وجود مستخدم في قاعدة البيانات
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -11,10 +11,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "معرف المستخدم ورقم الهاتف مطلوبان" }, { status: 400 })
     }
 
-    const { db } = await connectToDatabase()
-
-    // Buscar al usuario por ID y teléfono
-    const user = await db.collection("customers").findOne({ id: userId, phone })
+    // البحث عن المستخدم بالمعرف ورقم الهاتف
+    const user = await prisma.customer.findFirst({
+      where: {
+        id: userId,
+        phone: phone
+      },
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        email: true
+      }
+    })
 
     if (!user) {
       return NextResponse.json({
@@ -24,18 +33,10 @@ export async function POST(request: Request) {
       })
     }
 
-    // Devolver solo la información necesaria
-    const userInfo = {
-      id: user.id,
-      name: user.name,
-      phone: user.phone,
-      email: user.email,
-    }
-
     return NextResponse.json({
       success: true,
       valid: true,
-      user: userInfo,
+      user: user,
     })
   } catch (error) {
     console.error("User verification error:", error)

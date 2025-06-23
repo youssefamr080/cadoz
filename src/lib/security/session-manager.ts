@@ -1,5 +1,4 @@
-import { connectToDatabase } from '@/lib/mongodb';
-import { Document } from 'mongodb';
+import { prisma } from '@/lib/prisma';
 
 export interface SessionData {
   sessionId: string;
@@ -13,11 +12,7 @@ export interface SessionData {
   userAgent?: string;
 }
 
-type SessionDocument = Document & SessionData;
-
 export async function createSession(data: Omit<SessionData, "sessionId" | "createdAt" | "lastActiveAt">): Promise<SessionData> {
-  const { db } = await connectToDatabase();
-  
   const session: SessionData = {
     sessionId: crypto.randomUUID(),
     userId: data.userId,
@@ -30,14 +25,28 @@ export async function createSession(data: Omit<SessionData, "sessionId" | "creat
     userAgent: data.userAgent
   };
 
-  await db.collection('sessions').insertOne(session);
+  await prisma.session.create({
+    data: {
+      sessionId: session.sessionId,
+      userId: session.userId,
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+      expiresAt: session.expiresAt,
+      createdAt: session.createdAt,
+      lastActiveAt: session.lastActiveAt,
+      ipAddress: session.ipAddress,
+      userAgent: session.userAgent
+    }
+  });
+  
   return session;
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
   try {
-    const { db } = await connectToDatabase();
-    await db.collection('sessions').deleteOne({ sessionId });
+    await prisma.session.delete({
+      where: { sessionId }
+    });
   } catch (error) {
     console.error("[SESSION] Error deleting session:", error);
   }
@@ -45,10 +54,9 @@ export async function deleteSession(sessionId: string): Promise<void> {
 
 export async function validateSession(sessionId: string): Promise<boolean> {
   try {
-    const { db } = await connectToDatabase();
-    const session = await db.collection('sessions').findOne({ sessionId });
-
-    if (!session) {
+    const session = await prisma.session.findUnique({
+      where: { sessionId }
+    });    if (!session) {
       return false;
     }
 
@@ -57,10 +65,10 @@ export async function validateSession(sessionId: string): Promise<boolean> {
       return false;
     }
 
-    await db.collection('sessions').updateOne(
-      { sessionId },
-      { $set: { lastActiveAt: new Date() } }
-    );
+    await prisma.session.update({
+      where: { sessionId },
+      data: { lastActiveAt: new Date() }
+    });
 
     return true;
   } catch (error) {
@@ -71,11 +79,10 @@ export async function validateSession(sessionId: string): Promise<boolean> {
 
 export async function getUserSessions(userId: string): Promise<SessionData[]> {
   try {
-    const { db } = await connectToDatabase();
-    const sessions = await db.collection<SessionDocument>('sessions')
-      .find({ userId })
-      .sort({ lastActiveAt: -1 })
-      .toArray();
+    const sessions = await prisma.session.findMany({
+      where: { userId },
+      orderBy: { lastActiveAt: 'desc' }
+    });
     
     return sessions.map(session => ({
       userId: session.userId,

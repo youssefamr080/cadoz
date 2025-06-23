@@ -1,27 +1,13 @@
 "use server"
 
-import { getMainProductsCollection } from "@/lib/gift-db-helpers"
-import type { MainProductDocument } from "@/types/database"
-import { ObjectId } from "mongodb"
-
-// تحويل كائن المستند من MongoDB إلى النوع المستخدم في الواجهة
-function mapMainProductDocument(doc: MainProductDocument) {
-  return {
-    id: doc._id.toString(),
-    name: doc.name,
-    price: doc.price,
-    image: doc.image,
-    description: doc.description,
-    category: doc.category
-  }
-}
+import { prisma } from "@/lib/prisma"
+import type { MainProduct } from "../../../prisma/generated/client"
 
 // جلب جميع المنتجات الأساسية
-export async function getAllMainProducts() {
+export async function getAllMainProducts(): Promise<MainProduct[]> {
   try {
-    const collection = await getMainProductsCollection()
-    const products = await collection.find({}).toArray()
-    return products.map(mapMainProductDocument)
+    const products = await prisma.mainProduct.findMany()
+    return products
   } catch (error) {
     console.error("Error fetching main products:", error)
     throw new Error("فشل في جلب المنتجات الأساسية")
@@ -29,11 +15,12 @@ export async function getAllMainProducts() {
 }
 
 // جلب المنتجات الأساسية حسب الفئة
-export async function getMainProductsByCategory(category: string) {
+export async function getMainProductsByCategory(category: string): Promise<MainProduct[]> {
   try {
-    const collection = await getMainProductsCollection()
-    const products = await collection.find({ category }).toArray()
-    return products.map(mapMainProductDocument)
+    const products = await prisma.mainProduct.findMany({
+      where: { category }
+    })
+    return products
   } catch (error) {
     console.error("Error fetching main products by category:", error)
     throw new Error("فشل في جلب المنتجات الأساسية حسب الفئة")
@@ -41,12 +28,12 @@ export async function getMainProductsByCategory(category: string) {
 }
 
 // جلب منتج أساسي واحد حسب المعرف
-export async function getMainProductById(id: string) {
+export async function getMainProductById(id: string): Promise<MainProduct | null> {
   try {
-    const collection = await getMainProductsCollection()
-    const product = await collection.findOne({ _id: new ObjectId(id) })
-    if (!product) return null
-    return mapMainProductDocument(product)
+    const product = await prisma.mainProduct.findUnique({
+      where: { id }
+    })
+    return product
   } catch (error) {
     console.error("Error fetching main product:", error)
     throw new Error("فشل في جلب المنتج الأساسي")
@@ -54,15 +41,15 @@ export async function getMainProductById(id: string) {
 }
 
 // جلب عدة منتجات أساسية حسب قائمة المعرفات
-export async function getMainProductsByIds(ids: string[]) {
+export async function getMainProductsByIds(ids: string[]): Promise<MainProduct[]> {
   try {
     if (!ids || ids.length === 0) return []
     
-    const collection = await getMainProductsCollection()
-    const objectIds = ids.map(id => new ObjectId(id))
-    const products = await collection.find({ _id: { $in: objectIds } }).toArray()
+    const products = await prisma.mainProduct.findMany({
+      where: { id: { in: ids } }
+    })
     
-    return products.map(mapMainProductDocument)
+    return products
   } catch (error) {
     console.error("Error fetching main products by ids:", error)
     throw new Error("فشل في جلب المنتجات الأساسية حسب المعرفات")
@@ -70,17 +57,18 @@ export async function getMainProductsByIds(ids: string[]) {
 }
 
 // البحث عن المنتجات الأساسية
-export async function searchMainProducts(searchTerm: string) {
+export async function searchMainProducts(searchTerm: string): Promise<MainProduct[]> {
   try {
-    const collection = await getMainProductsCollection()
-    const products = await collection.find({
-      $or: [
-        { name: { $regex: searchTerm, $options: "i" } },
-        { description: { $regex: searchTerm, $options: "i" } },
-        { category: { $regex: searchTerm, $options: "i" } }
-      ]
-    }).toArray()
-    return products.map(mapMainProductDocument)
+    const products = await prisma.mainProduct.findMany({
+      where: {
+        OR: [
+          { name: { contains: searchTerm, mode: 'insensitive' } },
+          { description: { contains: searchTerm, mode: 'insensitive' } },
+          { category: { contains: searchTerm, mode: 'insensitive' } }
+        ]
+      }
+    })
+    return products
   } catch (error) {
     console.error("Error searching main products:", error)
     throw new Error("فشل في البحث عن المنتجات الأساسية")

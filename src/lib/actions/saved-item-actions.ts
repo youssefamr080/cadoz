@@ -1,21 +1,20 @@
 "use server"
 
-import { getSavedItemsCollection } from "@/lib/gift-db-helpers"
-import type { SavedItem } from "@/types/database"
-import { ObjectId } from "mongodb"
+import { prisma } from "@/lib/prisma"
+import type { SavedItem } from "../../../prisma/generated/client"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
 import { v4 as uuidv4 } from "uuid"
 
 // الحصول على معرف المستخدم من الكوكيز أو إنشاء واحد جديد
 export async function getUserId(): Promise<string> {
-    const cookieStore = await cookies() // استخدم await هنا
+    const cookieStore = await cookies()
   
     const userId = cookieStore.get("userId")?.value
   
     if (!userId) {
       const newUserId = uuidv4()
-      await cookieStore.set("userId", newUserId, { // استخدم await هنا أيضًا
+      await cookieStore.set("userId", newUserId, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 24 * 365, // سنة
@@ -31,15 +30,12 @@ export async function getUserId(): Promise<string> {
 export async function getSavedItems(): Promise<SavedItem[]> {
   try {
     const userId = await getUserId()
-    const collection = await getSavedItemsCollection()
 
-    const savedItemsDoc = await collection.findOne({ userId })
+    const savedItems = await prisma.savedItem.findMany({
+      where: { userId }
+    })
 
-    if (!savedItemsDoc) {
-      return []
-    }
-
-    return savedItemsDoc.items
+    return savedItems
   } catch (error) {
     console.error("Error fetching saved items:", error)
     throw new Error("فشل في جلب العناصر المحفوظة")
@@ -47,30 +43,38 @@ export async function getSavedItems(): Promise<SavedItem[]> {
 }
 
 // إضافة عنصر محفوظ
-export async function addSavedItem(item: SavedItem): Promise<void> {
+export async function addSavedItem(item: {
+  productId: string
+  type: string
+  name: string
+  price: number
+  image?: string
+}): Promise<void> {
   try {
     const userId = await getUserId()
-    const collection = await getSavedItemsCollection()
 
-    const savedItemsDoc = await collection.findOne({ userId })
-
-    if (!savedItemsDoc) {
-      // إنشاء وثيقة جديدة للمستخدم
-      await collection.insertOne({
-        _id: new ObjectId(),
-        userId,
-        items: [item],
-      })
-    } else {
-      // التأكد من عدم وجود العنصر بالفعل
-      const itemExists = savedItemsDoc.items.some((i) => i.id === item.id)
-
-      if (!itemExists) {
-        // إضافة العنصر الجديد في بداية المصفوفة
-        const newItems = [item, ...savedItemsDoc.items].slice(0, 3) // الاحتفاظ بـ 3 عناصر فقط
-
-        await collection.updateOne({ userId }, { $set: { items: newItems } })
+    // التأكد من عدم وجود العنصر بالفعل
+    const existingItem = await prisma.savedItem.findUnique({
+      where: {
+        userId_productId_type: {
+          userId,
+          productId: item.productId,
+          type: item.type
+        }
       }
+    })
+
+    if (!existingItem) {
+      await prisma.savedItem.create({
+        data: {
+          userId,
+          productId: item.productId,
+          type: item.type,
+          name: item.name,
+          price: item.price,
+          image: item.image
+        }
+      })
     }
 
     revalidatePath("/")
@@ -83,10 +87,9 @@ export async function addSavedItem(item: SavedItem): Promise<void> {
 // حذف عنصر محفوظ
 export async function removeSavedItem(itemId: string): Promise<void> {
   try {
-    const userId = await getUserId()
-    const collection = await getSavedItemsCollection()
-
-    await collection.updateOne({ userId }, { $pull: { items: { id: itemId } } })
+    await prisma.savedItem.delete({
+      where: { id: itemId }
+    })
 
     revalidatePath("/")
   } catch (error) {
@@ -99,9 +102,10 @@ export async function removeSavedItem(itemId: string): Promise<void> {
 export async function clearSavedItems(): Promise<void> {
   try {
     const userId = await getUserId()
-    const collection = await getSavedItemsCollection()
 
-    await collection.updateOne({ userId }, { $set: { items: [] } })
+    await prisma.savedItem.deleteMany({
+      where: { userId }
+    })
 
     revalidatePath("/")
   } catch (error) {

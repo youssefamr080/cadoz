@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
-import { connectToDatabase } from "@/lib/mongodb"
+import { prisma } from "@/lib/prisma"
 import { authOptions } from "@/lib/auth.config"
 
 export async function POST(request: Request) {
@@ -23,12 +23,14 @@ export async function POST(request: Request) {
       )
     }
 
-    const { db } = await connectToDatabase()
-
-    // Check if phone number is already taken
-    const existingUser = await db.collection("customers").findOne({ 
-      phone,
-      id: { $ne: session.user.id }
+    // التحقق من أن رقم الهاتف غير مستخدم مسبقاً
+    const existingUser = await prisma.customer.findFirst({
+      where: {
+        phone,
+        id: {
+          not: session.user.id
+        }
+      }
     })
 
     if (existingUser) {
@@ -38,17 +40,14 @@ export async function POST(request: Request) {
       )
     }
 
-    // Update user's phone number
-    await db.collection("customers").updateOne(
-      { id: session.user.id },
-      { 
-        $set: { 
-          phone,
-          needsPhoneUpdate: false,
-          updatedAt: new Date()
-        }
+    // تحديث رقم هاتف المستخدم
+    await prisma.customer.update({
+      where: { id: session.user.id },
+      data: {
+        phone,
+        updatedAt: new Date()
       }
-    )
+    })
 
     return NextResponse.json({ 
       success: true,

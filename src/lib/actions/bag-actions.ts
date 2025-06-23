@@ -1,29 +1,18 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { getBagsCollection } from "@/lib/gift-db-helpers"
-import type { Bag, BagDocument } from "@/types/database"
-import { ObjectId } from "mongodb"
-
-// تحويل كائن المستند من MongoDB إلى النوع المستخدم في الواجهة
-function mapBagDocument(doc: BagDocument): Bag {
-  return {
-    id: doc._id.toString(),
-    name: doc.name,
-    price: doc.price,
-    image: doc.image,
-    description: doc.description,
-    color: doc.color,
-    stock: doc.stock,
-  }
-}
+import { prisma } from "@/lib/prisma"
+import type { InspirationBag } from "@/../prisma/generated/client"
 
 // جلب جميع الشنط
-export async function getAllBags(): Promise<Bag[]> {
+export async function getAllBags(): Promise<InspirationBag[]> {
   try {
-    const collection = await getBagsCollection()
-    const bags = await collection.find({}).toArray()
-    return bags.map(mapBagDocument)
+    const bags = await prisma.inspirationBag.findMany({
+      include: {
+        inspiration: true
+      }
+    })
+    return bags
   } catch (error) {
     console.error("Error fetching bags:", error)
     throw new Error("فشل في جلب الشنط")
@@ -31,11 +20,19 @@ export async function getAllBags(): Promise<Bag[]> {
 }
 
 // جلب الشنط المتوفرة في المخزون
-export async function getAvailableBags(): Promise<Bag[]> {
+export async function getAvailableBags(): Promise<InspirationBag[]> {
   try {
-    const collection = await getBagsCollection()
-    const bags = await collection.find({ stock: { $gt: 0 } }).toArray()
-    return bags.map(mapBagDocument)
+    const bags = await prisma.inspirationBag.findMany({
+      where: {
+        stock: {
+          gt: 0
+        }
+      },
+      include: {
+        inspiration: true
+      }
+    })
+    return bags
   } catch (error) {
     console.error("Error fetching available bags:", error)
     throw new Error("فشل في جلب الشنط المتوفرة")
@@ -43,25 +40,43 @@ export async function getAvailableBags(): Promise<Bag[]> {
 }
 
 // جلب شنطة واحدة حسب المعرف
-export async function getBagById(id: string): Promise<Bag | null> {
+export async function getBagById(id: string): Promise<InspirationBag | null> {
   try {
-    const collection = await getBagsCollection()
-    const bag = await collection.findOne({ _id: new ObjectId(id) })
-    return bag ? mapBagDocument(bag) : null
-  } catch (error) {
+    // التحقق من صحة تنسيق ObjectId
+    if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+      return null
+    }
+
+    const bag = await prisma.inspirationBag.findUnique({
+      where: { id },
+      include: {
+        inspiration: true
+      }
+    })
+    return bag  } catch (error) {
     console.error("Error fetching bag by id:", error)
     throw new Error("فشل في جلب الشنطة")
   }
 }
 
 // جلب عدة شنط حسب قائمة المعرفات
-export async function getBagsByIds(ids: string[]): Promise<Bag[]> {
+export async function getBagsByIds(ids: string[]): Promise<InspirationBag[]> {
   try {
     if (!ids || ids.length === 0) return [];
-    const objectIds = ids.map((id) => new ObjectId(id));
-    const collection = await getBagsCollection();
-    const bags = await collection.find({ _id: { $in: objectIds } }).toArray();
-    return bags.map(mapBagDocument);
+    
+    // التحقق من صحة تنسيق المعرفات
+    const validIds = ids.filter(id => /^[a-fA-F0-9]{24}$/.test(id));
+    
+    const bags = await prisma.inspirationBag.findMany({
+      where: {
+        id: { in: validIds }
+      },
+      include: {
+        inspiration: true
+      }
+    });
+    
+    return bags;
   } catch (error) {
     console.error("Error fetching bags by ids:", error);
     throw new Error("فشل في جلب الشنط حسب المعرفات");
@@ -71,8 +86,16 @@ export async function getBagsByIds(ids: string[]): Promise<Bag[]> {
 // تحديث مخزون الشنطة
 export async function updateBagStock(id: string, newStock: number): Promise<void> {
   try {
-    const collection = await getBagsCollection()
-    await collection.updateOne({ _id: new ObjectId(id) }, { $set: { stock: newStock } })
+    // التحقق من صحة تنسيق ObjectId
+    if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+      throw new Error("معرف غير صحيح")
+    }
+
+    await prisma.inspirationBag.update({
+      where: { id },
+      data: { stock: newStock }
+    })
+    
     revalidatePath("/")
   } catch (error) {
     console.error("Error updating bag stock:", error)

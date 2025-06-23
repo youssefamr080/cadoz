@@ -1,11 +1,10 @@
 import { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { connectToDatabase } from "./mongodb"
+import { prisma } from "./prisma"
 import { createSession } from "./security/session-manager"
 import { sanitizeUserData } from "./security/auth-validator"
 import bcrypt from "bcryptjs"
-import type { Document } from "mongodb"
 
 interface UserData {
   id: string;
@@ -18,26 +17,15 @@ interface UserData {
   [key: string]: unknown;
 }
 
-interface MongoUser extends Document {
-  id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-  password?: string;
-  role: 'user' | 'admin';
-  image?: string;
-  needsPhoneUpdate?: boolean;
-}
-
-function transformToUserData(user: MongoUser): UserData {
+function transformToUserData(user: Record<string, unknown>): UserData {
   return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
-    image: user.image,
-    needsPhoneUpdate: user.needsPhoneUpdate
+    id: user.id as string,
+    name: user.name as string,
+    email: (user.email as string) || undefined,
+    phone: user.phone as string,
+    role: 'user',
+    image: undefined,
+    needsPhoneUpdate: !user.phone
   }
 }
 
@@ -88,14 +76,12 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+      async authorize(credentials) {        if (!credentials?.email || !credentials?.password) {
           throw new Error("الرجاء إدخال البريد الإلكتروني وكلمة المرور")
         }
 
-        const { db } = await connectToDatabase()
-        const user = await db.collection("customers").findOne<MongoUser>({ 
-          email: credentials.email.toLowerCase() 
+        const user = await prisma.customer.findUnique({
+          where: { email: credentials.email.toLowerCase() }
         })
 
         if (!user) {
@@ -118,37 +104,33 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       try {
-        const { db } = await connectToDatabase()
-        
         // Check if user exists
-        const existingUser = await db.collection("customers").findOne({ id: user.id })
+        const existingUser = await prisma.customer.findUnique({
+          where: { id: user.id }
+        })
         
         if (existingUser) {
           // Update existing user
-          await db.collection("customers").updateOne(
-            { id: user.id },
-            { 
-              $set: {
-                name: user.name,
-                email: user.email?.toLowerCase(),
-                image: user.image,
-                lastLoginAt: new Date(),
-                isActive: true
-              }
+          await prisma.customer.update({
+            where: { id: user.id },
+            data: {
+              name: user.name,
+              email: user.email?.toLowerCase(),
+              lastLoginAt: new Date(),
+              isActive: true
             }
-          )
-        } else {
-          // Create new user
-          await db.collection("customers").insertOne({
-            id: user.id,
-            name: user.name,
-            email: user.email?.toLowerCase(),
-            image: user.image,
-            role: 'user',
-            createdAt: new Date(),
-            lastLoginAt: new Date(),
-            isActive: true,
-            needsPhoneUpdate: true // Set needsPhoneUpdate for new users
+          })
+        } else {          // Create new user
+          await prisma.customer.create({
+            data: {
+              id: user.id,
+              name: user.name,
+              email: user.email?.toLowerCase() || "",
+              phone: "",
+              password: "",
+              isActive: true,
+              lastLoginAt: new Date()
+            }
           })
         }
 

@@ -20,7 +20,7 @@
 - Next.js 13+ (App Router)
 - TypeScript
 - MongoDB
-- Mongoose
+- Prisma ORM
 - Tailwind CSS
 - Swiper.js
 - React Icons
@@ -82,10 +82,10 @@ src/
 │   ├── product/
 │   └── ui/
 ├── lib/
-│   └── mongodb.ts
-├── models/
-│   ├── Product.ts
-│   └── ProductRating.ts
+│   └── prisma.ts
+├── prisma/
+│   ├── schema.prisma
+│   └── generated/
 └── ...
 ```
 

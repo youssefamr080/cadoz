@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { connectToDatabase } from "../../../../lib/mongodb"
+import { prisma } from "@/lib/prisma"
 
 export async function POST(request: Request) {
   try {
@@ -12,12 +12,14 @@ export async function POST(request: Request) {
       )
     }
 
-    const { db } = await connectToDatabase()
+    const upperCaseCode = code.toUpperCase()
 
     // التحقق من استخدام الكود من قبل
-    const existingUse = await db.collection("usedPromoCodes").findOne({
-      userId,
-      promoCode: code.toUpperCase()
+    const existingUse = await prisma.usedPromoCode.findFirst({
+      where: {
+        userId,
+        promoCode: upperCaseCode
+      }
     })
 
     if (existingUse) {
@@ -28,10 +30,12 @@ export async function POST(request: Request) {
     }
 
     // حفظ استخدام الكود
-    await db.collection("usedPromoCodes").insertOne({
-      userId,
-      promoCode: code.toUpperCase(),
-      usedAt: new Date()
+    await prisma.usedPromoCode.create({
+      data: {
+        userId,
+        promoCode: upperCaseCode,
+        usedAt: new Date()
+      }
     })
 
     return NextResponse.json({ success: true })

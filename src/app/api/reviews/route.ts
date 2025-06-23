@@ -111,7 +111,7 @@ export async function POST(request: Request) {
 
     if (existingReview) {
       // Update existing review
-      const updatedReview = await prisma.review.update({
+      await prisma.review.update({
         where: { id: existingReview.id },
         data: {
           rating,

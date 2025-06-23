@@ -10,10 +10,8 @@ export async function GET(request: Request) {
     const tags = searchParams.get("tags")?.split(",") || []
     const userId = searchParams.get("userId")
     const limit = Number.parseInt(searchParams.get("limit") || "12")
-    const priceRange = searchParams.get("priceRange")?.split("-").map(Number) || []
-
-    // بناء استعلام المنتجات
-    const where: any = {
+    const priceRange = searchParams.get("priceRange")?.split("-").map(Number) || []    // بناء استعلام المنتجات
+    const where: Record<string, unknown> = {
       id: { notIn: excludeIds },
       stock: { gt: 0 },
     }

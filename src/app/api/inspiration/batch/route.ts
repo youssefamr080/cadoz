@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,32 +12,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { db } = await connectToDatabase();
-    
-    // Convert string IDs to ObjectId where possible
-    const objectIds = ids.map(id => {
-      try {
-        return new ObjectId(id);
-      } catch {
-        return id; // Keep as string if not a valid ObjectId
+    // Validate and filter valid ObjectId strings
+    const validIds = ids.filter(id => 
+      typeof id === 'string' && /^[a-fA-F0-9]{24}$/.test(id)
+    );
+
+    if (validIds.length === 0) {
+      return NextResponse.json(
+        { error: 'لم يتم العثور على معرفات صحيحة' },
+        { status: 400 }
+      );
+    }
+
+    // Query inspirations using Prisma
+    const inspirations = await prisma.inspiration.findMany({
+      where: {
+        id: { in: validIds }
+      },
+      include: {
+        ratings: true,
+        comments: true,
+        box: true,
+        mainProducts: true,
+        products: true,
+        decorations: true,
+        bag: true
       }
     });
 
-    // Query inspirations by either _id or id
-    const inspirations = await db.collection('inspirations').find({
-      $or: [
-        { _id: { $in: objectIds } },
-       
-      ]
-    }).toArray();
-
-    // Map the inspirations to ensure consistent ID format
-    const formattedInspirations = inspirations.map(inspiration => ({
-      ...inspiration,
-      id: inspiration.id || inspiration._id.toString()
-    }));
-
-    return NextResponse.json(formattedInspirations);
+    return NextResponse.json(inspirations);
   } catch (error) {
     console.error('Error fetching inspirations batch:', error);
     return NextResponse.json(
