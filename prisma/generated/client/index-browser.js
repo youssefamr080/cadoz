@@ -180,7 +180,8 @@ exports.Prisma.CustomerScalarFieldEnum = {
   orderCount: 'orderCount',
   lastOrderAt: 'lastOrderAt',
   reviewCount: 'reviewCount',
-  lastReviewAt: 'lastReviewAt'
+  lastReviewAt: 'lastReviewAt',
+  needsPhoneUpdate: 'needsPhoneUpdate'
 };
 
 exports.Prisma.DeviceScalarFieldEnum = {
@@ -472,6 +473,61 @@ exports.Prisma.NotificationScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.SessionScalarFieldEnum = {
+  sessionId: 'sessionId',
+  userId: 'userId',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  lastActiveAt: 'lastActiveAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent'
+};
+
+exports.Prisma.UserPreferenceScalarFieldEnum = {
+  userId: 'userId',
+  categories: 'categories',
+  tags: 'tags',
+  brands: 'brands',
+  priceRange: 'priceRange',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UsedPromoCodeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  promoCode: 'promoCode',
+  usedAt: 'usedAt'
+};
+
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  action: 'action',
+  category: 'category',
+  status: 'status',
+  details: 'details',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  timestamp: 'timestamp'
+};
+
+exports.Prisma.SecurityIncidentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  action: 'action',
+  category: 'category',
+  status: 'status',
+  details: 'details',
+  ip: 'ip',
+  userAgent: 'userAgent',
+  timestamp: 'timestamp',
+  reviewed: 'reviewed',
+  severity: 'severity',
+  resolution: 'resolution'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -552,7 +608,12 @@ exports.Prisma.ModelName = {
   CustomerEvent: 'CustomerEvent',
   Review: 'Review',
   ReviewVote: 'ReviewVote',
-  Notification: 'Notification'
+  Notification: 'Notification',
+  Session: 'Session',
+  UserPreference: 'UserPreference',
+  UsedPromoCode: 'UsedPromoCode',
+  AuditLog: 'AuditLog',
+  SecurityIncident: 'SecurityIncident'
 };
 
 /**
