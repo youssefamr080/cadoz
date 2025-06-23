@@ -6,14 +6,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star, Eye, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Inspiration } from "@/types/inspiration";
+import type { Inspiration, LegacyInspiration } from "@/types/inspiration";
 
 import { HighlightText } from "@/components/ui/highlight-text";
 import { RelevanceIndicator } from "@/components/ui/relevance-indicator";
 import AddToCartButton from "@/app/inspiration/[id]/AddToCartButton";
 
+// Extended type for optional properties that might exist
+type ExtendedInspiration = Inspiration & {
+  occasions?: string[];
+  tags?: string[];
+};
+
 interface InspirationCardProps {
-  gift: Inspiration;
+  gift: ExtendedInspiration;
   getCategoryArabicName?: (category: string) => string;
   searchTerms?: string[];
   relevanceScore?: number;
@@ -28,14 +34,13 @@ export default function InspirationCard({
   showRelevance = false
 }: InspirationCardProps) {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-
   // Add debug logging
   console.log('Gift data:', {
     id: gift.id,
     name: gift.name,
     price: gift.price,
     oldPrice: gift.oldPrice,
-    discount_percentage: gift.discount_percentage
+    discountPercentage: gift.discountPercentage
   });
 
   // Calculate discount percentage
@@ -156,14 +161,12 @@ export default function InspirationCard({
                     highlightClassName="bg-yellow-100 text-gray-900 px-0.5 rounded"
                   />
                 ) : gift.description}
-              </p>
-              
-              {/* Occasions */}
+              </p>              {/* Occasions */}
               {gift.occasions && gift.occasions.length > 0 && (
                 <div className="mt-2">
                   <h4 className="text-xs font-medium text-gray-700 mb-1">المناسبات:</h4>
                   <div className="flex flex-wrap gap-1">
-                    {gift.occasions.map((occasion, index) => (
+                    {gift.occasions.map((occasion: string, index: number) => (
                       <span 
                         key={`${gift.id}-occasion-${index}`}
                         className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full"
@@ -173,14 +176,12 @@ export default function InspirationCard({
                     ))}
                   </div>
                 </div>
-              )}
-              
-              {/* Tags */}
+              )}              {/* Tags */}
               {gift.tags && gift.tags.length > 0 && (
                 <div className="mt-2">
                   <h4 className="text-xs font-medium text-gray-700 mb-1">الكلمات المفتاحية:</h4>
                   <div className="flex flex-wrap gap-1">
-                    {gift.tags.map((tag, index) => (
+                    {gift.tags.map((tag: string, index: number) => (
                       <span 
                         key={`${gift.id}-tag-${index}`}
                         className="text-[10px] bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full"
@@ -207,9 +208,16 @@ export default function InspirationCard({
               <Eye className="w-3 h-3 mr-1" />
               عرض
             </Link>
-          </Button>
-
-          <AddToCartButton inspiration={gift} />
+          </Button>          <AddToCartButton 
+            inspiration={{
+              ...gift,
+              box: "",
+              products: [],
+              decorations: [],
+              bag: "",
+              updatedAt: gift.updatedAt?.toISOString() || new Date().toISOString()
+            } satisfies LegacyInspiration} 
+          />
         </div>
       </div>
     </motion.div>

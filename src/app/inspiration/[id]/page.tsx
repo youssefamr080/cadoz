@@ -2,17 +2,12 @@ import React from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getInspirationById } from "@/lib/actions/inspiration-actions";
-import { getGiftProductsByIds } from "@/lib/actions/product-actions";
-import { getBoxById } from "@/lib/actions/box-actions";
-import { getBagById } from "@/lib/actions/bag-actions";
-import { getDecorationsByIds } from "@/lib/actions/decoration-actions";
-import { getMainProductsByIds } from "@/lib/actions/main-product-actions";
-import type { Inspiration } from "@/types/inspiration";
 import InspirationClient from "./InspirationClient";
 import UseInspirationButton from "./UseInspirationButton";
 import AddToCartButton from "./AddToCartButton";
 import { BoxIcon, GiftIcon, SparklesIcon } from "lucide-react"; // Example icons
 import { Metadata } from 'next'
+import type { LegacyInspiration } from "@/types/inspiration";
 
 type Props = {
   params: { id: string };
@@ -158,71 +153,68 @@ const ItemCard = ({
 	);
 };
 
+// Helper function to convert Prisma inspiration to Legacy format
+const convertToLegacyInspiration = (inspiration: NonNullable<Awaited<ReturnType<typeof getInspirationById>>>): LegacyInspiration => {
+  return {
+    ...inspiration,
+    box: inspiration.box?.id || "",
+    products: inspiration.products?.map(p => p.id) || [],
+    decorations: inspiration.decorations?.map(d => d.id) || [],
+    bag: inspiration.bag?.id || "",
+    productQuantities: inspiration.products?.reduce((acc, p) => ({
+      ...acc,
+      [p.id]: (p as { quantity?: number }).quantity || 1
+    }), {} as Record<string, number>) || {},
+    comments: inspiration.comments?.map(c => ({
+      _id: c.id,
+      userId: c.userId,
+      userName: c.userName,
+      comment: c.comment,
+      createdAt: c.createdAt.toISOString()
+    })) || [],
+    updatedAt: inspiration.updatedAt?.toISOString()
+  };
+};
+
 export default async function InspirationPage({ params }: Props) {
   // Await params before accessing its properties
   const { id } = await params;
-  const inspiration: Inspiration | null = await getInspirationById(id)
+  const inspiration = await getInspirationById(id)
 
   if (!inspiration) {
     notFound()
   }
-
-  // Extract product IDs from the products array
-  let productIds: string[] = [];
-  let productQuantities: Record<string, number> = {};
+  // Extract product data from the inspiration products relation
+  const productsData = inspiration.products || [];
   
-  if (inspiration.products && inspiration.products.length > 0) {
-    // Check if products are objects or just string IDs
-    if (typeof inspiration.products[0] === 'string') {
-      // Old format: array of IDs
-      productIds = inspiration.products as string[];
-      // Use quantities from productQuantities if available
-      productQuantities = inspiration.productQuantities || {};
-    } else {
-      // New format: array of objects with id and quantity
-      const productsWithQuantity = inspiration.products as { id: string; quantity: number | { $numberInt: string } }[];
-      
-      productIds = productsWithQuantity.map(p => {
-        const id = p.id;
-        // Handle quantity whether it's a number or an object
-        const quantity = typeof p.quantity === 'number' 
-          ? p.quantity 
-          : parseInt((p.quantity as { $numberInt: string }).$numberInt || '1', 10);
-          
-        productQuantities[id] = quantity;
-        return id;
-      });
-    }
-  }
+  // For backward compatibility, also check mainProducts
+  const mainProductsData = inspiration.mainProducts || [];
   
-  // Fetch related items concurrently for potential performance improvement
-  const [productsData, boxData, bagData, decorationsData, mainProductsData] = await Promise.all([
-    productIds.length > 0
-      ? getGiftProductsByIds(productIds)
-      : Promise.resolve([]),
-    inspiration.box ? getBoxById(inspiration.box) : Promise.resolve(null),
-    inspiration.bag ? getBagById(inspiration.bag) : Promise.resolve(null),
-    inspiration.decorations && inspiration.decorations.length > 0
-      ? getDecorationsByIds(inspiration.decorations)
-      : Promise.resolve([]),
-    inspiration.Mainproducts && inspiration.Mainproducts.length > 0
-      ? getMainProductsByIds(inspiration.Mainproducts)
-      : Promise.resolve([]),
-  ]);
-
-  const products = productsData.map(product => {
-    // إضافة معلومات الكمية إلى كل منتج
-    const quantity = inspiration.productQuantities[product.id] || 1;
-    return {
-      ...product,
-      quantity
-    };
-  }) || [];
+  // Extract decoration data
+  const decorationsData = inspiration.decorations || [];
+  
+  // Get box and bag data
+  const boxData = inspiration.box;
+  const bagData = inspiration.bag;
+  
+  // Map products with quantity
+  const products = productsData.map(product => ({
+    ...product,
+    quantity: product.quantity || 1
+  }));
+  // Map main products with quantity
+  const mainProducts = mainProductsData.map(product => ({
+    ...product,
+    quantity: (product as { quantity?: number }).quantity || 1
+  }));
+  
+  const decorations = decorationsData;
   const box = boxData;
   const bag = bagData;
-  const decorations = decorationsData || [];
-  const mainProducts = mainProductsData || [];
 
+
+  // Convert to legacy format for compatibility
+  const legacyInspiration = convertToLegacyInspiration(inspiration);
 
   // Calculate total items count
   const calculateTotalItems = () => {
@@ -278,14 +270,12 @@ export default async function InspirationPage({ params }: Props) {
                 </div>
               </div>
             </div>
-            
-            {/* Enhanced Call to Action Buttons */}
-            <div className="mt-4 space-y-3">
+              {/* Enhanced Call to Action Buttons */}            <div className="mt-4 space-y-3">
               <div className="transform hover:-translate-y-1 transition-transform duration-300">
                 <UseInspirationButton inspiration={inspiration} />
               </div>
               <div className="transform hover:-translate-y-1 transition-transform duration-1000 w-full">
-                <AddToCartButton inspiration={inspiration} />
+                <AddToCartButton inspiration={legacyInspiration} />
               </div>
             </div>
             

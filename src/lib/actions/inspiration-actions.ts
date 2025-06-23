@@ -25,7 +25,7 @@ export async function getAllInspirations(): Promise<Inspiration[]> {
 }
 
 // جلب هدية إلهام واحدة حسب المعرف
-export async function getInspirationById(id: string): Promise<Inspiration | null> {
+export async function getInspirationById(id: string) {
   try {
     const inspiration = await prisma.inspiration.findUnique({
       where: { id },

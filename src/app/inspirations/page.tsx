@@ -6,6 +6,19 @@ import Link from "next/link"
 import { Filter, Search, X, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Inspiration } from "@/types/inspiration"
+
+// Extended type for the page that includes optional properties
+type ExtendedInspiration = Inspiration & {
+  occasions?: string[];
+  tags?: string[];
+  comments?: Array<{
+    _id: string;
+    userId: string;
+    userName: string;
+    comment: string;
+    createdAt: string;
+  }>;
+};
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -71,7 +84,7 @@ const stringSimilarity = (str1: string, str2: string): number => {
 }
 
 // Calculate relevance score for an inspiration based on search terms
-const calculateRelevance = (inspiration: Inspiration, searchTerms: string[]): number => {
+const calculateRelevance = (inspiration: ExtendedInspiration, searchTerms: string[]): number => {
   if (!searchTerms.length) return 0
   
   let totalScore = 0
@@ -105,9 +118,8 @@ const calculateRelevance = (inspiration: Inspiration, searchTerms: string[]): nu
 }
 
 export default function InspirationsPage() {
-
-  const [inspirations, setInspirations] = useState<Inspiration[]>([])
-  const [filteredInspirations, setFilteredInspirations] = useState<Inspiration[]>([])
+  const [inspirations, setInspirations] = useState<ExtendedInspiration[]>([])
+  const [filteredInspirations, setFilteredInspirations] = useState<ExtendedInspiration[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>("all")
@@ -125,7 +137,7 @@ export default function InspirationsPage() {
   const [availableTags, setAvailableTags] = useState<string[]>([])
   
   // State for search results with relevance scores
-  const [searchResults, setSearchResults] = useState<Array<{inspiration: Inspiration, score: number}>>([])
+  const [searchResults, setSearchResults] = useState<Array<{inspiration: ExtendedInspiration, score: number}>>([])
   const [searchTerms, setSearchTerms] = useState<string[]>([])
 
   // Add URL parameter handling
@@ -175,8 +187,7 @@ export default function InspirationsPage() {
           // Extract unique occasions and tags from all inspirations
           const allOccasions = new Set<string>()
           const allTags = new Set<string>()
-          
-          inspirationsData.forEach((inspiration: Inspiration) => {
+            inspirationsData.forEach((inspiration: ExtendedInspiration) => {
             // Add occasions to set
             if (inspiration.occasions && Array.isArray(inspiration.occasions)) {
               inspiration.occasions.forEach(occasion => {
@@ -350,24 +361,22 @@ export default function InspirationsPage() {
         filtered.sort(() => 300 - 300) // Placeholder - would use actual prices
         break
       case "price_desc":
-        filtered.sort(() => 300 - 300) // Placeholder - would use actual prices
-        break
+        filtered.sort(() => 300 - 300) // Placeholder - would use actual prices        break
       case "rating":
         filtered.sort((a, b) => b.rating - a.rating)
         break
       case "newest":
         // Sort by updatedAt if available, otherwise by ID
         filtered.sort((a, b) => {
-          // Check if updatedAt exists and convert to comparable format
+          // Handle Date objects from Prisma
           const aDate = a.updatedAt ? 
-            (typeof a.updatedAt === 'string' ? a.updatedAt : a.updatedAt.$date?.$numberLong) : 
-            a.id
+            (a.updatedAt instanceof Date ? a.updatedAt.getTime() : new Date(a.updatedAt).getTime()) : 
+            0
           const bDate = b.updatedAt ? 
-            (typeof b.updatedAt === 'string' ? b.updatedAt : b.updatedAt.$date?.$numberLong) : 
-            b.id
+            (b.updatedAt instanceof Date ? b.updatedAt.getTime() : new Date(b.updatedAt).getTime()) : 
+            0
           
-          // Compare as strings if not directly comparable
-          return String(bDate).localeCompare(String(aDate))
+          return bDate - aDate
         })
         break
       case "popularity":
