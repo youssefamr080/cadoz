@@ -48494,6 +48494,7 @@ export namespace Prisma {
     price: number | null
     image: string | null
     stock: number | null
+    dimensions: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -48505,6 +48506,7 @@ export namespace Prisma {
     price: number | null
     image: string | null
     stock: number | null
+    dimensions: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -48516,6 +48518,7 @@ export namespace Prisma {
     price: number
     image: number
     stock: number
+    dimensions: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -48539,6 +48542,7 @@ export namespace Prisma {
     price?: true
     image?: true
     stock?: true
+    dimensions?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -48550,6 +48554,7 @@ export namespace Prisma {
     price?: true
     image?: true
     stock?: true
+    dimensions?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -48561,6 +48566,7 @@ export namespace Prisma {
     price?: true
     image?: true
     stock?: true
+    dimensions?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -48659,6 +48665,7 @@ export namespace Prisma {
     price: number
     image: string | null
     stock: number
+    dimensions: string | null
     createdAt: Date
     updatedAt: Date
     _count: BoxCountAggregateOutputType | null
@@ -48689,6 +48696,7 @@ export namespace Prisma {
     price?: boolean
     image?: boolean
     stock?: boolean
+    dimensions?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["box"]>
@@ -48702,11 +48710,12 @@ export namespace Prisma {
     price?: boolean
     image?: boolean
     stock?: boolean
+    dimensions?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type BoxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "image" | "stock" | "createdAt" | "updatedAt", ExtArgs["result"]["box"]>
+  export type BoxOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "price" | "image" | "stock" | "dimensions" | "createdAt" | "updatedAt", ExtArgs["result"]["box"]>
 
   export type $BoxPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Box"
@@ -48718,6 +48727,7 @@ export namespace Prisma {
       price: number
       image: string | null
       stock: number
+      dimensions: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["box"]>
@@ -49118,6 +49128,7 @@ export namespace Prisma {
     readonly price: FieldRef<"Box", 'Float'>
     readonly image: FieldRef<"Box", 'String'>
     readonly stock: FieldRef<"Box", 'Int'>
+    readonly dimensions: FieldRef<"Box", 'String'>
     readonly createdAt: FieldRef<"Box", 'DateTime'>
     readonly updatedAt: FieldRef<"Box", 'DateTime'>
   }
@@ -52119,6 +52130,7 @@ export namespace Prisma {
     price: 'price',
     image: 'image',
     stock: 'stock',
+    dimensions: 'dimensions',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -55586,6 +55598,7 @@ export namespace Prisma {
     price?: FloatFilter<"Box"> | number
     image?: StringNullableFilter<"Box"> | string | null
     stock?: IntFilter<"Box"> | number
+    dimensions?: StringNullableFilter<"Box"> | string | null
     createdAt?: DateTimeFilter<"Box"> | Date | string
     updatedAt?: DateTimeFilter<"Box"> | Date | string
   }
@@ -55597,6 +55610,7 @@ export namespace Prisma {
     price?: SortOrder
     image?: SortOrder
     stock?: SortOrder
+    dimensions?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -55611,6 +55625,7 @@ export namespace Prisma {
     price?: FloatFilter<"Box"> | number
     image?: StringNullableFilter<"Box"> | string | null
     stock?: IntFilter<"Box"> | number
+    dimensions?: StringNullableFilter<"Box"> | string | null
     createdAt?: DateTimeFilter<"Box"> | Date | string
     updatedAt?: DateTimeFilter<"Box"> | Date | string
   }, "id">
@@ -55622,6 +55637,7 @@ export namespace Prisma {
     price?: SortOrder
     image?: SortOrder
     stock?: SortOrder
+    dimensions?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: BoxCountOrderByAggregateInput
@@ -55641,6 +55657,7 @@ export namespace Prisma {
     price?: FloatWithAggregatesFilter<"Box"> | number
     image?: StringNullableWithAggregatesFilter<"Box"> | string | null
     stock?: IntWithAggregatesFilter<"Box"> | number
+    dimensions?: StringNullableWithAggregatesFilter<"Box"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Box"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Box"> | Date | string
   }
@@ -59250,6 +59267,7 @@ export namespace Prisma {
     price: number
     image?: string | null
     stock?: number
+    dimensions?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -59261,6 +59279,7 @@ export namespace Prisma {
     price: number
     image?: string | null
     stock?: number
+    dimensions?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -59271,6 +59290,7 @@ export namespace Prisma {
     price?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    dimensions?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -59281,6 +59301,7 @@ export namespace Prisma {
     price?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    dimensions?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -59292,6 +59313,7 @@ export namespace Prisma {
     price: number
     image?: string | null
     stock?: number
+    dimensions?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -59302,6 +59324,7 @@ export namespace Prisma {
     price?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    dimensions?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -59312,6 +59335,7 @@ export namespace Prisma {
     price?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     stock?: IntFieldUpdateOperationsInput | number
+    dimensions?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -61907,6 +61931,7 @@ export namespace Prisma {
     price?: SortOrder
     image?: SortOrder
     stock?: SortOrder
+    dimensions?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -61923,6 +61948,7 @@ export namespace Prisma {
     price?: SortOrder
     image?: SortOrder
     stock?: SortOrder
+    dimensions?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -61934,6 +61960,7 @@ export namespace Prisma {
     price?: SortOrder
     image?: SortOrder
     stock?: SortOrder
+    dimensions?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }

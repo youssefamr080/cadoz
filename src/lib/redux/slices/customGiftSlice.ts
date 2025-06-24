@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import type { CustomGift } from "@/types/database"
+import type { CustomGift } from "../../../../prisma/generated/client"
 import { getAllCustomGifts, getCustomGiftsByCategory, getCustomGiftById } from "@/lib/actions/custom-gift-actions"
 
 interface CustomGiftState {

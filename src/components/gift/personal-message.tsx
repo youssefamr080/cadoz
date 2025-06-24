@@ -14,14 +14,14 @@ export default function PersonalMessage() {
   const dispatch = useDispatch<AppDispatch>()
   const personalMessage = useSelector((state: RootState) => state.gift.personalMessage)
   const [message, setMessage] = useState(personalMessage?.message || "")
-  const [recipient, setRecipient] = useState(personalMessage?.recipient || "")
-  const [sender, setSender] = useState(personalMessage?.sender || "")
+  const [recipient, setRecipient] = useState(personalMessage?.to || "")
+  const [sender, setSender] = useState(personalMessage?.from || "")
 
   const handleSave = () => {
     dispatch(setPersonalMessage({
       message,
-      recipient,
-      sender,
+      to: recipient,
+      from: sender,
     }))
   }
 

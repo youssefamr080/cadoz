@@ -1,5 +1,15 @@
 "use server"
-import type { Box, GiftProduct, Decoration, Bag, GiftData, CartItem } from "@/types/database"
+import type { Box, Decoration, Bag } from "@/types/database"
+import type { GiftProduct } from "@/types/gift-product"
+
+// أنواع بسيطة للسلة
+interface CartItem {
+  [key: string]: string | number | boolean | object | undefined
+}
+
+interface GiftData {
+  [key: string]: string | number | boolean | object | undefined | null
+}
 
 // وظيفة لإنشاء صورة معاينة للهدية باستخدام Canvas
 export async function createGiftPreviewImage(): Promise<string> {
@@ -70,7 +80,7 @@ export async function createGiftCartItem(
 
   // إنشاء عنصر السلة متوافق مع نظام السلة الحالي
   return {
-    id: Date.now(), // Use timestamp as numeric ID
+    id: Date.now().toString(), // Use timestamp as string ID
     name: "هدية مخصصة",
     image: selectedBox?.image || "/images/box.png",
     price: totalPrice,

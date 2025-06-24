@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/free-mode";
 import Link from "next/link";
-import { Product } from "@/types/database";
+import { Product } from "../../../prisma/generated/client";
 
 interface Props {
   title: string;

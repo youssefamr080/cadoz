@@ -3,15 +3,9 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/providers/AuthProvider"
-import { useGetOrdersQuery } from '@/lib/redux/api/apiSlice'
+import { useGetOrdersQuery, type OrderWithDetails } from '@/lib/redux/api/apiSlice'
 import { skipToken } from '@reduxjs/toolkit/query'
-import type { Order, OrderItem } from "../../../../prisma/generated/client"
 import { OrderStatus } from "../../../../prisma/generated/client"
-
-// نوع موسع للطلب يتضمن العناصر
-type OrderWithItems = Order & {
-  items: OrderItem[];
-};
 
 import { Package, Search, Filter, ArrowLeft, Calendar, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -30,7 +24,7 @@ const OrdersPage = () => {
 
   // جلب الطلبات باستخدام RTK Query
   const { data, isLoading: isLoadingOrders } = useGetOrdersQuery(user ? { customerId: user.id } : skipToken, { skip: !user })
-  const orders: OrderWithItems[] = data || []
+  const orders: OrderWithDetails[] = data || []
 
   // التحقق من تسجيل الدخول
   useEffect(() => {

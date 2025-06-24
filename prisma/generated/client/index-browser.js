@@ -624,6 +624,7 @@ exports.Prisma.BoxScalarFieldEnum = {
   price: 'price',
   image: 'image',
   stock: 'stock',
+  dimensions: 'dimensions',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

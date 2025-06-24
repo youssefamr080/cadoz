@@ -51,13 +51,12 @@ export default function BagSelector() {
   
   const handleSaveForLater = (bag: InspirationBag, e: React.MouseEvent) => {
     e.stopPropagation()
-    dispatch(addSavedItemThunk({
-      productId: bag.id,
+    dispatch(addSavedItemThunk({      productId: bag.id,
       name: bag.name,
       price: bag.price,
       image: bag.image || "",
       type: "bag",
-    }) as any)
+    }) as never)
   }
 
   return (

@@ -136,15 +136,23 @@ export async function GET(request: Request) {
 
     if (!customerId) {
       return NextResponse.json({ success: false, message: "معرف العميل مطلوب" }, { status: 400 })
-    }
-
-    // البحث عن طلبات العميل
+    }    // البحث عن طلبات العميل
     const orders = await prisma.order.findMany({
       where: { customerId },
       orderBy: { createdAt: 'desc' },
       take: limit,
       include: {
-        items: true,
+        items: {
+          include: {
+            giftData: {
+              include: {
+                items: true,
+                box: true,
+                wrap: true
+              }
+            }
+          }
+        },
         shipping: true,
         payment: true,
         totals: true,

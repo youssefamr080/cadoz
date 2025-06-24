@@ -50,13 +50,12 @@ export default function DecorationSelector() {
   
   const handleSaveForLater = (decoration: Decoration, e: React.MouseEvent) => {
     e.stopPropagation()
-    dispatch(addSavedItemThunk({
-      productId: decoration.id,
+    dispatch(addSavedItemThunk({      productId: decoration.id,
       name: decoration.name,
       price: decoration.price,
       image: decoration.image || "",
       type: "decoration",
-    }) as any)
+    }) as never)
   }
 
   const isDecorationSelected = (decorationId: string) => {

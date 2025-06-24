@@ -9,13 +9,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (!orderId) {
       return NextResponse.json({ success: false, message: "معرف الطلب مطلوب" }, { status: 400 })
-    }
-
-    // البحث عن الطلب
+    }    // البحث عن الطلب
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
-        items: true,
+        items: {
+          include: {
+            giftData: {
+              include: {
+                items: true,
+                box: true,
+                wrap: true
+              }
+            }
+          }
+        },
         shipping: true,
         payment: true,
         totals: true,

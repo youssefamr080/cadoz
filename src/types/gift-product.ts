@@ -38,7 +38,7 @@ export interface GiftProduct {
 }
 
 // نوع لتحويل منتج عادي إلى منتج هدية
-export function convertToGiftProduct(product: any): GiftProduct {
+export function convertToGiftProduct(product: Partial<GiftProduct> & { id: string; name: string; price: number; stock: number }): GiftProduct {
   return {
     id: product.id,
     name: product.name,

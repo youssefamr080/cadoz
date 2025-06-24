@@ -26,10 +26,11 @@ export default function SavedItems() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
   const handleRemoveSavedItem = async (itemId: string) => {
     try {
       setIsLoading(true)
-      dispatch(removeSavedItemThunk(itemId) as any)
+      dispatch(removeSavedItemThunk(itemId) as never)
       setError(null)
     } catch (err) {
       console.error("Error removing saved item:", err)
@@ -42,7 +43,7 @@ export default function SavedItems() {
   const handleClearSavedItems = async () => {
     try {
       setIsLoading(true)
-      dispatch(clearSavedItemsThunk() as any)
+      dispatch(clearSavedItemsThunk() as never)
       setShowConfirmDialog(false)
       setError(null)
     } catch (err) {

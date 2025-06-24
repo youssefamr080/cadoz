@@ -176,16 +176,14 @@ const SearchBarEnhanced: React.FC<SearchBarEnhancedProps> = ({
         suggestions.some(suggestion => 
           inspiration.name.toLowerCase().includes(suggestion.toLowerCase()) ||
           inspiration.description.toLowerCase().includes(suggestion.toLowerCase())
-        )
-      ).map(inspiration => ({
-        _id: typeof inspiration._id === 'object' ? inspiration._id.$oid : (inspiration._id || inspiration.id),
+        )      ).map(inspiration => ({
+        _id: inspiration.id,
         id: inspiration.id,
         name: inspiration.name,
         description: inspiration.description,
         image: inspiration.image,
-        category: inspiration.category || '',
-        occasions: inspiration.occasions || [],
-        tags: inspiration.tags || [],
+        category: inspiration.category || '',        occasions: [],
+        tags: [],
         type: 'inspiration' as const,
         url: `/inspiration/${inspiration.id}`,
         relevanceScore: calculateRelevanceScore(inspiration, inputValue)

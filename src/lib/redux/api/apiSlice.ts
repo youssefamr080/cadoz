@@ -1,6 +1,30 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import type { Product } from "../../../types/product"
-import type { Box, GiftProduct, Decoration, Bag, Inspiration, CustomGift, Category, Notification, Order } from "@/types/database"
+import type { Box, Decoration, Bag } from "@/types/database"
+import type { GiftProduct } from "@/types/gift-product"
+import type { Inspiration, CustomGift, Category, Notification, Order, OrderItem, ShippingInfo, PaymentInfo, OrderTotals, PromoCode, Customer, GiftData, GiftItem, GiftBox, GiftWrap } from "../../../../prisma/generated/client"
+
+// نوع لبيانات الهدية مع البيانات المرتبطة
+export interface GiftDataWithDetails extends GiftData {
+  items: GiftItem[];
+  box?: GiftBox | null;
+  wrap?: GiftWrap | null;
+}
+
+// نوع للعنصر في الطلب مع البيانات المرتبطة
+export interface OrderItemWithDetails extends OrderItem {
+  giftData?: GiftDataWithDetails | null;
+}
+
+// نوع للطلب مع البيانات المرتبطة
+export interface OrderWithDetails extends Order {
+  items: OrderItemWithDetails[];
+  shipping?: ShippingInfo | null;
+  payment?: PaymentInfo | null;
+  totals?: OrderTotals | null;
+  promoCode?: PromoCode | null;
+  customer?: Customer | null;
+}
 
 // نوع الاستجابة لإنشاء الطلب
 export interface CreateOrderResponse {
@@ -773,7 +797,7 @@ export const apiSlice = createApi({
       invalidatesTags: [{ type: 'Orders', id: 'LIST' }],
     }),
 
-    getOrders: builder.query<Order[], { customerId: string; limit?: number }>({
+    getOrders: builder.query<OrderWithDetails[], { customerId: string; limit?: number }>({
       async queryFn(params) {
         try {
           const queryParams = new URLSearchParams();
@@ -801,7 +825,7 @@ export const apiSlice = createApi({
           : [{ type: "Orders", id: "LIST" }],
     }),
 
-    getOrderById: builder.query<Order, string>({
+    getOrderById: builder.query<OrderWithDetails, string>({
       async queryFn(orderId) {
         try {
           const response = await fetch(`/api/orders/${orderId}`);
@@ -983,7 +1007,7 @@ export const apiSlice = createApi({
       providesTags: (result) =>
         result && result.data && Array.isArray(result.data.reviews)
           ? [
-              ...result.data.reviews.map((review: unknown) => ({ type: "ProductReviews" as const, id: (review as { _id: string })._id })),
+              ...result.data.reviews.map((review: unknown) => ({ type: "ProductReviews" as const, id: (review as { id: string }).id })),
               { type: "ProductReviews", id: "LIST" },
             ]
           : [{ type: "ProductReviews", id: "LIST" }],
@@ -1115,7 +1139,7 @@ export const apiSlice = createApi({
       providesTags: (result) =>
         result && Array.isArray(result.data)
           ? [
-              ...result.data.map((item) => ({ type: "Notifications" as const, id: item._id })),
+              ...result.data.map((item) => ({ type: "Notifications" as const, id: item.id })),
               { type: "Notifications", id: "LIST" },
             ]
           : [{ type: "Notifications", id: "LIST" }],

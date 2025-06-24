@@ -263,7 +263,7 @@ export const dislikeInspiration = toggleInspirationDislike
 export const rateInspiration = addInspirationRating
 
 // جلب الإلهامات الشائعة
-export async function getPopularInspirations(): Promise<Inspiration[]> {
+export async function getPopularInspirations(limit: number = 10): Promise<Inspiration[]> {
   try {
     const inspirations = await prisma.inspiration.findMany({
       where: {
@@ -273,7 +273,7 @@ export async function getPopularInspirations(): Promise<Inspiration[]> {
         { likes: 'desc' },
         { createdAt: 'desc' }
       ],
-      take: 10, // أحدث 10 إلهامات شائعة
+      take: limit, // عدد الإلهامات المطلوبة
       include: {
         ratings: true,
         comments: true,

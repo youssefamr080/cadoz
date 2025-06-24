@@ -7,7 +7,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Navigation, Pagination } from "swiper/modules";
-import { Product } from "../../types/database";
+import { Product } from "../../../prisma/generated/client";
 
 interface Props {
   products: Product[];

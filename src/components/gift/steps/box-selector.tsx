@@ -59,13 +59,12 @@ export default function BoxSelector() {
   
   const handleSaveForLater = (box: Box, e: React.MouseEvent) => {
     e.stopPropagation()
-    dispatch(addSavedItemThunk({
-      productId: box.id,
+    dispatch(addSavedItemThunk({      productId: box.id,
       name: box.name,
       price: box.price,
       image: box.image || "",
       type: "box",
-    }) as any)
+    }) as never)
   }
 
   return (
