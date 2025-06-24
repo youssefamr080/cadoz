@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import {
@@ -24,58 +24,47 @@ export default function SavedItems() {
   const dispatch = useDispatch()
   const savedItems = useSelector((state: RootState) => state.gift.savedItems)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [localSavedItems, setLocalSavedItems] = useState<SavedItem[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // Sync with the server on initial load
-  useEffect(() => {
-    const fetchSavedItems = async () => {
-      try {
-        setIsLoading(true)
-        setLocalSavedItems(savedItems)
-        setError(null)
-      } catch (err) {
-        console.error("Error loading saved items:", err)
-        setLocalSavedItems(savedItems)
-        setError("Could not load saved items from server, using local data")
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchSavedItems()
-  }, [savedItems])
-
   const handleRemoveSavedItem = async (itemId: string) => {
     try {
-      // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
-      dispatch(removeSavedItemThunk(itemId))
+      setIsLoading(true)
+      dispatch(removeSavedItemThunk(itemId) as any)
+      setError(null)
     } catch (err) {
       console.error("Error removing saved item:", err)
       setError("حدث خطأ أثناء حذف العنصر. يرجى المحاولة مرة أخرى.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleClearSavedItems = async () => {
     try {
-      // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
-      dispatch(clearSavedItemsThunk())
+      setIsLoading(true)
+      dispatch(clearSavedItemsThunk() as any)
       setShowConfirmDialog(false)
+      setError(null)
     } catch (err) {
       console.error("Error clearing saved items:", err)
       setError("حدث خطأ أثناء حذف جميع العناصر. يرجى المحاولة مرة أخرى.")
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const displayedItems = localSavedItems.slice(0, 3)
+  const displayedItems = savedItems.slice(0, 3)
 
   return (
-    <div className="mt-4 bg-white rounded-lg border p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-medium text-gray-900">المحفوظة مؤخراً</h3>
-        {localSavedItems.length > 0 && (
-          <Button variant="outline" size="sm" onClick={() => setShowConfirmDialog(true)} className="text-xs">
+    <div className="mt-4 bg-white rounded-lg border p-4">      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-medium text-gray-900">المحفوظة مؤخراً</h3>        {savedItems.length > 0 && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowConfirmDialog(true)} 
+            className="text-xs"
+            disabled={isLoading}
+          >
             <Trash2 className="w-3 h-3 mr-1" />
             مسح الكل
           </Button>
@@ -86,8 +75,7 @@ export default function SavedItems() {
         <div className="flex justify-center items-center p-4">
           <div className="w-6 h-6 border-2 border-gray-200 border-t-purple-500 rounded-full animate-spin"></div>
         </div>
-      ) : (
-        <div className="space-y-3">
+      ) : (        <div className="space-y-3">
           <AnimatePresence>
             {displayedItems.map((item: SavedItem) => (
               <motion.div
@@ -116,6 +104,7 @@ export default function SavedItems() {
                     size="icon"
                     onClick={() => handleRemoveSavedItem(item.id)}
                     className="h-7 w-7"
+                    disabled={isLoading}
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>
@@ -125,9 +114,7 @@ export default function SavedItems() {
                 </div>
               </motion.div>
             ))}
-          </AnimatePresence>
-
-          {localSavedItems.length === 0 && (
+          </AnimatePresence>{savedItems.length === 0 && (
             <p className="text-sm text-gray-500 text-center py-2">لا توجد عناصر محفوظة</p>
           )}
 
@@ -142,10 +129,11 @@ export default function SavedItems() {
             <AlertDialogDescription>
               هل أنت متأكد من رغبتك في مسح جميع العناصر المحفوظة؟ لا يمكن التراجع عن هذا الإجراء.
             </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
-            <AlertDialogAction onClick={handleClearSavedItems}>مسح الكل</AlertDialogAction>
+          </AlertDialogHeader>          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoading}>إلغاء</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearSavedItems} disabled={isLoading}>
+              {isLoading ? "جاري الحذف..." : "مسح الكل"}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

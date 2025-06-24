@@ -332,7 +332,7 @@ export default function GiftPreview() {
                   <div 
                     className="relative border-2 border-gray-300 bg-white rounded-lg p-2 min-w-[180px] sm:min-w-[200px] min-h-[180px] sm:min-h-[200px] shadow-md transition-shadow duration-300 hover:shadow-xl"
                     style={{
-                      backgroundImage: selectedBox.texture ? `url(${selectedBox.texture})` : 'none',
+                      backgroundImage: selectedBox.image ? `url(${selectedBox.image})` : 'none',
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                       transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
@@ -340,15 +340,15 @@ export default function GiftPreview() {
                       transition: 'transform 0.1s ease-out',
                     }}
                   >
-                    {/* Box ribbon - decorative element */}
-                    {selectedBox.hasRibbon && (
+                    {/* Box ribbon - decorative element - متاح حسب التصميم */}
+                    {selectedBox.image && (
                       <div className="absolute -top-4 -left-4 -right-4 h-8 overflow-hidden">
                         <div className="w-full h-full bg-purple-500 shadow-md transform -rotate-2 origin-top-right"></div>
                       </div>
                     )}
                     
                     <div className="absolute top-0 right-0 -mt-2 -mr-2 text-[10px] sm:text-xs bg-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full shadow-md border border-gray-200 font-medium">
-                      {selectedBox.dimensions}
+                      {selectedBox.name}
                     </div>
 
                     <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center">
@@ -425,8 +425,8 @@ export default function GiftPreview() {
                       transition={{ type: "spring", stiffness: 300, damping: 25 }}
                       className="absolute -bottom-6 -left-5 -right-5 top-[80%] rounded-b-xl shadow-lg overflow-hidden"
                       style={{
-                        backgroundColor: selectedBag.color || "#f3f4f6",
-                        backgroundImage: selectedBag.pattern ? `url(${selectedBag.pattern})` : "none",
+                        backgroundColor: "#f3f4f6",
+                        backgroundImage: selectedBag.image ? `url(${selectedBag.image})` : "none",
                         backgroundSize: "cover",
                         backgroundRepeat: "no-repeat",
                       }}

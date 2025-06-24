@@ -49,7 +49,7 @@ export async function addSavedItem(item: {
   name: string
   price: number
   image?: string
-}): Promise<void> {
+}): Promise<SavedItem> {
   try {
     const userId = await getUserId()
 
@@ -64,20 +64,23 @@ export async function addSavedItem(item: {
       }
     })
 
-    if (!existingItem) {
-      await prisma.savedItem.create({
-        data: {
-          userId,
-          productId: item.productId,
-          type: item.type,
-          name: item.name,
-          price: item.price,
-          image: item.image
-        }
-      })
+    if (existingItem) {
+      return existingItem
     }
 
+    const newItem = await prisma.savedItem.create({
+      data: {
+        userId,
+        productId: item.productId,
+        type: item.type,
+        name: item.name,
+        price: item.price,
+        image: item.image
+      }
+    })
+
     revalidatePath("/")
+    return newItem
   } catch (error) {
     console.error("Error adding saved item:", error)
     throw new Error("فشل في إضافة العنصر المحفوظ")

@@ -1,13 +1,13 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import type { GiftProduct } from "../../../prisma/generated/client"
+import type { Product } from "../../../prisma/generated/client"
 import { revalidatePath } from "next/cache"
 
 // جلب جميع المنتجات
-export async function getAllProducts(): Promise<GiftProduct[]> {
+export async function getAllProducts(): Promise<Product[]> {
   try {
-    const products = await prisma.giftProduct.findMany()
+    const products = await prisma.product.findMany()
     return products
   } catch (error) {
     console.error("Error fetching products:", error)
@@ -16,9 +16,9 @@ export async function getAllProducts(): Promise<GiftProduct[]> {
 }
 
 // جلب المنتجات حسب الفئة
-export async function getProductsByCategory(category: string): Promise<GiftProduct[]> {
+export async function getProductsByCategory(category: string): Promise<Product[]> {
   try {
-    const products = await prisma.giftProduct.findMany({
+    const products = await prisma.product.findMany({
       where: { category }
     })
     return products
@@ -29,10 +29,15 @@ export async function getProductsByCategory(category: string): Promise<GiftProdu
 }
 
 // جلب المنتجات الشائعة
-export async function getPopularProducts(): Promise<GiftProduct[]> {
+export async function getPopularProducts(): Promise<Product[]> {
   try {
-    const products = await prisma.giftProduct.findMany({
-      where: { popular: true }
+    const products = await prisma.product.findMany({
+      where: { 
+        OR: [
+          { best_seller: true },
+          { trending: true }
+        ]
+      }
     })
     return products
   } catch (error) {
@@ -42,9 +47,9 @@ export async function getPopularProducts(): Promise<GiftProduct[]> {
 }
 
 // جلب منتج واحد حسب المعرف
-export async function getProductById(id: string): Promise<GiftProduct | null> {
+export async function getProductById(id: string): Promise<Product | null> {
   try {
-    const product = await prisma.giftProduct.findUnique({
+    const product = await prisma.product.findUnique({
       where: { id }
     })
     return product
@@ -55,10 +60,10 @@ export async function getProductById(id: string): Promise<GiftProduct | null> {
 }
 
 // جلب عدة منتجات حسب قائمة المعرفات
-export async function getGiftProductsByIds(ids: string[]): Promise<GiftProduct[]> {
+export async function getGiftProductsByIds(ids: string[]): Promise<Product[]> {
   try {
     if (!ids || ids.length === 0) return [];
-    const products = await prisma.giftProduct.findMany({
+    const products = await prisma.product.findMany({
       where: { id: { in: ids } }
     })
     return products;
@@ -71,7 +76,7 @@ export async function getGiftProductsByIds(ids: string[]): Promise<GiftProduct[]
 // تحديث مخزون المنتج
 export async function updateProductStock(id: string, newStock: number): Promise<void> {
   try {
-    await prisma.giftProduct.update({
+    await prisma.product.update({
       where: { id },
       data: { stock: newStock }
     })
@@ -83,9 +88,9 @@ export async function updateProductStock(id: string, newStock: number): Promise<
 }
 
 // البحث عن المنتجات
-export async function searchProducts(searchTerm: string): Promise<GiftProduct[]> {
+export async function searchProducts(searchTerm: string): Promise<Product[]> {
   try {
-    const products = await prisma.giftProduct.findMany({
+    const products = await prisma.product.findMany({
       where: {
         name: {
           contains: searchTerm,
@@ -106,7 +111,7 @@ export async function filterProducts(filters: {
   flavor?: string[]
   occasion?: string
   inStock?: boolean
-}): Promise<GiftProduct[]> {
+}): Promise<Product[]> {
   try {
     const whereClause: Record<string, unknown> = {}
 
@@ -126,7 +131,7 @@ export async function filterProducts(filters: {
       whereClause.stock = { gt: 0 }
     }
 
-    const products = await prisma.giftProduct.findMany({
+    const products = await prisma.product.findMany({
       where: whereClause
     })
     return products

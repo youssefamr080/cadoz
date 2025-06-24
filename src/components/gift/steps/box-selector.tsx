@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useDispatch, useSelector } from "react-redux"
-import type { RootState } from "@/lib/redux/store"
+import type { RootState, AppDispatch } from "@/lib/redux/store"
 import { setSelectedBox } from "@/lib/redux/slices/giftSlice"
 import { addSavedItemThunk } from "@/lib/redux/slices/giftSlice"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/RadioGroup"
@@ -14,7 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Heart } from "lucide-react"
 import { getBoxesByCategory } from "@/lib/actions/box-actions"
-import type { Box } from "@/types/database"
+import type { Box } from "../../../../prisma/generated/client"
 import Image from "next/image"
 
 const boxCategories = [
@@ -24,7 +24,7 @@ const boxCategories = [
 ]
 
 export default function BoxSelector() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const selectedBox = useSelector((state: RootState) => state.gift.selectedBox)
   const [category, setCategory] = useState("basic")
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
@@ -36,7 +36,7 @@ export default function BoxSelector() {
     const fetchBoxes = async () => {
       try {
         setIsPageLoading(true)
-        const data = await getBoxesByCategory(category)
+        const data = await getBoxesByCategory()
         setBoxes(data)
         setError(null)
       } catch (err) {
@@ -49,7 +49,6 @@ export default function BoxSelector() {
 
     fetchBoxes()
   }, [category])
-
   const handleBoxSelect = (box: Box) => {
     setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [box.id]: true }))
     setTimeout(() => {
@@ -57,17 +56,16 @@ export default function BoxSelector() {
       setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [box.id]: false }))
     }, 500)
   }
-
+  
   const handleSaveForLater = (box: Box, e: React.MouseEvent) => {
     e.stopPropagation()
-    // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
     dispatch(addSavedItemThunk({
-      id: box.id,
+      productId: box.id,
       name: box.name,
       price: box.price,
-      image: box.image,
+      image: box.image || "",
       type: "box",
-    }))
+    }) as any)
   }
 
   return (
@@ -144,7 +142,7 @@ export default function BoxSelector() {
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <h3 className="font-medium text-gray-900">{box.name}</h3>
-                        <p className="text-sm text-gray-500">{box.dimensions}</p>
+                        <p className="text-sm text-gray-500">{box.description}</p>
                       </div>
                       <RadioGroupItem id={box.id} value={box.id} className="sr-only" />
                       <span className="font-bold text-purple-600">{box.price} جنيه</span>

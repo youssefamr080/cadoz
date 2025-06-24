@@ -628,6 +628,17 @@ exports.Prisma.BoxScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.BagScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  image: 'image',
+  stock: 'stock',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SavedItemScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -732,6 +743,7 @@ exports.Prisma.ModelName = {
   MainProduct: 'MainProduct',
   CustomGift: 'CustomGift',
   Box: 'Box',
+  Bag: 'Bag',
   SavedItem: 'SavedItem'
 };
 

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit"
-import type { Box, GiftProduct, Decoration, Bag, SavedItem, PersonalMessage } from "@/types/database"
+import type { Box, GiftProduct, Decoration, Bag, SavedItem, PersonalMessage } from "../../../types/database"
+import { convertInspirationBagToBag } from "../../../types/database"
 import { getAllBoxes, getBoxesByCategory } from "@/lib/actions/box-actions"
 import { getAllProducts, getProductsByCategory, searchProducts, filterProducts } from "@/lib/actions/product-actions"
 import { getAllDecorations, getAvailableDecorations } from "@/lib/actions/decoration-actions"
@@ -109,7 +110,7 @@ export const fetchBoxesByCategory = createAsyncThunk(
   "gift/fetchBoxesByCategory",
   async (category: string, { rejectWithValue }) => {
     try {
-      const boxes = await getBoxesByCategory(category)
+      const boxes = await getBoxesByCategory()
       return { category, boxes }
     } catch (error) {
       return rejectWithValue((error as Error).message)
@@ -214,10 +215,18 @@ export const fetchSavedItems = createAsyncThunk("gift/fetchSavedItems", async (_
   }
 })
 
-export const addSavedItemThunk = createAsyncThunk("gift/addSavedItem", async (item: SavedItem, { rejectWithValue }) => {
+export const addSavedItemThunk = createAsyncThunk(
+  "gift/addSavedItem", 
+  async (item: {
+    productId: string
+    type: string
+    name: string
+    price: number
+    image?: string
+  }, { rejectWithValue }) => {
   try {
-    await addSavedItem(item)
-    return item
+    const savedItem = await addSavedItem(item)
+    return savedItem
   } catch (error) {
     return rejectWithValue((error as Error).message)
   }
@@ -364,17 +373,17 @@ const giftSlice = createSlice({
     builder
       .addCase(fetchAllBags.pending, (state) => {
         state.bags.status = "loading"
-      })
-      .addCase(fetchAllBags.fulfilled, (state, action) => {
+      })      .addCase(fetchAllBags.fulfilled, (state, action) => {
         state.bags.status = "succeeded"
-        state.bags.data = action.payload
+        // تحويل InspirationBag[] إلى Bag[]
+        state.bags.data = action.payload.map(convertInspirationBagToBag)
       })
       .addCase(fetchAllBags.rejected, (state, action) => {
         state.bags.status = "failed"
         state.bags.error = action.payload as string
-      })
-      .addCase(fetchAvailableBags.fulfilled, (state, action) => {
-        state.bags.available = action.payload
+      })      .addCase(fetchAvailableBags.fulfilled, (state, action) => {
+        // تحويل InspirationBag[] إلى Bag[]
+        state.bags.available = action.payload.map(convertInspirationBagToBag)
       })
 
     // Saved Items

@@ -687,6 +687,21 @@ model Box {
   @@map("boxes")
 }
 
+// Gift Bags
+model Bag {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  price       Float
+  image       String?
+  stock       Int    @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("bags")
+}
+
 // Saved Items
 model SavedItem {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId

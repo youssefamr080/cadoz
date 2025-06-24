@@ -1,7 +1,8 @@
 "use client"
 
 import type React from "react"
-import type { Product } from "@/types/database"
+import type { GiftProduct } from "@/types/database"
+import { convertToGiftProduct } from "@/types/database"
 import type { RootState } from "@/lib/redux/store"
 
 import { useState, useEffect, useCallback } from "react"
@@ -24,20 +25,9 @@ import { addProduct, removeProduct, updateProductQuantity } from "@/lib/redux/sl
 const categories = ["الكل", "شوكولاتة", "حلويات", "شيبسي"]
 
 const sortOptions = [
-  { value: "popular", label: "الأكثر شيوعاً" },
   { value: "priceAsc", label: "السعر: من الأقل إلى الأعلى" },
   { value: "priceDesc", label: "السعر: من الأعلى إلى الأقل" },
   { value: "nameAsc", label: "الاسم: أ-ي" },
-]
-
-
-// Add occasion options
-const occasionOptions = [
-  { value: "all", label: "جميع المناسبات" },
-  { value: "birthday", label: "أعياد الميلاد" },
-  { value: "wedding", label: "الزفاف" },
-  { value: "graduation", label: "التخرج" },
-  { value: "anniversary", label: "الذكرى السنوية" },
 ]
 
 export default function ProductSelector() {
@@ -98,28 +88,24 @@ export default function ProductSelector() {
       </div>
     );
   };
-
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("الكل")
-  const [sortBy, setSortBy] = useState("popular")
+  const [sortBy, setSortBy] = useState("nameAsc")
   const [availabilityFilter, setAvailabilityFilter] = useState(false)
-  const [flavorFilter] = useState<string[]>([])
-  const [occasionFilter, setOccasionFilter] = useState<string>("")
-
   const [quantities, setQuantities] = useState<Record<string, number>>({})
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
-  const [, setProducts] = useState<Product[]>([])
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  const [, setProducts] = useState<GiftProduct[]>([])
+  const [filteredProducts, setFilteredProducts] = useState<GiftProduct[]>([])
   const [isPageLoading, setIsPageLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
   // Fetch all products on initial load
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setIsPageLoading(true)
         const data = await getAllProducts()
-        setProducts(data)
+        const giftProducts = data.map(convertToGiftProduct)
+        setProducts(giftProducts)
         setError(null)
       } catch (err) {
         console.error("Error loading products:", err)
@@ -130,10 +116,8 @@ export default function ProductSelector() {
     }
 
     fetchProducts()
-  }, [])
-
-  // Apply sorting
-  const applySorting = useCallback((productsToSort: Product[]): Product[] => {
+  }, [])  // Apply sorting
+  const applySorting = useCallback((productsToSort: GiftProduct[]): GiftProduct[] => {
     const sorted = [...productsToSort]
 
     switch (sortBy) {
@@ -146,28 +130,19 @@ export default function ProductSelector() {
       case "nameAsc":
         sorted.sort((a, b) => a.name.localeCompare(b.name))
         break
-      case "popular":
-        sorted.sort((a, b) => (b.popular ? 1 : 0) - (a.popular ? 1 : 0))
+      default:
+        // ترتيب افتراضي حسب الاسم
+        sorted.sort((a, b) => a.name.localeCompare(b.name))
         break
     }
 
     return sorted
-  }, [sortBy])
-
-  // Client side filtering for search results
-  const applyClientSideFilters = useCallback((productsToFilter: Product[]) => {
+  }, [sortBy])  // Client side filtering for search results
+  const applyClientSideFilters = useCallback((productsToFilter: GiftProduct[]) => {
     let result = productsToFilter
 
     if (selectedCategory !== "الكل") {
       result = result.filter((p) => p.category === selectedCategory)
-    }
-
-    if (flavorFilter.length > 0) {
-      result = result.filter((p) => p.flavor && flavorFilter.includes(p.flavor))
-    }
-
-    if (occasionFilter && occasionFilter !== "all") {
-      result = result.filter((p) => p.occasion === occasionFilter)
     }
 
     if (availabilityFilter) {
@@ -175,8 +150,7 @@ export default function ProductSelector() {
     }
 
     return applySorting(result)
-  }, [selectedCategory, flavorFilter, occasionFilter, availabilityFilter, applySorting])
-
+  }, [selectedCategory, availabilityFilter, applySorting])
   // Apply filters whenever they change
   useEffect(() => {
     const applyFilters = async () => {
@@ -186,14 +160,12 @@ export default function ProductSelector() {
         // If searching, use search function
         if (searchTerm.trim()) {
           const searchResults = await searchProducts(searchTerm)
-          const filtered = applyClientSideFilters(searchResults)
-          setFilteredProducts(filtered)
-        } else {
+          const giftProducts = searchResults.map(convertToGiftProduct)
+          const filtered = applyClientSideFilters(giftProducts)
+          setFilteredProducts(filtered)        } else {
           // Otherwise use regular filtering
           const filters: {
             category?: string
-            flavor?: string[]
-            occasion?: string
             inStock?: boolean
           } = {}
 
@@ -201,34 +173,26 @@ export default function ProductSelector() {
             filters.category = selectedCategory
           }
 
-          if (flavorFilter.length > 0) {
-            filters.flavor = flavorFilter
-          }
-
-          if (occasionFilter && occasionFilter !== "all") {
-            filters.occasion = occasionFilter
-          }
-
           if (availabilityFilter) {
             filters.inStock = true
           }
 
           const filteredData = await filterProducts(filters)
-          const sortedData = applySorting(filteredData)
+          const giftProducts = filteredData.map(convertToGiftProduct)
+          const sortedData = applySorting(giftProducts)
           setFilteredProducts(sortedData)
         }
 
         setError(null)
       } catch (err) {
         console.error("Error filtering products:", err)
-        setError("حدث خطأ أثناء تصفية المنتجات. يرجى المحاولة مرة أخرى.")
-      } finally {
+        setError("حدث خطأ أثناء تصفية المنتجات. يرجى المحاولة مرة أخرى.")      } finally {
         setIsPageLoading(false)
       }
     }
 
     applyFilters()
-  }, [searchTerm, selectedCategory, availabilityFilter, flavorFilter, occasionFilter, sortBy, applyClientSideFilters, applySorting])
+  }, [searchTerm, selectedCategory, availabilityFilter, sortBy, applyClientSideFilters, applySorting])
 
   const initializeQuantities = useCallback(() => {
     const initialQuantities: Record<string, number> = {}
@@ -252,8 +216,8 @@ export default function ProductSelector() {
       dispatch(updateProductQuantity({ id: productId, quantity: newQuantity }))
     }
   }
-
-  const handleAddToGift = (product: Product) => {
+  
+  const handleAddToGift = (product: GiftProduct) => {
     setIsLoading((prev) => ({ ...prev, [product.id]: true }))
 
     setTimeout(() => {
@@ -265,14 +229,14 @@ export default function ProductSelector() {
         image: product.image,
         category: product.category,
         stock: product.stock,
-        popular: product.popular,
+        old_price: product.old_price,
         quantity,
       }))
       setIsLoading((prev) => ({ ...prev, [product.id]: false }))
     }, 300)
   }
 
-  const handleSaveForLater = (product: Product, e: React.MouseEvent) => {
+  const handleSaveForLater = (product: GiftProduct, e: React.MouseEvent) => {
     e.stopPropagation()
     dispatch(removeProduct(product.id))
   }
@@ -331,9 +295,7 @@ export default function ProductSelector() {
             </SelectContent>
           </Select>
         </div>
-      </div>
-
-      <div className="mb-6 space-y-4">
+      </div>      <div className="mb-6 space-y-4">
         <div className="flex items-center space-x-2 space-x-reverse">
           <Checkbox
             id="availability"
@@ -341,22 +303,6 @@ export default function ProductSelector() {
             onCheckedChange={(checked) => setAvailabilityFilter(checked as boolean)}
           />
           <Label htmlFor="availability">عرض المنتجات المتوفرة فقط</Label>
-        </div>
-
-        <div>
-          <Label className="block mb-2">المناسبة</Label>
-          <Select value={occasionFilter} onValueChange={setOccasionFilter}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="اختر المناسبة" />
-            </SelectTrigger>
-            <SelectContent>
-              {occasionOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
       </div>
 

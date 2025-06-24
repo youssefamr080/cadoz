@@ -7,15 +7,15 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useDispatch, useSelector } from "react-redux"
 import { addDecoration, removeDecoration } from "@/lib/redux/slices/giftSlice"
 import { addSavedItemThunk } from "@/lib/redux/slices/giftSlice"
-import type { RootState } from "@/lib/redux/store"
+import type { RootState, AppDispatch } from "@/lib/redux/store"
 import { Button } from "@/components/ui/button"
 import { Heart, AlertTriangle } from "lucide-react"
 import { getAllDecorations } from "@/lib/actions/decoration-actions"
-import type { Decoration } from "@/types/database"
+import type { Decoration } from "../../../../prisma/generated/client"
 import Image from "next/image"
 
 export default function DecorationSelector() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const selectedDecorations = useSelector((state: RootState) => state.gift.selectedDecorations) as Decoration[]
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
   const [decorations, setDecorations] = useState<Decoration[]>([])
@@ -31,8 +31,7 @@ export default function DecorationSelector() {
         setError(null)
       } catch (err) {
         console.error("Error loading decorations:", err)
-        setError("حدث خطأ أثناء تحميل الزينة. يرجى المحاولة مرة أخرى.")
-      } finally {
+        setError("حدث خطأ أثناء تحميل الزينة. يرجى المحاولة مرة أخرى.")      } finally {
         setIsPageLoading(false)
       }
     }
@@ -43,27 +42,21 @@ export default function DecorationSelector() {
   const handleAddDecoration = (decoration: Decoration) => {
     setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [decoration.id]: true }))
     setTimeout(() => {
-      dispatch(addDecoration({
-        id: decoration.id,
-        name: decoration.name,
-        price: decoration.price,
-        image: decoration.image,
-        stock: decoration.stock,
-      }))
+      // تمرير الـ decoration object كاملاً مع createdAt و updatedAt
+      dispatch(addDecoration(decoration))
       setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [decoration.id]: false }))
     }, 300)
   }
-
+  
   const handleSaveForLater = (decoration: Decoration, e: React.MouseEvent) => {
     e.stopPropagation()
-    // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
     dispatch(addSavedItemThunk({
-      id: decoration.id,
+      productId: decoration.id,
       name: decoration.name,
       price: decoration.price,
-      image: decoration.image,
+      image: decoration.image || "",
       type: "decoration",
-    }))
+    }) as any)
   }
 
   const isDecorationSelected = (decorationId: string) => {

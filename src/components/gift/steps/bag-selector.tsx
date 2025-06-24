@@ -6,18 +6,19 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useDispatch, useSelector } from "react-redux"
 import { setSelectedBag, addSavedItemThunk } from "@/lib/redux/slices/giftSlice"
-import type { RootState } from "@/lib/redux/store"
+import type { RootState, AppDispatch } from "@/lib/redux/store"
 import { Button } from "@/components/ui/button"
 import { Heart, AlertTriangle } from "lucide-react"
 import { getAllBags } from "@/lib/actions/bag-actions"
-import type { Bag } from "@/types/database"
+import type { InspirationBag } from "../../../../prisma/generated/client"
+import { convertInspirationBagToBag } from "@/types/database"
 import Image from "next/image"
 
 export default function BagSelector() {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const selectedBag = useSelector((state: RootState) => state.gift.selectedBag)
   const [isLoading, setIsLoading] = useState<Record<string, boolean>>({})
-  const [bags, setBags] = useState<Bag[]>([])
+  const [bags, setBags] = useState<InspirationBag[]>([])
   const [isPageLoading, setIsPageLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -38,25 +39,25 @@ export default function BagSelector() {
 
     fetchBags()
   }, [])
-
-  const handleSelectBag = (bag: Bag) => {
+  const handleSelectBag = (bag: InspirationBag) => {
     setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [bag.id]: true }))
     setTimeout(() => {
-      dispatch(setSelectedBag(bag))
+      // تحويل InspirationBag إلى Bag قبل الإرسال للـ Redux
+      const convertedBag = convertInspirationBagToBag(bag)
+      dispatch(setSelectedBag(convertedBag))
       setIsLoading((prev: Record<string, boolean>) => ({ ...prev, [bag.id]: false }))
     }, 300)
   }
-
-  const handleSaveForLater = (bag: Bag, e: React.MouseEvent) => {
+  
+  const handleSaveForLater = (bag: InspirationBag, e: React.MouseEvent) => {
     e.stopPropagation()
-    // @ts-expect-error - AsyncThunk type conflict with Redux dispatch
     dispatch(addSavedItemThunk({
-      id: bag.id,
+      productId: bag.id,
       name: bag.name,
       price: bag.price,
-      image: bag.image,
+      image: bag.image || "",
       type: "bag",
-    }))
+    }) as any)
   }
 
   return (
@@ -75,7 +76,7 @@ export default function BagSelector() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <AnimatePresence>
-            {bags.map((bag: Bag, bagIndex) => (
+            {bags.map((bag: InspirationBag, bagIndex) => (
               <motion.div
                 key={bag.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -105,8 +106,7 @@ export default function BagSelector() {
                           sizes="(max-width: 480px) 80vw, (max-width: 768px) 40vw, 25vw"
                           className="object-cover p-4" 
                           priority={bagIndex === 0} // إعطاء الأولوية للكيس الأول
-                        />
-                        {bag.stock <= 5 && (
+                        />                        {bag.stock <= 5 && (
                           <div className="absolute top-2 right-2 bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full flex items-center">
                             <AlertTriangle className="w-3 h-3 mr-1" />
                             {bag.stock > 0 ? `تبقى ${bag.stock} فقط!` : "نفذ المخزون"}
