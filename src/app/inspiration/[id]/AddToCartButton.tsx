@@ -6,8 +6,6 @@ import { toast } from "react-toastify";
 import { getBoxesByIds } from "@/lib/actions/box-actions";
 import { getBagsByIds } from "@/lib/actions/bag-actions";
 import { getGiftProductsByIds } from "@/lib/actions/product-actions";
-import { getDecorationsByIds } from "@/lib/actions/decoration-actions";
-import { getMainProductsByIds } from "@/lib/actions/main-product-actions";
 import type { LegacyInspiration } from "@/types/inspiration";
 import { useDispatch } from "react-redux";
 import { addItem } from "@/lib/redux/slices/cartSlice";
@@ -61,12 +59,10 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
       }
       
       // Fetch all related items by IDs
-      const [boxArr, bagArr, productsArr, decorationsArr, mainProductsArr] = await Promise.all([
+      const [boxArr, bagArr, productsArr] = await Promise.all([
         inspiration.box ? getBoxesByIds([inspiration.box]) : [],
         inspiration.bag ? getBagsByIds([inspiration.bag]) : [],
         productIds.length > 0 ? getGiftProductsByIds(productIds) : [],
-        inspiration.decorations && inspiration.decorations.length > 0 ? getDecorationsByIds(inspiration.decorations) : [],
-        inspiration.Mainproducts && inspiration.Mainproducts.length > 0 ? getMainProductsByIds(inspiration.Mainproducts) : [],
       ]);
       
       // Extract the fetched objects
@@ -80,26 +76,8 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
         quantity: productQuantities[product.id] || 1
       }));
       
-      // Ensure all main products have price and quantity
-      const mainProductsWithQuantities = mainProductsArr.map(product => ({
-        ...product,
-        price: typeof product.price === 'number' ? product.price : 0,
-        quantity: productQuantities[product.id] || 1
-      }));
-
-      // Process decorations
-      const decorationsWithPrices = decorationsArr.map(decoration => ({
-        ...decoration,
-        price: typeof decoration.price === 'number' ? decoration.price : 0
-      }));
-      
       // Calculate total price
       const productsTotal = productsWithQuantities.reduce(
-        (sum, item) => sum + (item.price * (item.quantity || 1)), 
-        0
-      );
-      
-      const mainProductsTotal = mainProductsWithQuantities.reduce(
         (sum, item) => sum + (item.price * (item.quantity || 1)), 
         0
       );
@@ -107,13 +85,7 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
       const boxPrice = box && typeof box.price === 'number' ? box.price : 0;
       const bagPrice = bag && typeof bag.price === 'number' ? bag.price : 0;
       
-      // Calculate decorations price
-      const decorationsPrice = decorationsWithPrices.reduce(
-        (sum, decoration) => sum + decoration.price,
-        0
-      );
-      
-      const totalPrice = productsTotal + mainProductsTotal + boxPrice + bagPrice + decorationsPrice;
+      const totalPrice = productsTotal + boxPrice + bagPrice;
       
       // Create a cart item with complete gift data
       const cartItem: CartItem = {
@@ -134,12 +106,6 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
               image: p.image,
               price: p.price
             })),
-            ...mainProductsWithQuantities.map(p => ({
-              name: p.name,
-              quantity: p.quantity || 1,
-              image: p.image,
-              price: p.price
-            })),
           ],
           box: box ? {
             name: box.name,
@@ -151,11 +117,6 @@ export default function AddToCartButton({ inspiration }: AddToCartButtonProps) {
             image: bag.image,
             price: bagPrice
           } : null,
-          decorations: decorationsWithPrices.map(d => ({
-            name: d.name,
-            image: d.image,
-            price: d.price
-          })),
           totalPrice: totalPrice,
           createdAt: new Date().toISOString()
         }

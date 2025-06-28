@@ -6,16 +6,62 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
-import { getCustomGiftsByCategory } from "@/lib/actions/custom-gift-actions"
-import type { CustomGift } from "../../../prisma/generated/client"
 import Image from "next/image"
 import Link from "next/link"
+
+interface CustomGift {
+  id: string
+  name: string
+  description: string
+  image: string
+  basePrice: number
+  category: string
+}
 
 const categories = [
   { id: "all", name: "الكل" },
   { id: "accessories", name: "إكسسوارات" },
   { id: "art", name: "فن" },
 ]
+
+// Mock data for custom gifts
+const mockCustomGifts: CustomGift[] = [
+  {
+    id: "1",
+    name: "مج مخصص بالاسم",
+    description: "مج سيراميك عالي الجودة مع إمكانية طباعة الاسم أو الصورة",
+    image: "/images/mug prent.jpg",
+    basePrice: 150,
+    category: "accessories"
+  },
+  {
+    id: "2",
+    name: "محفظة مخصصة",
+    description: "محفظة جلدية أنيقة مع إمكانية النقش",
+    image: "/images/men wallet.png",
+    basePrice: 300,
+    category: "accessories"
+  },
+  {
+    id: "3",
+    name: "لوحة فنية مخصصة",
+    description: "لوحة فنية بالألوان المائية حسب الطلب",
+    image: "/images/potrait slider.jpg",
+    basePrice: 500,
+    category: "art"
+  }
+]
+
+const getCustomGiftsByCategory = async (category: string): Promise<CustomGift[]> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500))
+  
+  if (category === "all") {
+    return mockCustomGifts
+  }
+  
+  return mockCustomGifts.filter(gift => gift.category === category)
+}
 
 const CustomGiftsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("all")

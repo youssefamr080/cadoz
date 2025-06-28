@@ -24,17 +24,10 @@ export interface GiftWrap {
   price: number
 }
 
-export interface GiftDecoration {
-  name: string
-  image: string
-  price: number
-}
-
 export interface GiftData {
   items: GiftItem[]
   box: GiftBox | null
   wrap: GiftWrap | null
-  decorations?: GiftDecoration[]
   message?: string
   recipient?: string
   totalPrice?: number

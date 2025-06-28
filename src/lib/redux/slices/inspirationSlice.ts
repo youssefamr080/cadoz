@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import type { Inspiration } from "@/types/inspiration"
-import { getAllInspirations, getInspirationById, getPopularInspirations } from "@/lib/actions/inspiration-actions"
+import type { FullInspiration } from "@/lib/actions/inspiration-actions-updated"
+import { getAllInspirations, getInspirationById } from "@/lib/actions/inspiration-actions-updated"
 
 interface InspirationState {
-  inspirations: Inspiration[]
-  popularInspirations: Inspiration[]
-  selectedInspiration: Inspiration | null
+  inspirations: FullInspiration[]
+  popularInspirations: FullInspiration[]
+  selectedInspiration: FullInspiration | null
   status: "idle" | "loading" | "succeeded" | "failed"
   error: string | null
 }
@@ -31,16 +31,19 @@ export const fetchAllInspirations = createAsyncThunk(
 )
 
 export const fetchPopularInspirations = createAsyncThunk(
-    "inspiration/fetchPopularInspirations",
-    async ({ limit = 4 }: { limit?: number }, { rejectWithValue }) => {
-      try {
-        return await getPopularInspirations(limit)
-      } catch (error) {
-        return rejectWithValue((error as Error).message)
-      }
-    },
-  )
-  
+  "inspiration/fetchPopularInspirations",
+  async ({ limit = 4 }: { limit?: number }, { rejectWithValue }) => {
+    try {
+      // جلب جميع الهدايا وفلترة الشائعة
+      const allInspirations = await getAllInspirations()
+      return allInspirations
+        .sort((a, b) => b.rating - a.rating)
+        .slice(0, limit)
+    } catch (error) {
+      return rejectWithValue((error as Error).message)
+    }
+  },
+)
 
 export const fetchInspirationById = createAsyncThunk(
   "inspiration/fetchInspirationById",

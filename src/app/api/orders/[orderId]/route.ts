@@ -13,17 +13,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
-        items: {
-          include: {
-            giftData: {
-              include: {
-                items: true,
-                box: true,
-                wrap: true
-              }
-            }
-          }
-        },
+        items: true,
         shipping: true,
         payment: true,
         totals: true,

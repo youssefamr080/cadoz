@@ -68,6 +68,11 @@ interface CartItemType {
       image: string
       price: number
     }>
+    sweets?: Array<{
+      name: string
+      image: string
+      price: number
+    }>
   }
 }
 
@@ -840,28 +845,28 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
             </div>
           )}
 
-          {/* الزينة */}
-          {item.giftData.decorations && item.giftData.decorations.length > 0 && (
+          {/* الحلويات */}
+          {item.giftData.sweets && item.giftData.sweets.length > 0 && (
             <div className="bg-white p-3 rounded-lg border shadow-sm">
-              <h3 className="font-medium text-purple-700 mb-3 flex items-center gap-1">
+              <h3 className="font-medium text-orange-700 mb-3 flex items-center gap-1">
                 <FiGift className="w-4 h-4" />
-                الزينة
+                الحلويات
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {item.giftData.decorations.map((decoration, idx) => (
+                {item.giftData.sweets.map((sweet, idx) => (
                   <div key={idx} className="bg-gray-50 p-2 rounded-lg border">
                     <div className="relative w-full aspect-square rounded-lg overflow-hidden border bg-white mb-2">
                       <Image
-                        src={decoration.image || "/placeholder.svg"}
-                        alt={decoration.name}
+                        src={sweet.image || "/placeholder.svg"}
+                        alt={sweet.name}
                         layout="fill"
                         objectFit="cover"
                       />
                     </div>
                     <div className="text-center">
-                      <div className="font-medium text-xs">{decoration.name}</div>
+                      <div className="font-medium text-xs">{sweet.name}</div>
                       <div className="text-xs text-gray-500">
-                        {typeof decoration.price === 'number' ? decoration.price.toFixed(2) : '0.00'} ج.م
+                        {typeof sweet.price === 'number' ? sweet.price.toFixed(2) : '0.00'} ج.م
                       </div>
                     </div>
                   </div>

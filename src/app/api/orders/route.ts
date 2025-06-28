@@ -142,17 +142,7 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' },
       take: limit,
       include: {
-        items: {
-          include: {
-            giftData: {
-              include: {
-                items: true,
-                box: true,
-                wrap: true
-              }
-            }
-          }
-        },
+        items: true,
         shipping: true,
         payment: true,
         totals: true,

@@ -1,14 +1,26 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import type { Product } from "../../../types/product"
-import type { Box, Decoration, Bag } from "@/types/database"
+import type { Box, Bag } from "@/types/database"
 import type { GiftProduct } from "@/types/gift-product"
-import type { Inspiration, CustomGift, Category, Notification, Order, OrderItem, ShippingInfo, PaymentInfo, OrderTotals, PromoCode, Customer, GiftData, GiftItem, GiftBox, GiftWrap } from "../../../../prisma/generated/client"
+import type { Inspiration, Category, Notification, Order, OrderItem, ShippingInfo, PaymentInfo, OrderTotals, PromoCode, Customer } from "../../../../prisma/generated/client"
+import type { GiftData, GiftItem, GiftBox, GiftWrap } from "../slices/cartSlice"
+
+// أنواع مؤقتة للتوافق
+export interface CustomGift {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  basePrice?: number;
+  image?: string;
+  category?: string;
+}
 
 // نوع لبيانات الهدية مع البيانات المرتبطة
 export interface GiftDataWithDetails extends GiftData {
   items: GiftItem[];
-  box?: GiftBox | null;
-  wrap?: GiftWrap | null;
+  box: GiftBox | null;
+  wrap: GiftWrap | null;
 }
 
 // نوع للعنصر في الطلب مع البيانات المرتبطة
@@ -36,7 +48,7 @@ export interface CreateOrderResponse {
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
-  tagTypes: ["Products", "Boxes", "GiftProducts", "Decorations", "Bags", "Inspirations", "CustomGifts", "SearchResults", "SearchSuggestions", "Orders", "GiftInspirations", "GiftBoxes", "ProductReviews", "Customers", "UserPreferences", "Notifications", "Recommendations", "Categories"],
+  tagTypes: ["Products", "Boxes", "GiftProducts", "Bags", "Inspirations", "CustomGifts", "SearchResults", "SearchSuggestions", "Orders", "GiftInspirations", "GiftBoxes", "ProductReviews", "Customers", "UserPreferences", "Notifications", "Recommendations", "Categories"],
   endpoints: (builder) => ({
     // Endpoints existentes
     getProducts: builder.query<
@@ -422,79 +434,6 @@ export const apiSlice = createApi({
         }
       },
       providesTags: [{ type: "GiftProducts", id: "SEARCH" }],
-    }),
-
-    // Decorations
-    getDecorations: builder.query<Decoration[], void>({
-      async queryFn() {
-        try {
-          const CacheService = (await import('@/lib/services/cache-service')).default;
-          const cacheKey = `decorations_all`;
-          const cached = await CacheService.getItem<Decoration[]>(cacheKey);
-          if (cached && Array.isArray(cached) && cached.length > 0) {
-            return { data: cached };
-          }
-          const response = await fetch(`/api/gift/decorations`);
-          const data = await response.json();
-          if (Array.isArray(data)) {
-            await CacheService.setItem(cacheKey, data, 1440);
-            return { data };
-          }
-          return { error: { status: response.status, data } };
-        } catch (error) {
-          return { error: { status: 500, data: error } };
-        }
-      },
-      providesTags: (result) =>
-        result
-          ? [...result.map(({ id }) => ({ type: "Decorations" as const, id })), { type: "Decorations", id: "LIST" }]
-          : [{ type: "Decorations", id: "LIST" }],
-    }),
-
-    getAvailableDecorations: builder.query<Decoration[], void>({
-      async queryFn() {
-        try {
-          const CacheService = (await import('@/lib/services/cache-service')).default;
-          const cacheKey = `decorations_available`;
-          const cached = await CacheService.getItem<Decoration[]>(cacheKey);
-          if (cached && Array.isArray(cached) && cached.length > 0) {
-            return { data: cached };
-          }
-          const response = await fetch(`/api/gift/decorations/available`);
-          const data = await response.json();
-          if (Array.isArray(data)) {
-            await CacheService.setItem(cacheKey, data, 1440);
-            return { data };
-          }
-          return { error: { status: response.status, data } };
-        } catch (error) {
-          return { error: { status: 500, data: error } };
-        }
-      },
-      providesTags: [{ type: "Decorations", id: "AVAILABLE" }],
-    }),
-
-    getDecorationById: builder.query<Decoration, string>({
-      async queryFn(id) {
-        try {
-          const CacheService = (await import('@/lib/services/cache-service')).default;
-          const cacheKey = `decoration_${id}`;
-          const cached = await CacheService.getItem<Decoration>(cacheKey);
-          if (cached) {
-            return { data: cached };
-          }
-          const response = await fetch(`/api/gift/decorations/${id}`);
-          const data = await response.json();
-          if (data && typeof data === 'object') {
-            await CacheService.setItem(cacheKey, data, 1440);
-            return { data };
-          }
-          return { error: { status: response.status, data } };
-        } catch (error) {
-          return { error: { status: 500, data: error } };
-        }
-      },
-      providesTags: (result, error, id) => [{ type: "Decorations", id }],
     }),
 
     // Bags
@@ -1218,11 +1157,6 @@ export const {
   useGetGiftProductsByCategoryQuery,
   useGetGiftProductByIdQuery,
   useSearchGiftProductsQuery,
-
-  // Decorations
-  useGetDecorationsQuery,
-  useGetAvailableDecorationsQuery,
-  useGetDecorationByIdQuery,
 
   // Bags
   useGetBagsQuery,

@@ -33,9 +33,8 @@ export async function POST(req: NextRequest) {
         ratings: true,
         comments: true,
         box: true,
-        mainProducts: true,
         products: true,
-        decorations: true,
+        sweets: true,
         bag: true
       }
     });

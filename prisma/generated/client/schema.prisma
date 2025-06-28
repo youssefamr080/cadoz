@@ -12,37 +12,34 @@ datasource db {
 }
 
 model Product {
-  id                 String   @id @map("_id") @db.ObjectId
-  name               String
-  description        String?
-  price              Float
-  old_price          Float?
-  image              String?
-  images             String[]
-  category           String?
-  subCategory        String?
-  brand              String?
-  tags               String[]
-  stock              Int      @default(0)
-  inStock            Boolean  @default(true)
-  rating             Float?
-  views              Int      @default(0)
-  best_seller        Boolean  @default(false)
-  new_arrival        Boolean  @default(false)
-  trending           Boolean  @default(false)
-  sale               Boolean  @default(false)
-  isGift             Boolean  @default(false)
-  occasion           String[]
-  season             String[] @default(["الكل"])
-  colors             String[]
-  video              String?
-  discountPercentage Float?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
+  id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+  name                String
+  description         String?
+  price               Float
+  old_price           Float?
+  image               String?
+  images              String[]
+  category            String?
+  subCategory         String?
+  brand               String?
+  tags                String[]
+  stock               Int                  @default(0)
+  inStock             Boolean              @default(true)
+  rating              Float?
+  views               Int                  @default(0)
+  best_seller         Boolean              @default(false)
+  new_arrival         Boolean              @default(false)
+  trending            Boolean              @default(false)
+  sale                Boolean              @default(false)
+  colors              String[]
+  video               String?
+  discountPercentage  Float?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
   // Relations
-  reviews      Review[]
-  productViews ProductView[]
+  reviews             Review[]
+  productViews        ProductView[]
+  inspirationProducts InspirationProduct[]
 
   @@map("products")
 }
@@ -64,40 +61,40 @@ model Category {
 }
 
 model Customer {
-  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
+  id                  String                   @id @default(auto()) @map("_id") @db.ObjectId
   name                String
-  phone               String    @unique
-  email               String?   @unique
+  phone               String                   @unique
+  email               String?                  @unique
   password            String
-  isActive            Boolean   @default(true)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  isActive            Boolean                  @default(true)
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
   lastLoginAt         DateTime?
   lastIp              String?
   lastUserAgent       String?
   currentSessionId    String?
-  loginCount          Int       @default(0)
+  loginCount          Int                      @default(0)
   lastProductViewed   Int?
   lastActiveAt        DateTime?
-  totalProductViews   Int       @default(0)
-  totalViewDuration   Int       @default(0)
-  viewCount           Int       @default(0)
-  averageViewDuration Float     @default(0)
-  orderCount          Int       @default(0)
+  totalProductViews   Int                      @default(0)
+  totalViewDuration   Int                      @default(0)
+  viewCount           Int                      @default(0)
+  averageViewDuration Float                    @default(0)
+  orderCount          Int                      @default(0)
   lastOrderAt         DateTime?
-  reviewCount         Int       @default(0)
+  reviewCount         Int                      @default(0)
   lastReviewAt        DateTime?
-
   // Relations
-  orders        Order[]
-  devices       Device[]
-  addresses     Address[]
-  preferences   CustomerPreferences?
-  notifications NotificationPreferences?
-  reviews       Review[]
-  reviewVotes   ReviewVote[]
-  productViews  ProductView[]
-  events        CustomerEvent[]
+  orders              Order[]
+  devices             Device[]
+  addresses           Address[]
+  sessions            Session[]
+  preferences         CustomerPreferences?
+  notifications       NotificationPreferences?
+  reviews             Review[]
+  reviewVotes         ReviewVote[]
+  productViews        ProductView[]
+  events              CustomerEvent[]
 }
 
 model Device {
@@ -194,9 +191,11 @@ model Order {
 }
 
 model OrderItem {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  orderId       String    @db.ObjectId
-  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId String @db.ObjectId
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Basic item info
   name          String
   image         String
   price         Float
@@ -204,47 +203,18 @@ model OrderItem {
   variant       String?
   discount      Float?
   originalPrice Float?
-  giftDetails   String?
-  giftData      GiftData?
-}
 
-model GiftData {
-  id          String     @id @default(auto()) @map("_id") @db.ObjectId
-  orderItemId String     @unique @db.ObjectId
-  orderItem   OrderItem  @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  items       GiftItem[]
-  box         GiftBox?
-  wrap        GiftWrap?
-  message     String?
-  recipient   String?
-}
+  // Item type and references
+  itemType      String // "product", "inspiration", "custom_gift"
+  productId     String? @db.ObjectId // for regular products
+  inspirationId String? @db.ObjectId // for ready-made gifts
 
-model GiftItem {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  giftDataId String   @db.ObjectId
-  giftData   GiftData @relation(fields: [giftDataId], references: [id], onDelete: Cascade)
-  name       String
-  quantity   Int
-  image      String
-  price      Float
-}
+  // Custom gift data (JSON format for flexibility)
+  customGiftData Json? // for custom gifts: {products: [], sweets: [], box: {}, bag: []}
 
-model GiftBox {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  giftDataId String   @unique @db.ObjectId
-  giftData   GiftData @relation(fields: [giftDataId], references: [id], onDelete: Cascade)
-  name       String
-  image      String
-  price      Float
-}
-
-model GiftWrap {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  giftDataId String   @unique @db.ObjectId
-  giftData   GiftData @relation(fields: [giftDataId], references: [id], onDelete: Cascade)
-  name       String
-  image      String
-  price      Float
+  // Gift-specific fields
+  giftMessage   String?
+  giftRecipient String?
 }
 
 model ShippingInfo {
@@ -283,31 +253,29 @@ model PromoCode {
 }
 
 model Inspiration {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  id                 String                  @id @default(auto()) @map("_id") @db.ObjectId
   name               String
   description        String
   image              String
   rating             Float
-  reviews            Int      @default(0)
-  likes              Int      @default(0)
-  dislikes           Int      @default(0)
+  reviews            Int                     @default(0)
+  likes              Int                     @default(0)
+  dislikes           Int                     @default(0)
   likedBy            String[]
   dislikedBy         String[]
   price              Float
   oldPrice           Float?
   discountPercentage Float?
   category           String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
   // Relations
-  ratings      InspirationRating[]
-  comments     InspirationComment[]
-  box          InspirationBox?
-  mainProducts InspirationMainProduct[]
-  products     InspirationProduct[]
-  decorations  InspirationDecoration[]
-  bag          InspirationBag?
+  ratings            InspirationRating[]
+  comments           InspirationComment[]
+  products           InspirationProduct[]    @relation("InspirationProducts")
+  sweets             InspirationSweet[]
+  box                InspirationBoxRelation? @relation("InspirationBoxes")
+  bag                InspirationBagRelation? @relation("InspirationBags")
 }
 
 model InspirationRating {
@@ -326,66 +294,6 @@ model InspirationComment {
   userName      String
   comment       String
   createdAt     DateTime    @default(now())
-}
-
-model InspirationBox {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  inspirationId String      @unique @db.ObjectId
-  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
-  name          String
-  price         Float
-  dimensions    String
-  description   String
-  image         String
-  category      String
-  stock         Int
-}
-
-model InspirationMainProduct {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  inspirationId String      @db.ObjectId
-  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
-  name          String
-  price         Float
-  image         String
-  category      String
-  stock         Int
-  popular       Boolean     @default(false)
-}
-
-model InspirationProduct {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  inspirationId String      @db.ObjectId
-  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
-  name          String
-  price         Float
-  image         String
-  quantity      Int?
-  category      String
-  stock         Int
-  popular       Boolean     @default(false)
-}
-
-model InspirationDecoration {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  inspirationId String      @db.ObjectId
-  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
-  name          String
-  price         Float
-  image         String
-  stock         Int
-}
-
-model InspirationBag {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  inspirationId String      @unique @db.ObjectId
-  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
-  name          String
-  price         Float
-  image         String
-  description   String
-  color         String
-  stock         Int
 }
 
 model ProductView {
@@ -466,20 +374,10 @@ model UsedPromoCode {
   @@map("usedPromoCodes")
 }
 
-model UserPreference {
-  userId     String   @id @map("_id")
-  categories String[]
-  tags       String[]
-  brands     String[]
-  priceRange Json?
-  updatedAt  DateTime @updatedAt
-
-  @@map("userPreferences")
-}
-
 model Session {
   sessionId    String    @id @map("_id")
-  userId       String
+  userId       String?   @db.ObjectId
+  customer     Customer? @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken  String?
   refreshToken String?
   expiresAt    DateTime?
@@ -576,102 +474,6 @@ enum VoteAction {
   NOT_HELPFUL
 }
 
-// Gift Decorations
-model Decoration {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  name  String
-  price Float
-  image String
-  stock Int    @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("decorations")
-}
-
-// Gift Products
-model GiftProduct {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  name               String
-  description        String?
-  price              Float
-  old_price          Float?
-  image              String?
-  images             String[]
-  category           String?
-  subCategory        String?
-  brand              String?
-  tags               String[]
-  stock              Int      @default(0)
-  inStock            Boolean  @default(true)
-  rating             Float?
-  views              Int      @default(0)
-  best_seller        Boolean  @default(false)
-  new_arrival        Boolean  @default(false)
-  trending           Boolean  @default(false)
-  sale               Boolean  @default(false)
-  popular            Boolean  @default(false)
-  occasion           String[]
-  season             String[] @default(["الكل"])
-  colors             String[]
-  video              String?
-  discountPercentage Float?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("gift_products")
-}
-
-// Main Products (different from gift products)
-model MainProduct {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  name               String
-  description        String?
-  price              Float
-  old_price          Float?
-  image              String?
-  images             String[]
-  category           String?
-  subCategory        String?
-  brand              String?
-  tags               String[]
-  stock              Int      @default(0)
-  inStock            Boolean  @default(true)
-  rating             Float?
-  views              Int      @default(0)
-  best_seller        Boolean  @default(false)
-  new_arrival        Boolean  @default(false)
-  trending           Boolean  @default(false)
-  sale               Boolean  @default(false)
-  occasion           String[]
-  season             String[] @default(["الكل"])
-  colors             String[]
-  video              String?
-  discountPercentage Float?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("main_products")
-}
-
-// Custom Gifts
-model CustomGift {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  description String?
-  basePrice   Float
-  image       String?
-  category    String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("custom_gifts")
-}
-
 // Gift Boxes
 model Box {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
@@ -679,11 +481,17 @@ model Box {
   description String?
   price       Float
   image       String?
+  color       String? // لون الصندوق
+  size        String? // حجم الصندوق (صغير، متوسط، كبير)
+  material    String? // مادة الصندوق (كرتون، خشب، بلاستيك)
   stock       Int     @default(0)
   dimensions  String? // أبعاد الصندوق (مثل: "20x15x10 سم")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  inspirationBoxes InspirationBoxRelation[]
 
   @@map("boxes")
 }
@@ -695,27 +503,78 @@ model Bag {
   description String?
   price       Float
   image       String?
+  color       String? // لون الكيس
+  size        String? // حجم الكيس (صغير، متوسط، كبير)
+  material    String? // مادة الكيس (ورق، قماش، بلاستيك)
   stock       Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relations
+  inspirationBags InspirationBagRelation[]
+
   @@map("bags")
 }
 
-// Saved Items
-model SavedItem {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String  @db.ObjectId
-  productId String  @db.ObjectId
-  type      String // "product", "gift", "decoration", etc.
-  name      String
-  price     Float
-  image     String?
+// Sweets - نموذج مبسط للحلويات
+model Sweet {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String // اسم الحلوى (مثل: "شوكولاتة كيت كات", "حلوى هاريبو")
+  description String? // وصف الحلوى
+  price       Float // السعر الحالي
+  old_price   Float? // السعر القديم (للخصومات)
+  category    String // "شوكولاتة" أو "كاندي" أو "حلويات أخرى"
+  image       String? // صورة الحلوى
+  stock       Int     @default(0) // الكمية المتاحة
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, productId, type])
-  @@map("saved_items")
+  // Relations
+  inspirationSweets InspirationSweet[]
+
+  @@map("sweets")
+}
+
+// ربط الإلهام بالحلويات
+model InspirationSweet {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String      @db.ObjectId
+  inspiration   Inspiration @relation(fields: [inspirationId], references: [id], onDelete: Cascade)
+  sweetId       String      @db.ObjectId
+  sweet         Sweet       @relation(fields: [sweetId], references: [id], onDelete: Cascade)
+  quantity      Int         @default(1)
+
+  @@unique([inspirationId, sweetId])
+}
+
+// ربط الإلهام بالمنتجات الأساسية (سيحل محل InspirationMainProduct)
+model InspirationProduct {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String      @db.ObjectId
+  inspiration   Inspiration @relation("InspirationProducts", fields: [inspirationId], references: [id], onDelete: Cascade)
+  productId     String      @db.ObjectId
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity      Int         @default(1)
+
+  @@unique([inspirationId, productId])
+}
+
+// ربط الإلهام بالصناديق (سيحل محل InspirationBox الحالي)
+model InspirationBoxRelation {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String      @unique @db.ObjectId
+  inspiration   Inspiration @relation("InspirationBoxes", fields: [inspirationId], references: [id], onDelete: Cascade)
+  boxId         String      @db.ObjectId
+  box           Box         @relation(fields: [boxId], references: [id], onDelete: Cascade)
+}
+
+// ربط الإلهام بالشنط (سيحل محل InspirationBag الحالي)
+model InspirationBagRelation {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  inspirationId String      @unique @db.ObjectId
+  inspiration   Inspiration @relation("InspirationBags", fields: [inspirationId], references: [id], onDelete: Cascade)
+  bagId         String      @db.ObjectId
+  bag           Bag         @relation(fields: [bagId], references: [id], onDelete: Cascade)
 }

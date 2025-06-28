@@ -14,11 +14,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ success: false, message: "Invalid box ID format" }, { status: 400 })
       }
 
-      const box = await prisma.inspirationBox.findUnique({
-        where: { id },
-        include: {
-          inspiration: true
-        }
+      const box = await prisma.box.findUnique({
+        where: { id }
       })
 
       if (!box) {
@@ -37,11 +34,8 @@ export async function GET(request: NextRequest) {
       where.category = category
     }
 
-    const boxes = await prisma.inspirationBox.findMany({
-      where,
-      include: {
-        inspiration: true
-      }
+    const boxes = await prisma.box.findMany({
+      where
     })
 
     return NextResponse.json({

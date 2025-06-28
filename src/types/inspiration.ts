@@ -1,16 +1,48 @@
-// تعريف نوع Inspiration المستخدم في مكونات الإلهام
-// يمكن استخدام Prisma types مباشرة بدلاً من هذا الملف
-
+// تعريف أنواع قاعدة البيانات المحدثة
 export type { 
   Inspiration,
   InspirationRating,
   InspirationComment,
-  InspirationBox,
-  InspirationMainProduct,
+  Sweet,
+  InspirationSweet,
   InspirationProduct,
-  InspirationDecoration,
-  InspirationBag
+  InspirationBoxRelation,
+  InspirationBagRelation,
+  Box,
+  Bag,
+  Product,
+  Order,
+  OrderItem
 } from "../../prisma/generated/client"
+
+// أنواع العناصر في الطلبات
+export type OrderItemType = "product" | "inspiration" | "custom_gift"
+
+// بيانات الهدية المخصصة
+export interface CustomGiftData {
+  products?: Array<{
+    id: string
+    name: string
+    quantity: number
+    price: number
+  }>
+  sweets?: Array<{
+    id: string
+    name: string
+    quantity: number
+    price: number
+  }>
+  box?: {
+    id: string
+    name: string
+    price: number
+  } | null
+  bag?: {
+    id: string
+    name: string
+    price: number
+  } | null
+}
 
 // Interface for product with quantity (للتوافق مع الكود الموجود)
 export interface ProductWithQuantity {
@@ -29,9 +61,9 @@ export interface LegacyInspiration {
   box: string;
   products: ProductWithQuantity[] | string[];
   productQuantities?: Record<string, number>;
-  decorations: string[];
+  sweets?: ProductWithQuantity[] | string[];
+  sweetQuantities?: Record<string, number>;
   bag: string;
-  Mainproducts?: string[];
   likes?: number;
   dislikes?: number;
   price?: number;

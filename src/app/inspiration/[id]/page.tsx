@@ -5,7 +5,7 @@ import { getInspirationById } from "@/lib/actions/inspiration-actions";
 import InspirationClient from "./InspirationClient";
 import UseInspirationButton from "./UseInspirationButton";
 import AddToCartButton from "./AddToCartButton";
-import { BoxIcon, GiftIcon, SparklesIcon } from "lucide-react"; // Example icons
+import { BoxIcon, GiftIcon } from "lucide-react"; // Example icons
 import { Metadata } from 'next'
 import type { LegacyInspiration } from "@/types/inspiration";
 
@@ -155,17 +155,18 @@ const ItemCard = ({
 
 // Helper function to convert Prisma inspiration to Legacy format
 const convertToLegacyInspiration = (inspiration: NonNullable<Awaited<ReturnType<typeof getInspirationById>>>): LegacyInspiration => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const inspirationAny = inspiration as any;
   return {
     ...inspiration,
-    box: inspiration.box?.id || "",
-    products: inspiration.products?.map(p => p.id) || [],
-    decorations: inspiration.decorations?.map(d => d.id) || [],
-    bag: inspiration.bag?.id || "",
-    productQuantities: inspiration.products?.reduce((acc, p) => ({
-      ...acc,
-      [p.id]: (p as { quantity?: number }).quantity || 1
-    }), {} as Record<string, number>) || {},
-    comments: inspiration.comments?.map(c => ({
+    box: inspirationAny.box || "",
+    products: inspirationAny.products || [],
+    sweets: inspirationAny.sweets || [],
+    bag: inspirationAny.bag || "",
+    productQuantities: {},
+    sweetQuantities: {},
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    comments: inspirationAny.comments?.map((c: any) => ({
       _id: c.id,
       userId: c.userId,
       userName: c.userName,
@@ -184,44 +185,32 @@ export default async function InspirationPage({ params }: Props) {
   if (!inspiration) {
     notFound()
   }
-  // Extract product data from the inspiration products relation
-  const productsData = inspiration.products || [];
+
+  // Get box and bag data safely
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const boxData = (inspiration as any).box;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bagData = (inspiration as any).bag;
   
-  // For backward compatibility, also check mainProducts
-  const mainProductsData = inspiration.mainProducts || [];
+  // Map products with quantity safely
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const products = (inspiration as any).products || [];
+
+  // Map sweets with quantity safely
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sweets = (inspiration as any).sweets || [];
   
-  // Extract decoration data
-  const decorationsData = inspiration.decorations || [];
-  
-  // Get box and bag data
-  const boxData = inspiration.box;
-  const bagData = inspiration.bag;
-  
-  // Map products with quantity
-  const products = productsData.map(product => ({
-    ...product,
-    quantity: product.quantity || 1
-  }));
-  // Map main products with quantity
-  const mainProducts = mainProductsData.map(product => ({
-    ...product,
-    quantity: (product as { quantity?: number }).quantity || 1
-  }));
-  
-  const decorations = decorationsData;
   const box = boxData;
   const bag = bagData;
-
 
   // Convert to legacy format for compatibility
   const legacyInspiration = convertToLegacyInspiration(inspiration);
 
   // Calculate total items count
   const calculateTotalItems = () => {
-    const productsCount = products.reduce((sum, p) => sum + (p.quantity || 1), 0);
-    const mainProductsCount = mainProducts.reduce((sum, p) => sum + (p.quantity || 1), 0);
-    const decorationsCount = decorations.length;
-    return productsCount + mainProductsCount + decorationsCount;
+    const productsCount = products.length;
+    const sweetsCount = sweets.length;
+    return productsCount + sweetsCount;
   };
 
   const totalItems = calculateTotalItems();
@@ -352,13 +341,10 @@ export default async function InspirationPage({ params }: Props) {
                 )}
               </div>
               
-              {/* Item and Decoration Counts (aligned left) */}
+              {/* Item Counts (aligned left) */}
               <div className="flex items-center space-x-2 sm:space-x-4 space-x-reverse mt-3 md:mt-0">
                 <div className="text-sm bg-white px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 shadow-sm flex items-center">
                    <span className="font-bold ml-1">{totalItems}</span> قطعة
-                </div>
-                <div className="text-sm bg-white px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 shadow-sm flex items-center">
-                  <span className="font-bold ml-1">{decorations.length}</span> ديكور
                 </div>
               </div>
             </div>
@@ -396,39 +382,7 @@ export default async function InspirationPage({ params }: Props) {
               </SectionWrapper>
             )}
 
-            {mainProducts.length > 0 && (
-              <SectionWrapper 
-                title="المنتجات الأساسية" 
-                icon={<GiftIcon className="w-5 h-5 mr-2 text-green-600" />}
-                count={mainProducts.length}
-              >
-                <div className="mb-3 p-2 bg-green-50 rounded-lg border border-green-100 text-sm text-green-800 hidden sm:block">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">إجمالي المنتجات الأساسية:</span>
-                    <span className="font-bold">{mainProducts.reduce((sum, p) => sum + ((p.price || 0) * (p.quantity || 1)), 0).toLocaleString()} ج.م</span>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3 sm:gap-4">
-                  {mainProducts.map((mainProduct) =>
-                    mainProduct ? (
-                      <ItemCard
-                        key={mainProduct.id}
-                        name={mainProduct.name}
-                        price={mainProduct.price}
-                        image={mainProduct.image}
-                        alt={mainProduct.name}
-                        category={mainProduct.category}
-                        stock={mainProduct.stock}
-                        size="medium"
-                        quantity={1}
-                        popular={true} // Highlight main products as special
-                      />
-                    ) : null
-                  )}
-                </div>
-              </SectionWrapper>
-            )}
+
 
             {products.length > 0 && (
                <SectionWrapper 
@@ -465,7 +419,6 @@ export default async function InspirationPage({ params }: Props) {
                         alt={product.name}
                         category={product.category}
                         stock={product.stock}
-                        popular={product.popular}
                         quantity={product.quantity || 1}
                         size="medium"
                       />
@@ -475,30 +428,32 @@ export default async function InspirationPage({ params }: Props) {
               </SectionWrapper>
             )}
 
-            {decorations.length > 0 && (
-                 <SectionWrapper 
-                   title="الديكورات واللمسات الإضافية" 
-                   icon={<SparklesIcon className="w-5 h-5 mr-2 text-purple-500" />}
-                   count={decorations.length}
-                 >
-                <div className="mb-3 p-2 bg-purple-50 rounded-lg border border-purple-100 text-sm hidden sm:block">
+            {sweets.length > 0 && (
+              <SectionWrapper 
+                title="الحلويات والسناكس" 
+                icon={<GiftIcon className="w-5 h-5 mr-2 text-pink-500" />}
+                count={sweets.length}
+              >
+                <div className="mb-3 p-2 bg-pink-50 rounded-lg border border-pink-100 text-sm hidden sm:block">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-purple-800">إجمالي الديكورات:</span>
-                    <span className="font-bold text-purple-800">{decorations.reduce((sum, d) => sum + (d.price || 0), 0).toLocaleString()} ج.م</span>
+                    <span className="font-semibold text-pink-800">إجمالي الحلويات:</span>
+                    <span className="text-pink-800">إجمالي الحلويات: <span className="font-bold">{sweets.reduce((sum, s) => sum + ((s.price || 0) * (s.quantity || 1)), 0).toLocaleString()}</span> ج.م</span>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3">
-                  {decorations.map((decoration) =>
-                    decoration ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-3 sm:gap-4">
+                  {sweets.map((sweet) =>
+                    sweet ? (
                       <ItemCard
-                        key={decoration.id}
-                        name={decoration.name}
-                        price={decoration.price}
-                        image={decoration.image}
-                        alt={decoration.name}
-                        stock={decoration.stock}
-                        size="small"
+                        key={sweet.id}
+                        name={sweet.name}
+                        price={sweet.price}
+                        image={sweet.image}
+                        alt={sweet.name}
+                        category="حلويات"
+                        stock={sweet.stock}
+                        quantity={sweet.quantity || 1}
+                        size="medium"
                       />
                     ) : null
                   )}

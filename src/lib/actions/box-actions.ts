@@ -1,14 +1,17 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
-import type { Box } from "../../../prisma/generated/client"
+import type { Box } from "@/types/database"
+import { convertPrismaBoxToBox } from "@/types/database"
 import { revalidatePath } from "next/cache"
 
 // جلب جميع الصناديق
 export async function getAllBoxes(): Promise<Box[]> {
   try {
     const boxes = await prisma.box.findMany()
-    return boxes
+    
+    // تحويل التواريخ إلى strings لتجنب مشاكل serialization في Redux
+    return boxes.map(convertPrismaBoxToBox)
   } catch (error) {
     console.error("Error fetching boxes:", error)
     throw new Error("فشل في جلب الصناديق")
@@ -20,7 +23,9 @@ export async function getBoxesByCategory(): Promise<Box[]> {
   try {
     // إذا لم يكن هناك category في Box schema، سنجلب جميع الصناديق
     const boxes = await prisma.box.findMany()
-    return boxes
+    
+    // تحويل التواريخ إلى strings
+    return boxes.map(convertPrismaBoxToBox)
   } catch (error) {
     console.error("Error fetching boxes by category:", error)
     throw new Error("فشل في جلب الصناديق حسب الفئة")
@@ -33,7 +38,11 @@ export async function getBoxById(id: string): Promise<Box | null> {
     const box = await prisma.box.findUnique({
       where: { id }
     })
-    return box
+    
+    if (!box) return null
+    
+    // تحويل التواريخ إلى strings
+    return convertPrismaBoxToBox(box)
   } catch (error) {
     console.error("Error fetching box by id:", error)
     throw new Error("فشل في جلب الصندوق")
@@ -47,7 +56,9 @@ export async function getBoxesByIds(ids: string[]): Promise<Box[]> {
     const boxes = await prisma.box.findMany({
       where: { id: { in: ids } }
     })
-    return boxes;
+    
+    // تحويل التواريخ إلى strings
+    return boxes.map(convertPrismaBoxToBox);
   } catch (error) {
     console.error("Error fetching boxes by ids:", error);
     throw new Error("فشل في جلب الصناديق حسب المعرفات");

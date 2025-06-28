@@ -133,9 +133,6 @@ exports.Prisma.ProductScalarFieldEnum = {
   new_arrival: 'new_arrival',
   trending: 'trending',
   sale: 'sale',
-  isGift: 'isGift',
-  occasion: 'occasion',
-  season: 'season',
   colors: 'colors',
   video: 'video',
   discountPercentage: 'discountPercentage',
@@ -260,39 +257,12 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   variant: 'variant',
   discount: 'discount',
   originalPrice: 'originalPrice',
-  giftDetails: 'giftDetails'
-};
-
-exports.Prisma.GiftDataScalarFieldEnum = {
-  id: 'id',
-  orderItemId: 'orderItemId',
-  message: 'message',
-  recipient: 'recipient'
-};
-
-exports.Prisma.GiftItemScalarFieldEnum = {
-  id: 'id',
-  giftDataId: 'giftDataId',
-  name: 'name',
-  quantity: 'quantity',
-  image: 'image',
-  price: 'price'
-};
-
-exports.Prisma.GiftBoxScalarFieldEnum = {
-  id: 'id',
-  giftDataId: 'giftDataId',
-  name: 'name',
-  image: 'image',
-  price: 'price'
-};
-
-exports.Prisma.GiftWrapScalarFieldEnum = {
-  id: 'id',
-  giftDataId: 'giftDataId',
-  name: 'name',
-  image: 'image',
-  price: 'price'
+  itemType: 'itemType',
+  productId: 'productId',
+  inspirationId: 'inspirationId',
+  customGiftData: 'customGiftData',
+  giftMessage: 'giftMessage',
+  giftRecipient: 'giftRecipient'
 };
 
 exports.Prisma.ShippingInfoScalarFieldEnum = {
@@ -361,61 +331,6 @@ exports.Prisma.InspirationCommentScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.InspirationBoxScalarFieldEnum = {
-  id: 'id',
-  inspirationId: 'inspirationId',
-  name: 'name',
-  price: 'price',
-  dimensions: 'dimensions',
-  description: 'description',
-  image: 'image',
-  category: 'category',
-  stock: 'stock'
-};
-
-exports.Prisma.InspirationMainProductScalarFieldEnum = {
-  id: 'id',
-  inspirationId: 'inspirationId',
-  name: 'name',
-  price: 'price',
-  image: 'image',
-  category: 'category',
-  stock: 'stock',
-  popular: 'popular'
-};
-
-exports.Prisma.InspirationProductScalarFieldEnum = {
-  id: 'id',
-  inspirationId: 'inspirationId',
-  name: 'name',
-  price: 'price',
-  image: 'image',
-  quantity: 'quantity',
-  category: 'category',
-  stock: 'stock',
-  popular: 'popular'
-};
-
-exports.Prisma.InspirationDecorationScalarFieldEnum = {
-  id: 'id',
-  inspirationId: 'inspirationId',
-  name: 'name',
-  price: 'price',
-  image: 'image',
-  stock: 'stock'
-};
-
-exports.Prisma.InspirationBagScalarFieldEnum = {
-  id: 'id',
-  inspirationId: 'inspirationId',
-  name: 'name',
-  price: 'price',
-  image: 'image',
-  description: 'description',
-  color: 'color',
-  stock: 'stock'
-};
-
 exports.Prisma.ProductViewScalarFieldEnum = {
   id: 'id',
   productId: 'productId',
@@ -479,15 +394,6 @@ exports.Prisma.UsedPromoCodeScalarFieldEnum = {
   usedAt: 'usedAt'
 };
 
-exports.Prisma.UserPreferenceScalarFieldEnum = {
-  userId: 'userId',
-  categories: 'categories',
-  tags: 'tags',
-  brands: 'brands',
-  priceRange: 'priceRange',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.SessionScalarFieldEnum = {
   sessionId: 'sessionId',
   userId: 'userId',
@@ -537,92 +443,15 @@ exports.Prisma.SecurityIncidentScalarFieldEnum = {
   resolution: 'resolution'
 };
 
-exports.Prisma.DecorationScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  price: 'price',
-  image: 'image',
-  stock: 'stock',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.GiftProductScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  price: 'price',
-  old_price: 'old_price',
-  image: 'image',
-  images: 'images',
-  category: 'category',
-  subCategory: 'subCategory',
-  brand: 'brand',
-  tags: 'tags',
-  stock: 'stock',
-  inStock: 'inStock',
-  rating: 'rating',
-  views: 'views',
-  best_seller: 'best_seller',
-  new_arrival: 'new_arrival',
-  trending: 'trending',
-  sale: 'sale',
-  popular: 'popular',
-  occasion: 'occasion',
-  season: 'season',
-  colors: 'colors',
-  video: 'video',
-  discountPercentage: 'discountPercentage',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.MainProductScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  price: 'price',
-  old_price: 'old_price',
-  image: 'image',
-  images: 'images',
-  category: 'category',
-  subCategory: 'subCategory',
-  brand: 'brand',
-  tags: 'tags',
-  stock: 'stock',
-  inStock: 'inStock',
-  rating: 'rating',
-  views: 'views',
-  best_seller: 'best_seller',
-  new_arrival: 'new_arrival',
-  trending: 'trending',
-  sale: 'sale',
-  occasion: 'occasion',
-  season: 'season',
-  colors: 'colors',
-  video: 'video',
-  discountPercentage: 'discountPercentage',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.CustomGiftScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  basePrice: 'basePrice',
-  image: 'image',
-  category: 'category',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.BoxScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
   price: 'price',
   image: 'image',
+  color: 'color',
+  size: 'size',
+  material: 'material',
   stock: 'stock',
   dimensions: 'dimensions',
   createdAt: 'createdAt',
@@ -635,21 +464,51 @@ exports.Prisma.BagScalarFieldEnum = {
   description: 'description',
   price: 'price',
   image: 'image',
+  color: 'color',
+  size: 'size',
+  material: 'material',
   stock: 'stock',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.SavedItemScalarFieldEnum = {
+exports.Prisma.SweetScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
-  productId: 'productId',
-  type: 'type',
   name: 'name',
+  description: 'description',
   price: 'price',
+  old_price: 'old_price',
+  category: 'category',
   image: 'image',
+  stock: 'stock',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.InspirationSweetScalarFieldEnum = {
+  id: 'id',
+  inspirationId: 'inspirationId',
+  sweetId: 'sweetId',
+  quantity: 'quantity'
+};
+
+exports.Prisma.InspirationProductScalarFieldEnum = {
+  id: 'id',
+  inspirationId: 'inspirationId',
+  productId: 'productId',
+  quantity: 'quantity'
+};
+
+exports.Prisma.InspirationBoxRelationScalarFieldEnum = {
+  id: 'id',
+  inspirationId: 'inspirationId',
+  boxId: 'boxId'
+};
+
+exports.Prisma.InspirationBagRelationScalarFieldEnum = {
+  id: 'id',
+  inspirationId: 'inspirationId',
+  bagId: 'bagId'
 };
 
 exports.Prisma.SortOrder = {
@@ -712,10 +571,6 @@ exports.Prisma.ModelName = {
   NotificationPreferences: 'NotificationPreferences',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  GiftData: 'GiftData',
-  GiftItem: 'GiftItem',
-  GiftBox: 'GiftBox',
-  GiftWrap: 'GiftWrap',
   ShippingInfo: 'ShippingInfo',
   PaymentInfo: 'PaymentInfo',
   OrderTotals: 'OrderTotals',
@@ -723,29 +578,23 @@ exports.Prisma.ModelName = {
   Inspiration: 'Inspiration',
   InspirationRating: 'InspirationRating',
   InspirationComment: 'InspirationComment',
-  InspirationBox: 'InspirationBox',
-  InspirationMainProduct: 'InspirationMainProduct',
-  InspirationProduct: 'InspirationProduct',
-  InspirationDecoration: 'InspirationDecoration',
-  InspirationBag: 'InspirationBag',
   ProductView: 'ProductView',
   CustomerEvent: 'CustomerEvent',
   Review: 'Review',
   ReviewVote: 'ReviewVote',
   Notification: 'Notification',
   UsedPromoCode: 'UsedPromoCode',
-  UserPreference: 'UserPreference',
   Session: 'Session',
   NewsAttachment: 'NewsAttachment',
   AuditLog: 'AuditLog',
   SecurityIncident: 'SecurityIncident',
-  Decoration: 'Decoration',
-  GiftProduct: 'GiftProduct',
-  MainProduct: 'MainProduct',
-  CustomGift: 'CustomGift',
   Box: 'Box',
   Bag: 'Bag',
-  SavedItem: 'SavedItem'
+  Sweet: 'Sweet',
+  InspirationSweet: 'InspirationSweet',
+  InspirationProduct: 'InspirationProduct',
+  InspirationBoxRelation: 'InspirationBoxRelation',
+  InspirationBagRelation: 'InspirationBagRelation'
 };
 
 /**

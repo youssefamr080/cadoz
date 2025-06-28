@@ -23,8 +23,11 @@ const convertToLegacyInspiration = (inspiration: Inspiration): LegacyInspiration
     ...inspiration,
     box: "",
     products: [],
-    decorations: [],
+    sweets: [],
     bag: "",
+    productQuantities: {},
+    sweetQuantities: {},
+    comments: [],
     updatedAt: inspiration.updatedAt?.toISOString?.() || 
                 (inspiration.updatedAt instanceof Date ? inspiration.updatedAt.toISOString() : 
                  new Date().toISOString())

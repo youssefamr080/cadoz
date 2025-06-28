@@ -10,11 +10,26 @@ export async function getAllInspirations(): Promise<Inspiration[]> {
       include: {
         ratings: true,
         comments: true,
-        box: true,
-        mainProducts: true,
-        products: true,
-        decorations: true,
-        bag: true
+        box: {
+          include: {
+            box: true
+          }
+        },
+        products: {
+          include: {
+            product: true
+          }
+        },
+        bag: {
+          include: {
+            bag: true
+          }
+        },
+        sweets: {
+          include: {
+            sweet: true
+          }
+        }
       }
     })
     return inspirations
@@ -32,11 +47,26 @@ export async function getInspirationById(id: string) {
       include: {
         ratings: true,
         comments: true,
-        box: true,
-        mainProducts: true,
-        products: true,
-        decorations: true,
-        bag: true
+        box: {
+          include: {
+            box: true
+          }
+        },
+        products: {
+          include: {
+            product: true
+          }
+        },
+        bag: {
+          include: {
+            bag: true
+          }
+        },
+        sweets: {
+          include: {
+            sweet: true
+          }
+        }
       }
     })
     return inspiration
@@ -124,11 +154,26 @@ export async function getInspirationsByCategory(category: string): Promise<Inspi
       include: {
         ratings: true,
         comments: true,
-        box: true,
-        mainProducts: true,
-        products: true,
-        decorations: true,
-        bag: true
+        box: {
+          include: {
+            box: true
+          }
+        },
+        products: {
+          include: {
+            product: true
+          }
+        },
+        bag: {
+          include: {
+            bag: true
+          }
+        },
+        sweets: {
+          include: {
+            sweet: true
+          }
+        }
       }
     })
     return inspirations
@@ -151,11 +196,26 @@ export async function searchInspirations(searchTerm: string): Promise<Inspiratio
       include: {
         ratings: true,
         comments: true,
-        box: true,
-        mainProducts: true,
-        products: true,
-        decorations: true,
-        bag: true
+        box: {
+          include: {
+            box: true
+          }
+        },
+        products: {
+          include: {
+            product: true
+          }
+        },
+        bag: {
+          include: {
+            bag: true
+          }
+        },
+        sweets: {
+          include: {
+            sweet: true
+          }
+        }
       }
     })
     return inspirations
@@ -277,11 +337,26 @@ export async function getPopularInspirations(limit: number = 10): Promise<Inspir
       include: {
         ratings: true,
         comments: true,
-        box: true,
-        mainProducts: true,
-        products: true,
-        decorations: true,
-        bag: true
+        box: {
+          include: {
+            box: true
+          }
+        },
+        products: {
+          include: {
+            product: true
+          }
+        },
+        bag: {
+          include: {
+            bag: true
+          }
+        },
+        sweets: {
+          include: {
+            sweet: true
+          }
+        }
       }
     })
     return inspirations

@@ -2,27 +2,75 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useSelector } from "react-redux"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import GiftPreview from "@/components/gift/gift-preview"
 import BoxSelector from "@/components/gift/steps/box-selector"
-import ProductSelector from "@/components/gift/steps/product-selector"
-import DecorationSelector from "@/components/gift/steps/decoration-selector"
+import CartProductSelector from "@/components/gift/steps/cart-product-selector"
+import SweetSelector from "@/components/gift/steps/sweet-selector"
 import BagSelector from "@/components/gift/steps/bag-selector"
 import GiftSummary from "@/components/gift/steps/gift-summary"
-import SavedItems from "@/components/gift/saved-items"
-import { ChevronLeft, ChevronRight, Gift, Package, ShoppingCart, Sparkles, Palette, ClipboardList, Bookmark, Zap, ArrowUp } from "lucide-react"
+
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Gift, 
+  Package, 
+  ShoppingCart, 
+  Sparkles, 
+  Palette, 
+  ClipboardList, 
+  Zap, 
+  ArrowUp,
+  Heart,
+  Star,
+  ChevronDown
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import type { RootState } from "@/lib/redux/store"
 
 const steps = [
-  { id: "box", title: "اختيار الصندوق", icon: Package },
-  { id: "products", title: "اختيار المنتجات", icon: ShoppingCart },
-  { id: "decorations", title: "اختيار الزينة", icon: Sparkles },
-  { id: "bags", title: "اختيار التغليف", icon: Palette },
-  { id: "summary", title: "ملخص الهدية", icon: ClipboardList },
+  { 
+    id: "box", 
+    title: "اختيار الصندوق", 
+    subtitle: "اختر الصندوق المناسب لهديتك",
+    icon: Package,
+    color: "from-blue-500 to-blue-600",
+    bgColor: "bg-blue-50"
+  },
+  { 
+    id: "products", 
+    title: "اختيار المنتجات", 
+    subtitle: "أضف المنتجات من سلتك",
+    icon: ShoppingCart,
+    color: "from-green-500 to-green-600",
+    bgColor: "bg-green-50"
+  },
+  { 
+    id: "sweets", 
+    title: "اختيار الحلويات", 
+    subtitle: "أضف الحلويات المفضلة",
+    icon: Sparkles,
+    color: "from-pink-500 to-pink-600",
+    bgColor: "bg-pink-50"
+  },
+  { 
+    id: "bags", 
+    title: "اختيار التغليف", 
+    subtitle: "اختر تصميم التغليف المناسب",
+    icon: Palette,
+    color: "from-purple-500 to-purple-600",
+    bgColor: "bg-purple-50"
+  },
+  { 
+    id: "summary", 
+    title: "ملخص الهدية", 
+    subtitle: "مراجعة نهائية وإضافة للسلة",
+    icon: ClipboardList,
+    color: "from-orange-500 to-orange-600",
+    bgColor: "bg-orange-50"
+  },
 ]
 
 // Custom hook for media query
@@ -44,18 +92,19 @@ function useMediaQuery(query: string): boolean {
 
 export default function GiftBuilder() {
   const [currentStep, setCurrentStep] = useState("box")
-  const [showSaved, setShowSaved] = useState(false)
-  const savedItems = useSelector((state: RootState) => state.gift.savedItems)
   const isMobile = useMediaQuery("(max-width: 768px)")
-  const [activeTooltip, setActiveTooltip] = useState<string | null>(null)
   const [showScrollTop, setShowScrollTop] = useState(false)
+  const [showMobileSteps, setShowMobileSteps] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
 
   const handleStepChange = (step: string) => {
     setCurrentStep(step)
+    setShowMobileSteps(false)
   }
 
   const currentIndex = steps.findIndex((step) => step.id === currentStep)
+  const currentStepData = steps[currentIndex]
+  const progress = ((currentIndex + 1) / steps.length) * 100
 
   const goToNextStep = () => {
     if (currentIndex < steps.length - 1) {
@@ -87,9 +136,9 @@ export default function GiftBuilder() {
       case "box":
         return <BoxSelector />
       case "products":
-        return <ProductSelector />
-      case "decorations":
-        return <DecorationSelector />
+        return <CartProductSelector />
+      case "sweets":
+        return <SweetSelector />
       case "bags":
         return <BagSelector />
       case "summary":
@@ -100,188 +149,302 @@ export default function GiftBuilder() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-gray-50 pb-20 px-4 md:px-6 lg:px-8 rtl" ref={contentRef}>
-      <div className="max-w-7xl mx-auto">
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.5 }}
-          className="text-center mb-6 pt-6 md:mb-8 md:pt-8"
-        >
-          <div className="inline-block mb-3 md:mb-4 bg-gradient-to-br from-purple-500 to-pink-500 p-2 rounded-full shadow-lg">
-            <Gift className="w-6 h-6 md:w-8 md:h-8 text-white" />
-          </div>
-          <h1 className="text-2xl md:text-4xl font-bold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">اصنع هديتك الشخصية</h1>
-          <p className="text-sm md:text-base text-gray-600 mt-2 md:mt-3 max-w-lg mx-auto">قم بتخصيص هديتك الخاصة بخطوات بسيطة واختر من مجموعة متنوعة من المنتجات والتصاميم</p>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 pb-20" ref={contentRef}>
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-purple-100 px-4 py-3">
+        <div className="max-w-7xl mx-auto">
+          {/* Mobile Progress Header */}
+          {isMobile && (
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-r shadow-lg",
+                  currentStepData.color
+                )}>
+                  <currentStepData.icon className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-gray-900">{currentStepData.title}</h2>
+                  <p className="text-xs text-gray-500">{currentStepData.subtitle}</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMobileSteps(!showMobileSteps)}
+                className="p-2"
+              >
+                <ChevronDown className={cn(
+                  "w-4 h-4 transition-transform",
+                  showMobileSteps && "rotate-180"
+                )} />
+              </Button>
+            </div>
+          )}
 
-          <div className="mt-4 md:mt-6">
+          {/* Progress Bar */}
+          <div className="relative">
+            <Progress value={progress} className="h-2 bg-purple-100" />
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 rounded-full transform transition-all duration-500" 
+                 style={{ width: `${progress}%` }} />
+          </div>
+          
+          {isMobile && (
+            <div className="text-center mt-2">
+              <span className="text-xs text-gray-600">
+                الخطوة {currentIndex + 1} من {steps.length}
+              </span>
+            </div>
+          )}
+
+          {/* Mobile Steps Dropdown */}
+          {isMobile && (
+            <AnimatePresence>
+              {showMobileSteps && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-4 grid grid-cols-2 gap-2"
+                >
+                  {steps.map((step, index) => {
+                    const StepIcon = step.icon
+                    const isActive = step.id === currentStep
+                    const isCompleted = index < currentIndex
+                    return (
+                      <motion.button
+                        key={step.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        onClick={() => handleStepChange(step.id)}
+                        className={cn(
+                          "p-3 rounded-xl border-2 transition-all duration-300 text-left",
+                          isActive 
+                            ? `border-purple-300 ${step.bgColor} shadow-lg transform scale-105`
+                            : isCompleted
+                            ? "border-green-200 bg-green-50"
+                            : "border-gray-200 bg-white hover:border-purple-200 hover:bg-purple-50"
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={cn(
+                            "w-8 h-8 rounded-lg flex items-center justify-center",
+                            isActive 
+                              ? `bg-gradient-to-r ${step.color} text-white`
+                              : isCompleted
+                              ? "bg-green-500 text-white"
+                              : "bg-gray-100 text-gray-500"
+                          )}>
+                            {isCompleted ? (
+                              <Star className="w-4 h-4" />
+                            ) : (
+                              <StepIcon className="w-4 h-4" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-xs font-medium text-gray-900">{step.title}</p>
+                          </div>
+                        </div>
+                      </motion.button>
+                    )
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          )}
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 pt-6">
+        {/* Desktop Header */}
+        {!isMobile && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.5 }}
+            className="text-center mb-8"
+          >
+            <div className="inline-flex items-center gap-3 mb-4 bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded-2xl shadow-xl">
+              <Gift className="w-8 h-8 text-white" />
+              <Heart className="w-6 h-6 text-white animate-pulse" />
+            </div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-3">
+              <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+                اصنع هديتك الشخصية
+              </span>
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-6">
+              قم بتخصيص هديتك الخاصة بخطوات بسيطة واختر من مجموعة متنوعة من المنتجات والتصاميم الرائعة
+            </p>
             <Link href="/custom-gifts">
-              <Button variant="outline" size="sm" className="gap-2 px-4 py-2 md:px-8 md:py-4 md:text-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg rounded-full">
-                <Zap className="w-3 h-3 md:w-4 md:h-4" />
+              <Button size="lg" className="gap-2 px-8 py-4 text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-xl rounded-2xl transform hover:scale-105">
+                <Zap className="w-5 h-5" />
                 تخصيص الهدايا الشخصية
               </Button>
             </Link>
-          </div>
-        </motion.div>
-
-        {/* Mobile Layout - Reordering for mobile */}
-        {isMobile && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mb-6"
-          >
-
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-          {/* Gift Preview - Fixed at the top for mobile, side for desktop */}
-          <div className={`${isMobile ? 'order-1' : 'lg:col-span-5 xl:col-span-4 lg:order-1 order-1'}`}>
-            <div className={`${!isMobile && 'sticky top-8 z-10'}`}>
+        <div className={cn(
+          "grid gap-6",
+          isMobile ? "grid-cols-1" : "lg:grid-cols-12"
+        )}>
+          {/* Gift Preview */}
+          <div className={cn(
+            isMobile ? "order-1" : "lg:col-span-5 xl:col-span-4"
+          )}>
+            <div className={!isMobile ? "sticky top-24 z-10" : ""}>
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }} 
                 animate={{ opacity: 1, scale: 1 }} 
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="bg-white rounded-2xl overflow-hidden shadow-xl border border-purple-100"
+                className="bg-white rounded-3xl overflow-hidden shadow-2xl border border-purple-200"
               >
                 <GiftPreview />
-
-                {savedItems.length > 0 && (
-                  <div className="mt-2 px-4 pb-4">
-                    <button
-                      onClick={() => setShowSaved(!showSaved)}
-                      className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-sm text-purple-600 hover:text-purple-800 font-medium bg-purple-50 hover:bg-purple-100 transition-all duration-200"
-                    >
-                      <Bookmark className="w-4 h-4" />
-                      {showSaved ? "إخفاء المحفوظة مؤخراً" : "عرض المحفوظة مؤخراً"}
-                      <span className="inline-flex items-center justify-center bg-purple-600 text-white rounded-full w-5 h-5 text-xs">
-                        {savedItems.length}
-                      </span>
-                    </button>
-
-                    <AnimatePresence>
-                      {showSaved && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden mt-3"
-                        >
-                          <SavedItems />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                )}
               </motion.div>
             </div>
           </div>
 
           {/* Main Content */}
-          <div className={`${isMobile ? 'order-2' : 'lg:col-span-7 xl:col-span-8 lg:order-2 order-2'}`}>
-            {/* Inspiration Gallery - Only show on desktop */}
+          <div className={cn(
+            isMobile ? "order-2" : "lg:col-span-7 xl:col-span-8"
+          )}>
+            {/* Desktop Steps Navigation */}
             {!isMobile && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }} 
                 animate={{ opacity: 1, y: 0 }} 
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="mb-8"
+                className="bg-white rounded-3xl shadow-xl p-6 mb-6 border border-purple-100"
               >
-
-              </motion.div>
-            )}
-
-            {/* Gift Builder Steps */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 border border-purple-100"
-            >
-              <div className="p-3 md:p-4 border-b bg-gradient-to-r from-white to-purple-50">
                 <Tabs value={currentStep} onValueChange={handleStepChange} className="w-full">
-                  <TabsList className="w-full justify-between bg-gray-100 p-1 rounded-xl">
+                  <TabsList className="grid w-full grid-cols-5 bg-gray-50 p-2 rounded-2xl">
                     {steps.map((step, index) => {
-                      const StepIcon = step.icon;
-                      const isActive = step.id === currentStep;
+                      const StepIcon = step.icon
+                      const isActive = step.id === currentStep
+                      const isCompleted = index < currentIndex
                       return (
                         <TabsTrigger
                           key={step.id}
                           value={step.id}
                           className={cn(
-                            "flex flex-col md:flex-row items-center gap-1 md:gap-2 px-1 md:px-4 py-1.5 md:py-3 rounded-lg transition-all duration-300",
+                            "flex flex-col items-center gap-2 px-4 py-4 rounded-xl transition-all duration-300 relative overflow-hidden",
                             isActive
-                              ? "bg-white shadow-md text-purple-600 border-b-2 border-purple-500 translate-y-[-2px]"
-                              : "hover:bg-white/50"
+                              ? `bg-gradient-to-r ${step.color} text-white shadow-lg transform scale-105`
+                              : isCompleted
+                              ? "bg-green-100 text-green-700 hover:bg-green-200"
+                              : "hover:bg-white/70 text-gray-600"
                           )}
-                          onMouseEnter={() => setActiveTooltip(step.id)}
-                          onMouseLeave={() => setActiveTooltip(null)}
                         >
                           <div className={cn(
-                            "w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-full text-xs transition-all duration-300",
+                            "w-8 h-8 flex items-center justify-center rounded-full transition-all duration-300",
                             isActive 
-                              ? "bg-purple-100 text-purple-600" 
-                              : "bg-gray-200 text-gray-700"
+                              ? "bg-white/20 text-white" 
+                              : isCompleted
+                              ? "bg-green-200 text-green-700"
+                              : "bg-gray-200 text-gray-600"
                           )}>
-                            {isMobile ? index + 1 : <StepIcon className="w-3 h-3 md:w-4 md:h-4" />}
+                            {isCompleted ? (
+                              <Star className="w-4 h-4" />
+                            ) : (
+                              <StepIcon className="w-4 h-4" />
+                            )}
                           </div>
-                          <span className={cn(
-                            "text-xs md:text-sm font-medium transition-all duration-300",
-                            isActive ? "text-purple-600" : "text-gray-700"
-                          )}>
-                            {isMobile ? "" : step.title}
-                          </span>
-                          {isMobile && activeTooltip === step.id && (
-                            <div className="absolute top-full mt-2 bg-gray-800 text-white text-xs rounded px-2 py-1 z-50 w-max">
-                              {step.title}
-                            </div>
+                          <div className="text-center">
+                            <div className="text-xs font-bold">{step.title}</div>
+                            <div className="text-xs opacity-70 mt-1">{step.subtitle}</div>
+                          </div>
+                          {isActive && (
+                            <motion.div
+                              layoutId="activeStep"
+                              className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/20 rounded-xl"
+                              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                            />
                           )}
                         </TabsTrigger>
-                      );
+                      )
                     })}
                   </TabsList>
                 </Tabs>
+              </motion.div>
+            )}
+
+            {/* Step Content */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-purple-100"
+            >
+              {/* Step Header */}
+              <div className={cn(
+                "p-6 bg-gradient-to-r text-white",
+                currentStepData.color
+              )}>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <currentStepData.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">{currentStepData.title}</h2>
+                    <p className="text-white/80 text-sm">{currentStepData.subtitle}</p>
+                  </div>
+                </div>
               </div>
 
-              <div className="p-4 md:p-6">
+              {/* Step Content */}
+              <div className="p-6">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentStep}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.4 }}
-                    className={`min-h-[${isMobile ? '300px' : '400px'}]`}
+                    className="min-h-[400px]"
                   >
                     {renderStepContent()}
                   </motion.div>
                 </AnimatePresence>
               </div>
 
-              <div className="p-3 md:p-4 border-t bg-gradient-to-r from-purple-50 to-white">
-                <div className="flex justify-between">
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2 rounded-xl border-purple-200"
-                    onClick={goToPreviousStep}
-                    disabled={currentIndex === 0}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                    <span className="hidden sm:inline">السابق</span>
-                  </Button>
+              {/* Navigation */}
+              <div className="p-6 border-t bg-gray-50 flex justify-between items-center">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 rounded-2xl border-purple-200 hover:bg-purple-50"
+                  onClick={goToPreviousStep}
+                  disabled={currentIndex === 0}
+                  size={isMobile ? "sm" : "default"}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                  السابق
+                </Button>
 
-                  <Button
-                    className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 rounded-xl"
-                    onClick={goToNextStep}
-                    disabled={currentIndex === steps.length - 1}
-                  >
-                    <span className="hidden sm:inline">التالي</span>
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  {steps.map((_, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        "w-2 h-2 rounded-full transition-all duration-300",
+                        index <= currentIndex ? "bg-purple-500" : "bg-gray-300"
+                      )}
+                    />
+                  ))}
                 </div>
+
+                <Button
+                  className={cn(
+                    "flex items-center gap-2 rounded-2xl text-white transition-all duration-300",
+                    `bg-gradient-to-r ${currentStepData.color} hover:shadow-lg transform hover:scale-105`
+                  )}
+                  onClick={goToNextStep}
+                  disabled={currentIndex === steps.length - 1}
+                  size={isMobile ? "sm" : "default"}
+                >
+                  التالي
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
               </div>
             </motion.div>
           </div>
@@ -292,14 +455,14 @@ export default function GiftBuilder() {
       <AnimatePresence>
         {showScrollTop && (
           <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
             onClick={scrollToTop}
-            className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-purple-600 text-white shadow-lg flex items-center justify-center z-50 hover:bg-purple-700 transition-colors"
+            className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-2xl flex items-center justify-center z-50 hover:shadow-3xl transition-all duration-300 transform hover:scale-110"
             aria-label="العودة للأعلى"
           >
-            <ArrowUp className="h-5 w-5" />
+            <ArrowUp className="h-6 w-6" />
           </motion.button>
         )}
       </AnimatePresence>

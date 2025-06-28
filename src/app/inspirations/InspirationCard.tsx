@@ -213,8 +213,11 @@ export default function InspirationCard({
               ...gift,
               box: "",
               products: [],
-              decorations: [],
+              sweets: [],
               bag: "",
+              productQuantities: {},
+              sweetQuantities: {},
+              comments: [],
               updatedAt: gift.updatedAt?.toISOString() || new Date().toISOString()
             } satisfies LegacyInspiration} 
           />

@@ -11,9 +11,8 @@ export async function getAllInspirations(): Promise<Inspiration[]> {
         ratings: true,
         comments: true,
         box: true,
-        mainProducts: true,
         products: true,
-        decorations: true,
+        sweets: true,
         bag: true
       }
     })
@@ -33,9 +32,8 @@ export async function getInspirationById(id: string): Promise<Inspiration | null
         ratings: true,
         comments: true,
         box: true,
-        mainProducts: true,
         products: true,
-        decorations: true,
+        sweets: true,
         bag: true
       }
     })
@@ -102,9 +100,7 @@ export async function getInspirationsByCategory(category: string): Promise<Inspi
         ratings: true,
         comments: true,
         box: true,
-        mainProducts: true,
         products: true,
-        decorations: true,
         bag: true
       }
     })
@@ -129,9 +125,7 @@ export async function searchInspirations(searchTerm: string): Promise<Inspiratio
         ratings: true,
         comments: true,
         box: true,
-        mainProducts: true,
         products: true,
-        decorations: true,
         bag: true
       }
     })

@@ -1,5 +1,5 @@
 "use server"
-import type { Box, Decoration, Bag } from "@/types/database"
+import type { Box, Bag, Sweet } from "@/types/database"
 import type { GiftProduct } from "@/types/gift-product"
 
 // أنواع بسيطة للسلة
@@ -23,7 +23,7 @@ export async function createGiftPreviewImage(): Promise<string> {
 export async function createGiftCartItem(
   selectedBox: Box | null,
   selectedProducts: GiftProduct[],
-  selectedDecorations: Decoration[],
+  selectedSweets: Sweet[],
   selectedBag: Bag | null,
   personalMessage?: { message: string; recipient: string; sender: string },
 ): Promise<CartItem> {
@@ -58,8 +58,8 @@ export async function createGiftCartItem(
   const giftItemsTotal = selectedProducts.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0)
   const boxPrice = selectedBox?.price || 0
   const bagPrice = selectedBag?.price || 0
-  const decorationsPrice = selectedDecorations.reduce((sum, item) => sum + item.price, 0)
-  const totalPrice = giftItemsTotal + boxPrice + bagPrice + decorationsPrice
+  const sweetsPrice = selectedSweets.reduce((sum, item) => sum + item.price, 0)
+  const totalPrice = giftItemsTotal + boxPrice + bagPrice + sweetsPrice
 
   // إنشاء بيانات الهدية
   const giftData: GiftData = {

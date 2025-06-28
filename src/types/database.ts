@@ -2,51 +2,71 @@
 import type { 
   Product as PrismaProduct, 
   Box as PrismaBox, 
-  Decoration as PrismaDecoration, 
-  InspirationBag,
-  InspirationDecoration
+  Bag as PrismaBag
 } from "../../prisma/generated/client"
 
-// استخدام أنواع Prisma مباشرة
-export type Box = PrismaBox
-export type Decoration = PrismaDecoration
+export type Product = PrismaProduct
 
-// نوع الحقيبة الموحد (يطابق نوع Box و Decoration)
+// أنواع مخصصة للصناديق والأكياس مع تواريخ كـ strings
+export interface Box {
+  id: string
+  name: string
+  description?: string | null
+  price: number
+  image?: string | null
+  color?: string | null
+  size?: string | null
+  material?: string | null
+  stock: number
+  dimensions?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Bag {
   id: string
   name: string
-  description?: string
+  description?: string | null
+  price: number
+  image?: string | null
+  color?: string | null
+  size?: string | null
+  material?: string | null
+  stock: number
+  createdAt: string
+  updatedAt: string
+}
+
+// نوع الحلويات المخصص مع دعم الكمية
+export interface Sweet {
+  id: string
+  name: string
   price: number
   image?: string
   stock: number
+  createdAt: string  // تم تغييره من Date إلى string لتجنب مشاكل serialization
+  updatedAt: string  // تم تغييره من Date إلى string لتجنب مشاكل serialization
+  quantity?: number  // للعربة والكمية المختارة
+}
+
+// تحويل Prisma Sweet إلى النوع المخصص
+export function convertPrismaSweetToSweet(prismaSweet: {
+  id: string
+  name: string
+  price: number
+  image?: string | null
+  stock: number
   createdAt: Date
   updatedAt: Date
-}
-
-// تحويل InspirationBag إلى Bag موحد
-export function convertInspirationBagToBag(inspirationBag: InspirationBag): Bag {
+}): Sweet {
   return {
-    id: inspirationBag.id,
-    name: inspirationBag.name,
-    description: inspirationBag.description,
-    price: inspirationBag.price,
-    image: inspirationBag.image,
-    stock: inspirationBag.stock,
-    createdAt: new Date(), // إضافة تاريخ افتراضي
-    updatedAt: new Date(), // إضافة تاريخ افتراضي
-  }
-}
-
-// تحويل InspirationDecoration إلى Decoration موحد
-export function convertInspirationDecorationToDecoration(inspirationDecoration: InspirationDecoration): Decoration {
-  return {
-    id: inspirationDecoration.id,
-    name: inspirationDecoration.name,
-    price: inspirationDecoration.price,
-    image: inspirationDecoration.image,
-    stock: inspirationDecoration.stock,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    id: prismaSweet.id,
+    name: prismaSweet.name,
+    price: prismaSweet.price,
+    image: prismaSweet.image || '',
+    stock: prismaSweet.stock,
+    createdAt: prismaSweet.createdAt.toISOString(),  // تحويل إلى string
+    updatedAt: prismaSweet.updatedAt.toISOString(),  // تحويل إلى string
   }
 }
 
@@ -60,22 +80,7 @@ export interface GiftProduct {
   price: number         // السعر الحالي
   old_price?: number    // السعر القديم (اختياري للعروض)
   stock: number         // كمية المخزون المتاحة
-  
-  // للعربة والكمية
   quantity?: number     // الكمية المطلوبة (افتراضي 1)
-}
-
-// نوع العنصر المحفوظ (يجب أن يطابق Prisma model)
-export interface SavedItem {
-  id: string
-  userId: string
-  productId: string
-  type: string // "product", "gift", "decoration", etc.
-  name: string
-  price: number
-  image?: string
-  createdAt: Date
-  updatedAt: Date
 }
 
 // نوع الرسالة الشخصية
@@ -97,6 +102,40 @@ export function convertToGiftProduct(product: PrismaProduct): GiftProduct {
     price: product.price,
     old_price: product.old_price || undefined,
     stock: product.stock,
-    quantity: 1,
+    quantity: 1, // الكمية الافتراضية عند إضافة المنتج للعربة
+  }
+}
+
+// دوال تحويل من Prisma types إلى الأنواع المخصصة
+export function convertPrismaBoxToBox(prismaBox: PrismaBox): Box {
+  return {
+    id: prismaBox.id,
+    name: prismaBox.name,
+    description: prismaBox.description,
+    price: prismaBox.price,
+    image: prismaBox.image,
+    color: prismaBox.color,
+    size: prismaBox.size,
+    material: prismaBox.material,
+    stock: prismaBox.stock,
+    dimensions: prismaBox.dimensions,
+    createdAt: prismaBox.createdAt.toISOString(),
+    updatedAt: prismaBox.updatedAt.toISOString(),
+  }
+}
+
+export function convertPrismaBagToBag(prismaBag: PrismaBag): Bag {
+  return {
+    id: prismaBag.id,
+    name: prismaBag.name,
+    description: prismaBag.description,
+    price: prismaBag.price,
+    image: prismaBag.image,
+    color: prismaBag.color,
+    size: prismaBag.size,
+    material: prismaBag.material,
+    stock: prismaBag.stock,
+    createdAt: prismaBag.createdAt.toISOString(),
+    updatedAt: prismaBag.updatedAt.toISOString(),
   }
 }

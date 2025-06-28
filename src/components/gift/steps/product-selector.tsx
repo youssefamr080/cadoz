@@ -5,7 +5,7 @@ import type { GiftProduct } from "@/types/database"
 import { convertToGiftProduct } from "@/types/database"
 import type { RootState } from "@/lib/redux/store"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSelector, useDispatch } from "react-redux"
 import { Input } from "@/components/ui/input"
@@ -20,7 +20,7 @@ import { Swiper, SwiperSlide } from "swiper/react"
 import { FreeMode, Navigation } from "swiper/modules"
 import "swiper/css"
 import "swiper/css/free-mode"
-import { addProduct, removeProduct, updateProductQuantity } from "@/lib/redux/slices/giftSlice"
+import { addSelectedProduct, removeSelectedProduct, updateSelectedProductQuantity } from "@/lib/redux/slices/giftSlice"
 
 const categories = ["الكل", "شوكولاتة", "حلويات", "شيبسي"]
 
@@ -31,14 +31,15 @@ const sortOptions = [
 ]
 
 export default function ProductSelector() {
-  const selectedProducts = useSelector((state: RootState) => state.gift.selectedProducts)
+  const selectedProductsRaw = useSelector((state: RootState) => state.gift.selectedProducts)
+  const selectedProducts = useMemo(() => selectedProductsRaw || [], [selectedProductsRaw])
   const dispatch = useDispatch()
   
   // Render cart items section at the start of the component
   const renderCartItems = () => {
     return (
       <div className="mb-6">
-        {selectedProducts.length > 0 ? (
+        {selectedProducts && selectedProducts.length > 0 ? (
           <>
             <h3 className="font-medium text-lg mb-4 text-purple-800 flex items-center gap-2">
               <ShoppingCart className="w-5 h-5" />
@@ -68,7 +69,7 @@ export default function ProductSelector() {
                       <div className="flex items-center justify-between">
                         <span className="text-purple-600 font-medium text-sm">{item.price} ج.م</span>
                         <button
-                          onClick={() => dispatch(addProduct(item))}
+                          onClick={() => dispatch(addSelectedProduct(item))}
                           className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs hover:bg-purple-200 transition-colors"
                         >
                           إضافة
@@ -213,7 +214,7 @@ export default function ProductSelector() {
 
     const existingProductIndex = selectedProducts.findIndex((p) => p.id === productId)
     if (existingProductIndex >= 0) {
-      dispatch(updateProductQuantity({ id: productId, quantity: newQuantity }))
+      dispatch(updateSelectedProductQuantity({ id: productId, quantity: newQuantity }))
     }
   }
   
@@ -222,7 +223,7 @@ export default function ProductSelector() {
 
     setTimeout(() => {
       const quantity = quantities[product.id] || 1
-      dispatch(addProduct({
+      dispatch(addSelectedProduct({
         id: product.id,
         name: product.name,
         price: product.price,
@@ -238,7 +239,7 @@ export default function ProductSelector() {
 
   const handleSaveForLater = (product: GiftProduct, e: React.MouseEvent) => {
     e.stopPropagation()
-    dispatch(removeProduct(product.id))
+    dispatch(removeSelectedProduct(product.id))
   }
 
   const isProductSelected = (productId: string) => {

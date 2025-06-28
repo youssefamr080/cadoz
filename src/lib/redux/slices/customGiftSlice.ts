@@ -1,6 +1,60 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import type { CustomGift } from "../../../../prisma/generated/client"
-import { getAllCustomGifts, getCustomGiftsByCategory, getCustomGiftById } from "@/lib/actions/custom-gift-actions"
+
+interface CustomGift {
+  id: string
+  name: string
+  description: string
+  image: string
+  basePrice: number
+  category: string
+}
+
+// Mock data for custom gifts
+const mockCustomGifts: CustomGift[] = [
+  {
+    id: "1",
+    name: "مج مخصص بالاسم",
+    description: "مج سيراميك عالي الجودة مع إمكانية طباعة الاسم أو الصورة",
+    image: "/images/mug prent.jpg",
+    basePrice: 150,
+    category: "accessories"
+  },
+  {
+    id: "2",
+    name: "محفظة مخصصة",
+    description: "محفظة جلدية أنيقة مع إمكانية النقش",
+    image: "/images/men wallet.png",
+    basePrice: 300,
+    category: "accessories"
+  },
+  {
+    id: "3",
+    name: "لوحة فنية مخصصة",
+    description: "لوحة فنية بالألوان المائية حسب الطلب",
+    image: "/images/potrait slider.jpg",
+    basePrice: 500,
+    category: "art"
+  }
+]
+
+// Mock functions to replace the deleted actions
+const getAllCustomGifts = async (): Promise<CustomGift[]> => {
+  await new Promise(resolve => setTimeout(resolve, 500))
+  return mockCustomGifts
+}
+
+const getCustomGiftsByCategory = async (category: string): Promise<CustomGift[]> => {
+  await new Promise(resolve => setTimeout(resolve, 500))
+  if (category === "all") {
+    return mockCustomGifts
+  }
+  return mockCustomGifts.filter(gift => gift.category === category)
+}
+
+const getCustomGiftById = async (id: string): Promise<CustomGift | null> => {
+  await new Promise(resolve => setTimeout(resolve, 500))
+  return mockCustomGifts.find(gift => gift.id === id) || null
+}
 
 interface CustomGiftState {
   customGifts: CustomGift[]

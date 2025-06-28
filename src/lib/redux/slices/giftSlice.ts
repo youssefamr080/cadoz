@@ -1,433 +1,623 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit"
-import type { Box, GiftProduct, Decoration, Bag, SavedItem, PersonalMessage } from "../../../types/database"
-import { convertInspirationBagToBag } from "../../../types/database"
+import type { Box, GiftProduct, Bag, Sweet, PersonalMessage } from "../../../types/database"
 import { getAllBoxes, getBoxesByCategory } from "@/lib/actions/box-actions"
 import { getAllProducts, getProductsByCategory, searchProducts, filterProducts } from "@/lib/actions/product-actions"
-import { getAllDecorations, getAvailableDecorations } from "@/lib/actions/decoration-actions"
 import { getAllBags, getAvailableBags } from "@/lib/actions/bag-actions"
-import {
-  getSavedItems,
-  addSavedItem,
-  removeSavedItem as removeServerSavedItem,
-  clearSavedItems as clearServerSavedItems,
-} from "@/lib/actions/saved-item-actions"
+import { getAllSweets, getAvailableSweets } from "@/lib/actions/sweet-actions"
 
-// Definir el estado inicial
+// تعريف الحالة الأولية للنظام
 interface GiftState {
-  // Datos seleccionados por el usuario
+  // البيانات المختارة من قبل المستخدم
   selectedBox: Box | null
   selectedProducts: GiftProduct[]
-  selectedDecorations: Decoration[]
+  selectedSweets: Sweet[]
   selectedBag: Bag | null
   personalMessage: PersonalMessage | null
-  savedItems: SavedItem[]
 
-  // Datos cargados de la base de datos
+  // البيانات المحملة من قاعدة البيانات
   boxes: {
     data: Box[]
     byCategory: Record<string, Box[]>
-    status: "idle" | "loading" | "succeeded" | "failed"
+    available: Box[]
+    selectedCategory: string
+    isLoading: boolean
     error: string | null
   }
+  
   products: {
     data: GiftProduct[]
     byCategory: Record<string, GiftProduct[]>
-    filtered: GiftProduct[]
-    status: "idle" | "loading" | "succeeded" | "failed"
+    search: {
+      results: GiftProduct[]
+      query: string
+      isLoading: boolean
+    }
+    filters: {
+      category: string[]
+      priceRange: [number, number]
+      inStock: boolean
+    }
+    pagination: {
+      currentPage: number
+      totalPages: number
+      itemsPerPage: number
+    }
+    isLoading: boolean
     error: string | null
   }
-  decorations: {
-    data: Decoration[]
-    available: Decoration[]
-    status: "idle" | "loading" | "succeeded" | "failed"
-    error: string | null
-  }
+
   bags: {
     data: Bag[]
     available: Bag[]
-    status: "idle" | "loading" | "succeeded" | "failed"
+    isLoading: boolean
     error: string | null
   }
-  savedItemsStatus: {
-    loading: boolean
+
+  sweets: {
+    data: Sweet[]
+    available: Sweet[]
+    isLoading: boolean
     error: string | null
+  }
+
+  // حالة الواجهة
+  ui: {
+    currentStep: number
+    showPreview: boolean
+    isProcessing: boolean
   }
 }
 
+// الحالة الأولية
 const initialState: GiftState = {
-  // Datos seleccionados por el usuario
   selectedBox: null,
   selectedProducts: [],
-  selectedDecorations: [],
+  selectedSweets: [],
   selectedBag: null,
   personalMessage: null,
-  savedItems: [],
 
-  // Datos cargados de la base de datos
   boxes: {
     data: [],
     byCategory: {},
-    status: "idle",
+    available: [],
+    selectedCategory: "all",
+    isLoading: false,
     error: null,
   },
+
   products: {
     data: [],
     byCategory: {},
-    filtered: [],
-    status: "idle",
+    search: {
+      results: [],
+      query: "",
+      isLoading: false,
+    },
+    filters: {
+      category: [],
+      priceRange: [0, 1000],
+      inStock: true,
+    },
+    pagination: {
+      currentPage: 1,
+      totalPages: 1,
+      itemsPerPage: 12,
+    },
+    isLoading: false,
     error: null,
   },
-  decorations: {
-    data: [],
-    available: [],
-    status: "idle",
-    error: null,
-  },
+
   bags: {
     data: [],
     available: [],
-    status: "idle",
+    isLoading: false,
     error: null,
   },
-  savedItemsStatus: {
-    loading: false,
+
+  sweets: {
+    data: [],
+    available: [],
+    isLoading: false,
     error: null,
+  },
+
+  ui: {
+    currentStep: 1,
+    showPreview: false,
+    isProcessing: false,
   },
 }
 
-// Thunks para operaciones asíncronas
+// Async Thunks للتعامل مع قاعدة البيانات
 
-// Boxes
-export const fetchAllBoxes = createAsyncThunk("gift/fetchAllBoxes", async (_, { rejectWithValue }) => {
+// جلب جميع الصناديق
+export const fetchBoxes = createAsyncThunk("gift/fetchBoxes", async (_, { rejectWithValue }) => {
   try {
     return await getAllBoxes()
-  } catch (error) {
-    return rejectWithValue((error as Error).message)
+  } catch {
+    return rejectWithValue("فشل في جلب الصناديق")
   }
 })
 
+// جلب الصناديق حسب الفئة
 export const fetchBoxesByCategory = createAsyncThunk(
   "gift/fetchBoxesByCategory",
   async (category: string, { rejectWithValue }) => {
     try {
-      const boxes = await getBoxesByCategory()
-      return { category, boxes }
-    } catch (error) {
-      return rejectWithValue((error as Error).message)
+      return await getBoxesByCategory()
+    } catch {
+      return rejectWithValue("فشل في جلب الصناديق حسب الفئة")
     }
-  },
+  }
 )
 
-// Products
-export const fetchAllProducts = createAsyncThunk("gift/fetchAllProducts", async (_, { rejectWithValue }) => {
+// جلب جميع المنتجات
+export const fetchProducts = createAsyncThunk("gift/fetchProducts", async (_, { rejectWithValue }) => {
   try {
     return await getAllProducts()
-  } catch (error) {
-    return rejectWithValue((error as Error).message)
+  } catch {
+    return rejectWithValue("فشل في جلب المنتجات")
   }
 })
 
+// جلب المنتجات حسب الفئة
 export const fetchProductsByCategory = createAsyncThunk(
   "gift/fetchProductsByCategory",
   async (category: string, { rejectWithValue }) => {
     try {
-      const products = await getProductsByCategory(category)
-      return { category, products }
-    } catch (error) {
-      return rejectWithValue((error as Error).message)
+      return await getProductsByCategory(category)
+    } catch {
+      return rejectWithValue("فشل في جلب المنتجات حسب الفئة")
     }
-  },
+  }
 )
 
-export const searchProductsThunk = createAsyncThunk(
+// البحث في المنتجات
+export const searchGiftProducts = createAsyncThunk(
   "gift/searchProducts",
-  async (searchTerm: string, { rejectWithValue }) => {
+  async (query: string, { rejectWithValue }) => {
     try {
-      return await searchProducts(searchTerm)
-    } catch (error) {
-      return rejectWithValue((error as Error).message)
+      return await searchProducts(query)
+    } catch {
+      return rejectWithValue("فشل في البحث عن المنتجات")
     }
-  },
+  }
 )
 
-export const filterProductsThunk = createAsyncThunk(
+// تصفية المنتجات
+export const filterGiftProducts = createAsyncThunk(
   "gift/filterProducts",
-  async (
-    filters: {
-      category?: string
-      flavor?: string[]
-      occasion?: string
-      inStock?: boolean
-    },
-    { rejectWithValue },
-  ) => {
+  async (filters: Record<string, unknown>, { rejectWithValue }) => {
     try {
       return await filterProducts(filters)
-    } catch (error) {
-      return rejectWithValue((error as Error).message)
+    } catch {
+      return rejectWithValue("فشل في تصفية المنتجات")
     }
-  },
-)
-
-// Decorations
-export const fetchAllDecorations = createAsyncThunk("gift/fetchAllDecorations", async (_, { rejectWithValue }) => {
-  try {
-    return await getAllDecorations()
-  } catch (error) {
-    return rejectWithValue((error as Error).message)
   }
-})
-
-export const fetchAvailableDecorations = createAsyncThunk(
-  "gift/fetchAvailableDecorations",
-  async (_, { rejectWithValue }) => {
-    try {
-      return await getAvailableDecorations()
-    } catch (error) {
-      return rejectWithValue((error as Error).message)
-    }
-  },
 )
 
-// Bags
-export const fetchAllBags = createAsyncThunk("gift/fetchAllBags", async (_, { rejectWithValue }) => {
+// جلب جميع الأكياس
+export const fetchBags = createAsyncThunk("gift/fetchBags", async (_, { rejectWithValue }) => {
   try {
     return await getAllBags()
-  } catch (error) {
-    return rejectWithValue((error as Error).message)
+  } catch {
+    return rejectWithValue("فشل في جلب الأكياس")
   }
 })
 
+// جلب الأكياس المتاحة
 export const fetchAvailableBags = createAsyncThunk("gift/fetchAvailableBags", async (_, { rejectWithValue }) => {
   try {
     return await getAvailableBags()
-  } catch (error) {
-    return rejectWithValue((error as Error).message)
+  } catch {
+    return rejectWithValue("فشل في جلب الأكياس المتاحة")
   }
 })
 
-// Saved Items
-export const fetchSavedItems = createAsyncThunk("gift/fetchSavedItems", async (_, { rejectWithValue }) => {
+// جلب جميع الحلويات
+export const fetchSweets = createAsyncThunk("gift/fetchSweets", async (_, { rejectWithValue }) => {
   try {
-    return await getSavedItems()
-  } catch (error) {
-    return rejectWithValue((error as Error).message)
+    return await getAllSweets()
+  } catch {
+    return rejectWithValue("فشل في جلب الحلويات")
   }
 })
 
-export const addSavedItemThunk = createAsyncThunk(
-  "gift/addSavedItem", 
-  async (item: {
-    productId: string
-    type: string
-    name: string
-    price: number
-    image?: string
-  }, { rejectWithValue }) => {
+// جلب الحلويات المتاحة
+export const fetchAvailableSweets = createAsyncThunk("gift/fetchAvailableSweets", async (_, { rejectWithValue }) => {
   try {
-    const savedItem = await addSavedItem(item)
-    return savedItem
-  } catch (error) {
-    return rejectWithValue((error as Error).message)
+    return await getAvailableSweets()
+  } catch {
+    return rejectWithValue("فشل في جلب الحلويات المتاحة")
   }
 })
 
-export const removeSavedItemThunk = createAsyncThunk(
-  "gift/removeSavedItem",
-  async (itemId: string, { rejectWithValue }) => {
-    try {
-      await removeServerSavedItem(itemId)
-      return itemId
-    } catch (error) {
-      return rejectWithValue((error as Error).message)
-    }
-  },
-)
-
-export const clearSavedItemsThunk = createAsyncThunk("gift/clearSavedItems", async (_, { rejectWithValue }) => {
-  try {
-    await clearServerSavedItems()
-    return true
-  } catch (error) {
-    return rejectWithValue((error as Error).message)
-  }
-})
-
-// Crear el slice
+// إنشاء slice للهدايا
 const giftSlice = createSlice({
   name: "gift",
   initialState,
   reducers: {
-    // Acciones para la selección de elementos
-    setSelectedBox: (state, action: PayloadAction<Box>) => {
+    // اختيار الصندوق
+    selectBox: (state, action: PayloadAction<Box>) => {
       state.selectedBox = action.payload
     },
-    addProduct: (state, action: PayloadAction<GiftProduct>) => {
-      const existingIndex = state.selectedProducts.findIndex((p) => p.id === action.payload.id)
-      if (existingIndex >= 0) {
-        state.selectedProducts[existingIndex] = action.payload
+
+    // إضافة منتج مختار
+    addSelectedProduct: (state, action: PayloadAction<GiftProduct>) => {
+      // التأكد من أن selectedProducts مصفوفة
+      if (!state.selectedProducts) {
+        state.selectedProducts = []
+      }
+      
+      const existingProduct = state.selectedProducts.find(p => p.id === action.payload.id)
+      if (existingProduct) {
+        existingProduct.quantity = (existingProduct.quantity || 1) + 1
       } else {
-        state.selectedProducts.push(action.payload)
+        state.selectedProducts.push({ ...action.payload, quantity: 1 })
       }
     },
-    removeProduct: (state, action: PayloadAction<string>) => {
-      state.selectedProducts = state.selectedProducts.filter((p) => p.id !== action.payload)
+
+    // إزالة منتج مختار
+    removeSelectedProduct: (state, action: PayloadAction<string>) => {
+      // التأكد من أن selectedProducts مصفوفة
+      if (!state.selectedProducts) {
+        state.selectedProducts = []
+        return
+      }
+      state.selectedProducts = state.selectedProducts.filter(p => p.id !== action.payload)
     },
-    updateProductQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
-      const { id, quantity } = action.payload
-      const productIndex = state.selectedProducts.findIndex((p) => p.id === id)
-      if (productIndex >= 0) {
-        state.selectedProducts[productIndex].quantity = quantity
+
+    // تحديث كمية منتج مختار
+    updateSelectedProductQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
+      // التأكد من أن selectedProducts مصفوفة
+      if (!state.selectedProducts) {
+        state.selectedProducts = []
+        return
+      }
+      
+      const product = state.selectedProducts.find(p => p.id === action.payload.id)
+      if (product) {
+        product.quantity = action.payload.quantity
       }
     },
-    addDecoration: (state, action: PayloadAction<Decoration>) => {
-      const existingIndex = state.selectedDecorations.findIndex((d) => d.id === action.payload.id)
-      if (existingIndex < 0) {
-        state.selectedDecorations.push(action.payload)
-      }
-    },
-    removeDecoration: (state, action: PayloadAction<string>) => {
-      state.selectedDecorations = state.selectedDecorations.filter((d) => d.id !== action.payload)
-    },
-    setSelectedBag: (state, action: PayloadAction<Bag>) => {
+
+    // اختيار الكيس
+    selectBag: (state, action: PayloadAction<Bag>) => {
       state.selectedBag = action.payload
     },
+
+    // إضافة حلوى مختارة
+    addSelectedSweet: (state, action: PayloadAction<Sweet>) => {
+      // التأكد من أن selectedSweets مصفوفة
+      if (!state.selectedSweets) {
+        state.selectedSweets = []
+      }
+      
+      const existingSweet = state.selectedSweets.find(s => s.id === action.payload.id)
+      if (existingSweet) {
+        // إذا كانت موجودة، نزيد الكمية (إذا كان لديها quantity property)
+        if ('quantity' in existingSweet && typeof existingSweet.quantity === 'number') {
+          existingSweet.quantity += 1
+        }
+      } else {
+        state.selectedSweets.push({ ...action.payload, quantity: 1 })
+      }
+    },
+
+    // إزالة حلوى مختارة
+    removeSelectedSweet: (state, action: PayloadAction<string>) => {
+      // التأكد من أن selectedSweets مصفوفة
+      if (!state.selectedSweets) {
+        state.selectedSweets = []
+        return
+      }
+      state.selectedSweets = state.selectedSweets.filter(s => s.id !== action.payload)
+    },
+
+    // تحديث كمية حلوى مختارة
+    updateSelectedSweetQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
+      // التأكد من أن selectedSweets مصفوفة
+      if (!state.selectedSweets) {
+        state.selectedSweets = []
+        return
+      }
+      
+      const sweet = state.selectedSweets.find(s => s.id === action.payload.id)
+      if (sweet && 'quantity' in sweet) {
+        sweet.quantity = action.payload.quantity
+      }
+    },
+
+    // تعيين الرسالة الشخصية
     setPersonalMessage: (state, action: PayloadAction<PersonalMessage>) => {
       state.personalMessage = action.payload
     },
-    clearGift: (state) => {
-      state.selectedBox = null
-      state.selectedProducts = []
-      state.selectedDecorations = []
-      state.selectedBag = null
-      state.personalMessage = null
-    },
-    // Acción para cargar desde localStorage si es necesario
-    loadSavedItemsFromLocalStorage: (state, action: PayloadAction<SavedItem[]>) => {
-      if (state.savedItems.length === 0) {
-        state.savedItems = action.payload
+
+    // تغيير الخطوة الحالية
+    setCurrentStep: (state, action: PayloadAction<number>) => {
+      // التأكد من وجود ui object
+      if (!state.ui) {
+        state.ui = {
+          currentStep: action.payload,
+          showPreview: false,
+          isProcessing: false,
+        }
+      } else {
+        state.ui.currentStep = action.payload
       }
     },
+
+    // تبديل عرض المعاينة
+    togglePreview: (state) => {
+      // التأكد من وجود ui object
+      if (!state.ui) {
+        state.ui = {
+          currentStep: 1,
+          showPreview: true,
+          isProcessing: false,
+        }
+      } else {
+        state.ui.showPreview = !state.ui.showPreview
+      }
+    },
+
+    // تعيين حالة المعالجة
+    setProcessing: (state, action: PayloadAction<boolean>) => {
+      // التأكد من وجود ui object
+      if (!state.ui) {
+        state.ui = {
+          currentStep: 1,
+          showPreview: false,
+          isProcessing: action.payload,
+        }
+      } else {
+        state.ui.isProcessing = action.payload
+      }
+    },
+
+    // إعادة تعيين الهدية
+    resetGift: (state) => {
+      state.selectedBox = null
+      state.selectedProducts = []
+      state.selectedSweets = []
+      state.selectedBag = null
+      state.personalMessage = null
+      
+      // التأكد من وجود ui object
+      if (!state.ui) {
+        state.ui = {
+          currentStep: 1,
+          showPreview: false,
+          isProcessing: false,
+        }
+      } else {
+        state.ui.currentStep = 1
+        state.ui.showPreview = false
+        state.ui.isProcessing = false
+      }
+    },
+
+    // تحديث فئة الصناديق المختارة
+    setBoxCategory: (state, action: PayloadAction<string>) => {
+      state.boxes.selectedCategory = action.payload
+    },
+
+    // تحديث فلاتر المنتجات
+    updateProductFilters: (state, action: PayloadAction<Partial<GiftState['products']['filters']>>) => {
+      state.products.filters = { ...state.products.filters, ...action.payload }
+    },
+
+    // تحديث صفحة المنتجات
+    setProductPage: (state, action: PayloadAction<number>) => {
+      state.products.pagination.currentPage = action.payload
+    },
+
+    // تحديث استعلام البحث
+    setSearchQuery: (state, action: PayloadAction<string>) => {
+      state.products.search.query = action.payload
+    },
+
+    // إضافة منتج للبيانات
+    addProduct: (state, action: PayloadAction<GiftProduct>) => {
+      state.products.data.push(action.payload)
+    },
+
+    // إضافة صندوق للبيانات
+    addBox: (state, action: PayloadAction<Box>) => {
+      state.boxes.data.push(action.payload)
+    },
+
+    // إضافة كيس للبيانات
+    addBag: (state, action: PayloadAction<Bag>) => {
+      state.bags.data.push(action.payload)
+    },
+
+    // إضافة حلوى للبيانات
+    addSweet: (state, action: PayloadAction<Sweet>) => {
+      state.sweets.data.push(action.payload)
+    },
   },
+
   extraReducers: (builder) => {
-    // Boxes
+    // معالجة الصناديق
     builder
-      .addCase(fetchAllBoxes.pending, (state) => {
-        state.boxes.status = "loading"
+      .addCase(fetchBoxes.pending, (state) => {
+        state.boxes.isLoading = true
+        state.boxes.error = null
       })
-      .addCase(fetchAllBoxes.fulfilled, (state, action) => {
-        state.boxes.status = "succeeded"
+      .addCase(fetchBoxes.fulfilled, (state, action) => {
+        state.boxes.isLoading = false
         state.boxes.data = action.payload
+        state.boxes.available = action.payload.filter(box => box.stock > 0)
       })
-      .addCase(fetchAllBoxes.rejected, (state, action) => {
-        state.boxes.status = "failed"
+      .addCase(fetchBoxes.rejected, (state, action) => {
+        state.boxes.isLoading = false
         state.boxes.error = action.payload as string
       })
+
+    // معالجة الصناديق حسب الفئة
+    builder
+      .addCase(fetchBoxesByCategory.pending, (state) => {
+        state.boxes.isLoading = true
+        state.boxes.error = null
+      })
       .addCase(fetchBoxesByCategory.fulfilled, (state, action) => {
-        const { category, boxes } = action.payload
-        state.boxes.byCategory[category] = boxes
+        state.boxes.isLoading = false
+        const category = state.boxes.selectedCategory
+        state.boxes.byCategory[category] = action.payload
+      })
+      .addCase(fetchBoxesByCategory.rejected, (state, action) => {
+        state.boxes.isLoading = false
+        state.boxes.error = action.payload as string
       })
 
-    // Products
+    // معالجة المنتجات
     builder
-      .addCase(fetchAllProducts.pending, (state) => {
-        state.products.status = "loading"
+      .addCase(fetchProducts.pending, (state) => {
+        state.products.isLoading = true
+        state.products.error = null
       })
-      .addCase(fetchAllProducts.fulfilled, (state, action) => {
-        state.products.status = "succeeded"
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        state.products.isLoading = false
         state.products.data = action.payload
       })
-      .addCase(fetchAllProducts.rejected, (state, action) => {
-        state.products.status = "failed"
+      .addCase(fetchProducts.rejected, (state, action) => {
+        state.products.isLoading = false
         state.products.error = action.payload as string
       })
+
+    // معالجة المنتجات حسب الفئة
+    builder
+      .addCase(fetchProductsByCategory.pending, (state) => {
+        state.products.isLoading = true
+        state.products.error = null
+      })
       .addCase(fetchProductsByCategory.fulfilled, (state, action) => {
-        const { category, products } = action.payload
-        state.products.byCategory[category] = products
+        state.products.isLoading = false
+        // تحديد الفئة بناءً على الحالة الحالية أو استخدام "all" كقيمة افتراضية
+        const category = state.products.filters.category.length > 0 ? state.products.filters.category[0] : "all"
+        state.products.byCategory[category] = action.payload
       })
-      .addCase(searchProductsThunk.fulfilled, (state, action) => {
-        state.products.filtered = action.payload
-      })
-      .addCase(filterProductsThunk.fulfilled, (state, action) => {
-        state.products.filtered = action.payload
-      })
-
-    // Decorations
-    builder
-      .addCase(fetchAllDecorations.pending, (state) => {
-        state.decorations.status = "loading"
-      })
-      .addCase(fetchAllDecorations.fulfilled, (state, action) => {
-        state.decorations.status = "succeeded"
-        state.decorations.data = action.payload
-      })
-      .addCase(fetchAllDecorations.rejected, (state, action) => {
-        state.decorations.status = "failed"
-        state.decorations.error = action.payload as string
-      })
-      .addCase(fetchAvailableDecorations.fulfilled, (state, action) => {
-        state.decorations.available = action.payload
+      .addCase(fetchProductsByCategory.rejected, (state, action) => {
+        state.products.isLoading = false
+        state.products.error = action.payload as string
       })
 
-    // Bags
+    // معالجة البحث في المنتجات
     builder
-      .addCase(fetchAllBags.pending, (state) => {
-        state.bags.status = "loading"
-      })      .addCase(fetchAllBags.fulfilled, (state, action) => {
-        state.bags.status = "succeeded"
-        // تحويل InspirationBag[] إلى Bag[]
-        state.bags.data = action.payload.map(convertInspirationBagToBag)
+      .addCase(searchGiftProducts.pending, (state) => {
+        state.products.search.isLoading = true
       })
-      .addCase(fetchAllBags.rejected, (state, action) => {
-        state.bags.status = "failed"
+      .addCase(searchGiftProducts.fulfilled, (state, action) => {
+        state.products.search.isLoading = false
+        state.products.search.results = action.payload
+      })
+      .addCase(searchGiftProducts.rejected, (state, action) => {
+        state.products.search.isLoading = false
+        state.products.error = action.payload as string
+      })
+
+    // معالجة تصفية المنتجات
+    builder
+      .addCase(filterGiftProducts.pending, (state) => {
+        state.products.isLoading = true
+        state.products.error = null
+      })
+      .addCase(filterGiftProducts.fulfilled, (state, action) => {
+        state.products.isLoading = false
+        state.products.data = action.payload
+      })
+      .addCase(filterGiftProducts.rejected, (state, action) => {
+        state.products.isLoading = false
+        state.products.error = action.payload as string
+      })
+
+    // معالجة الأكياس
+    builder
+      .addCase(fetchBags.pending, (state) => {
+        state.bags.isLoading = true
+        state.bags.error = null
+      })
+      .addCase(fetchBags.fulfilled, (state, action) => {
+        state.bags.isLoading = false
+        state.bags.data = action.payload
+      })
+      .addCase(fetchBags.rejected, (state, action) => {
+        state.bags.isLoading = false
         state.bags.error = action.payload as string
-      })      .addCase(fetchAvailableBags.fulfilled, (state, action) => {
-        // تحويل InspirationBag[] إلى Bag[]
-        state.bags.available = action.payload.map(convertInspirationBagToBag)
       })
 
-    // Saved Items
+    // معالجة الأكياس المتاحة
     builder
-      .addCase(fetchSavedItems.pending, (state) => {
-        state.savedItemsStatus.loading = true
+      .addCase(fetchAvailableBags.pending, (state) => {
+        state.bags.isLoading = true
+        state.bags.error = null
       })
-      .addCase(fetchSavedItems.fulfilled, (state, action) => {
-        state.savedItemsStatus.loading = false
-        state.savedItems = action.payload
+      .addCase(fetchAvailableBags.fulfilled, (state, action) => {
+        state.bags.isLoading = false
+        state.bags.available = action.payload
       })
-      .addCase(fetchSavedItems.rejected, (state, action) => {
-        state.savedItemsStatus.loading = false
-        state.savedItemsStatus.error = action.payload as string
+      .addCase(fetchAvailableBags.rejected, (state, action) => {
+        state.bags.isLoading = false
+        state.bags.error = action.payload as string
       })
-      .addCase(addSavedItemThunk.fulfilled, (state, action) => {
-        // Verificar si el item ya existe
-        const existingIndex = state.savedItems.findIndex((item) => item.id === action.payload.id)
-        if (existingIndex < 0) {
-          // Agregar al inicio y mantener solo los 3 más recientes
-          state.savedItems = [action.payload, ...state.savedItems].slice(0, 3)
-        }
+
+    // معالجة الحلويات
+    builder
+      .addCase(fetchSweets.pending, (state) => {
+        state.sweets.isLoading = true
+        state.sweets.error = null
       })
-      .addCase(removeSavedItemThunk.fulfilled, (state, action) => {
-        state.savedItems = state.savedItems.filter((item) => item.id !== action.payload)
+      .addCase(fetchSweets.fulfilled, (state, action) => {
+        state.sweets.isLoading = false
+        state.sweets.data = action.payload
       })
-      .addCase(clearSavedItemsThunk.fulfilled, (state) => {
-        state.savedItems = []
+      .addCase(fetchSweets.rejected, (state, action) => {
+        state.sweets.isLoading = false
+        state.sweets.error = action.payload as string
+      })
+
+    // معالجة الحلويات المتاحة
+    builder
+      .addCase(fetchAvailableSweets.pending, (state) => {
+        state.sweets.isLoading = true
+        state.sweets.error = null
+      })
+      .addCase(fetchAvailableSweets.fulfilled, (state, action) => {
+        state.sweets.isLoading = false
+        state.sweets.available = action.payload
+      })
+      .addCase(fetchAvailableSweets.rejected, (state, action) => {
+        state.sweets.isLoading = false
+        state.sweets.error = action.payload as string
       })
   },
 })
 
-// Exportar acciones y reducer
+// تصدير الإجراءات
 export const {
-  setSelectedBox,
-  addProduct,
-  removeProduct,
-  updateProductQuantity,
-  addDecoration,
-  removeDecoration,
-  setSelectedBag,
+  selectBox,
+  addSelectedProduct,
+  removeSelectedProduct,
+  updateSelectedProductQuantity,
+  addSelectedSweet,
+  removeSelectedSweet,
+  updateSelectedSweetQuantity,
+  selectBag,
   setPersonalMessage,
-  clearGift,
-  loadSavedItemsFromLocalStorage,
+  setCurrentStep,
+  togglePreview,
+  setProcessing,
+  resetGift,
+  setBoxCategory,
+  updateProductFilters,
+  setProductPage,
+  setSearchQuery,
+  addProduct,
+  addBox,
+  addBag,
+  addSweet,
 } = giftSlice.actions
 
+// تصدير المحولات
 export default giftSlice.reducer

@@ -15,9 +15,10 @@ import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["cart", "wishlist", "gift", "inspiration", "customGift"],
-  // استبعاد RTK Query من الـ persist
-  blacklist: [apiSlice.reducerPath],
+  whitelist: ["cart", "wishlist", "inspiration", "customGift"],
+  // استبعاد gift من persist مؤقتاً لتجنب مشاكل التوافق
+  // يمكن إعادة إضافته لاحقاً عند الحاجة
+  blacklist: [apiSlice.reducerPath, "gift", "search"],
 }
 
 const rootReducer = combineReducers({
@@ -38,6 +39,9 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        // تجاهل Date objects في المسارات التالية
+        ignoredActionsPaths: ['payload.createdAt', 'payload.updatedAt'],
+        ignoredPaths: ['gift.boxes.data', 'gift.bags.data', 'gift.sweets.data'],
       },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }).concat(apiSlice.middleware) as any,

@@ -2,21 +2,37 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect, useCallback } from "react"
-import { motion, useDragControls } from "framer-motion"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { motion, useDragControls, AnimatePresence } from "framer-motion"
 import { useSelector, useDispatch } from "react-redux"
-import { X, RefreshCw, ZoomIn, ZoomOut, Move, Gift } from "lucide-react"
+import { X, RefreshCw, ZoomIn, ZoomOut, Move, Gift, Sparkles, Package, Star, ArrowRight, ArrowLeft } from "lucide-react"
 import { Slider } from "@/components/ui/slider"
+import { Button } from "@/components/ui/button"
 import Image from "next/image"
-import { removeProduct, removeDecoration } from "@/lib/redux/slices/giftSlice"
+import { removeSelectedProduct, removeSelectedSweet } from "@/lib/redux/slices/giftSlice"
 import type { RootState } from "@/lib/redux/store"
+
+interface FloatingParticle {
+  id: number
+  x: number
+  y: number
+  color: string
+  size: number
+  duration: number
+  delay: number
+}
 
 export default function GiftPreview() {
   const selectedBox = useSelector((state: RootState) => state.gift.selectedBox)
-  const selectedProducts = useSelector((state: RootState) => state.gift.selectedProducts)
-  const selectedDecorations = useSelector((state: RootState) => state.gift.selectedDecorations)
+  const selectedProductsRaw = useSelector((state: RootState) => state.gift.selectedProducts)
+  const selectedSweetsRaw = useSelector((state: RootState) => state.gift.selectedSweets)
   const selectedBag = useSelector((state: RootState) => state.gift.selectedBag)
+  
+  const selectedProducts = useMemo(() => selectedProductsRaw || [], [selectedProductsRaw])
+  const selectedSweets = useMemo(() => selectedSweetsRaw || [], [selectedSweetsRaw])
   const dispatch = useDispatch()
+
+  // Enhanced state management
   const [scale, setScale] = useState(1)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isLoading, setIsLoading] = useState(false)
@@ -26,23 +42,67 @@ export default function GiftPreview() {
   const [rotation, setRotation] = useState({ x: 0, y: 0 })
   const [isAnimating, setIsAnimating] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [currentView, setCurrentView] = useState<'overview' | 'details' | '3d'>('overview')
+  const [particles, setParticles] = useState<FloatingParticle[]>([])
+  const [showStats, setShowStats] = useState(false)
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  
   const containerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const dragControls = useDragControls()
 
+  // Calculate gift statistics
+  const giftStats = useMemo(() => {
+    const totalItems = selectedProducts.length + selectedSweets.length
+    const totalValue = [
+      ...(selectedProducts || []).map(p => p.price * (p.quantity || 1)),
+      ...(selectedSweets || []).map(s => s.price),
+      selectedBox?.price || 0,
+      selectedBag?.price || 0
+    ].reduce((sum, price) => sum + price, 0)
+    
+    const completionPercentage = Math.min(100, (
+      (selectedBox ? 25 : 0) +
+      (selectedProducts.length > 0 ? 25 : 0) +
+      (selectedSweets.length > 0 ? 25 : 0) +
+      (selectedBag ? 25 : 0)
+    ))
+
+    return { totalItems, totalValue, completionPercentage }
+  }, [selectedBox, selectedProducts, selectedSweets, selectedBag])
+
+  // Enhanced zoom controls
   const handleZoomIn = useCallback(() => {
-    setScale((prevScale) => Math.min(prevScale + 0.1, 3))
+    setScale((prevScale) => Math.min(prevScale + 0.2, 4))
   }, [])
 
   const handleZoomOut = useCallback(() => {
-    setScale((prevScale) => Math.max(prevScale - 0.1, 0.5))
+    setScale((prevScale) => Math.max(prevScale - 0.2, 0.3))
   }, [])
 
   const handleReset = useCallback(() => {
     setScale(1)
     setPosition({ x: 0, y: 0 })
+    setRotation({ x: 0, y: 0 })
+    setCurrentView('overview')
   }, [])
 
+  // Enhanced particle system
+  const createParticles = useCallback(() => {
+    const newParticles: FloatingParticle[] = Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      color: ['#FFD700', '#FF6347', '#7B68EE', '#3CB371', '#FF69B4', '#FFA500'][Math.floor(Math.random() * 6)],
+      size: Math.random() * 8 + 4,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 1
+    }))
+    setParticles(newParticles)
+  }, [])
+
+  // Enhanced bounds calculation
   const getPositionBounds = useCallback(() => {
     if (!containerRef.current || !contentRef.current) return { minX: 0, maxX: 0, minY: 0, maxY: 0 }
     
@@ -66,17 +126,14 @@ export default function GiftPreview() {
     }
   }, [getPositionBounds])
 
-  // Handle wheel zoom
+  // Enhanced wheel handling
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault()
-    if (e.deltaY < 0) {
-      handleZoomIn()
-    } else {
-      handleZoomOut()
-    }
-  }, [handleZoomIn, handleZoomOut])
+    const delta = e.deltaY > 0 ? -0.1 : 0.1
+    setScale(prev => Math.max(0.3, Math.min(4, prev + delta)))
+  }, [])
 
-  // Handle touch gestures for pinch zoom
+  // Enhanced touch gestures
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       const dist = Math.hypot(
@@ -95,75 +152,28 @@ export default function GiftPreview() {
         e.touches[0].clientY - e.touches[1].clientY
       )
       
-      const newScale = Math.max(0.5, Math.min(3, initialScale * (dist / touchStartDistance)))
+      const newScale = Math.max(0.3, Math.min(4, initialScale * (dist / touchStartDistance)))
       setScale(newScale)
     }
   }, [touchStartDistance, initialScale])
 
-  const handleTouchEnd = useCallback(() => {
-    setTouchStartDistance(null)
-  }, [])
-
-  // Handle keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "+" || e.key === "=") {
-        handleZoomIn()
-      } else if (e.key === "-" || e.key === "_") {
-        handleZoomOut()
-      } else if (e.key === "0") {
-        handleReset()
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown)
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
-  }, [handleZoomIn, handleZoomOut, handleReset])
-
-  // Update loading state
-  useEffect(() => {
-    setIsLoading(true)
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [selectedBox, selectedProducts, selectedDecorations, selectedBag])
-
-  // Constrain position when scale changes
-  useEffect(() => {
-    setPosition(prevPosition => constrainPosition(prevPosition))
-  }, [scale, constrainPosition])
-
-  // Handle window resize
-  useEffect(() => {
-    const handleResize = () => {
-      setPosition(prevPosition => constrainPosition(prevPosition))
-    }
-    
-    window.addEventListener('resize', handleResize)
-    return () => {
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [constrainPosition])
-
-  // Add a celebration effect
+  // Enhanced celebration effect
   const handleCelebrate = useCallback(() => {
     if (isAnimating) return
     setIsAnimating(true)
     setShowConfetti(true)
+    createParticles()
     
-    // Reset after animation completes
     setTimeout(() => {
       setIsAnimating(false)
       setShowConfetti(false)
-    }, 3000)
-  }, [isAnimating])
+      setParticles([])
+    }, 4000)
+  }, [isAnimating, createParticles])
 
-  // Subtle box rotation on mouse/touch move for 3D effect
+  // Enhanced 3D rotation
   const handleBoxMove = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    if (!containerRef.current || isAnimating) return
+    if (!containerRef.current || isAnimating || currentView !== '3d') return
     
     const containerRect = containerRef.current.getBoundingClientRect()
     const centerX = containerRect.width / 2
@@ -179,292 +189,598 @@ export default function GiftPreview() {
       clientY = e.clientY - containerRect.top
     }
     
-    const rotateY = ((clientX - centerX) / centerX) * 5 // Max 5 degrees
-    const rotateX = ((centerY - clientY) / centerY) * 5 // Max 5 degrees
+    const rotateY = ((clientX - centerX) / centerX) * 15 // Enhanced rotation
+    const rotateX = ((centerY - clientY) / centerY) * 15
     
     setRotation({ x: rotateX, y: rotateY })
-  }, [containerRef, isAnimating])
+  }, [isAnimating, currentView])
 
-  // Reset rotation when not hovering
-  const handleBoxLeave = useCallback(() => {
-    setRotation({ x: 0, y: 0 })
+  // View switching
+  const switchView = useCallback((newView: 'overview' | 'details' | '3d') => {
+    setCurrentView(newView)
+    if (newView === 'overview') {
+      setScale(1)
+      setRotation({ x: 0, y: 0 })
+    } else if (newView === '3d') {
+      setScale(1.2)
+    }
   }, [])
 
-  // Add a shake effect
-  const handleShake = useCallback(() => {
-    if (isAnimating) return
-    setIsAnimating(true)
-    
-    // Reset after animation completes
-    setTimeout(() => {
-      setIsAnimating(false)
-    }, 1000)
-  }, [isAnimating])
+  // Toggle fullscreen
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen(!isFullscreen)
+  }, [isFullscreen])
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "+" || e.key === "=") handleZoomIn()
+      else if (e.key === "-" || e.key === "_") handleZoomOut()
+      else if (e.key === "0") handleReset()
+      else if (e.key === "f" || e.key === "F") toggleFullscreen()
+      else if (e.key === "1") switchView('overview')
+      else if (e.key === "2") switchView('details')
+      else if (e.key === "3") switchView('3d')
+      else if (e.key === " ") {
+        e.preventDefault()
+        handleCelebrate()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [handleZoomIn, handleZoomOut, handleReset, toggleFullscreen, switchView, handleCelebrate])
+
+  // Update loading state
+  useEffect(() => {
+    setIsLoading(true)
+    const timer = setTimeout(() => setIsLoading(false), 300)
+    return () => clearTimeout(timer)
+  }, [selectedBox, selectedProducts, selectedSweets, selectedBag])
+
+  // Constrain position when scale changes
+  useEffect(() => {
+    setPosition(prevPosition => constrainPosition(prevPosition))
+  }, [scale, constrainPosition])
+
+  const renderGiftContent = () => {
+    if (!selectedBox) {
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center p-8 border-2 border-dashed border-purple-300 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50"
+        >
+          <Package className="w-16 h-16 mx-auto text-purple-400 mb-4" />
+          <h3 className="text-lg font-semibold text-purple-800 mb-2">ابدأ بناء هديتك المميزة</h3>
+          <p className="text-purple-600 text-sm">اختر صندوق جميل لتبدأ رحلة إنشاء هدية لا تُنسى</p>
+        </motion.div>
+      )
+    }
+
+    return (
+      <motion.div
+        className="relative"
+        onMouseMove={handleBoxMove}
+        onTouchMove={handleBoxMove}
+        onMouseLeave={() => setRotation({ x: 0, y: 0 })}
+        onTouchEnd={() => setRotation({ x: 0, y: 0 })}
+      >
+        {/* Enhanced Gift Box */}
+        <motion.div
+          className="relative bg-white rounded-2xl shadow-2xl overflow-hidden"
+          style={{
+            minWidth: currentView === 'details' ? 280 : 220,
+            minHeight: currentView === 'details' ? 280 : 220,
+            transform: `perspective(1200px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+            transformStyle: 'preserve-3d',
+          }}
+          whileHover={{ scale: currentView === 'overview' ? 1.02 : 1 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          {/* Box Background */}
+          <div 
+            className="absolute inset-0 bg-gradient-to-br from-white to-gray-50"
+            style={{
+              backgroundImage: selectedBox.image ? `url(${selectedBox.image})` : 'none',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+
+          {/* Enhanced Box Ribbon */}
+          <div className="absolute -top-6 -left-6 -right-6 h-12 overflow-hidden">
+            <motion.div 
+              className="w-full h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 shadow-lg transform -rotate-2"
+              animate={{
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              style={{
+                backgroundSize: "200% 200%"
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -rotate-2" />
+          </div>
+
+          {/* Box Label */}
+          <motion.div 
+            className="absolute top-2 right-2 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg border border-purple-200"
+            whileHover={{ scale: 1.05 }}
+          >
+            <span className="text-xs font-semibold text-purple-800">{selectedBox.name}</span>
+          </motion.div>
+
+          {/* Box Content Area */}
+          <div className="relative z-10 p-6 h-full flex flex-col">
+            {/* Products Grid */}
+            <div className="flex-1 flex flex-wrap gap-3 justify-center items-center">
+              <AnimatePresence>
+                {selectedProducts.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ scale: 0, rotate: -180, opacity: 0 }}
+                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                    exit={{ scale: 0, rotate: 180, opacity: 0 }}
+                    transition={{ 
+                      delay: index * 0.1,
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 25
+                    }}
+                    className="relative group"
+                    onMouseEnter={() => setHoveredItem(product.id)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                  >
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden shadow-lg border-2 border-white">
+                      <Image
+                        src={product.image || "/placeholder.svg"}
+                        alt={product.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                    
+                    {/* Enhanced Remove Button */}
+                    <motion.button
+                      initial={{ scale: 0 }}
+                      animate={{ scale: hoveredItem === product.id ? 1 : 0 }}
+                      onClick={() => dispatch(removeSelectedProduct(product.id))}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </motion.button>
+
+                    {/* Quantity Badge */}
+                    <motion.div 
+                      className="absolute -bottom-1 -right-1 bg-purple-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shadow-lg"
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {product.quantity}
+                    </motion.div>
+
+                    {/* Product Info Tooltip */}
+                    <AnimatePresence>
+                      {hoveredItem === product.id && currentView === 'details' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black/80 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-20"
+                        >
+                          {product.name} - {product.price} ج.م
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+
+              {/* Sweets */}
+              <AnimatePresence>
+                {selectedSweets.map((sweet, index) => (
+                  <motion.div
+                    key={sweet.id}
+                    initial={{ scale: 0, rotate: 180, opacity: 0 }}
+                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                    exit={{ scale: 0, rotate: -180, opacity: 0 }}
+                    transition={{ 
+                      delay: (selectedProducts.length + index) * 0.1,
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 25
+                    }}
+                    className="relative group"
+                    onMouseEnter={() => setHoveredItem(sweet.id)}
+                    onMouseLeave={() => setHoveredItem(null)}
+                  >
+                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden shadow-md border border-pink-200">
+                      <Image
+                        src={sweet.image || "/placeholder.svg"}
+                        alt={sweet.name}
+                        fill
+                        className="object-cover transition-transform group-hover:scale-110"
+                      />
+                    </div>
+                    
+                    <motion.button
+                      initial={{ scale: 0 }}
+                      animate={{ scale: hoveredItem === sweet.id ? 1 : 0 }}
+                      onClick={() => dispatch(removeSelectedSweet(sweet.id))}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-md"
+                    >
+                      <X className="w-2 h-2" />
+                    </motion.button>
+
+                    <div className="absolute -bottom-1 -right-1 bg-pink-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                      <Sparkles className="w-2 h-2" />
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {/* Empty State for Products */}
+            {selectedProducts.length === 0 && selectedSweets.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex-1 flex flex-col items-center justify-center text-gray-400"
+              >
+                <Gift className="w-12 h-12 mb-2" />
+                <p className="text-sm">أضف منتجات وحلويات لهديتك</p>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Box Glow Effect */}
+          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/10 via-transparent to-pink-500/10 pointer-events-none" />
+        </motion.div>
+
+        {/* Enhanced Gift Bag */}
+        {selectedBag && (
+          <motion.div
+            initial={{ y: 50, opacity: 0, scale: 0.8 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.3 }}
+            className="absolute -bottom-8 -left-8 -right-8 top-[70%] rounded-b-2xl overflow-hidden shadow-2xl"
+            style={{
+              background: selectedBag.image 
+                ? `url(${selectedBag.image})` 
+                : 'linear-gradient(135deg, #f3f4f6, #e5e7eb)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            {/* Bag Handles */}
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 flex gap-8">
+              <div className="w-6 h-8 border-l-4 border-r-4 border-t-4 border-gray-600 rounded-t-full bg-transparent" />
+              <div className="w-6 h-8 border-l-4 border-r-4 border-t-4 border-gray-600 rounded-t-full bg-transparent" />
+            </div>
+            
+            {/* Bag Label */}
+            <motion.div 
+              className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full shadow-md"
+              whileHover={{ scale: 1.05 }}
+            >
+              <span className="text-xs font-medium text-gray-700">{selectedBag.name}</span>
+            </motion.div>
+
+            {/* Bag Shine Effect */}
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+              animate={{ x: ["-100%", "200%"] }}
+              transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+            />
+          </motion.div>
+        )}
+
+        {/* 3D Shadow */}
+        <motion.div 
+          className="absolute -bottom-4 left-8 right-8 h-8 bg-black/10 blur-xl rounded-full"
+          animate={{ 
+            scaleX: [1, 1.1, 1],
+            opacity: [0.1, 0.2, 0.1]
+          }}
+          transition={{ duration: 3, repeat: Infinity }}
+        />
+      </motion.div>
+    )
+  }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-      <div className="p-3 sm:p-4 border-b flex justify-between items-center">
-        <h2 className="font-semibold text-gray-900 text-sm sm:text-base">معاينة الهدية</h2>
-        <div className="flex items-center gap-1 sm:gap-2">
-          <button
-            onClick={handleZoomOut}
-            className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
-            aria-label="تصغير"
-          >
-            <ZoomOut className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <span className="text-xs font-medium">{Math.round(scale * 100)}%</span>
-          <button
-            onClick={handleZoomIn}
-            className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
-            aria-label="تكبير"
-          >
-            <ZoomIn className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button
-            onClick={handleReset}
-            className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
-            aria-label="إعادة تعيين"
-          >
-            <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button
-            onPointerDown={(e) => {
-              dragControls.start(e)
-              setIsDragging(true)
-            }}
-            className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 transition-colors"
-            aria-label="تحريك"
-          >
-            <Move className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button
-            onClick={handleShake}
-            className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-full bg-purple-100 hover:bg-purple-200 active:bg-purple-300 transition-colors"
-            aria-label="رج الهدية"
-            disabled={isAnimating}
-          >
-            <Gift className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
-          </button>
+    <div className={`bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 ${
+      isFullscreen ? 'fixed inset-4 z-50' : ''
+    }`}>
+      {/* Enhanced Header */}
+      <div className="p-4 border-b bg-gradient-to-r from-purple-50 to-pink-50">
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex items-center gap-2">
+            <Gift className="w-6 h-6 text-purple-600" />
+            <h2 className="font-bold text-gray-900 text-lg">معاينة الهدية المتقدمة</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowStats(!showStats)}
+              className="text-purple-600 hover:text-purple-700"
+            >
+              <Star className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleFullscreen}
+              className="text-purple-600 hover:text-purple-700"
+            >
+              {isFullscreen ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats Bar */}
+        <AnimatePresence>
+          {showStats && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="grid grid-cols-3 gap-4 mb-3 text-center"
+            >
+              <div className="bg-white rounded-lg p-2 shadow-sm">
+                <div className="text-lg font-bold text-purple-600">{giftStats.totalItems}</div>
+                <div className="text-xs text-gray-600">عنصر</div>
+              </div>
+              <div className="bg-white rounded-lg p-2 shadow-sm">
+                <div className="text-lg font-bold text-green-600">{giftStats.totalValue} ج.م</div>
+                <div className="text-xs text-gray-600">القيمة</div>
+              </div>
+              <div className="bg-white rounded-lg p-2 shadow-sm">
+                <div className="text-lg font-bold text-blue-600">{giftStats.completionPercentage}%</div>
+                <div className="text-xs text-gray-600">مكتملة</div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* View Controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex bg-white rounded-lg p-1 shadow-sm">
+            {(['overview', 'details', '3d'] as const).map((view) => (
+              <button
+                key={view}
+                onClick={() => switchView(view)}
+                className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${
+                  currentView === view
+                    ? 'bg-purple-500 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-purple-600'
+                }`}
+              >
+                {view === 'overview' ? 'عام' : view === 'details' ? 'تفاصيل' : '3D'}
+              </button>
+            ))}
+          </div>
+
+          {/* Zoom Controls */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleZoomOut}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-gray-50 shadow-sm transition-colors"
+            >
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <span className="text-sm font-medium min-w-[50px] text-center">
+              {Math.round(scale * 100)}%
+            </span>
+            <button
+              onClick={handleZoomIn}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-gray-50 shadow-sm transition-colors"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleReset}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-gray-50 shadow-sm transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+            <button
+              onPointerDown={(e) => {
+                dragControls.start(e)
+                setIsDragging(true)
+              }}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-white hover:bg-gray-50 shadow-sm transition-colors"
+            >
+              <Move className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleCelebrate}
+              disabled={isAnimating}
+              className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-100 hover:bg-purple-200 shadow-sm transition-colors disabled:opacity-50"
+            >
+              <Sparkles className="w-4 h-4 text-purple-600" />
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Main Preview Area */}
       <div
-        className="relative overflow-hidden bg-gray-50 p-2 sm:p-4 h-[250px] sm:h-[350px] flex items-center justify-center touch-none"
+        className={`relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-purple-50 touch-none ${
+          isFullscreen ? 'h-[calc(100vh-200px)]' : 'h-[400px] sm:h-[500px]'
+        }`}
         onWheel={handleWheel}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onTouchEnd={() => setTouchStartDistance(null)}
+        onDoubleClick={handleCelebrate}
         ref={containerRef}
       >
-        {isLoading ? (
-          <div className="absolute inset-0 bg-gray-50 flex items-center justify-center">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 border-3 sm:border-4 border-gray-200 border-t-purple-500 rounded-full animate-spin"></div>
-          </div>
-        ) : (
-          <div 
-            className="relative transition-all"
-            onMouseMove={handleBoxMove}
-            onTouchMove={handleBoxMove}
-            onMouseLeave={handleBoxLeave}
-            onTouchEnd={handleBoxLeave}
-            onDoubleClick={handleCelebrate}
-          >
-            {showConfetti && (
-              <div className="absolute inset-0 z-10 pointer-events-none">
-                {Array.from({ length: 50 }).map((_, i) => {
-                  const size = Math.random() * 8 + 5
-                  const color = ['#FFD700', '#FF6347', '#7B68EE', '#3CB371', '#FF69B4'][Math.floor(Math.random() * 5)]
-                  const left = `${Math.random() * 100}%`
-                  const animationDuration = `${Math.random() * 2 + 1}s`
-                  const animationDelay = `${Math.random() * 0.5}s`
-                  
-                  return (
-                    <div 
-                      key={i}
-                      className="absolute animate-confetti opacity-80"
-                      style={{
-                        width: size,
-                        height: size,
-                        backgroundColor: color,
-                        borderRadius: '2px',
-                        left,
-                        top: '-20px',
-                        animationDuration,
-                        animationDelay,
-                      }}
-                    />
-                  )
-                })}
-              </div>
-            )}
-            
-            <motion.div 
-              ref={contentRef}
-              initial={{ opacity: 0 }} 
+        {/* Floating Particles */}
+        <AnimatePresence>
+          {particles.map((particle) => (
+            <motion.div
+              key={particle.id}
+              initial={{ opacity: 0, scale: 0, y: 100 }}
               animate={{ 
-                opacity: 1,
-                rotateX: isAnimating ? [0, -5, 5, -3, 3, 0] : rotation.x,
-                rotateY: isAnimating ? [0, 5, -5, 3, -3, 0] : rotation.y,
-                x: isAnimating ? [0, -10, 10, -7, 7, 0] : position.x,
-                y: isAnimating ? [0, 0, 0, 0, 0, 0] : position.y,
-                scale: isAnimating ? [1, 1.05, 0.95, 1.03, 0.98, 1] : scale
+                opacity: [0, 1, 1, 0],
+                scale: [0, 1, 1, 0],
+                y: [100, -100],
+                x: [particle.x, particle.x + (Math.random() - 0.5) * 100]
               }}
-              drag={isDragging}
-              dragControls={dragControls}
-              onDragEnd={() => setIsDragging(false)}
-              dragConstraints={{
-                top: getPositionBounds().minY,
-                bottom: getPositionBounds().maxY,
-                left: getPositionBounds().minX,
-                right: getPositionBounds().maxX
+              transition={{
+                duration: particle.duration,
+                delay: particle.delay,
+                ease: "easeOut"
               }}
-              dragElastic={0.1}
-              dragTransition={{ power: 0.1, timeConstant: 200 }}
-              transition={isAnimating ? 
-                { duration: 0.8, times: [0, 0.2, 0.4, 0.6, 0.8, 1] } : 
-                { type: "spring", stiffness: 300, damping: 30 }
-              }
-              className="relative touch-none will-change-transform"
-            >
-              {selectedBox ? (
-                <div className="relative">
-                  <div 
-                    className="relative border-2 border-gray-300 bg-white rounded-lg p-2 min-w-[180px] sm:min-w-[200px] min-h-[180px] sm:min-h-[200px] shadow-md transition-shadow duration-300 hover:shadow-xl"
-                    style={{
-                      backgroundImage: selectedBox.image ? `url(${selectedBox.image})` : 'none',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
-                      transformStyle: 'preserve-3d',
-                      transition: 'transform 0.1s ease-out',
+              className="absolute pointer-events-none rounded-full"
+              style={{
+                backgroundColor: particle.color,
+                width: particle.size,
+                height: particle.size,
+                left: `${particle.x}%`,
+                top: `${particle.y}%`,
+                filter: 'blur(1px)',
+                zIndex: 10
+              }}
+            />
+          ))}
+        </AnimatePresence>
+
+        {/* Confetti Effect */}
+        <AnimatePresence>
+          {showConfetti && (
+            <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+              {Array.from({ length: 100 }).map((_, i) => {
+                const delay = Math.random() * 2
+                const duration = Math.random() * 3 + 2
+                const xStart = Math.random() * 100
+                const rotation = Math.random() * 360
+                
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ 
+                      opacity: 0,
+                      y: -20,
+                      x: `${xStart}%`,
+                      rotate: 0,
+                      scale: 0
                     }}
-                  >
-                    {/* Box ribbon - decorative element - متاح حسب التصميم */}
-                    {selectedBox.image && (
-                      <div className="absolute -top-4 -left-4 -right-4 h-8 overflow-hidden">
-                        <div className="w-full h-full bg-purple-500 shadow-md transform -rotate-2 origin-top-right"></div>
-                      </div>
-                    )}
-                    
-                    <div className="absolute top-0 right-0 -mt-2 -mr-2 text-[10px] sm:text-xs bg-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full shadow-md border border-gray-200 font-medium">
-                      {selectedBox.name}
-                    </div>
+                    animate={{ 
+                      opacity: [0, 1, 1, 0],
+                      y: '100vh',
+                      rotate: rotation,
+                      scale: [0, 1, 1, 0]
+                    }}
+                    transition={{
+                      duration,
+                      delay,
+                      ease: "easeOut"
+                    }}
+                    className="absolute w-3 h-3 rounded-sm"
+                    style={{
+                      backgroundColor: ['#FFD700', '#FF6347', '#7B68EE', '#3CB371', '#FF69B4', '#FFA500'][i % 6],
+                    }}
+                  />
+                )
+              })}
+            </div>
+          )}
+        </AnimatePresence>
 
-                    <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center items-center">
-                      {selectedProducts.map((product) => (
-                        <motion.div
-                          key={product.id}
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="relative group"
-                        >
-                          <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded overflow-hidden shadow-md transform transition-transform hover:rotate-1 hover:scale-105">
-                            <Image
-                              src={product.image || "/placeholder.svg"}
-                              alt={product.name}
-                              fill
-                              sizes="(max-width: 768px) 56px, 64px"
-                              className="object-cover"
-                              loading="eager"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200"></div>
-                          </div>
-                          <button
-                            onClick={() => dispatch(removeProduct(product.id))}
-                            className="absolute -top-2 -right-2 w-4 h-4 sm:w-5 sm:h-5 bg-purple-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 active:opacity-100 transition-opacity shadow-md"
-                            aria-label={`إزالة ${product.name}`}
-                          >
-                            <X className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                          </button>
-                          <div className="absolute -bottom-1 -right-1 bg-white text-[10px] sm:text-xs font-medium px-1 rounded-full border shadow-sm">
-                            {product.quantity}
-                          </div>
-                        </motion.div>
-                      ))}
-
-                      {selectedDecorations.map((decoration) => (
-                        <motion.div
-                          key={decoration.id}
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="relative group"
-                        >
-                          <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded overflow-hidden shadow-md transform transition-transform hover:rotate-3 hover:scale-110">
-                            <Image
-                              src={decoration.image || "/placeholder.svg"}
-                              alt={decoration.name}
-                              fill
-                              sizes="(max-width: 768px) 40px, 48px"
-                              className="object-cover"
-                              loading="eager"
-                            />
-                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200"></div>
-                          </div>
-                          <button
-                            onClick={() => dispatch(removeDecoration(decoration.id))}
-                            className="absolute -top-2 -right-2 w-4 h-4 sm:w-5 sm:h-5 bg-purple-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 sm:group-hover:opacity-100 active:opacity-100 transition-opacity shadow-md"
-                            aria-label={`إزالة ${decoration.name}`}
-                          >
-                            <X className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                          </button>
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    {/* Box inner shadow effect */}
-                    <div className="absolute inset-0 rounded-lg shadow-inner pointer-events-none"></div>
-                  </div>
-
-                  {selectedBag && (
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                      className="absolute -bottom-6 -left-5 -right-5 top-[80%] rounded-b-xl shadow-lg overflow-hidden"
-                      style={{
-                        backgroundColor: "#f3f4f6",
-                        backgroundImage: selectedBag.image ? `url(${selectedBag.image})` : "none",
-                        backgroundSize: "cover",
-                        backgroundRepeat: "no-repeat",
-                      }}
-                    >
-                      {/* Bag handle */}
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-20 h-4 border-t-2 border-l-2 border-r-2 rounded-t-full border-gray-400"></div>
-                      
-                      {/* Bag texture/shine */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/5"></div>
-                      
-                      {/* Bag bottom fold */}
-                      <div className="absolute bottom-0 inset-x-0 h-3 bg-black/10"></div>
-                    </motion.div>
-                  )}
-                  
-                  {/* 3D shadow effect */}
-                  <div className="absolute -bottom-2 left-4 right-4 h-6 bg-black/5 blur-md rounded-full"></div>
-                </div>
-              ) : (
-                <div className="text-center p-6 sm:p-8 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50/50 shadow-inner">
-                  <p className="text-gray-500 text-sm sm:text-base">يرجى اختيار صندوق لبدء تخصيص هديتك</p>
-                  <p className="text-gray-400 text-xs mt-2">Select a box to start customizing your gift</p>
-                </div>
-              )}
+        {/* Loading Overlay */}
+        <AnimatePresence>
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-30"
+            >
+              <div className="text-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full mx-auto mb-4"
+                />
+                <p className="text-purple-600 font-medium">جاري تحديث الهدية...</p>
+              </div>
             </motion.div>
-          </div>
-        )}
+          )}
+        </AnimatePresence>
+
+        {/* Main Content */}
+        <div className="h-full flex items-center justify-center p-8">
+          <motion.div
+            ref={contentRef}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ 
+              opacity: 1,
+              scale: isAnimating ? [1, 1.05, 0.95, 1.02, 0.98, 1] : scale,
+              x: position.x,
+              y: position.y,
+            }}
+            drag={isDragging}
+            dragControls={dragControls}
+            onDragEnd={() => setIsDragging(false)}
+            dragConstraints={containerRef}
+            dragElastic={0.1}
+            dragTransition={{ power: 0.1, timeConstant: 200 }}
+            transition={
+              isAnimating 
+                ? { duration: 1, times: [0, 0.2, 0.4, 0.6, 0.8, 1] }
+                : { type: "spring", stiffness: 300, damping: 30 }
+            }
+            className="touch-none will-change-transform"
+          >
+            {renderGiftContent()}
+          </motion.div>
+        </div>
       </div>
 
-      <div className="p-3 sm:p-4 border-t">
-        <Slider
-          value={[scale * 100]}
-          min={50}
-          max={300}
-          step={5}
-          onValueChange={(value) => setScale(value[0] / 100)}
-          className="w-full"
-        />
+      {/* Enhanced Footer */}
+      <div className="p-4 border-t bg-gray-50">
+        <div className="space-y-3">
+          {/* Zoom Slider */}
+          <div className="flex items-center gap-3">
+            <ZoomOut className="w-4 h-4 text-gray-400" />
+            <Slider
+              value={[scale * 100]}
+              min={30}
+              max={400}
+              step={10}
+              onValueChange={(value) => setScale(value[0] / 100)}
+              className="flex-1"
+            />
+            <ZoomIn className="w-4 h-4 text-gray-400" />
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <motion.div
+              className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+              animate={{ width: `${giftStats.completionPercentage}%` }}
+              transition={{ duration: 0.5 }}
+            />
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex justify-center gap-2 text-xs text-gray-500">
+            <span>مساحة: احتفال</span>
+            <span>•</span>
+            <span>F: ملء الشاشة</span>
+            <span>•</span>
+            <span>1-3: تغيير العرض</span>
+          </div>
+        </div>
       </div>
     </div>
   )

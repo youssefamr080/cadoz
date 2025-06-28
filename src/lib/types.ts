@@ -11,9 +11,8 @@ export interface GiftInspiration {
   box: string
   bag: string
   products: GiftProduct[] | string[]
-  decorations: string[]
+  sweets: GiftProduct[] | string[]
   category: "men" | "women" | "kids"
-  Mainproducts: string[]
   occasions: string[]
   tags: string[]
   rating: number
@@ -78,16 +77,16 @@ export interface Product {
 }
 
 export interface GiftWithDetails extends GiftInspiration {
-  mainProducts: Product[]
   productDetails: Product[]
   productQuantities: { quantity: number }[]
-  decorationDetails: {
+  sweetDetails: {
     _id: string;
     name: string;
     description: string;
     image: string;
     price: number;
   }[]
+  sweetQuantities: { quantity: number }[]
   boxDetails: {
     _id: string;
     name: string;
