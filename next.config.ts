@@ -21,6 +21,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // إعدادات Turbopack المحدثة
+  turbopack: {
+    resolveAlias: {
+      canvas: './empty-module.js',
+    },
+  },
+  // تحسين الأداء
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
 };
 
 export default nextConfig;

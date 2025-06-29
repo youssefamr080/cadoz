@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, X, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { reportSearchIssue } from '@/lib/utils/search-monitor';
 
 interface SearchPageBarProps {
   initialValue: string;
@@ -66,37 +67,75 @@ export default function SearchPageBar({
     localStorage.setItem('searchHistory', JSON.stringify(newHistory));
   };
 
-  // جلب الاقتراحات من الAPI
+  // جلب الاقتراحات من الAPI مع تحسينات الأداء
   const fetchSuggestions = async (query: string) => {
     if (!query.trim() || query.length < 2) {
       setSuggestions([]);
+      setIsLoading(false);
       return;
     }
 
+    const startTime = performance.now();
     setIsLoading(true);
+    
     try {
-      const response = await fetch(`/api/products/suggestions?q=${encodeURIComponent(query)}`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // timeout بعد 5 ثواني
+      
+      const response = await fetch(
+        `/api/products/suggestions?q=${encodeURIComponent(query)}`,
+        { signal: controller.signal }
+      );
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error('فشل في جلب الاقتراحات');
+      }
+      
       const data = await response.json();
       
       if (data.success) {
         setSuggestions(data.suggestions || []);
+        
+        // مراقبة الأداء
+        const fetchTime = performance.now() - startTime;
+        if (fetchTime > 3000) { // أكثر من 3 ثواني
+          reportSearchIssue(`Slow suggestions fetch: ${fetchTime.toFixed(2)}ms for query: ${query}`);
+        }
+        
+        // تسجيل وقت المعالجة إذا كان متاحاً
+        if (data.processingTime) {
+          console.log(`⚡ وقت معالجة الاقتراحات: ${data.processingTime}ms (إجمالي: ${fetchTime.toFixed(2)}ms)`);
+        }
       }
-    } catch (error) {
-      console.error('خطأ في جلب الاقتراحات:', error);
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('خطأ في جلب الاقتراحات:', error);
+        reportSearchIssue(`Suggestions fetch error: ${error.message}`);
+        setSuggestions([]); // مسح الاقتراحات عند الخطأ
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  // تحديث الاقتراحات عند تغيير النص
+  // تحديث الاقتراحات عند تغيير النص مع debouncing محسّن
   useEffect(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
 
+    // debouncing متقدم: أوقات مختلفة حسب طول النص
+    const getDebounceTime = (text: string) => {
+      if (text.length <= 2) return 500; // نص قصير - انتظار أطول
+      if (text.length <= 4) return 300; // نص متوسط
+      return 150; // نص طويل - استجابة سريعة
+    };
+
     timeoutRef.current = setTimeout(() => {
       fetchSuggestions(value);
-    }, 300);
+    }, getDebounceTime(value));
 
     return () => {
       if (timeoutRef.current) {

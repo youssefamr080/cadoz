@@ -157,6 +157,7 @@ export default function ProductRecommendations({ productId, category, tags }: Pr
         spaceBetween={16}
         slidesPerView={6}
         freeMode={true}
+        loop={recommendations.length > 6} // تجنب loop إذا كان عدد التوصيات قليل
         navigation={{
           nextEl: ".swiper-button-next",
           prevEl: ".swiper-button-prev",

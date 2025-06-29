@@ -14,12 +14,13 @@ import { SessionProvider } from "next-auth/react";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { PersistGate } from "redux-persist/integration/react"
 import { persistor } from "@/lib/redux/store"
+import { suppressSwiperWarnings } from "@/lib/utils/swiper-utils";
 
-// تحسين تحميل الخطوط مع دعم أفضل للعربية
+// تحسين تحميل الخطوط مع دعم أفضل للعربية - إزالة المتغيرات غير المستخدمة
 const inter = Inter({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-inter',
+  subsets: ['latin'],
   display: 'swap',
+  fallback: ['system-ui', 'arial', 'sans-serif']
 });
 
 // تحميل ديناميكي للمكونات الثقيلة - مع منع SSR لتجنب hydration mismatch
@@ -32,16 +33,19 @@ const DynamicToastContainer = dynamic(() => import("react-toastify").then(mod =>
   ssr: false 
 });
 
-// مكون للتأكد من client-side mounting
+// مكون للتأكد من client-side mounting محسّن
 function ClientOnlyWrapper({ children }: { children: React.ReactNode }) {
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
     setHasMounted(true);
+    // قمع تحذيرات Swiper في وضع التطوير
+    suppressSwiperWarnings();
   }, []);
 
+  // عرض placeholder بدلاً من null لتجنب hydration mismatch
   if (!hasMounted) {
-    return null;
+    return <div style={{ display: 'none' }} />;
   }
 
   return <>{children}</>;
@@ -78,7 +82,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html 
       lang="ar" 
       dir="rtl" 
-      className={`${inter.variable} scroll-smooth`}
+      className="scroll-smooth"
       suppressHydrationWarning
     >
       <head>
@@ -95,7 +99,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
         {/* تحسين الأداء */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-        <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
         
         {/* Manifest للـ PWA */}
         <link rel="manifest" href="/manifest.json" />

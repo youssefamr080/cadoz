@@ -14,6 +14,9 @@ interface Props {
 }
 
 const ProductSwiper: React.FC<Props> = ({ products }) => {
+  // تجنب loop إذا كان عدد المنتجات قليل
+  const enableLoop = products.length > 4;
+  
   return (
     <Swiper
       modules={[Navigation, Pagination]}
@@ -21,6 +24,7 @@ const ProductSwiper: React.FC<Props> = ({ products }) => {
       slidesPerView={2}
       navigation
       pagination={{ clickable: true }}
+      loop={enableLoop}
       breakpoints={{
         640: { slidesPerView: 2 },
         768: { slidesPerView: 3 },

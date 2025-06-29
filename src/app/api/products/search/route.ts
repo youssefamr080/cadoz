@@ -4,11 +4,13 @@ import MiniSearch from 'minisearch';
 import { normalizeArabicText, generateArabicAlternatives } from '@/lib/utils/string-utils';
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
     const category = searchParams.get('category') || '';
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100); // حد أقصى 100
     const sortBy = searchParams.get('sortBy') || 'relevance';
 
     console.log('🔍 البحث المحسن عن:', query);
@@ -17,7 +19,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         data: [],
-        total: 0
+        total: 0,
+        processingTime: Date.now() - startTime
       });
     }
 
@@ -170,24 +173,28 @@ export async function GET(request: NextRequest) {
       processedResults = processedResults.sort((a, b) => (b.searchScore || 0) - (a.searchScore || 0));
     }
 
-    const results = processedResults;
+    const results = processedResults.slice(0, limit); // تطبيق الحد الأقصى
 
-    console.log(`🎯 إرجاع ${results.length} نتيجة بحث مرتبة حسب الصلة`);
+    const processingTime = Date.now() - startTime;
+    console.log(`🎯 إرجاع ${results.length} نتيجة بحث في ${processingTime}ms`);
 
     return NextResponse.json({
       success: true,
       data: results,
       total: results.length,
       query,
-      algorithm: 'MiniSearch'
+      algorithm: 'MiniSearch',
+      processingTime
     });
 
   } catch (error) {
+    const processingTime = Date.now() - startTime;
     console.error('Error in products search API:', error);
     return NextResponse.json(
       {
         success: false,
         error: 'حدث خطأ أثناء البحث في المنتجات',
+        processingTime
       },
       { status: 500 }
     );

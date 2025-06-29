@@ -134,6 +134,7 @@ export default function InspirationGallery() {
             modules={[Navigation, Pagination, FreeMode, Autoplay]}
             spaceBetween={6}
             slidesPerView={getSlidesPerView()}
+            loop={inspirationGifts.length > 4} // تجنب loop إذا كان عدد الهدايا قليل
             navigation={{
               nextEl: '.swiper-button-next',
               prevEl: '.swiper-button-prev',
@@ -149,11 +150,11 @@ export default function InspirationGallery() {
               sticky: true,
               momentumBounce: false,
             }}
-            autoplay={{
+            autoplay={inspirationGifts.length > 1 ? {
               delay: 4000,
               disableOnInteraction: false,
               pauseOnMouseEnter: true,
-            }}
+            } : false} // تجنب autoplay إذا لم يكن هناك عناصر كافية
             dir="rtl"
             className="rounded-xl pb-8"
           >
