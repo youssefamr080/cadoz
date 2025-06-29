@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateSmartSuggestions, tokenizeQuery, getSynonyms, normalizeText } from '@/lib/search/searchEnhancements';
+import MiniSearch from 'minisearch';
+import { normalizeArabicText, generateArabicAlternatives } from '@/lib/utils/string-utils';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,102 +15,179 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    console.log('🔍 طلب اقتراحات للنص:', query);
+    console.log('🔍 طلب اقتراحات MiniSearch للنص:', query);
 
-    // الحصول على اقتراحات ذكية أساسية
-    const smartSuggestions = generateSmartSuggestions(query);
-
-    // البحث في قاعدة البيانات للحصول على اقتراحات من المنتجات الفعلية
-    const words = tokenizeQuery(query);
-    const searchConditions: Record<string, unknown>[] = [];
-
-    // بناء شروط البحث للاقتراحات
-    for (const word of words) {
-      const synonyms = getSynonyms(word);
-      for (const synonym of synonyms) {
-        searchConditions.push(
-          { name: { contains: synonym, mode: 'insensitive' } },
-          { category: { contains: synonym, mode: 'insensitive' } },
-          { subCategory: { contains: synonym, mode: 'insensitive' } },
-          { brand: { contains: synonym, mode: 'insensitive' } }
-        );
-      }
-    }
-
-    // البحث في المنتجات للحصول على اقتراحات
+    // جلب جميع المنتجات لبناء فهرس الاقتراحات
     const products = await prisma.product.findMany({
-      where: {
-        OR: searchConditions
-      },
       select: {
+        id: true,
         name: true,
         category: true,
         subCategory: true,
-        brand: true
-      },
-      take: 20
+        brand: true,
+        tags: true,
+        trending: true,
+        best_seller: true
+      }
     });
 
-    // استخراج اقتراحات من أسماء المنتجات والفئات
-    const productBasedSuggestions: string[] = [];
+    // إعداد MiniSearch للاقتراحات
+    const miniSearch = new MiniSearch({
+      fields: ['name', 'category', 'subCategory', 'brand', 'tags'],
+      storeFields: ['name', 'category', 'subCategory', 'brand', 'trending', 'best_seller'],
+      
+      tokenize: (text: string) => {
+        const normalized = normalizeArabicText(text);
+        return normalized.split(/\s+/).filter(word => word.length > 1);
+      },
+      
+      processTerm: (term: string) => normalizeArabicText(term),
+    });
+
+    // تحضير البيانات للفهرسة
+    const documentsForSuggestions = products.map((product, index) => ({
+      id: index,
+      name: product.name || '',
+      category: product.category || '',
+      subCategory: product.subCategory || '',
+      brand: product.brand || '',
+      tags: Array.isArray(product.tags) ? product.tags.join(' ') : (product.tags || ''),
+      trending: product.trending,
+      best_seller: product.best_seller
+    }));
+
+    miniSearch.addAll(documentsForSuggestions);
+
+    // تنفيذ البحث للاقتراحات
+    const normalizedQuery = normalizeArabicText(query);
+    const alternatives = generateArabicAlternatives(query);
     
-    for (const product of products) {
+    // البحث الأساسي للاقتراحات
+    let searchResults = miniSearch.search(query, {
+      fuzzy: 0.3,
+      prefix: true,
+      combineWith: 'OR'
+    });
+
+    // إضافة النتائج من الاستعلام المُطبّع
+    const normalizedResults = miniSearch.search(normalizedQuery, {
+      fuzzy: 0.4,
+      prefix: true,
+      combineWith: 'OR'
+    });
+
+    searchResults = [...searchResults, ...normalizedResults];
+
+    // إضافة نتائج من البدائل الإملائية
+    for (const alt of alternatives.slice(0, 3)) { // أول 3 بدائل فقط
+      if (alt !== query && alt !== normalizedQuery) {
+        const altResults = miniSearch.search(alt, {
+          fuzzy: 0.5,
+          prefix: true,
+          combineWith: 'OR'
+        });
+        searchResults = [...searchResults, ...altResults];
+      }
+    }
+
+    // استخراج الاقتراحات المختلفة
+    const suggestions = new Set<string>();
+    
+    for (const result of searchResults) {
       // اقتراحات من أسماء المنتجات
-      if (product.name) {
-        const normalizedName = normalizeText(product.name);
-        const normalizedQuery = normalizeText(query);
-        if (normalizedName.includes(normalizedQuery)) {
-          productBasedSuggestions.push(product.name);
-        }
+      if (result.name && result.name.length > 0) {
+        suggestions.add(result.name);
       }
-
-      // اقتراحات مركبة (فئة + علامة تجارية)
-      if (product.category && product.brand) {
-        const suggestion = `${product.category} ${product.brand}`;
-        const normalizedSuggestion = normalizeText(suggestion);
-        const normalizedQuery = normalizeText(query);
-        if (normalizedSuggestion.includes(normalizedQuery)) {
-          productBasedSuggestions.push(suggestion);
-        }
+      
+      // اقتراحات من الفئات
+      if (result.category && result.category.length > 0) {
+        suggestions.add(result.category);
       }
-
-      // اقتراحات من الفئات الفرعية + العلامة التجارية
-      if (product.subCategory && product.brand) {
-        const suggestion = `${product.subCategory} ${product.brand}`;
-        const normalizedSuggestion = normalizeText(suggestion);
-        const normalizedQuery = normalizeText(query);
-        if (normalizedSuggestion.includes(normalizedQuery)) {
-          productBasedSuggestions.push(suggestion);
+      
+      // اقتراحات من الفئات الفرعية
+      if (result.subCategory && result.subCategory.length > 0) {
+        suggestions.add(result.subCategory);
+      }
+      
+      // اقتراحات من العلامات التجارية
+      if (result.brand && result.brand.length > 0) {
+        suggestions.add(result.brand);
+      }
+      
+      // اقتراحات مركبة للمنتجات الرائجة
+      if (result.trending || result.best_seller) {
+        if (result.category && result.brand) {
+          suggestions.add(`${result.category} ${result.brand}`);
+        }
+        if (result.subCategory && result.brand) {
+          suggestions.add(`${result.subCategory} ${result.brand}`);
         }
       }
     }
 
-    // دمج جميع الاقتراحات
-    const allSuggestions = [
-      ...smartSuggestions,
-      ...productBasedSuggestions
-    ];
+    // إضافة اقتراحات ذكية بناءً على الاستعلام
+    const smartSuggestions = generateSmartSuggestionsForQuery(query);
+    smartSuggestions.forEach(s => suggestions.add(s));
 
-    // إزالة التكرارات وترتيب حسب الصلة
-    const uniqueSuggestions = [...new Set(allSuggestions)]
-      .filter(suggestion => suggestion.toLowerCase().includes(query.toLowerCase()))
+    // ترتيب وفلترة الاقتراحات
+    const finalSuggestions = Array.from(suggestions)
+      .filter(suggestion => {
+        const normalizedSuggestion = normalizeArabicText(suggestion);
+        const normalizedQuery = normalizeArabicText(query);
+        return suggestion.length > 1 && normalizedSuggestion.includes(normalizedQuery);
+      })
       .sort((a, b) => {
-        const aStartsWith = a.toLowerCase().startsWith(query.toLowerCase());
-        const bStartsWith = b.toLowerCase().startsWith(query.toLowerCase());
+        const aNormalized = normalizeArabicText(a);
+        const bNormalized = normalizeArabicText(b);
+        const queryNormalized = normalizeArabicText(query);
+        
+        // أولوية للتي تبدأ بنفس الاستعلام
+        const aStartsWith = aNormalized.startsWith(queryNormalized);
+        const bStartsWith = bNormalized.startsWith(queryNormalized);
         
         if (aStartsWith && !bStartsWith) return -1;
         if (!aStartsWith && bStartsWith) return 1;
         
-        return a.length - b.length; // الاقتراحات الأقصر أولاً
+        // ثم الأقصر
+        return a.length - b.length;
       })
-      .slice(0, 8); // أفضل 8 اقتراحات
+      .slice(0, 8);
 
-    console.log(`💡 تم إنشاء ${uniqueSuggestions.length} اقتراح`);
+    console.log(`💡 تم إنشاء ${finalSuggestions.length} اقتراح بـ MiniSearch`);
 
     return NextResponse.json({
       success: true,
-      suggestions: uniqueSuggestions
+      suggestions: finalSuggestions,
+      algorithm: 'MiniSearch'
     });
+
+// دالة لتوليد اقتراحات ذكية بناءً على الاستعلام
+function generateSmartSuggestionsForQuery(query: string): string[] {
+  const smartSuggestions: string[] = [];
+  const normalizedQuery = normalizeArabicText(query).toLowerCase();
+  
+  // اقتراحات للساعات
+  if (normalizedQuery.includes('ساع') || normalizedQuery.includes('watch')) {
+    smartSuggestions.push('ساعات رجالية', 'ساعات نسائية', 'ساعات ذكية', 'ساعات كلاسيكية');
+  }
+  
+  // اقتراحات للمحافظ
+  if (normalizedQuery.includes('محفظ') || normalizedQuery.includes('wallet')) {
+    smartSuggestions.push('محافظ رجالية', 'محافظ نسائية', 'محافظ جلدية');
+  }
+  
+  // اقتراحات للنظارات
+  if (normalizedQuery.includes('نظار') || normalizedQuery.includes('glasses')) {
+    smartSuggestions.push('نظارات شمسية', 'نظارات طبية', 'نظارات رياضية');
+  }
+  
+  // اقتراحات للعطور
+  if (normalizedQuery.includes('عطر') || normalizedQuery.includes('perfume')) {
+    smartSuggestions.push('عطور رجالية', 'عطور نسائية', 'عطور فرنسية');
+  }
+  
+  return smartSuggestions;
+}
 
   } catch (error) {
     console.error('Error in suggestions API:', error);
