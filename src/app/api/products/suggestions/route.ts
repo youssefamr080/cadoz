@@ -69,9 +69,9 @@ async function getOrCreateCachedMiniSearch(): Promise<MiniSearch> {
       }
     });
 
-    // تحضير البيانات للفهرسة
-    const documentsForSuggestions = products.map((product, index) => ({
-      id: index,
+    // تحضير البيانات للفهرسة - استخدام ID الأصلي
+    const documentsForSuggestions = products.map((product) => ({
+      id: product.id, // استخدام ID الأصلي من قاعدة البيانات
       name: product.name || '',
       category: product.category || '',
       subCategory: product.subCategory || '',

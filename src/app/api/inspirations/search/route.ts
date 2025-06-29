@@ -62,10 +62,9 @@ export async function GET(request: NextRequest) {
       processTerm: (term: string) => normalizeArabicText(term),
     });
 
-    // تحضير البيانات للفهرسة
-    const documentsForSearch = inspirations.map((inspiration, index) => ({
-      id: index,
-      inspirationId: inspiration.id,
+    // تحضير البيانات للفهرسة - استخدام ID الأصلي
+    const documentsForSearch = inspirations.map((inspiration) => ({
+      id: inspiration.id, // استخدام ID الأصلي من قاعدة البيانات
       name: inspiration.name || '',
       description: inspiration.description || '',
       content: inspiration.content || '',
@@ -135,7 +134,7 @@ export async function GET(request: NextRequest) {
     // تحويل النتائج إلى التنسيق المطلوب مع الترتيب
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let processedResults = searchResults.slice(0, limit).map((result: any) => ({
-      id: result.inspirationId,
+      id: result.id, // استخدام ID الأصلي
       name: result.name,
       description: result.description,
       content: result.content,
@@ -149,7 +148,7 @@ export async function GET(request: NextRequest) {
       likes: result.likes,
       reviews: result.reviews,
       discountPercentage: result.discountPercentage,
-      url: `/inspiration/${result.inspirationId}`,
+      url: `/inspiration/${result.id}`, // تصحيح: استخدام result.id
       relevanceScore: result.score,
       searchScore: result.score + (result.likes > 50 ? 10 : 0) + (result.rating > 4 ? 5 : 0)
     }));

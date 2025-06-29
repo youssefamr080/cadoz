@@ -68,10 +68,9 @@ export async function GET(request: NextRequest) {
       processTerm: (term: string) => normalizeArabicText(term),
     });
 
-    // تحضير البيانات للفهرسة
-    const documentsForSearch = products.map((product, index) => ({
-      id: index,
-      productId: product.id,
+    // تحضير البيانات للفهرسة - استخدام ID الأصلي مباشرة
+    const documentsForSearch = products.map((product) => ({
+      id: product.id, // استخدام ID الأصلي من قاعدة البيانات
       name: product.name || '',
       description: product.description || '',
       category: product.category || '',
@@ -142,7 +141,7 @@ export async function GET(request: NextRequest) {
     // تحويل النتائج إلى التنسيق المطلوب مع الترتيب
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let processedResults = searchResults.slice(0, limit).map((result: any) => ({
-      id: result.productId,
+      id: result.id, // تصحيح: استخدام result.id بدلاً من result.productId
       name: result.name,
       description: result.description,
       image: result.image,
@@ -156,7 +155,7 @@ export async function GET(request: NextRequest) {
       inStock: result.inStock,
       trending: Boolean(result.trending || result.best_seller),
       rating: result.rating,
-      url: `/product/${result.productId}`,
+      url: `/product/${result.id}`, // تصحيح: استخدام result.id بدلاً من result.productId
       relevanceScore: result.score,
       searchScore: result.score + (result.trending ? 10 : 0) + (result.rating > 4 ? 5 : 0)
     }));
