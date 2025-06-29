@@ -47,16 +47,23 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
         setLoading(true)
 
         const response = await fetch(`/api/reviews?productId=${productId}${user?.id ? `&userId=${user.id}` : ""}`)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
         const data = await response.json()
 
         if (data.success) {
           setReviews(data.data.reviews)
           setStats(data.data.stats)
         } else {
-          console.error("Error in reviews response:", data.message)
+          throw new Error(data.message || "Failed to fetch reviews")
         }
       } catch (error) {
-        console.error("Error fetching reviews:", error)
+        console.error("Error fetching reviews:", error instanceof Error ? error.message : "Unknown error")
+        setReviews([])
+        setStats({ averageRating: 0, count: 0 })
       } finally {
         setLoading(false)
       }

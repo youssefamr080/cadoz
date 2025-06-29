@@ -10,6 +10,7 @@ import GiftFinderSection from "../components/home/GiftFinderSection"
 import { TrendingProductsSwiper, DiscountedProductsSwiper, NewProductsSwiper } from "../components/home/ProductSwiper"
 import MainCategorySwiper from "../components/home/MainCategorySwiper"
 import InspirationGallery from "../components/gift/inspiration-gallery"
+import SmartRecommendations from "../components/product/SmartRecommendations"
 import { useGetProductsQuery } from "../lib/redux/api/apiSlice"
 import type { Product } from "../types/product"
 import {
@@ -427,8 +428,6 @@ const HomePage = () => {
     sort: "discount",
   })
 
-  const [recommendedQuery, setRecommendedQuery] = useState<{ category?: string; tags?: string; limit: number } | null>(null);
-
   // التحقق من حجم الشاشة
   useEffect(() => {
     const checkMobile = () => {
@@ -481,23 +480,13 @@ const HomePage = () => {
           )
 
           if (viewedCategories.size > 0 || viewedTags.size > 0) {
-            const categoriesArray = Array.from(viewedCategories)
-            const randomCategory =
-              categoriesArray.length > 0
-                ? categoriesArray[Math.floor(Math.random() * categoriesArray.length)]
-                : undefined
-            const tagsArray = Array.from(viewedTags)
-
-            const randomTags = tagsArray
-              .sort(() => 0.5 - Math.random())
-              .slice(0, 3)
-              .join(",")
-
-            setRecommendedQuery({
-              ...(randomCategory ? { category: randomCategory } : {}),
-              tags: randomTags,
-              limit: 8,
-            })
+            // تم حذف المتغيرات غير المستخدمة
+            // const categoriesArray = Array.from(viewedCategories)
+            // const randomCategory = categoriesArray.length > 0 ? categoriesArray[Math.floor(Math.random() * categoriesArray.length)] : undefined
+            // const tagsArray = Array.from(viewedTags)
+            // const randomTags = tagsArray.sort(() => 0.5 - Math.random()).slice(0, 3).join(",")
+            
+            // تم حذف setRecommendedQuery لأنه لم يعد مستخدماً
           }
         }
       } catch (error) {
@@ -634,6 +623,30 @@ const HomePage = () => {
         )}
         {/* أضف فواصل الأقسام بين الأقسام المختلفة */}
         <SectionDivider color="rose" />
+
+        {/* التوصيات الذكية */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+          }}
+          className="py-16 bg-gradient-to-b from-gray-50 to-white"
+        >
+          <div className="container mx-auto px-2 sm:px-4">
+            <SmartRecommendations 
+              type="mixed"
+              limit={8}
+              title="مخصص خصيصاً لك"
+              showLoginPrompt={true}
+              className="mb-8"
+            />
+          </div>
+        </motion.section>
+        {/* أضف فواصل الأقسام بين الأقسام المختلفة */}
+        <SectionDivider color="emerald" />
 
         {/* عروض خاصة - سويبر محسن */}
         {saleData?.data.length > 0 && (
@@ -817,77 +830,6 @@ const HomePage = () => {
             </div>
           </motion.section>
         )}
-        
-
-        {/* المنتجات المقترحة لك - سويبر */}
-        <motion.section
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={{
-            hidden: { opacity: 0, y: 20 },
-            visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
-          }}
-          className="py-16 bg-gradient-to-b from-white to-gray-50"
-        >
-          <div className="container mx-auto px-2 sm:px-4">
-            <SectionTitle
-              icon={<Sparkles className="w-7 h-7" />}
-              title="مقترحة لك"
-              subtitle="منتجات مختارة خصيصاً بناءً على اهتماماتك وتفضيلاتك"
-              accentColor="from-violet-500 to-purple-600"
-            />
-
-            {recommendedQuery && recommendedQuery.limit > 0 ? (
-              <div className="relative">
-                <Swiper
-                  modules={[Navigation, Pagination, Autoplay]}
-                  spaceBetween={12}
-                  slidesPerView={1.5}
-                  centeredSlides={isMobile}
-                  loop={recommendedQuery.limit > 5}
-                  autoplay={{
-                    delay: 5000,
-                    disableOnInteraction: false,
-                    pauseOnMouseEnter: true,
-                  }}
-                  pagination={{
-                    clickable: true,
-                    dynamicBullets: true,
-                  }}
-                  breakpoints={{
-                    320: { slidesPerView: 1.5, spaceBetween: 8, centeredSlides: true },
-                    480: { slidesPerView: 2, spaceBetween: 10, centeredSlides: false },
-                    640: { slidesPerView: 2.5, spaceBetween: 12, centeredSlides: false },
-                    768: { slidesPerView: 3, spaceBetween: 16, centeredSlides: false },
-                    1024: { slidesPerView: 5, centeredSlides: false },
-                    1280: { slidesPerView: 6, centeredSlides: false },
-                  }}
-                  className="py-8 px-2"
-                >
-                  {recommendedQuery.tags && (
-                    <SwiperSlide key={`recommended-tags-${recommendedQuery.tags}`}>
-                      <div className="text-center py-10 text-gray-500">
-                        <p>تصفح المنتجات بناءً على العلامات: {recommendedQuery.tags}</p>
-                      </div>
-                    </SwiperSlide>
-                  )}
-                  {recommendedQuery.category && (
-                    <SwiperSlide key={`recommended-category-${recommendedQuery.category}`}>
-                      <div className="text-center py-10 text-gray-500">
-                        <p>تصفح المنتجات بناءً على الفئة: {recommendedQuery.category}</p>
-                      </div>
-                    </SwiperSlide>
-                  )}
-                </Swiper>
-              </div>
-            ) : (
-              <div className="text-center py-10 text-gray-500">
-                <p>استمر في تصفح المنتجات للحصول على توصيات مخصصة لك</p>
-              </div>
-            )}
-          </div>
-        </motion.section>
       </main>
     </div>
   )

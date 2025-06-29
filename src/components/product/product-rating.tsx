@@ -25,14 +25,23 @@ export default function ProductRating({
     const fetchRating = async () => {
       try {
         const response = await fetch(`/api/reviews?productId=${productId}`)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
         const data = await response.json()
 
         if (data.success) {
           setRating(data.data.stats.averageRating || 0)
           setCount(data.data.stats.count || 0)
+        } else {
+          throw new Error(data.message || "Failed to fetch rating")
         }
       } catch (error) {
-        console.error("Error fetching rating:", error)
+        console.error("Error fetching rating:", error instanceof Error ? error.message : "Unknown error")
+        setRating(0)
+        setCount(0)
       } finally {
         setLoading(false)
       }

@@ -68,15 +68,25 @@ export default function PersonalizedRecommendations({
         ).pop();
         const mostCommonTags = [...new Set(tags)].slice(0, 3);
         
-        const params = new URLSearchParams({
-          excludeIds,
-          limit: limit.toString(),
-          personalized: "true",
-        });
-        if (mostCommonCategory) params.append("category", mostCommonCategory);
-        if (mostCommonTags.length) params.append("tags", mostCommonTags.join(","));
+        const params = new URLSearchParams()
+        
+        if (excludeIds) {
+          params.append('excludeIds', excludeIds)
+        }
+        
+        params.append('limit', limit.toString())
+        params.append('personalized', "true")
+        
+        if (mostCommonCategory) {
+          params.append("category", mostCommonCategory)
+        }
+        
+        if (mostCommonTags.length) {
+          params.append("tags", mostCommonTags.join(","))
+        }
+        
         if (user?.id) {
-          params.append("userId", user.id);
+          params.append("userId", user.id)
         }
 
         const CacheService = (await import("@/lib/services/cache-service")).default;

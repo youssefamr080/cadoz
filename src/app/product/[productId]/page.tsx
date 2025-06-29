@@ -25,7 +25,8 @@ import { useGetProductByIdQuery } from "../../../lib/redux/api/apiSlice"
 import LoadingSpinner from "../../../components/ui/LoadingSpinner"
 import ProductRating from "../../../components/product/product-rating"
 import ProductReviews from "../../../components/product/product-reviews"
-import ProductRecommendations from "../../../components/product/product-recommendations"
+import SimilarProducts from "../../../components/product/SimilarProducts"
+import SmartRecommendations from "../../../components/product/SmartRecommendations"
 import ProductSocialShare from "../../../components/product/product-social-share"
 import ProductImageGallery from "../../../components/product/product-image-gallery"
 import ProductInfoTabs from "../../../components/product/product-info-tabs"
@@ -34,6 +35,7 @@ import ProductNotification from "../../../components/product/product-notificatio
 
 
 import useProductInterestTracker from "@/hooks/useProductInterestTracker";
+import { useTracking } from "@/hooks/useTracking";
 import { addItem } from "@/lib/redux/slices/cartSlice"
 import type { RootState } from "@/lib/redux/store"
 
@@ -53,6 +55,8 @@ const ProductPage = () => {
   // User info for reviews (normally would come from auth context)
   const userId = "guest-user" // Replace with actual user ID when authentication is implemented
 
+  // نظام التتبع الذكي
+  const { trackProductView } = useTracking()
 
   // Fetch product data using RTK Query
   const { data: product, isLoading, error } = useGetProductByIdQuery(productId)
@@ -74,6 +78,15 @@ const ProductPage = () => {
     if (product) {
       setIsFavorite(wishlist.some((item) => item.id === product.id))
 
+      // تتبع مشاهدة المنتج باستخدام النظام الذكي
+      let endTracking: (() => void) | undefined
+
+      const startTracking = async () => {
+        endTracking = await trackProductView(product.id, 'product_page')
+      }
+      
+      startTracking()
+
       // حفظ المنتج في LocalStorage ضمن المنتجات التي تمت مشاهدتها
       const viewedProducts = JSON.parse(localStorage.getItem("viewedProducts") || "[]")
 
@@ -82,28 +95,14 @@ const ProductPage = () => {
 
       localStorage.setItem("viewedProducts", JSON.stringify(updatedViewed))
 
-      // تسجيل مشاهدة المنتج في قاعدة البيانات
-      const recordProductView = async () => {
-        try {
-          await fetch("/api/recommendations", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              userId: userId || "anonymous", // استخدم معرف المستخدم إذا كان متاحًا
-              productId: product.id,
-              action: "view",
-            }),
-          })
-        } catch (error) {
-          console.error("Error recording product view:", error)
+      // إنهاء التتبع عند مغادرة الصفحة
+      return () => {
+        if (endTracking) {
+          endTracking()
         }
       }
-
-      recordProductView()
     }
-  }, [product, wishlist, userId])
+  }, [product, wishlist, trackProductView])
 
   // معالجة تغيير كمية المنتج
   const changeQuantity = useCallback(
@@ -121,6 +120,11 @@ const ProductPage = () => {
   const isProductOutOfStock = useMemo(() => {
     return product?.stock === 0
   }, [product])
+
+  // تحسين excludeIds لمنع infinite loop في SmartRecommendations
+  const excludeIdsForRecommendations = useMemo(() => {
+    return product ? [product.id] : []
+  }, [product?.id])
 
   // معالجة إضافة المنتج إلى سلة التسوق
   const handleAddToCart = useCallback(() => {
@@ -572,9 +576,32 @@ const ProductPage = () => {
           <div className="mt-10 md:mt-16">
             <ProductReviews productId={product.id} />
           </div>
-          {/* منتجات موصى بها */}
+
+          {/* التوصيات الذكية */}
           <div className="mt-10 md:mt-16">
-            <ProductRecommendations productId={product.id} category={product.category} tags={product.tags} />
+            <SmartRecommendations 
+              type="mixed"
+              limit={8}
+              currentProductId={product.id}
+              currentCategory={product.category}
+              excludeIds={excludeIdsForRecommendations}
+              title="منتجات مقترحة خصيصاً لك"
+              showLoginPrompt={true}
+              className="mb-8"
+            />
+          </div>
+
+          {/* منتجات مشابهة */}
+          <div className="mt-10 md:mt-16">
+            <SimilarProducts 
+              currentProductId={product.id}
+              currentProductName={product.name}
+              currentCategory={product.category}
+              currentPrice={product.price}
+              currentTags={product.tags || []}
+              limit={8}
+              className="mb-8"
+            />
           </div>
         </main>
       </div>

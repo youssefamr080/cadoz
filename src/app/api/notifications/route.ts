@@ -94,6 +94,14 @@ export async function GET(request: Request) {
     const userId = searchParams.get("userId")
     const status = searchParams.get("status")
 
+    // Validate userId format if provided - تحقق مرن أكثر
+    if (userId && userId.length < 20) {
+      return NextResponse.json({ 
+        success: false, 
+        message: "معرف المستخدم غير صالح" 
+      }, { status: 400 })
+    }
+
     const where: { userId?: string; isRead?: boolean } = {}
 
     if (userId) {
@@ -108,7 +116,8 @@ export async function GET(request: Request) {
 
     const notifications = await prisma.notification.findMany({
       where,
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' as const },
+      take: 50 // تحديد عدد الإشعارات لتحسين الأداء
     })
 
     return NextResponse.json({

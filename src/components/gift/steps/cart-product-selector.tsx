@@ -28,7 +28,9 @@ export default function CartProductSelector() {
   const [sortBy, setSortBy] = useState("nameAsc")
 
   // تحويل عناصر السلة إلى منتجات هدايا - تحسين للأداء
-  const cartItems = useMemo(() => cartItemsRaw || [], [cartItemsRaw])
+  const cartItems = useMemo(() => {
+    return cartItemsRaw
+  }, [cartItemsRaw])
   
   const cartProducts = useMemo(() => {
     return cartItems.map(item => ({

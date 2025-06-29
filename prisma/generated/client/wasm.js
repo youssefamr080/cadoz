@@ -445,6 +445,93 @@ exports.Prisma.SecurityIncidentScalarFieldEnum = {
   resolution: 'resolution'
 };
 
+exports.Prisma.CustomerBehaviorScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  totalSessions: 'totalSessions',
+  totalTimeSpent: 'totalTimeSpent',
+  averageSessionTime: 'averageSessionTime',
+  totalSearches: 'totalSearches',
+  topSearchTerms: 'topSearchTerms',
+  searchCategories: 'searchCategories',
+  viewedProductsCount: 'viewedProductsCount',
+  purchasedProductsCount: 'purchasedProductsCount',
+  favoriteCategories: 'favoriteCategories',
+  favoriteBrands: 'favoriteBrands',
+  priceRange: 'priceRange',
+  preferredShoppingTimes: 'preferredShoppingTimes',
+  seasonalPreferences: 'seasonalPreferences',
+  interestScore: 'interestScore',
+  loyaltyScore: 'loyaltyScore',
+  engagementScore: 'engagementScore',
+  lastUpdated: 'lastUpdated',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SearchHistoryScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  searchTerm: 'searchTerm',
+  category: 'category',
+  resultsCount: 'resultsCount',
+  clickedResults: 'clickedResults',
+  sessionId: 'sessionId',
+  source: 'source',
+  searchedAt: 'searchedAt'
+};
+
+exports.Prisma.ProductInteractionScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  productId: 'productId',
+  interactionType: 'interactionType',
+  value: 'value',
+  context: 'context',
+  sessionId: 'sessionId',
+  source: 'source',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CustomerPreferenceProfileScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  preferredCategories: 'preferredCategories',
+  preferredBrands: 'preferredBrands',
+  preferredPriceRange: 'preferredPriceRange',
+  preferredColors: 'preferredColors',
+  shoppingPersonality: 'shoppingPersonality',
+  decisionSpeed: 'decisionSpeed',
+  priceSenesitivity: 'priceSenesitivity',
+  recommendationTypes: 'recommendationTypes',
+  trustFactors: 'trustFactors',
+  updatedAt: 'updatedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.RecommendationHistoryScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  recommendationType: 'recommendationType',
+  recommendedItems: 'recommendedItems',
+  context: 'context',
+  shown: 'shown',
+  clicked: 'clicked',
+  purchased: 'purchased',
+  dismissed: 'dismissed',
+  effectiveness: 'effectiveness',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CustomerSegmentScalarFieldEnum = {
+  id: 'id',
+  customerId: 'customerId',
+  segmentType: 'segmentType',
+  segmentScore: 'segmentScore',
+  segmentData: 'segmentData',
+  assignedAt: 'assignedAt',
+  lastUpdated: 'lastUpdated'
+};
+
 exports.Prisma.BoxScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -590,6 +677,12 @@ exports.Prisma.ModelName = {
   NewsAttachment: 'NewsAttachment',
   AuditLog: 'AuditLog',
   SecurityIncident: 'SecurityIncident',
+  CustomerBehavior: 'CustomerBehavior',
+  SearchHistory: 'SearchHistory',
+  ProductInteraction: 'ProductInteraction',
+  CustomerPreferenceProfile: 'CustomerPreferenceProfile',
+  RecommendationHistory: 'RecommendationHistory',
+  CustomerSegment: 'CustomerSegment',
   Box: 'Box',
   Bag: 'Bag',
   Sweet: 'Sweet',

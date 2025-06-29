@@ -195,8 +195,9 @@ const OrderDetailsPage = ({ params }: OrderDetailsProps) => {
                       <Image
                         src={item.image || "/placeholder.svg"}
                         alt={item.name}
-                        layout="fill"
-                        objectFit="cover"
+                        fill
+                        className="object-cover"
+                        sizes="64px"
                         quality={85}
                       />
                       {item.giftData && (

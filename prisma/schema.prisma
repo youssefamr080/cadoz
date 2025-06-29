@@ -40,6 +40,7 @@ model Product {
   reviews     Review[]
   productViews ProductView[]
   inspirationProducts InspirationProduct[]
+  productInteractions ProductInteraction[]
 
   @@map("products")
 }
@@ -95,6 +96,14 @@ model Customer {
   reviewVotes     ReviewVote[]
   productViews    ProductView[]
   events          CustomerEvent[]
+  
+  // نظام التوصيات المتقدم
+  behavior        CustomerBehavior?
+  searchHistories SearchHistory[]
+  productInteractions ProductInteraction[]
+  preferenceProfile CustomerPreferenceProfile?
+  recommendationHistories RecommendationHistory[]
+  segments        CustomerSegment[]
 }
 
 model Device {
@@ -439,6 +448,145 @@ model SecurityIncident {
   resolution String?
   
   @@map("securityIncidents")
+}
+
+// نماذج نظام التوصيات المتقدم
+
+model CustomerBehavior {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId            String   @unique @db.ObjectId
+  customer              Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  // تحليل السلوك العام
+  totalSessions         Int      @default(0)
+  totalTimeSpent        Int      @default(0) // بالثواني
+  averageSessionTime    Float    @default(0)
+  
+  // تحليل البحث
+  totalSearches         Int      @default(0)
+  topSearchTerms        String[] // أكثر مصطلحات البحث
+  searchCategories      Json     @default("{}") // فئات البحث مع التكرار
+  
+  // تحليل المنتجات
+  viewedProductsCount   Int      @default(0)
+  purchasedProductsCount Int     @default(0)
+  favoriteCategories    Json     @default("{}") // الفئات المفضلة مع النقاط
+  favoriteBrands        Json     @default("{}") // العلامات التجارية المفضلة
+  priceRange           Json     @default("{}") // نطاق الأسعار المفضل
+  
+  // تحليل الوقت
+  preferredShoppingTimes Json    @default("{}") // أوقات التسوق المفضلة
+  seasonalPreferences   Json     @default("{}") // التفضيلات الموسمية
+  
+  // نقاط الاهتمام
+  interestScore         Float    @default(0)   // نقاط الاهتمام العامة
+  loyaltyScore          Float    @default(0)   // نقاط الولاء
+  engagementScore       Float    @default(0)   // نقاط التفاعل
+  
+  lastUpdated           DateTime @default(now())
+  createdAt             DateTime @default(now())
+  
+  @@map("customer_behaviors")
+}
+
+model SearchHistory {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId  String   @db.ObjectId
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  searchTerm  String
+  category    String?
+  resultsCount Int     @default(0)
+  clickedResults String[] // IDs المنتجات التي تم النقر عليها
+  sessionId   String?
+  source      String   @default("search_bar") // search_bar, voice, suggestions
+  
+  searchedAt  DateTime @default(now())
+  
+  @@map("search_histories")
+}
+
+model ProductInteraction {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId    String   @db.ObjectId
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId     String   @db.ObjectId
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  interactionType String // view, add_to_cart, remove_from_cart, purchase, wishlist, share
+  value         Float?   // للشراء: السعر، للمشاهدة: المدة بالثواني
+  context       Json?    // معلومات إضافية حسب نوع التفاعل
+  sessionId     String?
+  source        String?  // search, recommendation, category, etc.
+  
+  createdAt     DateTime @default(now())
+  
+  @@map("product_interactions")
+}
+
+model CustomerPreferenceProfile {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId        String   @unique @db.ObjectId
+  customer          Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  // الملف الشخصي للتفضيلات
+  preferredCategories Json   @default("{}") // مع أوزان
+  preferredBrands     Json   @default("{}") // مع أوزان
+  preferredPriceRange Json   @default("{}")
+  preferredColors     Json   @default("{}") // مع أوزان
+  
+  // نمط التسوق
+  shoppingPersonality String? // explorer, bargain_hunter, brand_loyal, trendy, practical
+  decisionSpeed       String? // fast, moderate, slow
+  priceSenesitivity   String? // high, medium, low
+  
+  // تفضيلات التوصيات
+  recommendationTypes Json   @default("{}") // نوع التوصيات المفضلة
+  
+  // الثقة والجودة
+  trustFactors        Json   @default("{}") // reviews, ratings, brands
+  
+  updatedAt           DateTime @default(now())
+  createdAt           DateTime @default(now())
+  
+  @@map("customer_preference_profiles")
+}
+
+model RecommendationHistory {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId    String   @db.ObjectId
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  recommendationType String // similar_products, trending, personalized, category_based
+  recommendedItems   Json   // قائمة المنتجات المقترحة
+  context           Json   // السياق الذي أدى للتوصية
+  
+  // مقاييس الأداء
+  shown           Boolean @default(false)
+  clicked         String[] // IDs المنتجات التي تم النقر عليها
+  purchased       String[] // IDs المنتجات التي تم شراؤها
+  dismissed       Boolean @default(false)
+  
+  effectiveness   Float?  // فعالية التوصية (0-1)
+  
+  createdAt       DateTime @default(now())
+  
+  @@map("recommendation_histories")
+}
+
+model CustomerSegment {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId    String   @db.ObjectId
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  segmentType   String   // vip, frequent_buyer, price_sensitive, new_customer, etc.
+  segmentScore  Float    @default(0)
+  segmentData   Json     @default("{}")
+  
+  assignedAt    DateTime @default(now())
+  lastUpdated   DateTime @default(now())
+  
+  @@map("customer_segments")
 }
 
 // Enums

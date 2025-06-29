@@ -12,10 +12,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, message: "Product ID is required" }, { status: 400 })
     }
 
+    // Validate productId format (should be a valid ObjectId)
+    if (!/^[0-9a-fA-F]{24}$/.test(productId)) {
+      return NextResponse.json({ success: false, message: "Invalid Product ID format" }, { status: 400 })
+    }
+
     // Get reviews for this product
     const reviews = await prisma.review.findMany({
       where: { productId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'desc' as const },
       take: 10,
       include: {
         customer: {
@@ -40,33 +45,38 @@ export async function GET(request: Request) {
     }
 
     // إذا كان المستخدم مسجل الدخول، قم بتسجيل مشاهدة التقييمات
-    if (userId && userId !== "guest-user") {
-      // تحديث سجل مشاهدة المنتج لتسجيل قراءة التقييمات
-      await prisma.productView.updateMany({
-        where: {
-          userId,
-          productId,
-          viewedAt: { gte: new Date(Date.now() - 3600000) }, // آخر ساعة
-        },
-        data: {
-          interactions: {
-            readReviews: true
-          }
-        }
-      })
-
-      // تسجيل حدث قراءة التقييمات
-      await prisma.customerEvent.create({
-        data: {
-          userId,
-          eventType: "read_reviews",
-          timestamp: new Date(),
-          context: {
+    if (userId && userId !== "guest-user" && /^[0-9a-fA-F]{24}$/.test(userId)) {
+      try {
+        // تحديث سجل مشاهدة المنتج لتسجيل قراءة التقييمات
+        await prisma.productView.updateMany({
+          where: {
+            userId,
             productId,
-            reviewCount: reviews.length,
+            viewedAt: { gte: new Date(Date.now() - 3600000) }, // آخر ساعة
           },
-        }
-      })
+          data: {
+            interactions: JSON.stringify({
+              readReviews: true
+            })
+          }
+        })
+
+        // تسجيل حدث قراءة التقييمات
+        await prisma.customerEvent.create({
+          data: {
+            userId,
+            eventType: "read_reviews",
+            timestamp: new Date(),
+            context: JSON.stringify({
+              productId,
+              reviewCount: reviews.length,
+            }),
+          }
+        })
+      } catch (trackingError) {
+        // لا نريد أن تؤثر أخطاء التتبع على جلب التقييمات
+        console.warn("Warning: Failed to track review reading:", trackingError.message)
+      }
     }
 
     return NextResponse.json({
@@ -102,6 +112,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Missing required fields" }, { status: 400 })
     }
 
+    // Validate IDs format
+    if (!/^[0-9a-fA-F]{24}$/.test(productId) || !/^[0-9a-fA-F]{24}$/.test(userId)) {
+      return NextResponse.json({ success: false, message: "Invalid ID format" }, { status: 400 })
+    }
+
+    // Validate rating
+    if (typeof rating !== 'number' || rating < 1 || rating > 5) {
+      return NextResponse.json({ success: false, message: "Rating must be between 1 and 5" }, { status: 400 })
+    }
+
     const now = new Date()
 
     // Check if user already reviewed this product
@@ -128,12 +148,12 @@ export async function POST(request: Request) {
           userId,
           eventType: "update_review",
           timestamp: now,
-          context: {
+          context: JSON.stringify({
             productId,
             reviewId: existingReview.id,
             oldRating: existingReview.rating,
             newRating: rating,
-          },
+          }),
         }
       })
 
@@ -183,11 +203,11 @@ export async function POST(request: Request) {
         userId,
         eventType: "add_review",
         timestamp: now,
-        context: {
+        context: JSON.stringify({
           productId,
           reviewId: newReview.id,
           rating,
-        },
+        }),
       }
     })
 
@@ -323,11 +343,11 @@ export async function PUT(request: Request) {
         userId,
         eventType: "review_vote",
         timestamp: new Date(),
-        context: {
+        context: JSON.stringify({
           reviewId,
           productId: review.productId,
           action,
-        },
+        }),
       }
     })
 

@@ -602,7 +602,14 @@ const CartItem: React.FC<CartItemProps> = ({ item, onQuantityChange, onRemove })
     <div className="flex items-center justify-between p-3 hover:bg-gray-50 transition-colors">
       <div className="flex items-center gap-3 flex-1">
         <div className="relative w-16 h-16 rounded-lg overflow-hidden border">
-          <Image src={item.image || "/placeholder.svg"} alt={item.name} layout="fill" objectFit="cover" quality={85} />
+          <Image 
+            src={item.image || "/placeholder.svg"} 
+            alt={item.name} 
+            fill
+            className="object-cover"
+            sizes="64px"
+            quality={85} 
+          />
         </div>
         <div className="flex-1">
           <h3 className="font-medium line-clamp-1">{item.name}</h3>
@@ -673,8 +680,9 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
             <Image
               src={item.image || "/placeholder.svg"}
               alt={item.name}
-              layout="fill"
-              objectFit="cover"
+              fill
+              className="object-cover"
+              sizes="64px"
               quality={85}
             />
             <div className="absolute inset-0 flex items-center justify-center">
@@ -772,8 +780,8 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                       <Image
                         src={giftItem.image || "/placeholder.svg"}
                         alt={giftItem.name}
-                        layout="fill"
-                        objectFit="cover"
+                        fill
+                        className="object-cover"
                       />
                     </div>
                     <div className="flex-1">
@@ -807,8 +815,8 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                         <Image
                           src={item.giftData.box.image || "/placeholder.svg"}
                           alt={item.giftData.box.name}
-                          layout="fill"
-                          objectFit="cover"
+                          fill
+                          className="object-cover"
                         />
                       </div>
                       <div>
@@ -828,8 +836,8 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                         <Image
                           src={item.giftData.wrap.image || "/placeholder.svg"}
                           alt={item.giftData.wrap.name}
-                          layout="fill"
-                          objectFit="cover"
+                          fill
+                          className="object-cover"
                         />
                       </div>
                       <div>
@@ -859,8 +867,8 @@ const GiftCartItem: React.FC<GiftCartItemProps> = ({ item, onQuantityChange, onR
                       <Image
                         src={sweet.image || "/placeholder.svg"}
                         alt={sweet.name}
-                        layout="fill"
-                        objectFit="cover"
+                        fill
+                        className="object-cover"
                       />
                     </div>
                     <div className="text-center">

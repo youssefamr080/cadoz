@@ -91,10 +91,18 @@ export default function LoginModal({
       return
     }
 
+    // منع المحاولات المتكررة
+    if (isLoading) {
+      return
+    }
+
     setIsLoading(true)
     console.log("[LOGIN] Starting NextAuth signIn with phone:", formData.phone);
 
     try {
+      // إضافة تأخير قصير لتجنب rate limiting
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
       const result = await signIn("credentials", {
         redirect: false,
         phone: formData.phone,
@@ -132,10 +140,16 @@ export default function LoginModal({
         }
       } else {
         console.error("[LOGIN] NextAuth signIn failed:", result?.error);
-        // Attempt to provide a more specific error message if available
-        // NextAuth often returns error messages like "CredentialsSignin"
+        
+        // معالجة خاصة لأخطاء مختلفة
         if (result?.error === "CredentialsSignin") {
            toast.error("رقم الهاتف أو كلمة المرور غير صحيحة.");
+        } else if (result?.error?.includes("Too many requests") || result?.error?.includes("429")) {
+           toast.error("كثرة المحاولات. انتظر قليلاً ثم حاول مرة أخرى.");
+           // إضافة تأخير إضافي
+           await new Promise(resolve => setTimeout(resolve, 2000))
+        } else if (result?.error?.includes("rate limit")) {
+           toast.error("تم تجاوز الحد المسموح. حاول بعد دقيقة.");
         } else {
            toast.error(result?.error || "فشل تسجيل الدخول. تأكد من صحة البيانات");
         }
@@ -150,10 +164,31 @@ export default function LoginModal({
 
   const handleGoogleLogin = async () => {
     try {
-      await signIn("google", { callbackUrl: window.location.href })
+      // منع الضغط المتكرر
+      if (isLoading) {
+        return
+      }
+      
+      setIsLoading(true)
+      
+      // إضافة تأخير قصير
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      await signIn("google", { 
+        callbackUrl: window.location.href,
+        redirect: false // منع التوجيه التلقائي
+      })
     } catch (error) {
       console.error("Google login error:", error)
-      toast.error("حدث خطأ أثناء تسجيل الدخول بواسطة جوجل")
+      const errorMessage = error instanceof Error ? error.message : "حدث خطأ أثناء تسجيل الدخول"
+      
+      if (errorMessage.includes("Too many requests") || errorMessage.includes("429")) {
+        toast.error("كثرة المحاولات. انتظر قليلاً ثم حاول مرة أخرى.")
+      } else {
+        toast.error("حدث خطأ أثناء تسجيل الدخول بواسطة جوجل")
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 

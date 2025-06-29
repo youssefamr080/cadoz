@@ -2,8 +2,6 @@ import { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "./prisma"
-import { createSession } from "./security/session-manager"
-import { sanitizeUserData } from "./security/auth-validator"
 import bcrypt from "bcryptjs"
 
 interface UserData {
@@ -14,7 +12,6 @@ interface UserData {
   role: 'user' | 'admin';
   image?: string;
   needsPhoneUpdate?: boolean;
-  [key: string]: unknown;
 }
 
 function transformToUserData(user: Record<string, unknown>): UserData {
@@ -26,6 +23,18 @@ function transformToUserData(user: Record<string, unknown>): UserData {
     role: 'user',
     image: undefined,
     needsPhoneUpdate: !user.phone
+  }
+}
+
+function sanitizeUserData(userData: UserData): UserData {
+  return {
+    id: userData.id,
+    name: userData.name,
+    email: userData.email,
+    phone: userData.phone,
+    role: userData.role || 'user',
+    image: userData.image,
+    needsPhoneUpdate: userData.needsPhoneUpdate
   }
 }
 
@@ -73,19 +82,21 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        phone: { label: "Phone", type: "text" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {        if (!credentials?.email || !credentials?.password) {
-          throw new Error("الرجاء إدخال البريد الإلكتروني وكلمة المرور")
+      async authorize(credentials) {
+        if (!credentials?.phone || !credentials?.password) {
+          throw new Error("الرجاء إدخال رقم الهاتف وكلمة المرور")
         }
 
+        // البحث بالهاتف (المعرف الأساسي)
         const user = await prisma.customer.findUnique({
-          where: { email: credentials.email.toLowerCase() }
+          where: { phone: credentials.phone }
         })
 
         if (!user) {
-          throw new Error("البريد الإلكتروني غير مسجل")
+          throw new Error("رقم الهاتف غير مسجل")
         }
 
         if (!user.password) {
@@ -104,50 +115,32 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       try {
-        // Check if user exists
-        const existingUser = await prisma.customer.findUnique({
-          where: { id: user.id }
-        })
-        
-        if (existingUser) {
-          // Update existing user
-          await prisma.customer.update({
-            where: { id: user.id },
-            data: {
-              name: user.name,
-              email: user.email?.toLowerCase(),
-              lastLoginAt: new Date(),
-              isActive: true
-            }
-          })
-        } else {          // Create new user
-          await prisma.customer.create({
-            data: {
-              id: user.id,
-              name: user.name,
-              email: user.email?.toLowerCase() || "",
-              phone: "",
-              password: "",
-              isActive: true,
-              lastLoginAt: new Date()
-            }
-          })
-        }
-
-        // Create session for Google auth
+        // تقليل عدد العمليات - فقط للمستخدمين الجدد من Google
         if (account?.provider === 'google') {
-          await createSession({
-            userId: user.id,
-            accessToken: account.access_token,
-            refreshToken: account.refresh_token,
-            expiresAt: account.expires_at ? new Date(account.expires_at * 1000) : undefined
+          const existingUser = await prisma.customer.findUnique({
+            where: { email: user.email?.toLowerCase() }
           })
+          
+          if (!existingUser) {
+            // إنشاء مستخدم جديد فقط إذا لم يكن موجوداً
+            await prisma.customer.create({
+              data: {
+                name: user.name,
+                email: user.email?.toLowerCase() || "",
+                phone: "",
+                password: "",
+                isActive: true,
+                lastLoginAt: new Date()
+              }
+            })
+          }
         }
-
+        
         return true
       } catch (error) {
         console.error("[AUTH] Error in signIn callback:", error)
-        return false
+        // السماح بتسجيل الدخول حتى لو فشل حفظ البيانات
+        return true
       }
     },
     async session({ session, token }) {
@@ -186,7 +179,30 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60 // 30 days
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+    updateAge: 24 * 60 * 60 // 24 hours
   },
-  debug: process.env.NODE_ENV === 'development'
+  // إضافة إعدادات لتقليل rate limiting
+  useSecureCookies: process.env.NODE_ENV === 'production',
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 30 * 24 * 60 * 60 // 30 days
+      }
+    }
+  },
+  // تقليل عدد طلبات قاعدة البيانات
+  events: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async signIn({ user, account, isNewUser }) {
+      // تقليل عدد العمليات في callback
+      console.log(`User ${user.id} signed in successfully`)
+    }
+  },
+  debug: false // إيقاف debug في production
 }
