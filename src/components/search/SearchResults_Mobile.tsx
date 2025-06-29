@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Star, Loader2, SortAsc, Filter, Grid, List } from 'lucide-react';
+import { Star, Loader2, SortAsc, Grid, List } from 'lucide-react';
 
 // Types للبحث
 interface SearchResult {
@@ -112,7 +112,7 @@ export function SearchResults({
             لا توجد نتائج
           </h3>
           <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
-            لم نجد أي منتجات تطابق بحثك عن "{searchQuery}"
+            لم نجد أي منتجات تطابق بحثك عن &quot;{searchQuery}&quot;
           </p>
           <div className="text-xs sm:text-sm text-gray-500">
             <p>جرب:</p>
@@ -139,7 +139,7 @@ export function SearchResults({
             <span className="font-semibold text-blue-600">{filteredAndSortedResults.length}</span>
             <span className="hidden sm:inline"> نتيجة من أصل {results.length}</span>
             <span className="sm:hidden"> نتيجة</span>
-            <span className="hidden sm:inline"> للبحث عن "{searchQuery}"</span>
+            <span className="hidden sm:inline"> للبحث عن &quot;{searchQuery}&quot;</span>
           </p>
         </div>
 
@@ -176,7 +176,7 @@ export function SearchResults({
               <SortAsc className="w-4 h-4 text-gray-500 hidden sm:block" />
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as 'relevance' | 'price_asc' | 'price_desc' | 'rating')}
                 className="bg-white border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="relevance">الأكثر صلة</option>

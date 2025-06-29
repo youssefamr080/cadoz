@@ -1,35 +1,33 @@
 "use client";
 
 import React from "react";
-import { highlightFuseMatches } from "@/lib/utils/string-utils";
+import { highlightSearchMatches } from "@/lib/utils/string-utils";
 
 interface HighlightTextProps {
   text: string;
   searchTerms?: string[];
-  matches?: readonly { indices: readonly [number, number][] }[];
+  searchTerm?: string;
   className?: string;
   highlightClassName?: string;
-  useFuse?: boolean;
 }
 
 /**
- * A component that highlights search terms or Fuse.js matches within text
+ * A component that highlights search terms within text
  */
 export function HighlightText({
   text,
   searchTerms = [],
-  matches,
+  searchTerm,
   className = "",
   highlightClassName = "bg-yellow-200 text-black px-0.5 rounded",
-  useFuse = false
 }: HighlightTextProps) {
   if (!text) {
     return <span className={className}>{text}</span>;
   }
   
-  // Use Fuse.js matches if available and useFuse is true
-  if (useFuse && matches && matches.length > 0) {
-    const segments = highlightFuseMatches(text, matches);
+  // Use single search term if provided
+  if (searchTerm) {
+    const segments = highlightSearchMatches(text, searchTerm);
     
     return (
       <span className={className}>

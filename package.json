@@ -65,7 +65,6 @@
     "express": "^4.21.2",
     "flexsearch": "^0.8.205",
     "framer-motion": "^12.12.1",
-    "fuse.js": "^7.1.0",
     "google-spreadsheet": "^4.1.4",
     "googleapis": "^146.0.0",
     "groq-sdk": "^0.22.0",

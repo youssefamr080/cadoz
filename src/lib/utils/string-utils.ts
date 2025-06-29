@@ -1,37 +1,22 @@
 /**
  * String utility functions for text processing, search, and matching
  */
-import Fuse from 'fuse.js';
+import MiniSearch from 'minisearch';
 
-// Define types for Fuse.js to avoid TypeScript errors
-interface FuseResultMatch {
-  indices: readonly [number, number][];
-  key?: string;
-  refIndex?: number;
-  value?: string;
-}
-
-interface FuseResult<T> {
+// Define types for MiniSearch to avoid TypeScript errors
+interface MiniSearchResult<T> {
   item: T;
-  refIndex?: number;
-  score?: number;
-  matches?: readonly FuseResultMatch[];
+  id: string | number;
+  score: number;
+  match?: Record<string, string[]>;
+  terms?: string[];
 }
 
-interface FuseOptions {
-  keys?: string[] | Record<string, { weight: number }>;
-  threshold?: number;
-  distance?: number;
-  includeScore?: boolean;
-  includeMatches?: boolean;
-  minMatchCharLength?: number;
-  shouldSort?: boolean;
-  findAllMatches?: boolean;
-  useExtendedSearch?: boolean;
-  ignoreLocation?: boolean;
-  location?: number;
-  isCaseSensitive?: boolean;
-  [key: string]: unknown;
+interface MiniSearchOptions {
+  fields?: string[];
+  storeFields?: string[];
+  tokenize?: (text: string) => string[];
+  processTerm?: (term: string) => string;
 }
 
 /**
@@ -164,30 +149,37 @@ export const areArabicStringsSimilar = (str1: string, str2: string): boolean => 
 };
 
 /**
- * Create a Fuse.js instance for powerful fuzzy searching
+ * Create a MiniSearch instance for powerful fuzzy searching
  * @param items Array of items to search
- * @param keys Object keys to search in
- * @param options Additional Fuse.js options
- * @returns Configured Fuse instance
+ * @param fields Object fields to search in
+ * @param options Additional MiniSearch options
+ * @returns Configured MiniSearch instance
  */
-export const createFuseInstance = <T>(items: T[], keys: Array<string | { name: string; weight: number }>, options?: Partial<FuseOptions>) => {
-  const fuseOptions = {
-    ...options,
-    keys,
-    threshold: 0.2,
-    distance: 100,
-    includeScore: true,
-    includeMatches: true,
-    minMatchCharLength: 2,
-    shouldSort: true,
-    findAllMatches: true,
-    useExtendedSearch: false,
-    ignoreLocation: true,
-    isCaseSensitive: false,
-    tokenize: true,
-    matchAllTokens: true
+export const createMiniSearchInstance = <T extends Record<string, unknown>>(
+  items: T[], 
+  fields: string[], 
+  options?: Partial<MiniSearchOptions>
+) => {
+  const miniSearchOptions = {
+    fields,
+    storeFields: Object.keys(items[0] || {}),
+    tokenize: (text: string) => {
+      return normalizeArabicText(text).split(/\s+/).filter(word => word.length > 1);
+    },
+    processTerm: (term: string) => normalizeArabicText(term),
+    ...options
   };
-  return new Fuse(items, fuseOptions);
+  
+  const miniSearch = new MiniSearch(miniSearchOptions);
+  
+  // إضافة المستندات مع ID فريد
+  const documentsWithId = items.map((item, index) => ({
+    id: index,
+    ...item
+  }));
+  
+  miniSearch.addAll(documentsWithId);
+  return miniSearch;
 };
 
 /**
@@ -349,194 +341,132 @@ export const generateArabicAlternatives = (word: string): string[] => {
 };
 
 /**
- * Perform a fuzzy search on a collection using Fuse.js
+ * Perform a fuzzy search on a collection using MiniSearch
  * @param collection Collection to search in
  * @param query Search query
- * @param keys Object keys to search in
- * @param options Additional Fuse.js options
+ * @param fields Object fields to search in
+ * @param options Additional search options
  * @returns Search results with scores
  */
-export const performFuzzySearch = <T>(
+export const performFuzzySearch = <T extends Record<string, unknown>>(
   collection: T[],
   query: string,
-  keys: string[],
-  options?: Partial<FuseOptions>
-): FuseResult<T>[] => {
+  fields: string[],
+  options?: unknown
+): MiniSearchResult<T>[] => {
   if (!query || query.length < 2 || !collection.length) return [];
   
   // Normalize query for better Arabic text matching
   const normalizedQuery = normalizeArabicText(query);
   
-  // Create a more precise Fuse instance with stricter settings
-  const preciseOptions = {
-    ...options,
-    threshold: 0.2,        // Stricter threshold for exact matching
-    matchAllTokens: true,  // Require all tokens to match
-    useExtendedSearch: false // Disable extended search for precision
-  };
-  
-  const preciseFuse = createFuseInstance(collection, keys, preciseOptions);
+  // Create MiniSearch instance
+  const miniSearch = createMiniSearchInstance(collection, fields, options);
   
   // Try with the original query first with precise settings
-  const preciseResults = preciseFuse.search(query);
-  
-  // If we have precise results, return them
-  if (preciseResults.length > 0) {
-    return preciseResults;
-  }
-  
-  // Try with normalized query with precise settings
-  const preciseNormalizedResults = preciseFuse.search(normalizedQuery);
-  
-  if (preciseNormalizedResults.length > 0) {
-    return preciseNormalizedResults;
-  }
-  
-  // If precise search failed, try with more relaxed settings
-  const relaxedOptions = {
-    ...options,
-    threshold: 0.3,
-    matchAllTokens: false
-  };
-  
-  const relaxedFuse = createFuseInstance(collection, keys, relaxedOptions);
-  
-  // Try with the original and normalized queries
-  const relaxedResults = relaxedFuse.search(query);
-  const relaxedNormalizedResults = relaxedFuse.search(normalizedQuery);
-  
-  // If we still don't have good results, try with alternative spellings but with strict relevance checking
-  if (relaxedResults.length === 0 && relaxedNormalizedResults.length === 0 && query.length >= 3) {
-    // Generate alternative spellings based on common Arabic mistakes
-    const alternatives = generateArabicAlternatives(query);
-    
-    // Search with each alternative using precise settings first
-    for (const alt of alternatives) {
-      if (alt !== query && alt !== normalizedQuery) {
-        const altResults = preciseFuse.search(alt);
-        
-        if (altResults.length > 0) {
-          // Filter results to ensure they're actually relevant
-          const relevantResults = altResults.filter(result => {
-            // Only include results with good scores
-            return result.score && result.score < 0.3;
-          });
-          
-          if (relevantResults.length > 0) {
-            return relevantResults;
-          }
-        }
-      }
-    }
-    
-    // If precise alternative search failed, try relaxed but with careful filtering
-    for (const alt of alternatives) {
-      if (alt !== query && alt !== normalizedQuery) {
-        const altResults = relaxedFuse.search(alt);
-        
-        if (altResults.length > 0) {
-          // Apply stricter post-filtering to ensure relevance
-          const relevantResults = altResults.filter(result => {
-            // Check if the result actually contains the search term or a similar term
-            const itemStr = JSON.stringify(result.item).toLowerCase();
-            return (
-              itemStr.includes(query.toLowerCase()) ||
-              itemStr.includes(normalizedQuery.toLowerCase()) ||
-              itemStr.includes(alt.toLowerCase()) ||
-              (result.score && result.score < 0.25) // Only include very good matches
-            );
-          });
-          
-          if (relevantResults.length > 0) {
-            return relevantResults;
-          }
-        }
-      }
-    }
-  }
-  
-  // Combine and filter results from relaxed search
-  const combinedResults = [...relaxedResults, ...relaxedNormalizedResults];
-  
-  // Remove duplicates and sort by score
-  const uniqueResults = combinedResults.filter((result, index, self) => {
-    return index === self.findIndex(r => JSON.stringify(r.item) === JSON.stringify(result.item));
-  }).sort((a, b) => (a.score || 1) - (b.score || 1));
-  
-  // Apply post-filtering to ensure relevance
-  const relevantResults = uniqueResults.filter(result => {
-    // Only include results with good scores or that actually contain the search term
-    const itemStr = JSON.stringify(result.item).toLowerCase();
-    return (
-      itemStr.includes(query.toLowerCase()) ||
-      itemStr.includes(normalizedQuery.toLowerCase()) ||
-      (result.score && result.score < 0.3)
-    );
+  const results = miniSearch.search(query, {
+    fuzzy: 0.2,
+    prefix: true,
+    combineWith: 'OR'
   });
   
-  return relevantResults;
+  // If we have good results, return them
+  if (results.length > 0 && results[0].score > 0.5) {
+    return results.map(result => ({
+      item: result as unknown as T,
+      id: result.id,
+      score: result.score,
+      match: result.match,
+      terms: result.terms
+    }));
+  }
+  
+  // Try with normalized query with more relaxed settings
+  const normalizedResults = miniSearch.search(normalizedQuery, {
+    fuzzy: 0.3,
+    prefix: true,
+    combineWith: 'OR'
+  });
+  
+  if (normalizedResults.length > 0) {
+    return normalizedResults.map(result => ({
+      item: result as unknown as T,
+      id: result.id,
+      score: result.score,
+      match: result.match,
+      terms: result.terms
+    }));
+  }
+  
+  // Try with alternative spellings for Arabic text
+  if (query.length >= 3) {
+    const alternatives = generateArabicAlternatives(query);
+    
+    for (const alt of alternatives) {
+      if (alt !== query && alt !== normalizedQuery) {
+        const altResults = miniSearch.search(alt, {
+          fuzzy: 0.4,
+          prefix: true,
+          combineWith: 'OR'
+        });
+        
+        if (altResults.length > 0) {
+          return altResults.map(result => ({
+            item: result as unknown as T,
+            id: result.id,
+            score: result.score * 0.8, // تقليل النقاط للبدائل الإملائية
+            match: result.match,
+            terms: result.terms
+          }));
+        }
+      }
+    }
+  }
+  
+  return [];
 };
 
 /**
- * Highlight matching parts of a string based on Fuse.js matches
+ * Highlight matching parts of a string based on search term
  * @param text The text to highlight
- * @param matches Fuse.js match information
+ * @param searchTerm The search term that was matched
  * @returns Array of segments with isMatch flag
  */
-export const highlightFuseMatches = (
+export const highlightSearchMatches = (
   text: string, 
-  matches?: readonly FuseResultMatch[]
+  searchTerm?: string
 ): Array<{text: string, isMatch: boolean}> => {
-  if (!text || !matches || matches.length === 0) {
+  if (!text || !searchTerm) {
     return [{text, isMatch: false}];
   }
   
-  // Get all indices that need highlighting
+  // Find all occurrences of the search term
+  const searchTermLower = searchTerm.toLowerCase();
+  const textLower = text.toLowerCase();
   const indices: Array<[number, number]> = [];
   
-  matches.forEach(match => {
-    if (match && match.indices && match.indices.length) {
-      indices.push(...match.indices);
-    }
-  });
+  let startIndex = 0;
+  while (true) {
+    const index = textLower.indexOf(searchTermLower, startIndex);
+    if (index === -1) break;
+    indices.push([index, index + searchTerm.length - 1]);
+    startIndex = index + 1;
+  }
+  
+  // If no matches found, return the original text
+  if (indices.length === 0) {
+    return [{ text, isMatch: false }];
+  }
   
   // If no valid indices found, return the original text
   if (indices.length === 0) {
     return [{ text, isMatch: false }];
   }
 
-  // Extract all matching indices
-  const allIndices: Array<[number, number]> = [];
-  
-  matches.forEach(match => {
-    if (match.indices && match.indices.length > 0) {
-      allIndices.push(...match.indices);
-    }
-  });
-  
-  // Sort indices by start position
-  allIndices.sort((a, b) => a[0] - b[0]);
-  
-  // Merge overlapping indices
-  const mergedIndices: Array<[number, number]> = [];
-  
-  allIndices.forEach(([start, end]) => {
-    const lastMatch = mergedIndices[mergedIndices.length - 1];
-    
-    if (lastMatch && start <= lastMatch[1] + 1) {
-      // Overlapping match, extend the previous one
-      lastMatch[1] = Math.max(lastMatch[1], end);
-    } else {
-      // New non-overlapping match
-      mergedIndices.push([start, end]);
-    }
-  });
-  
   // Create segments based on matches
   const result: Array<{text: string, isMatch: boolean}> = [];
   let lastEnd = 0;
   
-  mergedIndices.forEach(([start, end]) => {
+  indices.forEach(([start, end]) => {
     if (start > lastEnd) {
       // Add non-matching segment
       result.push({
@@ -652,7 +582,7 @@ export const highlightMatches = (text: string, searchTerms: string[]): Array<{te
 };
 
 /**
- * Find the best correction for a misspelled word using Fuse.js
+ * Find the best correction for a misspelled word using MiniSearch
  * @param word Potentially misspelled word
  * @param dictionary Array of correct words
  * @param threshold Similarity threshold (0-1)
@@ -673,13 +603,19 @@ export const findBestCorrection = (
   );
   if (exactMatch) return exactMatch;
   
-  // Use Fuse.js for fuzzy matching
-  const fuse = createFuseInstance(dictionary.map(word => ({ word })), ['word']);
-  const results = fuse.search(normalizedWord);
+  // Use MiniSearch for fuzzy matching
+  const miniSearch = createMiniSearchInstance(
+    dictionary.map(word => ({ word })), 
+    ['word']
+  );
+  const results = miniSearch.search(normalizedWord, {
+    fuzzy: 0.3,
+    prefix: true
+  });
   
-  // Return best match if score is good enough (lower is better in Fuse.js)
-  if (results.length > 0 && results[0].score && results[0].score < threshold) {
-    return results[0].item.word;
+  // Return best match if score is good enough
+  if (results.length > 0 && results[0].score > (1 - threshold)) {
+    return results[0].word;
   }
   
   return null;
@@ -701,21 +637,20 @@ export const getAutocompleteSuggestions = (
   
   const normalizedInput = normalizeArabicText(input);
   
-  // Create Fuse instance optimized for autocomplete
-  const fuse = createFuseInstance(
+  // Create MiniSearch instance optimized for autocomplete
+  const miniSearch = createMiniSearchInstance(
     dictionary.map(word => ({ word })),
-    ['word'],
-    {
-      threshold: 0.2,           // Stricter matching for autocomplete
-      distance: 100,
-      minMatchCharLength: 1
-    }
+    ['word']
   );
   
   // Search and extract results
-  const results = fuse.search(normalizedInput)
+  const results = miniSearch.search(normalizedInput, {
+    fuzzy: 0.2,
+    prefix: true,
+    combineWith: 'OR'
+  })
     .slice(0, limit)
-    .map(result => result.item.word);
+    .map(result => result.word);
     
   return results;
 };
