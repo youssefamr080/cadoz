@@ -19766,6 +19766,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     description: string | null
+    content: string | null
     image: string | null
     rating: number | null
     reviews: number | null
@@ -19783,6 +19784,7 @@ export namespace Prisma {
     id: string | null
     name: string | null
     description: string | null
+    content: string | null
     image: string | null
     rating: number | null
     reviews: number | null
@@ -19800,7 +19802,9 @@ export namespace Prisma {
     id: number
     name: number
     description: number
+    content: number
     image: number
+    tags: number
     rating: number
     reviews: number
     likes: number
@@ -19841,6 +19845,7 @@ export namespace Prisma {
     id?: true
     name?: true
     description?: true
+    content?: true
     image?: true
     rating?: true
     reviews?: true
@@ -19858,6 +19863,7 @@ export namespace Prisma {
     id?: true
     name?: true
     description?: true
+    content?: true
     image?: true
     rating?: true
     reviews?: true
@@ -19875,7 +19881,9 @@ export namespace Prisma {
     id?: true
     name?: true
     description?: true
+    content?: true
     image?: true
+    tags?: true
     rating?: true
     reviews?: true
     likes?: true
@@ -19981,7 +19989,9 @@ export namespace Prisma {
     id: string
     name: string
     description: string
+    content: string | null
     image: string
+    tags: string[]
     rating: number
     reviews: number
     likes: number
@@ -20019,7 +20029,9 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     description?: boolean
+    content?: boolean
     image?: boolean
+    tags?: boolean
     rating?: boolean
     reviews?: boolean
     likes?: boolean
@@ -20047,7 +20059,9 @@ export namespace Prisma {
     id?: boolean
     name?: boolean
     description?: boolean
+    content?: boolean
     image?: boolean
+    tags?: boolean
     rating?: boolean
     reviews?: boolean
     likes?: boolean
@@ -20062,7 +20076,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InspirationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "image" | "rating" | "reviews" | "likes" | "dislikes" | "likedBy" | "dislikedBy" | "price" | "oldPrice" | "discountPercentage" | "category" | "createdAt" | "updatedAt", ExtArgs["result"]["inspiration"]>
+  export type InspirationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "content" | "image" | "tags" | "rating" | "reviews" | "likes" | "dislikes" | "likedBy" | "dislikedBy" | "price" | "oldPrice" | "discountPercentage" | "category" | "createdAt" | "updatedAt", ExtArgs["result"]["inspiration"]>
   export type InspirationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     ratings?: boolean | Inspiration$ratingsArgs<ExtArgs>
     comments?: boolean | Inspiration$commentsArgs<ExtArgs>
@@ -20087,7 +20101,9 @@ export namespace Prisma {
       id: string
       name: string
       description: string
+      content: string | null
       image: string
+      tags: string[]
       rating: number
       reviews: number
       likes: number
@@ -20501,7 +20517,9 @@ export namespace Prisma {
     readonly id: FieldRef<"Inspiration", 'String'>
     readonly name: FieldRef<"Inspiration", 'String'>
     readonly description: FieldRef<"Inspiration", 'String'>
+    readonly content: FieldRef<"Inspiration", 'String'>
     readonly image: FieldRef<"Inspiration", 'String'>
+    readonly tags: FieldRef<"Inspiration", 'String[]'>
     readonly rating: FieldRef<"Inspiration", 'Float'>
     readonly reviews: FieldRef<"Inspiration", 'Int'>
     readonly likes: FieldRef<"Inspiration", 'Int'>
@@ -40546,7 +40564,9 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     description: 'description',
+    content: 'content',
     image: 'image',
+    tags: 'tags',
     rating: 'rating',
     reviews: 'reviews',
     likes: 'likes',
@@ -42197,7 +42217,9 @@ export namespace Prisma {
     id?: StringFilter<"Inspiration"> | string
     name?: StringFilter<"Inspiration"> | string
     description?: StringFilter<"Inspiration"> | string
+    content?: StringNullableFilter<"Inspiration"> | string | null
     image?: StringFilter<"Inspiration"> | string
+    tags?: StringNullableListFilter<"Inspiration">
     rating?: FloatFilter<"Inspiration"> | number
     reviews?: IntFilter<"Inspiration"> | number
     likes?: IntFilter<"Inspiration"> | number
@@ -42222,7 +42244,9 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
+    content?: SortOrder
     image?: SortOrder
+    tags?: SortOrder
     rating?: SortOrder
     reviews?: SortOrder
     likes?: SortOrder
@@ -42250,7 +42274,9 @@ export namespace Prisma {
     NOT?: InspirationWhereInput | InspirationWhereInput[]
     name?: StringFilter<"Inspiration"> | string
     description?: StringFilter<"Inspiration"> | string
+    content?: StringNullableFilter<"Inspiration"> | string | null
     image?: StringFilter<"Inspiration"> | string
+    tags?: StringNullableListFilter<"Inspiration">
     rating?: FloatFilter<"Inspiration"> | number
     reviews?: IntFilter<"Inspiration"> | number
     likes?: IntFilter<"Inspiration"> | number
@@ -42275,7 +42301,9 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
+    content?: SortOrder
     image?: SortOrder
+    tags?: SortOrder
     rating?: SortOrder
     reviews?: SortOrder
     likes?: SortOrder
@@ -42302,7 +42330,9 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Inspiration"> | string
     name?: StringWithAggregatesFilter<"Inspiration"> | string
     description?: StringWithAggregatesFilter<"Inspiration"> | string
+    content?: StringNullableWithAggregatesFilter<"Inspiration"> | string | null
     image?: StringWithAggregatesFilter<"Inspiration"> | string
+    tags?: StringNullableListFilter<"Inspiration">
     rating?: FloatWithAggregatesFilter<"Inspiration"> | number
     reviews?: IntWithAggregatesFilter<"Inspiration"> | number
     likes?: IntWithAggregatesFilter<"Inspiration"> | number
@@ -44909,7 +44939,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -44934,7 +44966,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -44958,7 +44992,9 @@ export namespace Prisma {
   export type InspirationUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -44982,7 +45018,9 @@ export namespace Prisma {
   export type InspirationUncheckedUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -45007,7 +45045,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -45025,7 +45065,9 @@ export namespace Prisma {
   export type InspirationUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -45043,7 +45085,9 @@ export namespace Prisma {
   export type InspirationUncheckedUpdateManyInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -47568,7 +47612,9 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
+    content?: SortOrder
     image?: SortOrder
+    tags?: SortOrder
     rating?: SortOrder
     reviews?: SortOrder
     likes?: SortOrder
@@ -47597,6 +47643,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
+    content?: SortOrder
     image?: SortOrder
     rating?: SortOrder
     reviews?: SortOrder
@@ -47614,6 +47661,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     description?: SortOrder
+    content?: SortOrder
     image?: SortOrder
     rating?: SortOrder
     reviews?: SortOrder
@@ -49506,6 +49554,10 @@ export namespace Prisma {
     update?: XOR<XOR<OrderUpdateToOneWithWhereWithoutPromoCodeInput, OrderUpdateWithoutPromoCodeInput>, OrderUncheckedUpdateWithoutPromoCodeInput>
   }
 
+  export type InspirationCreatetagsInput = {
+    set: string[]
+  }
+
   export type InspirationCreatelikedByInput = {
     set: string[]
   }
@@ -49592,6 +49644,11 @@ export namespace Prisma {
     create?: XOR<InspirationBagRelationCreateWithoutInspirationInput, InspirationBagRelationUncheckedCreateWithoutInspirationInput>
     connectOrCreate?: InspirationBagRelationCreateOrConnectWithoutInspirationInput
     connect?: InspirationBagRelationWhereUniqueInput
+  }
+
+  export type InspirationUpdatetagsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type InspirationUpdatelikedByInput = {
@@ -53313,7 +53370,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -53337,7 +53396,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -53376,7 +53437,9 @@ export namespace Prisma {
   export type InspirationUpdateWithoutRatingsInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -53399,7 +53462,9 @@ export namespace Prisma {
   export type InspirationUncheckedUpdateWithoutRatingsInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -53423,7 +53488,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -53447,7 +53514,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -53486,7 +53555,9 @@ export namespace Prisma {
   export type InspirationUpdateWithoutCommentsInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -53509,7 +53580,9 @@ export namespace Prisma {
   export type InspirationUncheckedUpdateWithoutCommentsInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -54807,7 +54880,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -54831,7 +54906,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -54901,7 +54978,9 @@ export namespace Prisma {
   export type InspirationUpdateWithoutSweetsInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -54924,7 +55003,9 @@ export namespace Prisma {
   export type InspirationUncheckedUpdateWithoutSweetsInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -54983,7 +55064,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -55007,7 +55090,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -55109,7 +55194,9 @@ export namespace Prisma {
   export type InspirationUpdateWithoutProductsInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -55132,7 +55219,9 @@ export namespace Prisma {
   export type InspirationUncheckedUpdateWithoutProductsInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -55223,7 +55312,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -55247,7 +55338,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -55321,7 +55414,9 @@ export namespace Prisma {
   export type InspirationUpdateWithoutBoxInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -55344,7 +55439,9 @@ export namespace Prisma {
   export type InspirationUncheckedUpdateWithoutBoxInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -55407,7 +55504,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -55431,7 +55530,9 @@ export namespace Prisma {
     id?: string
     name: string
     description: string
+    content?: string | null
     image: string
+    tags?: InspirationCreatetagsInput | string[]
     rating: number
     reviews?: number
     likes?: number
@@ -55503,7 +55604,9 @@ export namespace Prisma {
   export type InspirationUpdateWithoutBagInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
@@ -55526,7 +55629,9 @@ export namespace Prisma {
   export type InspirationUncheckedUpdateWithoutBagInput = {
     name?: StringFieldUpdateOperationsInput | string
     description?: StringFieldUpdateOperationsInput | string
+    content?: NullableStringFieldUpdateOperationsInput | string | null
     image?: StringFieldUpdateOperationsInput | string
+    tags?: InspirationUpdatetagsInput | string[]
     rating?: FloatFieldUpdateOperationsInput | number
     reviews?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number

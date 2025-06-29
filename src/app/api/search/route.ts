@@ -45,11 +45,15 @@ async function getAllInspirations() {
         id: true,
         name: true,
         description: true,
+        content: true,
+        tags: true,
         image: true,
         price: true,
         oldPrice: true,
         category: true,
         discountPercentage: true,
+        rating: true,
+        likes: true,
         createdAt: true,
       }
     });
@@ -234,7 +238,7 @@ export async function GET(request: NextRequest) {
     
     // البحث في الإلهامات مع تحسينات مماثلة
     const inspirationResults = inspirations.map(inspiration => {
-      // محاكاة نفس نهج المنتجات مع تعديلات مناسبة
+      // محاكاة نفس نهج المنتجات مع تعديلات مناسبة للحقول الجديدة
       const nameScores = uniqueTerms.map(term => {
         const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(inspiration.name));
         const similarity = 1 - (distance / Math.max(term.length, inspiration.name.length));
@@ -245,8 +249,28 @@ export async function GET(request: NextRequest) {
         const normDesc = normalizeArabicText(inspiration.description);
         return normDesc.includes(term) ? 5 : 0;
       });
+
+      // البحث في المحتوى الجديد
+      const contentScores = inspiration.content
+        ? uniqueTerms.map(term => {
+            const normContent = normalizeArabicText(inspiration.content || '');
+            return normContent.includes(term) ? 4 : 0;
+          })
+        : [0];
+
+      // البحث في التاجز الجديدة
+      const tagsScores = inspiration.tags && inspiration.tags.length > 0
+        ? inspiration.tags.flatMap((tag: unknown) => {
+            const tagString = String(tag);
+            return uniqueTerms.map(term => {
+              const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(tagString));
+              const similarity = 1 - (distance / Math.max(term.length, tagString.length));
+              return similarity * 6; // وزن للتاجز
+            });
+          })
+        : [0];
       
-      // البحث في الإلهامات (مبسط حسب الحقول المتوفرة)
+      // البحث في الفئة
       const categoryScores = inspiration.category 
         ? uniqueTerms.map(term => {
             const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(inspiration.category || ''));
@@ -258,14 +282,24 @@ export async function GET(request: NextRequest) {
       // حساب متوسط أعلى الدرجات
       const nameScore = Math.max(...nameScores, 0);
       const descriptionScore = Math.max(...descriptionScores, 0);
+      const contentScore = Math.max(...contentScores, 0);
+      const tagsScore = tagsScores.length ? Math.max(...tagsScores) : 0;
       const categoryScore = Math.max(...categoryScores, 0);
       
-      // حساب درجة الصلة المركبة (مبسطة للإلهامات)
+      // حساب درجة الصلة المركبة مع الحقول الجديدة
       const relevanceScore = Math.max(
         nameScore, 
         descriptionScore * 0.8, 
+        contentScore * 0.7,
+        tagsScore * 0.75,
         categoryScore * 0.9
       );
+      
+      // عوامل إضافية للإلهامات
+      const popularityBoost = inspiration.likes > 50 ? 1.3 : 1.0;
+      const ratingBoost = (inspiration.rating || 0) > 4 ? 1.2 : 1.0;
+      
+      const adjustedScore = relevanceScore * popularityBoost * ratingBoost;
       
       const exactMatch = normalizeArabicText(inspiration.name).includes(normalizedQuery) ||
                         uniqueTerms.some(term => normalizeArabicText(inspiration.name).includes(term));
@@ -274,13 +308,17 @@ export async function GET(request: NextRequest) {
         id: inspiration.id,
         name: inspiration.name,
         description: inspiration.description,
+        content: inspiration.content,
         image: inspiration.image,
         price: inspiration.price,
         oldPrice: inspiration.oldPrice,
         category: inspiration.category,
         type: 'inspiration' as const,
-        relevanceScore,
+        tags: inspiration.tags || [],
+        relevanceScore: adjustedScore,
         exactMatch,
+        rating: inspiration.rating,
+        likes: inspiration.likes,
         url: `/inspiration/${inspiration.id}`
       };
     }).filter(result => result.relevanceScore > 0.15);

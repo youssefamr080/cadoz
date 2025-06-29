@@ -258,7 +258,9 @@ model Inspiration {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String
+  content     String?  // محتوى مفصل للإلهام
   image       String
+  tags        String[] // تاجز للبحث والتصنيف
   rating      Float
   reviews     Int      @default(0)
   likes       Int      @default(0)
