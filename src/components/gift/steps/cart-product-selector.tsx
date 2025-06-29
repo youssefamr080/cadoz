@@ -27,10 +27,11 @@ export default function CartProductSelector() {
   
   const [sortBy, setSortBy] = useState("nameAsc")
 
-  // تحويل عناصر السلة إلى منتجات هدايا
+  // تحويل عناصر السلة إلى منتجات هدايا - تحسين للأداء
+  const cartItems = useMemo(() => cartItemsRaw || [], [cartItemsRaw])
+  
   const cartProducts = useMemo(() => {
-    const items = cartItemsRaw || []
-    return items.map(item => ({
+    return cartItems.map(item => ({
       id: item.id,
       name: item.name,
       category: item.category || "منتجات متنوعة",
@@ -40,7 +41,7 @@ export default function CartProductSelector() {
       stock: item.stock || 999,
       quantity: 1, // الكمية الافتراضية عند إضافة المنتج للهدية
     } as GiftProduct))
-  }, [cartItemsRaw])
+  }, [cartItems])
 
   // ترتيب المنتجات
   const sortedProducts = useMemo(() => {

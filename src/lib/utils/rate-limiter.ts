@@ -9,6 +9,17 @@ interface RateLimiter {
   };
 }
 
+// تعريف نوع Request و Response لـ Next.js
+interface Request {
+  headers: {
+    get(name: string): string | null;
+  };
+}
+
+interface Response {
+  status?: number;
+}
+
 class APIRateLimiter {
   private static instance: APIRateLimiter;
   private limiters: RateLimiter = {};
@@ -111,11 +122,11 @@ export const withRateLimit = (
   endpoint: keyof typeof APIRateLimiter.prototype.DEFAULT_LIMITS,
   getUserId?: () => string | undefined
 ) => {
-  return (handler: any) => {
-    return async (req: any, res: any) => {
+  return (handler: (req: Request, res: Response) => Promise<Response>) => {
+    return async (req: Request, res: Response) => {
       try {
         const userId = getUserId ? getUserId() : undefined;
-        const clientIP = req.headers['x-forwarded-for'] || req.connection?.remoteAddress || 'unknown';
+        const clientIP = req.headers.get('x-forwarded-for') || 'unknown';
         const key = createRateLimitKey(userId || clientIP, endpoint);
 
         if (!rateLimiter.checkLimit(key, endpoint)) {

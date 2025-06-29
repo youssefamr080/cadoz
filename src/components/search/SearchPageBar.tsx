@@ -109,10 +109,13 @@ export default function SearchPageBar({
           console.log(`⚡ وقت معالجة الاقتراحات: ${data.processingTime}ms (إجمالي: ${fetchTime.toFixed(2)}ms)`);
         }
       }
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.name : 'Unknown error';
+      const errorDetails = error instanceof Error ? error.message : String(error);
+      
+      if (errorMessage !== 'AbortError') {
         console.error('خطأ في جلب الاقتراحات:', error);
-        reportSearchIssue(`Suggestions fetch error: ${error.message}`);
+        reportSearchIssue(`Suggestions fetch error: ${errorDetails}`);
         setSuggestions([]); // مسح الاقتراحات عند الخطأ
       }
     } finally {

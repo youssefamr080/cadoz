@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
   try {
     // تطبيق rate limiting
     const clientIP = request.headers.get('x-forwarded-for') || 'unknown';
-    const rateLimitKey = createRateLimitKey(undefined, 'suggestions');
+    const rateLimitKey = createRateLimitKey(clientIP, 'suggestions');
     
     if (!rateLimiter.checkLimit(rateLimitKey, 'suggestions')) {
       const resetTime = rateLimiter.getResetTime(rateLimitKey);
