@@ -54,7 +54,7 @@ export function SimpleSearchResults({
             : '1fr'
         }}>
           {Array.from({ length: 8 }).map((_, i) => (
-            <Card key={i}>
+            <Card key={`skeleton-${i}`}>
               <CardContent className="p-4">
                 <Skeleton className="h-48 w-full mb-4" />
                 <Skeleton className="h-4 w-3/4 mb-2" />

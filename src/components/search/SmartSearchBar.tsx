@@ -290,7 +290,7 @@ export default function SmartSearchBar({
                 </div>
                 {suggestions.map((suggestion, index) => (
                   <motion.div
-                    key={`suggestion-${index}`}
+                    key={`suggestion-${suggestion}-${index}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className={`px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2 ${
@@ -314,7 +314,7 @@ export default function SmartSearchBar({
                 </div>
                 {searchHistory.slice(0, 5).map((item, index) => (
                   <motion.div
-                    key={`history-${index}`}
+                    key={`history-${item}-${index}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className={`px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center justify-between group ${

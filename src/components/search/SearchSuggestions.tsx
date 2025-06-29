@@ -64,7 +64,7 @@ export default function SearchSuggestions({ onSuggestionClick, currentQuery }: S
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
           {trendingSuggestions.map((suggestion, index) => (
             <motion.button
-              key={index}
+              key={suggestion}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05 }}
@@ -88,7 +88,7 @@ export default function SearchSuggestions({ onSuggestionClick, currentQuery }: S
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
           {categorySuggestions.map((suggestion, index) => (
             <motion.button
-              key={index}
+              key={suggestion}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.03 }}
@@ -112,7 +112,7 @@ export default function SearchSuggestions({ onSuggestionClick, currentQuery }: S
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-3">
           {brandSuggestions.map((suggestion, index) => (
             <motion.button
-              key={index}
+              key={suggestion}
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.04 }}

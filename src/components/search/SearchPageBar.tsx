@@ -235,7 +235,7 @@ export default function SearchPageBar({
                 <h4 className="text-xs font-medium text-gray-500 mb-2 px-2">اقتراحات</h4>
                 {suggestions.map((suggestion, index) => (
                   <motion.button
-                    key={`suggestion-${index}`}
+                    key={`suggestion-${suggestion}-${index}`}
                     onClick={() => handleSuggestionSelect(suggestion)}
                     className={`w-full text-right px-4 py-3 sm:px-3 sm:py-2 text-base sm:text-sm hover:bg-gray-100 rounded flex items-center gap-3 sm:gap-2 ${
                       selectedIndex === index ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
@@ -255,7 +255,7 @@ export default function SearchPageBar({
                 <h4 className="text-xs font-medium text-gray-500 mb-2 px-2">عمليات بحث سابقة</h4>
                 {searchHistory.map((item, index) => (
                   <motion.button
-                    key={`history-${index}`}
+                    key={`history-${item}-${index}`}
                     onClick={() => handleSuggestionSelect(item)}
                     className={`w-full text-right px-4 py-3 sm:px-3 sm:py-2 text-base sm:text-sm hover:bg-gray-100 rounded flex items-center gap-3 sm:gap-2 group ${
                       selectedIndex === (suggestions.length + index) ? 'bg-blue-50 text-blue-600' : 'text-gray-700'
