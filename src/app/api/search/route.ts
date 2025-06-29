@@ -1,11 +1,63 @@
-import { NextResponse } from 'next/server';
-import { getAllProducts } from '@/lib/actions/product-actions';
-import { getAllInspirations } from '@/lib/actions/inspiration-actions';
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '../../../../prisma/generated/client';
 import { 
   normalizeArabicText, 
   generateArabicAlternatives,
   enhancedLevenshteinForArabic
 } from '@/lib/utils/string-utils';
+
+// إنشاء عميل Prisma
+const prisma = new PrismaClient();
+
+// وظائف مساعدة لجلب البيانات
+async function getAllProducts() {
+  try {
+    return await prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        old_price: true,
+        image: true,
+        category: true,
+        tags: true,
+        stock: true,
+        inStock: true,
+        trending: true,
+        best_seller: true,
+        new_arrival: true,
+        sale: true,
+        discountPercentage: true,
+        createdAt: true,
+      }
+    });
+  } catch (error) {
+    console.error('خطأ في جلب المنتجات:', error);
+    return [];
+  }
+}
+
+async function getAllInspirations() {
+  try {
+    return await prisma.inspiration.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        image: true,
+        price: true,
+        oldPrice: true,
+        category: true,
+        discountPercentage: true,
+        createdAt: true,
+      }
+    });
+  } catch (error) {
+    console.error('خطأ في جلب الإلهامات:', error);
+    return [];
+  }
+}
 
 // تحديث قائمة البحوث الشائعة لتشمل اللهجة المصرية
 const popularSearches = [
@@ -22,7 +74,7 @@ const popularCategories = [
   'بيت', 'ديكور', 'مطبخ', 'عيال', 'ألعاب', 'هدايا'
 ];
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('query') || '';
@@ -108,8 +160,8 @@ export async function GET(request: Request) {
         return similarity * 8; // وزن عالٍ للفئة
       });
       
-      const tagsScores = product.tags 
-        ? product.tags.flatMap(tag => {
+      const tagsScores = product.tags && product.tags.length > 0
+        ? product.tags.flatMap((tag: string) => {
             return uniqueTerms.map(term => {
               const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(tag));
               const similarity = 1 - (distance / Math.max(term.length, tag.length));
@@ -118,18 +170,17 @@ export async function GET(request: Request) {
           })
         : [];
       
-      const occasionScores = product.occasion 
-        ? product.occasion.flatMap(occ => {
-            return uniqueTerms.map(term => {
-              const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(occ));
-              const similarity = 1 - (distance / Math.max(term.length, occ.length));
-              return similarity * 6; // وزن للمناسبات
-            });
+      // تحديث: استخدام حقل category مباشرة بدلاً من occasion
+      const categoryBoostScore = product.category 
+        ? uniqueTerms.map(term => {
+            const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(product.category || ''));
+            const similarity = 1 - (distance / Math.max(term.length, (product.category || '').length));
+            return similarity * 6; // وزن إضافي للفئة
           })
         : [];
       
       // عوامل إضافية تؤثر على الصلة
-      const popularityBoost = product.trending || product.is_trending ? 1.5 : 1.0;
+      const popularityBoost = product.trending || product.best_seller ? 1.5 : 1.0;
       const stockBoost = product.inStock === false ? 0.8 : 1.0; // خفض طفيف للمنتجات غير المتوفرة
       const discountBoost = product.old_price ? 1.2 : 1.0; // تعزيز للمنتجات المخفضة
       
@@ -138,7 +189,7 @@ export async function GET(request: Request) {
       const descriptionScore = Math.max(...descriptionScores, 0);
       const categoryScore = Math.max(...categoryScores, 0);
       const tagsScore = tagsScores.length ? Math.max(...tagsScores) : 0;
-      const occasionScore = occasionScores.length ? Math.max(...occasionScores) : 0;
+      const categoryBoostScoreMax = categoryBoostScore.length ? Math.max(...categoryBoostScore) : 0;
       
       // حساب درجة الصلة المركبة
       let relevanceScore = Math.max(
@@ -146,7 +197,7 @@ export async function GET(request: Request) {
         descriptionScore * 0.8, 
         categoryScore * 0.9, 
         tagsScore * 0.7, 
-        occasionScore * 0.6
+        categoryBoostScoreMax * 0.6
       );
       
       // تطبيق العوامل المعززة
@@ -173,10 +224,9 @@ export async function GET(request: Request) {
         category: product.category,
         type: 'product' as const,
         relevanceScore,
-        tags: product.tags,
-        occasions: product.occasion,
+        tags: product.tags || [],
         inStock: product.inStock !== false,
-        trending: Boolean(product.trending || product.is_trending),
+        trending: Boolean(product.trending || product.best_seller),
         exactMatch,
         url: `/product/${product.id}`
       };
@@ -196,6 +246,7 @@ export async function GET(request: Request) {
         return normDesc.includes(term) ? 5 : 0;
       });
       
+      // البحث في الإلهامات (مبسط حسب الحقول المتوفرة)
       const categoryScores = inspiration.category 
         ? uniqueTerms.map(term => {
             const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(inspiration.category || ''));
@@ -204,40 +255,16 @@ export async function GET(request: Request) {
           })
         : [0];
       
-      const tagsScores = inspiration.tags 
-        ? inspiration.tags.flatMap(tag => {
-            return uniqueTerms.map(term => {
-              const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(tag));
-              const similarity = 1 - (distance / Math.max(term.length, tag.length));
-              return similarity * 7;
-            });
-          })
-        : [];
-      
-      const occasionsScores = inspiration.occasions 
-        ? inspiration.occasions.flatMap(occ => {
-            return uniqueTerms.map(term => {
-              const distance = enhancedLevenshteinForArabic(term, normalizeArabicText(occ));
-              const similarity = 1 - (distance / Math.max(term.length, occ.length));
-              return similarity * 6;
-            });
-          })
-        : [];
-      
       // حساب متوسط أعلى الدرجات
       const nameScore = Math.max(...nameScores, 0);
       const descriptionScore = Math.max(...descriptionScores, 0);
       const categoryScore = Math.max(...categoryScores, 0);
-      const tagsScore = tagsScores.length ? Math.max(...tagsScores) : 0;
-      const occasionsScore = occasionsScores.length ? Math.max(...occasionsScores) : 0;
       
-      // حساب درجة الصلة المركبة
+      // حساب درجة الصلة المركبة (مبسطة للإلهامات)
       const relevanceScore = Math.max(
         nameScore, 
         descriptionScore * 0.8, 
-        categoryScore * 0.9, 
-        tagsScore * 0.7, 
-        occasionsScore * 0.6
+        categoryScore * 0.9
       );
       
       const exactMatch = normalizeArabicText(inspiration.name).includes(normalizedQuery) ||
@@ -248,10 +275,11 @@ export async function GET(request: Request) {
         name: inspiration.name,
         description: inspiration.description,
         image: inspiration.image,
+        price: inspiration.price,
+        oldPrice: inspiration.oldPrice,
+        category: inspiration.category,
         type: 'inspiration' as const,
         relevanceScore,
-        tags: inspiration.tags,
-        occasions: inspiration.occasions,
         exactMatch,
         url: `/inspiration/${inspiration.id}`
       };

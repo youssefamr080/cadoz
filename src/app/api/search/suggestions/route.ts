@@ -1,5 +1,20 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+
+// Temporary mock data while fixing Prisma connection
+const mockData = {
+  products: [
+    { id: '1', name: 'ساعة ذكية', category: 'إلكترونيات', image: '/images/watch.jpg' },
+    { id: '2', name: 'عطر رجالي', category: 'عطور', image: '/images/perfume.jpg' },
+    { id: '3', name: 'محفظة جلدية', category: 'إكسسوارات', image: '/images/wallet.jpg' },
+    { id: '4', name: 'هدية عيد ميلاد', category: 'هدايا', image: '/images/gift.jpg' },
+    { id: '5', name: 'شنطة يد', category: 'حقائب', image: '/images/bag.jpg' }
+  ],
+  categories: [
+    { id: '1', name: 'إلكترونيات', image: '/images/electronics.jpg' },
+    { id: '2', name: 'عطور', image: '/images/perfumes.jpg' },
+    { id: '3', name: 'إكسسوارات', image: '/images/accessories.jpg' }
+  ]
+};
 
 export async function GET(request: Request) {
   try {
@@ -10,43 +25,34 @@ export async function GET(request: Request) {
       return NextResponse.json({ suggestions: [] })
     }
 
-    // Search in products
-    const products = await prisma.product.findMany({
-      where: {
-        OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } },
-          { category: { contains: query, mode: 'insensitive' } },
-          { tags: { hasSome: [query] } }
-        ]
-      },
-      select: {
-        id: true,
-        name: true,
-        category: true,
-        image: true
-      },
-      take: 5
-    })
+    // Use mock data for now (replace with Prisma when ready)
+    const products = mockData.products.filter(p => 
+      p.name.toLowerCase().includes(query.toLowerCase()) ||
+      p.category.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 5);
 
-    // Search in categories
-    const categories = await prisma.category.findMany({
-      where: {
-        OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } }
-        ]
-      },
-      select: {
-        id: true,
-        name: true,
-        image: true
-      },
-      take: 3
-    })
+    const categories = mockData.categories.filter(c => 
+      c.name.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 3);
+
+    // إنشاء قائمة اقتراحات نصية
+    const textSuggestions = [
+      ...products.map(p => p.name),
+      ...categories.map(c => c.name),
+      // إضافة اقتراحات شائعة
+      'هدية عيد ميلاد',
+      'هدايا رجالية',
+      'هدايا نسائية', 
+      'ساعات',
+      'عطور',
+      'إكسسوارات'
+    ].filter(suggestion => 
+      suggestion.toLowerCase().includes(query.toLowerCase())
+    ).slice(0, 8);
 
     return NextResponse.json({
-      suggestions: {
+      suggestions: textSuggestions,
+      detailed: {
         products,
         categories
       }

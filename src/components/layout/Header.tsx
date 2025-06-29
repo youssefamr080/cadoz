@@ -23,7 +23,8 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useSelector, useDispatch } from "react-redux"
-import SearchBarEnhanced from "../search/SearchBarEnhanced"
+import { useSearchStore } from "@/lib/hooks/useSearchStore"
+import SmartSearchBar from "../search/SmartSearchBar"
 import UserAvatar from "../ui/user-avatar"
 import { Button } from "../../components/ui/button"
 import LoginModal from "../auth/login-modal"
@@ -106,6 +107,15 @@ const Header = () => {
   const { data: session, status } = useSession()
   const user = session?.user
   const loading = status === 'loading'
+
+  // Advanced Search Integration - البحث بسيط في الهيدر
+  const { updateQuery } = useSearchStore()
+  
+  // معالج البحث البسيط للهيدر
+  const handleSearchChange = (value: string) => {
+    // فقط تحديث القيمة في store بدون بحث فوري
+    updateQuery(value);
+  };
 
   // Handle scroll effect
   useEffect(() => {
@@ -330,9 +340,26 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Search bar */}
+            {/* شريط البحث الذكي */}
             <div className="w-64 lg:w-80">
-              <SearchBarEnhanced />
+              <SmartSearchBar
+                value=""
+                onChange={handleSearchChange}
+                showSuggestionsOnly={true} // اقتراحات فقط في الهيدر
+                onEnter={(value) => {
+                  // عند الضغط على Enter، انتقل لصفحة البحث
+                  if (value.trim()) {
+                    window.location.href = `/search?q=${encodeURIComponent(value)}`;
+                  }
+                }}
+                onSelect={(value) => {
+                  // عند اختيار اقتراح، انتقل لصفحة البحث
+                  if (value.trim()) {
+                    window.location.href = `/search?q=${encodeURIComponent(value)}`;
+                  }
+                }}
+                placeholder="ابحث عن أي شيء..."
+              />
             </div>
 
             {/* User icons - enhanced with better animations */}
@@ -591,11 +618,29 @@ const Header = () => {
                 className="overflow-visible border-t border-gray-100 py-3 relative"
                 style={{ zIndex: 30 }}
               >
-                <SearchBarEnhanced 
-                  showTrendingItems={false} 
-                  placeholder="ابحث عن منتجات أو هدايا جاهزة..." 
-                  className="max-w-3xl mx-auto"
-                />
+                <div className="max-w-3xl mx-auto">
+                  <SmartSearchBar
+                    value=""
+                    onChange={handleSearchChange}
+                    showSuggestionsOnly={true} // اقتراحات فقط في البحث المحمول
+                    onEnter={(value) => {
+                      // عند الضغط على Enter
+                      if (value.trim()) {
+                        setIsSearchOpen(false); // أغلق البحث المحمول
+                        window.location.href = `/search?q=${encodeURIComponent(value)}`;
+                      }
+                    }}
+                    onSelect={(value) => {
+                      // عند اختيار اقتراح
+                      if (value.trim()) {
+                        setIsSearchOpen(false); // أغلق البحث المحمول
+                        window.location.href = `/search?q=${encodeURIComponent(value)}`;
+                      }
+                    }}
+                    placeholder="ابحث عن منتجات أو هدايا جاهزة..."
+                    className="w-full"
+                  />
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
