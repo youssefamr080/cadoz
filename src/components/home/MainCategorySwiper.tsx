@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Swiper, SwiperSlide } from "swiper/react"
 import type { Swiper as SwiperType } from 'swiper'
-import { Navigation, Pagination, Autoplay } from "swiper/modules"
+import { Navigation, Pagination, Autoplay, FreeMode } from "swiper/modules"
 import { motion } from "framer-motion"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -13,6 +13,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
+import "swiper/css/free-mode"
 
 // Definir tipos para las categorías
 type CategoryType = "men" | "women" | "kids"
@@ -162,12 +163,21 @@ const CategorySection = ({ category }: { category: typeof MAIN_CATEGORIES[0] }) 
       {/* Swiper de subcategorías */}
       <div className="relative px-8">
         <Swiper
-          modules={[Navigation, Pagination, Autoplay]}
+          modules={[Navigation, Pagination, Autoplay, FreeMode]}
           spaceBetween={16}
           slidesPerView={3.5}
           autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
           loop={SUB_CATEGORIES[category.type].length > 5}
           grabCursor={true}
+          allowTouchMove={true}
+          simulateTouch={true}
+          touchStartPreventDefault={false}
+          freeMode={{
+            enabled: true,
+            sticky: false,
+            momentumRatio: 0.25,
+            momentumVelocityRatio: 0.25
+          }}
           breakpoints={{
             640: { slidesPerView: 4.5, spaceBetween: 16 },
             768: { slidesPerView: 5.5, spaceBetween: 20 },

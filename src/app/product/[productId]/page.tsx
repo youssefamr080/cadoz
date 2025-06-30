@@ -119,12 +119,12 @@ const ProductPage = () => {
   // التحقق من توفر المنتج في المخزون
   const isProductOutOfStock = useMemo(() => {
     return product?.stock === 0
-  }, [product])
+  }, [product?.stock])
 
   // تحسين excludeIds لمنع infinite loop في SmartRecommendations
   const excludeIdsForRecommendations = useMemo(() => {
     return product ? [product.id] : []
-  }, [product?.id])
+  }, [product])
 
   // معالجة إضافة المنتج إلى سلة التسوق
   const handleAddToCart = useCallback(() => {

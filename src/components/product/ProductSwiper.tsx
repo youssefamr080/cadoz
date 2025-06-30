@@ -6,7 +6,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css/free-mode";
+import { Navigation, Pagination, FreeMode } from "swiper/modules";
 import { Product } from "../../../prisma/generated/client";
 
 interface Props {
@@ -19,12 +20,22 @@ const ProductSwiper: React.FC<Props> = ({ products }) => {
   
   return (
     <Swiper
-      modules={[Navigation, Pagination]}
+      modules={[Navigation, Pagination, FreeMode]}
       spaceBetween={20}
       slidesPerView={2}
       navigation
       pagination={{ clickable: true }}
       loop={enableLoop}
+      grabCursor={true}
+      allowTouchMove={true}
+      simulateTouch={true}
+      touchStartPreventDefault={false}
+      freeMode={{
+        enabled: true,
+        sticky: false,
+        momentumRatio: 0.25,
+        momentumVelocityRatio: 0.25
+      }}
       breakpoints={{
         640: { slidesPerView: 2 },
         768: { slidesPerView: 3 },

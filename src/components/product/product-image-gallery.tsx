@@ -63,8 +63,12 @@ export default function ProductImageGallery({ images, alt, aspectRatio = "square
             nextEl: ".swiper-button-next",
             prevEl: ".swiper-button-prev",
           }}
-          modules={[Navigation, Pagination, Thumbs]}
+          modules={[Navigation, Pagination, Thumbs, FreeMode]}
           thumbs={{ swiper: thumbsSwiper }}
+          grabCursor={true}
+          allowTouchMove={true}
+          simulateTouch={true}
+          touchStartPreventDefault={false}
           className="rounded-xl overflow-hidden product-main-swiper"
           onSlideChange={(swiper) => {
             if (images && images[swiper.activeIndex]) {
@@ -119,6 +123,10 @@ export default function ProductImageGallery({ images, alt, aspectRatio = "square
           freeMode={true}
           watchSlidesProgress={true}
           modules={[FreeMode, Navigation, Thumbs]}
+          grabCursor={true}
+          allowTouchMove={true}
+          simulateTouch={true}
+          touchStartPreventDefault={false}
           className="thumbs-swiper"
           breakpoints={{
             320: { slidesPerView: 3.5 },

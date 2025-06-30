@@ -4,7 +4,7 @@ import { useMemo, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Swiper, SwiperSlide } from "swiper/react"
-import { Navigation, Pagination, Autoplay, FreeMode } from "swiper/modules"
+import { Navigation, Pagination } from "swiper/modules"
 import { motion } from "framer-motion"
 import { Star } from "lucide-react"
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline"
@@ -17,7 +17,6 @@ import type { Product } from "@/types/product"
 import "swiper/css"
 import "swiper/css/navigation"
 import "swiper/css/pagination"
-import "swiper/css/free-mode"
 
 // Common ProductCard component used by all swipers
 const ProductCard = ({ product }: { product: Product }) => {
@@ -192,15 +191,17 @@ export const TrendingProductsSwiper = ({ products }: TrendingProductsSwiperProps
       </div>
       
       <Swiper
-        modules={[Navigation, Pagination, Autoplay, FreeMode]}
+        modules={[Navigation, Pagination]}
         spaceBetween={16}
         slidesPerView={2}
         navigation
         pagination={{ clickable: true }}
-        autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
         loop={trendingProducts.length > 5}
         speed={600}
         grabCursor={true}
+        allowTouchMove={true}
+        simulateTouch={true}
+        touchStartPreventDefault={false}
         breakpoints={{
           640: { slidesPerView: 3, spaceBetween: 16 },
           768: { slidesPerView: 4, spaceBetween: 16 },
@@ -260,15 +261,17 @@ export const DiscountedProductsSwiper = ({ products }: DiscountedProductsSwiperP
       </div>
       
       <Swiper
-        modules={[Navigation, Pagination, Autoplay, FreeMode]}
+        modules={[Navigation, Pagination]}
         spaceBetween={16}
         slidesPerView={2}
         navigation
         pagination={{ clickable: true }}
-        autoplay={{ delay: 6000, disableOnInteraction: false, pauseOnMouseEnter: true }}
         loop={discountedProducts.length > 5}
         speed={600}
         grabCursor={true}
+        allowTouchMove={true}
+        simulateTouch={true}
+        touchStartPreventDefault={false}
         breakpoints={{
           640: { slidesPerView: 3, spaceBetween: 16 },
           768: { slidesPerView: 4, spaceBetween: 16 },
@@ -327,15 +330,17 @@ export const NewProductsSwiper = ({ products }: NewProductsSwiperProps) => {
       </div>
       
       <Swiper
-        modules={[Navigation, Pagination, Autoplay, FreeMode]}
+        modules={[Navigation, Pagination]}
         spaceBetween={16}
         slidesPerView={2}
         navigation
         pagination={{ clickable: true }}
-        autoplay={{ delay: 7000, disableOnInteraction: false, pauseOnMouseEnter: true }}
         loop={newProducts.length > 5}
         speed={600}
         grabCursor={true}
+        allowTouchMove={true}
+        simulateTouch={true}
+        touchStartPreventDefault={false}
         breakpoints={{
           640: { slidesPerView: 3, spaceBetween: 16 },
           768: { slidesPerView: 4, spaceBetween: 16 },
