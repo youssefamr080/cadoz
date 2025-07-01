@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Toys Console</title>
+</head>
+<body>
+    <h1>اختبار ألعاب الأطفال</h1>
+    <p>افتح أدوات المطور (F12) وراجع Console لرؤية النتائج</p>
+    
+    <script>
+        // محاكاة منتج لعبة أطفال
+        const toyProduct = {
+            id: "test-toy-1",
+            name: "لعبة أطفال رائعة",
+            category: "kids",
+            subCategory: "toys",
+            width: 12,
+            height: 12,
+            depth: 8,
+            price: 150
+        };
+
+        const toyProduct2 = {
+            id: "test-toy-2", 
+            name: "سيارة أطفال",
+            category: "kids",
+            subCategory: "العاب اطفال",
+            width: 10,
+            height: 8,
+            depth: 6,
+            price: 200
+        };
+
+        // محاكاة دالة getModelPath
+        function getModelPath(product) {
+            const subCat = product.subCategory?.toLowerCase().trim() || "";
+            const category = product.category?.toLowerCase().trim() || "";
+            const name = product.name?.toLowerCase().trim() || "";
+
+            console.log('🔍 Product analysis:', { 
+                name, 
+                category, 
+                subCat,
+                originalSubCategory: product.subCategory,
+                originalCategory: product.category,
+                originalName: product.name
+            });
+
+            // ألعاب أطفال
+            console.log('🔍 CHECKING TOYS CONDITIONS:', {
+                'subCat.includes("العاب")': subCat.includes('العاب'),
+                'subCat.includes("ألعاب")': subCat.includes('ألعاب'),
+                'subCat.includes("toys")': subCat.includes('toys'),
+                'category.includes("kids")': category.includes('kids'),
+                'category.includes("اطفال")': category.includes('اطفال'),
+                'category.includes("toys")': category.includes('toys'),
+                'name.includes("لعبة")': name.includes('لعبة'),
+                'name.includes("toy")': name.includes('toy')
+            });
+
+            if (subCat.includes('العاب') || subCat.includes('ألعاب') || subCat.includes('العاب اطفال') ||
+                subCat.includes('لعب') || subCat.includes('toys') || subCat.includes('toy') ||
+                name.includes('لعبة') || name.includes('toy') || name.includes('العاب') ||
+                category.includes('العاب') || category.includes('ألعاب') || category.includes('اطفال') ||
+                category.includes('toys') || category.includes('toy')) {
+                console.log('🎮 TOYS DETECTED! Selected: toy.glb for toys category');
+                return "/3d-models/toy.glb";
+            }
+
+            console.log('⚠️ No specific model found, using fallback for:', {name, category, subCat});
+            return "";
+        }
+
+        // اختبار المنتجات
+        console.log("=== اختبار منتج لعبة 1 ===");
+        getModelPath(toyProduct);
+
+        console.log("=== اختبار منتج لعبة 2 ===");
+        getModelPath(toyProduct2);
+    </script>
+</body>
+</html>

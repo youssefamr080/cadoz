@@ -19,6 +19,10 @@ export interface Box {
   material?: string | null
   stock: number
   dimensions?: string | null
+  // إضافة الأبعاد ثلاثية الأبعاد
+  width?: number | null      // العرض الداخلي (سم)
+  height?: number | null     // الارتفاع الداخلي (سم) 
+  depth?: number | null      // العمق الداخلي (سم)
   createdAt: string
   updatedAt: string
 }
@@ -41,9 +45,16 @@ export interface Bag {
 export interface Sweet {
   id: string
   name: string
+  description?: string
   price: number
+  old_price?: number
+  category: string
   image?: string
   stock: number
+  // إضافة الأبعاد ثلاثية الأبعاد
+  width?: number       // العرض (سم)
+  height?: number      // الارتفاع (سم)
+  depth?: number       // العمق (سم)
   createdAt: string  // تم تغييره من Date إلى string لتجنب مشاكل serialization
   updatedAt: string  // تم تغييره من Date إلى string لتجنب مشاكل serialization
   quantity?: number  // للعربة والكمية المختارة
@@ -53,18 +64,31 @@ export interface Sweet {
 export function convertPrismaSweetToSweet(prismaSweet: {
   id: string
   name: string
+  description?: string | null
   price: number
+  old_price?: number | null
+  category: string
   image?: string | null
   stock: number
+  width?: number | null
+  height?: number | null
+  depth?: number | null
   createdAt: Date
   updatedAt: Date
 }): Sweet {
   return {
     id: prismaSweet.id,
     name: prismaSweet.name,
+    description: prismaSweet.description || undefined,
     price: prismaSweet.price,
+    old_price: prismaSweet.old_price || undefined,
+    category: prismaSweet.category,
     image: prismaSweet.image || '',
     stock: prismaSweet.stock,
+    // إضافة الحقول الجديدة
+    width: prismaSweet.width || undefined,
+    height: prismaSweet.height || undefined,
+    depth: prismaSweet.depth || undefined,
     createdAt: prismaSweet.createdAt.toISOString(),  // تحويل إلى string
     updatedAt: prismaSweet.updatedAt.toISOString(),  // تحويل إلى string
   }
@@ -76,11 +100,17 @@ export interface GiftProduct {
   id: string
   name: string          // اسم المنتج (مثل: "شوكولاتة كادبوري")
   category: string      // الفئة (مثل: "شوكولاتة", "شيبسي", "حلويات")
+  subCategory?: string  // الفئة الفرعية (ساعات، محافظ، عطور، إلخ)
   image: string         // صورة المنتج
   price: number         // السعر الحالي
   old_price?: number    // السعر القديم (اختياري للعروض)
   stock: number         // كمية المخزون المتاحة
   quantity?: number     // الكمية المطلوبة (افتراضي 1)
+  // إضافة الأبعاد ثلاثية الأبعاد
+  width?: number        // العرض (سم)
+  height?: number       // الارتفاع (سم)
+  depth?: number        // العمق (سم)
+  targetGender?: string // "male", "female", "kids", "unisex"
 }
 
 // نوع الرسالة الشخصية
@@ -98,11 +128,17 @@ export function convertToGiftProduct(product: PrismaProduct): GiftProduct {
     id: product.id,
     name: product.name,
     category: product.category || "منتجات متنوعة",
+    subCategory: product.subCategory || undefined,
     image: product.image || "/placeholder.svg",
     price: product.price,
     old_price: product.old_price || undefined,
     stock: product.stock,
     quantity: 1, // الكمية الافتراضية عند إضافة المنتج للعربة
+    // إضافة الأبعاد الجديدة
+    width: product.width || undefined,
+    height: product.height || undefined,
+    depth: product.depth || undefined,
+    targetGender: product.targetGender || undefined,
   }
 }
 
@@ -119,6 +155,10 @@ export function convertPrismaBoxToBox(prismaBox: PrismaBox): Box {
     material: prismaBox.material,
     stock: prismaBox.stock,
     dimensions: prismaBox.dimensions,
+    // إضافة الحقول الجديدة
+    width: prismaBox.width,
+    height: prismaBox.height,
+    depth: prismaBox.depth,
     createdAt: prismaBox.createdAt.toISOString(),
     updatedAt: prismaBox.updatedAt.toISOString(),
   }

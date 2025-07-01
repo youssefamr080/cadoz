@@ -8,6 +8,23 @@ import { convertPrismaSweetToSweet } from "@/types/database"
 export async function getAllSweets(): Promise<Sweet[]> {
   try {
     const sweets = await prisma.sweet.findMany({
+      where: {
+        stock: {
+          gt: 0
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        old_price: true,
+        category: true,
+        image: true,
+        stock: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       orderBy: { createdAt: 'desc' }
     })
     

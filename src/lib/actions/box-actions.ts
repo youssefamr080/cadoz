@@ -8,7 +8,16 @@ import { revalidatePath } from "next/cache"
 // جلب جميع الصناديق
 export async function getAllBoxes(): Promise<Box[]> {
   try {
-    const boxes = await prisma.box.findMany()
+    const boxes = await prisma.box.findMany({
+      where: {
+        stock: {
+          gt: 0
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
     
     // تحويل التواريخ إلى strings لتجنب مشاكل serialization في Redux
     return boxes.map(convertPrismaBoxToBox)
@@ -21,8 +30,17 @@ export async function getAllBoxes(): Promise<Box[]> {
 // جلب الصناديق حسب الفئة (ملاحظة: Box لا يحتوي على category حالياً)
 export async function getBoxesByCategory(): Promise<Box[]> {
   try {
-    // إذا لم يكن هناك category في Box schema، سنجلب جميع الصناديق
-    const boxes = await prisma.box.findMany()
+    // جلب الصناديق المتاحة في المخزون فقط
+    const boxes = await prisma.box.findMany({
+      where: {
+        stock: {
+          gt: 0
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
     
     // تحويل التواريخ إلى strings
     return boxes.map(convertPrismaBoxToBox)

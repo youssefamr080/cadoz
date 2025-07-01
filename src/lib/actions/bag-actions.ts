@@ -9,6 +9,11 @@ import { convertPrismaBagToBag } from "@/types/database"
 export async function getAllBags(): Promise<Bag[]> {
   try {
     const bags = await prisma.bag.findMany({
+      where: {
+        stock: {
+          gt: 0
+        }
+      },
       orderBy: {
         createdAt: 'desc'
       }

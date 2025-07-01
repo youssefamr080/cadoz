@@ -34,6 +34,11 @@ model Product {
   colors              String[]
   video               String?
   discountPercentage  Float?
+  // إضافة الأبعاد ثلاثية الأبعاد
+  width               Float? // العرض (سم)
+  height              Float? // الارتفاع (سم)
+  depth               Float? // العمق (سم)
+  targetGender        String? // "male", "female", "kids", "unisex"
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   // Relations
@@ -636,6 +641,10 @@ model Box {
   material    String? // مادة الصندوق (كرتون، خشب، بلاستيك)
   stock       Int     @default(0)
   dimensions  String? // أبعاد الصندوق (مثل: "20x15x10 سم")
+  // إضافة أبعاد مفصلة للصندوق
+  width       Float? // العرض الداخلي (سم)
+  height      Float? // الارتفاع الداخلي (سم)
+  depth       Float? // العمق الداخلي (سم)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -674,9 +683,13 @@ model Sweet {
   description String? // وصف الحلوى
   price       Float // السعر الحالي
   old_price   Float? // السعر القديم (للخصومات)
-  category    String // "شوكولاتة" أو "كاندي" أو "حلويات أخرى"
+  category    String // "شوكولاتة" أو "كاندي" أو "شيبس"
   image       String? // صورة الحلوى
   stock       Int     @default(0) // الكمية المتاحة
+  // إضافة الأبعاد ثلاثية الأبعاد للحلويات
+  width       Float? // العرض (سم)
+  height      Float? // الارتفاع (سم)
+  depth       Float? // العمق (سم)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

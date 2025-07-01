@@ -22,7 +22,24 @@ import "swiper/css"
 import "swiper/css/free-mode"
 import { addSelectedProduct, removeSelectedProduct, updateSelectedProductQuantity } from "@/lib/redux/slices/giftSlice"
 
-const categories = ["الكل", "شوكولاتة", "حلويات", "شيبسي"]
+const categories = [
+  "الكل", 
+  // الفئات الرئيسية (فقط)
+  "رجالي", 
+  "نسائي", 
+  "أطفال",
+  // الفئات الفرعية (داخل الفئات الرئيسية)
+  "ساعات",          // فرعية: رجالي/نسائي
+  "محافظ",          // فرعية: رجالي/نسائي
+  "عطور",           // فرعية: رجالي/نسائي
+  "شنط يد",         // فرعية: نسائي
+  "نظارات شمسية",   // فرعية: رجالي/نسائي
+  "سبراي",          // فرعية: رجالي/نسائي
+  "إكسسوارات",      // فرعية: رجالي/نسائي
+  "العاب اطفال",    // فرعية: أطفال
+  "دباديب",         // فرعية: أطفال
+  "ساعات اطفال"     // فرعية: أطفال
+]
 
 const sortOptions = [
   { value: "priceAsc", label: "السعر: من الأقل إلى الأعلى" },
@@ -143,7 +160,68 @@ export default function ProductSelector() {
     let result = productsToFilter
 
     if (selectedCategory !== "الكل") {
-      result = result.filter((p) => p.category === selectedCategory)
+      console.log('🔍 Filtering by category:', selectedCategory)
+      
+      // تحويل أسماء الفئات العربية إلى قيم قاعدة البيانات
+      // الفئات الرئيسية: رجالي، نسائي، أطفال (تُحفظ في حقل category)
+      // الفئات الفرعية: ساعات، محافظ، إلخ (تُحفظ في حقل subCategory)
+      const categoryMappings: Record<string, { categories: string[], subCategories: string[] }> = {
+        "رجالي": { categories: ["men"], subCategories: [] },
+        "نسائي": { categories: ["women"], subCategories: [] },
+        "أطفال": { categories: ["kids"], subCategories: [] },
+        "ساعات": { categories: [], subCategories: ["watches"] },
+        "محافظ": { categories: [], subCategories: ["wallets"] },
+        "عطور": { categories: [], subCategories: ["perfumes"] },
+        "شنط يد": { categories: [], subCategories: ["handbags"] },
+        "نظارات شمسية": { categories: [], subCategories: ["sunglasses"] },
+        "سبراي": { categories: [], subCategories: ["spray"] },
+        "إكسسوارات": { categories: [], subCategories: ["accessories"] },
+        "العاب اطفال": { categories: ["kids"], subCategories: ["toys"] },
+        "دباديب": { categories: ["kids"], subCategories: ["teddy-bears"] },
+        "ساعات اطفال": { categories: ["kids"], subCategories: ["watches"] }
+      }
+      
+      const mapping = categoryMappings[selectedCategory]
+      
+      if (mapping) {
+        result = result.filter((p) => {
+          const matchesMainCategory = mapping.categories.length === 0 || mapping.categories.includes(p.category)
+          const matchesSubCategory = mapping.subCategories.length === 0 || mapping.subCategories.includes(p.subCategory || "")
+          
+          // للفئات الفرعية للأطفال، تحقق من الفئة الرئيسية والفرعية معاً
+          if (selectedCategory === "العاب اطفال") {
+            const isToysProduct = p.category === "kids" && (
+              p.subCategory === "toys" || 
+              p.subCategory === "العاب اطفال" ||
+              p.subCategory?.includes("toy") ||
+              p.name?.toLowerCase().includes("لعبة") ||
+              p.name?.toLowerCase().includes("toy")
+            )
+            console.log('🎮 Checking toys product:', { name: p.name, category: p.category, subCategory: p.subCategory, isToysProduct })
+            return isToysProduct
+          }
+          
+          if (selectedCategory === "دباديب") {
+            return p.category === "kids" && (
+              p.subCategory === "teddy-bears" || 
+              p.subCategory === "دباديب" ||
+              p.name?.toLowerCase().includes("دبدوب") ||
+              p.name?.toLowerCase().includes("teddy")
+            )
+          }
+          
+          // للفئات الأخرى، استخدم المنطق العادي
+          return (matchesMainCategory || mapping.categories.length === 0) && 
+                 (matchesSubCategory || mapping.subCategories.length === 0)
+        })
+        
+        console.log(`🔍 After filtering by ${selectedCategory}:`, result.length, 'products found')
+      } else {
+        // المنطق القديم للفئات غير المعرفة
+        result = result.filter((p) => 
+          p.category === selectedCategory || p.subCategory === selectedCategory
+        )
+      }
     }
 
     if (availabilityFilter) {
@@ -163,31 +241,40 @@ export default function ProductSelector() {
           const searchResults = await searchProducts(searchTerm)
           const giftProducts = searchResults.map(convertToGiftProduct)
           const filtered = applyClientSideFilters(giftProducts)
-          setFilteredProducts(filtered)        } else {
-          // Otherwise use regular filtering
-          const filters: {
-            category?: string
-            inStock?: boolean
-          } = {}
-
+          setFilteredProducts(filtered)
+        } else {
+          // For category filtering, get all products and filter client-side
+          // since we need to support both main categories and subcategories
           if (selectedCategory !== "الكل") {
-            filters.category = selectedCategory
-          }
+            const allData = await getAllProducts()
+            const allProducts = allData.map(convertToGiftProduct)
+            const filtered = applyClientSideFilters(allProducts)
+            setFilteredProducts(filtered)
+          } else {
+            // No category filter, use server-side filtering for other filters
+            const filters: {
+              inStock?: boolean
+            } = {}
 
-          if (availabilityFilter) {
-            filters.inStock = true
-          }
+            if (availabilityFilter) {
+              filters.inStock = true
+            }
 
-          const filteredData = await filterProducts(filters)
-          const giftProducts = filteredData.map(convertToGiftProduct)
-          const sortedData = applySorting(giftProducts)
-          setFilteredProducts(sortedData)
+            const data = Object.keys(filters).length > 0 
+              ? await filterProducts(filters)
+              : await getAllProducts()
+            
+            const giftProducts = data.map(convertToGiftProduct)
+            const sorted = applySorting(giftProducts)
+            setFilteredProducts(sorted)
+          }
         }
 
         setError(null)
       } catch (err) {
         console.error("Error filtering products:", err)
-        setError("حدث خطأ أثناء تصفية المنتجات. يرجى المحاولة مرة أخرى.")      } finally {
+        setError("حدث خطأ أثناء تصفية المنتجات. يرجى المحاولة مرة أخرى.")
+      } finally {
         setIsPageLoading(false)
       }
     }

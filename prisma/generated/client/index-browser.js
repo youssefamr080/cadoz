@@ -136,6 +136,10 @@ exports.Prisma.ProductScalarFieldEnum = {
   colors: 'colors',
   video: 'video',
   discountPercentage: 'discountPercentage',
+  width: 'width',
+  height: 'height',
+  depth: 'depth',
+  targetGender: 'targetGender',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -543,6 +547,9 @@ exports.Prisma.BoxScalarFieldEnum = {
   material: 'material',
   stock: 'stock',
   dimensions: 'dimensions',
+  width: 'width',
+  height: 'height',
+  depth: 'depth',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -570,6 +577,9 @@ exports.Prisma.SweetScalarFieldEnum = {
   category: 'category',
   image: 'image',
   stock: 'stock',
+  width: 'width',
+  height: 'height',
+  depth: 'depth',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
