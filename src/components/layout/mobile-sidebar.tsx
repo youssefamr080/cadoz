@@ -84,38 +84,38 @@ const MobileSidebar = ({
   const categoriesWithSubcategories = [
     {
       name: "رجالي",
-      link: "/category/men",
+      link: `/category/${encodeURIComponent("رجالي")}`,
       icon: categories.find(cat => cat.name === "رجالي")?.icon,
       subCategories: [
-        { name: "ساعات", link: "/category/men#watches" },
-        { name: "محافظ", link: "/category/men#wallets" },
-        { name: "عطور", link: "/category/men#perfumes" },
-        { name: "شنط يد", link: "/category/men#handbags" },
-        { name: "نظارات شمسية", link: "/category/men#sunglasses" },
-        { name: "سبراي", link: "/category/men#spray" },
+        { name: "ساعات", link: `/category/${encodeURIComponent("رجالي")}#${encodeURIComponent("ساعات")}` },
+        { name: "محافظ", link: `/category/${encodeURIComponent("رجالي")}#${encodeURIComponent("محافظ")}` },
+        { name: "عطور", link: `/category/${encodeURIComponent("رجالي")}#${encodeURIComponent("عطور")}` },
+        { name: "شنط يد", link: `/category/${encodeURIComponent("رجالي")}#${encodeURIComponent("شنط يد")}` },
+        { name: "نظارات شمسية", link: `/category/${encodeURIComponent("رجالي")}#${encodeURIComponent("نظارات شمسية")}` },
+        { name: "سبراي", link: `/category/${encodeURIComponent("رجالي")}#${encodeURIComponent("سبراي")}` },
       ]
     },
     {
       name: "نسائي",
-      link: "/category/women",
+      link: `/category/${encodeURIComponent("نسائي")}`,
       icon: categories.find(cat => cat.name === "نسائي")?.icon,
       subCategories: [
-        { name: "ساعات", link: "/category/women#watches" },
-        { name: "محافظ", link: "/category/women#wallets" },
-        { name: "عطور", link: "/category/women#perfumes" },
-        { name: "إكسسوارات", link: "/category/women#accessories" },
-        { name: "نظارات شمسية", link: "/category/women#sunglasses" },
-        { name: "سبراي", link: "/category/women#spray" },
+        { name: "ساعات", link: `/category/${encodeURIComponent("نسائي")}#${encodeURIComponent("ساعات")}` },
+        { name: "محافظ", link: `/category/${encodeURIComponent("نسائي")}#${encodeURIComponent("محافظ")}` },
+        { name: "عطور", link: `/category/${encodeURIComponent("نسائي")}#${encodeURIComponent("عطور")}` },
+        { name: "إكسسوارات", link: `/category/${encodeURIComponent("نسائي")}#${encodeURIComponent("إكسسوارات")}` },
+        { name: "نظارات شمسية", link: `/category/${encodeURIComponent("نسائي")}#${encodeURIComponent("نظارات شمسية")}` },
+        { name: "سبراي", link: `/category/${encodeURIComponent("نسائي")}#${encodeURIComponent("سبراي")}` },
       ]
     },
     {
       name: "أطفال",
-      link: "/category/kids",
+      link: `/category/${encodeURIComponent("أطفال")}`,
       icon: categories.find(cat => cat.name === "أطفال")?.icon,
       subCategories: [
-        { name: "العاب اطفال", link: "/category/kids#toys" },
-        { name: "دباديب", link: "/category/kids#teddy-bears" },
-        { name: "ساعات اطفال", link: "/category/kids#watches" },
+        { name: "العاب اطفال", link: `/category/${encodeURIComponent("أطفال")}#${encodeURIComponent("العاب اطفال")}` },
+        { name: "دباديب", link: `/category/${encodeURIComponent("أطفال")}#${encodeURIComponent("دباديب")}` },
+        { name: "ساعات اطفال", link: `/category/${encodeURIComponent("أطفال")}#${encodeURIComponent("ساعات اطفال")}` },
       ]
     },
     {

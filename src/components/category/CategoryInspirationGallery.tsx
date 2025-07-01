@@ -107,8 +107,13 @@ export default function CategoryInspirationGallery({ category }: CategoryInspira
     fetchInspirations()
   }, [category, maxInspirationCount])
 
-  // Get category name in Arabic
+  // Get category name in Arabic (نحن نستقبل الفئة بالعربية بالفعل)
   const getCategoryArabicName = (categoryName: string): string => {
+    // إذا كانت الفئة بالعربية بالفعل، نعيدها كما هي
+    if (["رجالي", "نسائي", "أطفال"].includes(categoryName)) {
+      return categoryName
+    }
+    // إذا كانت بالإنجليزية، نحولها للعربية (للتوافق مع النظام القديم)
     const names: Record<string, string> = {
       men: "رجالي",
       women: "نسائي",

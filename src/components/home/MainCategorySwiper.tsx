@@ -16,29 +16,29 @@ import "swiper/css/pagination"
 import "swiper/css/free-mode"
 
 // Definir tipos para las categorías
-type CategoryType = "men" | "women" | "kids"
+type CategoryType = "رجالي" | "نسائي" | "أطفال"
 
 // Interfaz para subcategorías
 interface SubCategory {
   name: string
-  englishName: string
+  arabicName: string
   image: string
 }
 
 // Datos de categorías principales
 const MAIN_CATEGORIES: { type: CategoryType; name: string; image: string }[] = [
   { 
-    type: "men", 
+    type: "رجالي", 
     name: "رجال", 
     image: "/images/image_fx_ (38).webp"
   },
   { 
-    type: "women", 
+    type: "نسائي", 
     name: "نساء", 
     image: "/images/image_fx_ (39).webp"
   },
   { 
-    type: "kids", 
+    type: "أطفال", 
     name: "أطفال", 
     image: "/images/image_fx_ (40).webp"
   }
@@ -46,26 +46,26 @@ const MAIN_CATEGORIES: { type: CategoryType; name: string; image: string }[] = [
 
 // Datos de subcategorías
 const SUB_CATEGORIES: Record<CategoryType, SubCategory[]> = {
-  men: [
-    { name: "ساعات", englishName: "watches", image: "/images/watch section.png" },
-    { name: "محافظ", englishName: "wallets", image: "/images/men wallet.png" },
-    { name: "عطور", englishName: "perfumes", image: "/images/men perfum section.png" },
-    { name: "شنط يد", englishName: "handbags", image: "/images/hand bag.png" },
-    { name: "نظارات شمسية", englishName: "sunglasses", image: "/images/men sunglasses.png" },
-    { name: "سبراي", englishName: "spray", image: "/images/image_fx_ (41).webp" },
+  "رجالي": [
+    { name: "ساعات", arabicName: "ساعات", image: "/images/watch section.png" },
+    { name: "محافظ", arabicName: "محافظ", image: "/images/men wallet.png" },
+    { name: "عطور", arabicName: "عطور", image: "/images/men perfum section.png" },
+    { name: "شنط يد", arabicName: "شنط يد", image: "/images/hand bag.png" },
+    { name: "نظارات شمسية", arabicName: "نظارات شمسية", image: "/images/men sunglasses.png" },
+    { name: "سبراي", arabicName: "سبراي", image: "/images/image_fx_ (41).webp" },
   ],
-  women: [
-    { name: "ساعات", englishName: "watches", image: "/images/women watch.png" },
-    { name: "محافظ", englishName: "wallets", image: "/images/walet-women.webp" },
-    { name: "عطور", englishName: "perfumes", image: "/images/women perfume.png" },
-    { name: "إكسسوارات", englishName: "accessories", image: "/images/women Accessories.png" },
-    { name: "نظارات شمسية", englishName: "sunglasses", image: "/images/women sunglasses.png" },
-    { name: "سبراي", englishName: "spray", image: "/images/image_fx_ (42).webp" },
+  "نسائي": [
+    { name: "ساعات", arabicName: "ساعات", image: "/images/women watch.png" },
+    { name: "محافظ", arabicName: "محافظ", image: "/images/walet-women.webp" },
+    { name: "عطور", arabicName: "عطور", image: "/images/women perfume.png" },
+    { name: "إكسسوارات", arabicName: "إكسسوارات", image: "/images/women Accessories.png" },
+    { name: "نظارات شمسية", arabicName: "نظارات شمسية", image: "/images/women sunglasses.png" },
+    { name: "سبراي", arabicName: "سبراي", image: "/images/image_fx_ (42).webp" },
   ],
-  kids: [
-    { name: "العاب اطفال", englishName: "toys", image: "/images/kids toys.png" },
-    { name: "دباديب", englishName: "teddy-bears", image: "/images/kids fur.png" },
-    { name: "ساعات اطفال", englishName: "watches", image: "/images/kids watch.png" },
+  "أطفال": [
+    { name: "العاب اطفال", arabicName: "العاب اطفال", image: "/images/kids toys.png" },
+    { name: "دباديب", arabicName: "دباديب", image: "/images/kids fur.png" },
+    { name: "ساعات اطفال", arabicName: "ساعات اطفال", image: "/images/kids watch.png" },
   ],
 }
 
@@ -73,9 +73,9 @@ const SUB_CATEGORIES: Record<CategoryType, SubCategory[]> = {
 const SubCategoryItem = ({ sub, category }: { sub: SubCategory; category: CategoryType }) => {
   const getCategoryColor = (cat: CategoryType) => {
     switch (cat) {
-      case "men": return "border-blue-500 group-hover:border-blue-600 text-blue-600"
-      case "women": return "border-pink-500 group-hover:border-pink-600 text-pink-600"
-      case "kids": return "border-amber-500 group-hover:border-amber-600 text-amber-600"
+      case "رجالي": return "border-blue-500 group-hover:border-blue-600 text-blue-600"
+      case "نسائي": return "border-pink-500 group-hover:border-pink-600 text-pink-600"
+      case "أطفال": return "border-amber-500 group-hover:border-amber-600 text-amber-600"
       default: return "border-gray-300 group-hover:border-gray-400 text-gray-600"
     }
   }
@@ -84,7 +84,7 @@ const SubCategoryItem = ({ sub, category }: { sub: SubCategory; category: Catego
 
   return (
     <Link 
-      href={`/category/${category}#${sub.englishName}`}
+      href={`/category/${encodeURIComponent(category)}#${encodeURIComponent(sub.arabicName)}`}
       className="group flex flex-col items-center"
     >
       <motion.div
@@ -151,7 +151,7 @@ const CategorySection = ({ category }: { category: typeof MAIN_CATEGORIES[0] }) 
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <Link 
-              href={`/category/${category.type}`}
+              href={`/category/${encodeURIComponent(category.type)}`}
               className="bg-white/90 hover:bg-white text-gray-900 px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 hover:px-8 hover:shadow-lg"
             >
               عرض الكل
@@ -187,7 +187,7 @@ const CategorySection = ({ category }: { category: typeof MAIN_CATEGORIES[0] }) 
           className="py-4"
         >
           {SUB_CATEGORIES[category.type].map((sub) => (
-            <SwiperSlide key={`${category.type}-${sub.englishName}`}>
+            <SwiperSlide key={`${category.type}-${sub.arabicName}`}>
               <SubCategoryItem sub={sub} category={category.type} />
             </SwiperSlide>
           ))}

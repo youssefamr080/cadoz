@@ -11,6 +11,116 @@ import { motion } from "framer-motion"
 import { ArrowLeft } from "lucide-react"
 
 const banners = {
+  "رجالي": [
+    {
+      image: "/images/image_fx_ (38).webp",
+      title: "مجموعة رجال 2025",
+    },
+    {
+      image: "/images/image_fx_ (37).webp",
+      
+      title: "عروض و خصومات",
+    },
+    {
+      image: "/images/image_fx_ (35).webp",
+      
+      title: "عمل هدايا رائعه",
+    },
+    {
+      image: "/images/image_fx_ (36).webp",
+      
+      title: "عمل بورتريه",
+    },
+    {
+      image: "/images/image_fx_ (33).webp",
+      
+      title: "طباعه علي المجات",
+    },
+    {
+      image: "/images/image_fx_ (34).webp",
+      
+      title: "وضع صور في السلاسل",
+    },
+    {
+      image: "/images/image_fx_ (32).webp",
+      
+      title: "حفر علي المحافظ",
+    },
+  ],
+  "نسائي": [
+    {
+      image: "/images/image_fx_ (39).webp",
+      title: "مجموعة نساء 2025",
+    },
+    {
+      image: "/images/image_fx_ (37).webp",
+      
+      title: "عروض و خصومات",
+    },
+    {
+      image: "/images/image_fx_ (35).webp",
+      
+      title: "عمل هدايا رائعه",
+    },
+    {
+      image: "/images/image_fx_ (36).webp",
+      
+      title: "عمل بورتريه",
+    },
+    {
+      image: "/images/image_fx_ (33).webp",
+      
+      title: "طباعه علي المجات",
+    },
+    {
+      image: "/images/image_fx_ (34).webp",
+      
+      title: "وضع صور في السلاسل",
+    },
+    {
+      image: "/images/image_fx_ (32).webp",
+      
+      title: "حفر علي المحافظ",
+    },
+  ],
+  "أطفال": [
+    {
+      image: "/images/image_fx_ (40).webp",
+      
+      title: "مجموعة اطفال 2025",
+    },
+    {
+      image: "/images/image_fx_ (37).webp",
+      
+      title: "عروض و خصومات",
+    },
+    {
+      image: "/images/image_fx_ (35).webp",
+      
+      title: "عمل هدايا رائعه",
+    },
+    {
+      image: "/images/image_fx_ (36).webp",
+      
+      title: "عمل بورتريه",
+    },
+    {
+      image: "/images/image_fx_ (33).webp",
+      
+      title: "طباعه علي المجات",
+    },
+    {
+      image: "/images/image_fx_ (34).webp",
+      
+      title: "وضع صور في السلاسل",
+    },
+    {
+      image: "/images/image_fx_ (32).webp",
+      
+      title: "حفر علي المحافظ",
+    },
+  ],
+  // الاحتفاظ بالقيم الإنجليزية للتوافق مع النظام القديم
   men: [
     {
       image: "/images/image_fx_ (38).webp",

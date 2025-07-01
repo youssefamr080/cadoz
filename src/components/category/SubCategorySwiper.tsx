@@ -8,41 +8,41 @@ import type { SwiperOptions, Swiper as SwiperType } from "swiper/types"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { motion } from "framer-motion"
 
-type CategoryType = "men" | "women" | "kids"
+type CategoryType = "رجالي" | "نسائي" | "أطفال"
 
 interface SubCategory {
   name: string
-  englishName: string
+  arabicName: string
   image: string
 }
 
 interface SubCategorySwiperProps {
   category: CategoryType
-  initialSubCategory: string // This will now be the English name
-  onSelectSubCategory: (subCategory: string) => void // This will now pass the English name
+  initialSubCategory: string // This will now be the Arabic name
+  onSelectSubCategory: (subCategory: string) => void // This will now pass the Arabic name
 }
 
 const SUB_CATEGORIES: Record<CategoryType, SubCategory[]> = {
-  men: [
-    { name: "ساعات", englishName: "watches", image: "/images/watch section.png" },
-    { name: "محافظ", englishName: "wallets", image: "/images/men wallet.png" },
-    { name: "عطور", englishName: "perfumes", image: "/images/men perfum section.png" },
-    { name: "شنط يد", englishName: "handbags", image: "/images/hand bag.png" },
-    { name: "نظارات شمسية", englishName: "sunglasses", image: "/images/men sunglasses.png" },
-    { name: "سبراي", englishName: "spray", image: "/images/image_fx_ (41).webp" },
+  "رجالي": [
+    { name: "ساعات", arabicName: "ساعات", image: "/images/watch section.png" },
+    { name: "محافظ", arabicName: "محافظ", image: "/images/men wallet.png" },
+    { name: "عطور", arabicName: "عطور", image: "/images/men perfum section.png" },
+    { name: "شنط يد", arabicName: "شنط يد", image: "/images/hand bag.png" },
+    { name: "نظارات شمسية", arabicName: "نظارات شمسية", image: "/images/men sunglasses.png" },
+    { name: "سبراي", arabicName: "سبراي", image: "/images/image_fx_ (41).webp" },
   ],
-  women: [
-    { name: "ساعات", englishName: "watches", image: "/images/women watch.png" },
-    { name: "محافظ", englishName: "wallets", image: "/images/walet-women.webp" },
-    { name: "عطور", englishName: "perfumes", image: "/images/women perfume.png" },
-    { name: "إكسسوارات", englishName: "accessories", image: "/images/women Accessories.png" },
-    { name: "نظارات شمسية", englishName: "sunglasses", image: "/images/women sunglasses.png" },
-    { name: "سبراي", englishName: "spray", image: "/images/image_fx_ (42).webp" },
+  "نسائي": [
+    { name: "ساعات", arabicName: "ساعات", image: "/images/women watch.png" },
+    { name: "محافظ", arabicName: "محافظ", image: "/images/walet-women.webp" },
+    { name: "عطور", arabicName: "عطور", image: "/images/women perfume.png" },
+    { name: "إكسسوارات", arabicName: "إكسسوارات", image: "/images/women Accessories.png" },
+    { name: "نظارات شمسية", arabicName: "نظارات شمسية", image: "/images/women sunglasses.png" },
+    { name: "سبراي", arabicName: "سبراي", image: "/images/image_fx_ (42).webp" },
   ],
-  kids: [
-    { name: "العاب اطفال", englishName: "toys", image: "/images/kids toys.png" },
-    { name: "دباديب", englishName: "teddy-bears", image: "/images/kids fur.png" },
-    { name: "ساعات اطفال", englishName: "watches", image: "/images/kids watch.png" },
+  "أطفال": [
+    { name: "العاب اطفال", arabicName: "العاب اطفال", image: "/images/kids toys.png" },
+    { name: "دباديب", arabicName: "دباديب", image: "/images/kids fur.png" },
+    { name: "ساعات اطفال", arabicName: "ساعات اطفال", image: "/images/kids watch.png" },
   ],
 }
 
@@ -129,15 +129,15 @@ const SubCategorySwiper = ({ category, initialSubCategory, onSelectSubCategory }
 
   // تعيين القسم الفرعي عند النقر
   const handleSubCategoryClick = (subCategory: SubCategory) => {
-    console.log("SubCategory clicked:", subCategory.englishName)
-    onSelectSubCategory(subCategory.englishName)
+    console.log("SubCategory clicked:", subCategory.arabicName)
+    onSelectSubCategory(subCategory.arabicName)
   }
 
   // التمرير إلى القسم الفرعي المحدد عندما يتغير
   useEffect(() => {
     if (!swiperInstance || !initialSubCategory || categories.length === 0) return
 
-    const index = categories.findIndex((cat) => cat.englishName === initialSubCategory)
+    const index = categories.findIndex((cat) => cat.arabicName === initialSubCategory)
     if (index !== -1) {
       console.log("Sliding to subcategory index:", index, initialSubCategory)
       swiperInstance.slideTo(index)
@@ -151,10 +151,10 @@ const SubCategorySwiper = ({ category, initialSubCategory, onSelectSubCategory }
     <section className="container mx-auto px-4 py-4 relative">
       <Swiper {...swiperConfig} className="!pb-2 !px-6" onSwiper={setSwiperInstance}>
         {categories.map((sub) => (
-          <SwiperSlide key={`${category}-${sub.englishName}`}>
+          <SwiperSlide key={`${category}-${sub.arabicName}`}>
             <SubCategoryItem
               sub={sub}
-              isActive={sub.englishName === initialSubCategory}
+              isActive={sub.arabicName === initialSubCategory}
               onClick={() => handleSubCategoryClick(sub)}
             />
           </SwiperSlide>

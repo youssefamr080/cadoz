@@ -9,31 +9,21 @@ import CategoryInspirationGallery from "../../../components/category/CategoryIns
 import { FilterIcon, SlidersHorizontal } from "lucide-react"
 import { motion } from "framer-motion"
 
-type CategoryType = "men" | "women" | "kids"
+type CategoryType = "رجالي" | "نسائي" | "أطفال"
 
 // القيم الافتراضية للفئات الفرعية
 const defaultSubCategories: Record<CategoryType, string> = {
-  men: "watches",
-  women: "watches",
-  kids: "teddy-bears",
-}
-
-// ترجمة أسماء الفئات الفرعية من الإنجليزية للعربية
-const subCategoryTranslations: Record<string, string> = {
-  watches: "ساعات",
-  wallets: "محافظ",
-  perfumes: "عطور",
-  handbags: "شنط يد",
-  sunglasses: "نظارات شمسية",
-  spray: "سبراي",
-  accessories: "إكسسوارات",
-  toys: "العاب اطفال",
-  "teddy-bears": "دباديب",
+  "رجالي": "ساعات",
+  "نسائي": "ساعات",
+  "أطفال": "دباديب",
 }
 
 const CategoryPage = () => {
   const params = useParams()
-  const categoryName = params?.categoryName as CategoryType
+  const categoryNameFromUrl = params?.categoryName as string
+  
+  // فك تشفير اسم الفئة من الـ URL (إذا كان مُرمزاً)
+  const categoryName = decodeURIComponent(categoryNameFromUrl) as CategoryType
 
   // إدارة حالة القسم الفرعي
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("")
@@ -41,37 +31,43 @@ const CategoryPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const hasInitialized = useRef(false)
 
-  // التحقق من صحة الفئة
-  const isValidCategory = (category: string): category is CategoryType => {
-    return ["men", "women", "kids"].includes(category)
+  // التحقق من صحة الفئة (الآن نتحقق من الفئات العربية)
+  const isValidCategory = (category: string): boolean => {
+    const decodedCategory = decodeURIComponent(category)
+    return ["رجالي", "نسائي", "أطفال"].includes(decodedCategory)
   }
 
   // استخراج الفئة الفرعية من الهاش في الرابط عند تحميل الصفحة
   useEffect(() => {
-    if (typeof window === "undefined" || !isValidCategory(categoryName)) return
+    if (typeof window === "undefined" || !isValidCategory(categoryNameFromUrl)) return
 
     // هذه الوظيفة تقرأ الهاش وتعين القسم الفرعي المناسب
     const setSubCategoryFromHash = () => {
       const hash = window.location.hash.replace("#", "")
       console.log("Reading hash from URL:", hash)
+      
+      // فك تشفير الهاش إذا كان مُرمزاً
+      const decodedHash = hash ? decodeURIComponent(hash) : ""
+      console.log("Decoded hash:", decodedHash)
 
-      if (hash) {
-        console.log("Setting subcategory from hash:", hash)
-        setSelectedSubCategory(hash)
+      if (decodedHash) {
+        console.log("Setting subcategory from hash:", decodedHash)
+        setSelectedSubCategory(decodedHash)
+        hasInitialized.current = true
       } else if (!hasInitialized.current) {
         // استخدام القيمة الافتراضية فقط في المرة الأولى
         const defaultSubCategory = defaultSubCategories[categoryName]
         console.log("No hash found, using default subcategory:", defaultSubCategory)
         setSelectedSubCategory(defaultSubCategory)
+        hasInitialized.current = true
 
-        // تحديث الهاش في الرابط بالقيمة الافتراضية
-        window.history.replaceState(null, "", `#${defaultSubCategory}`)
+        // تحديث الهاش في الرابط بالقيمة الافتراضية (مُرمز)
+        window.history.replaceState(null, "", `#${encodeURIComponent(defaultSubCategory)}`)
       }
     }
 
     // قراءة الهاش عند تحميل المكون
     setSubCategoryFromHash()
-    hasInitialized.current = true
 
     // إضافة مستمع لتغييرات الهاش
     window.addEventListener("hashchange", setSubCategoryFromHash)
@@ -80,10 +76,10 @@ const CategoryPage = () => {
     return () => {
       window.removeEventListener("hashchange", setSubCategoryFromHash)
     }
-  }, [categoryName])
+  }, [categoryNameFromUrl, categoryName])
 
   // التحقق من وجود فئة صالحة
-  if (!isValidCategory(categoryName)) {
+  if (!isValidCategory(categoryNameFromUrl)) {
     return (
       <div className="min-h-screen flex items-center justify-center text-xl font-semibold">
         ⚠️ خطأ: هذا القسم غير موجود!
@@ -93,12 +89,7 @@ const CategoryPage = () => {
 
   // ترجمة اسم الفئة للعربية
   const getCategoryArabicName = (category: CategoryType): string => {
-    const names = {
-      men: "رجالي",
-      women: "نسائي",
-      kids: "أطفال",
-    }
-    return names[category]
+    return category // الآن الفئة بالفعل بالعربية
   }
 
   // تغيير الفئة الفرعية وتحديث الهاش
@@ -106,9 +97,9 @@ const CategoryPage = () => {
     console.log("Subcategory changed to:", subCategory)
     setSelectedSubCategory(subCategory)
 
-    // تحديث الهاش في الرابط بدون إعادة تحميل الصفحة
+    // تحديث الهاش في الرابط بدون إعادة تحميل الصفحة (مع التشفير)
     if (typeof window !== "undefined") {
-      window.history.pushState(null, "", `#${subCategory}`)
+      window.history.pushState(null, "", `#${encodeURIComponent(subCategory)}`)
     }
   }
 
@@ -144,7 +135,7 @@ const CategoryPage = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
             <div className="flex items-center">
               <h2 className="text-2xl font-bold text-gray-800">
-                {subCategoryTranslations[selectedSubCategory] || selectedSubCategory}
+                {selectedSubCategory || "جميع المنتجات"}
               </h2>
               <motion.div
                 initial={{ scale: 0 }}
